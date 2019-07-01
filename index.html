@@ -30,6 +30,12 @@
     .logbox {
       flex: 1 1 auto;
       overflow-y: scroll;
+      position: relative;
+      height: auto;
+    }
+
+    .full-height {
+      height: 100%;
     }
 
     .formbox {
@@ -55,9 +61,12 @@
       width: 40%;
       margin-right: .5%;
       margin-top: 1px;
+      margin-left: 1px;
     }
 
     #messages {
+      position: absolute;
+      vertical-align: bottom;
       list-style-type: none;
       margin: 0;
       padding: 0;
@@ -87,6 +96,7 @@
   <script src="js/page.js"></script>
   <div class="chat_div">
     <div class="logbox" id="chat_history">
+      <div class="full-height"> </div>
       <ul id="messages"> </ul>
     </div>
     <div class="formbox">
