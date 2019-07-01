@@ -1,1 +1,99 @@
-HOST TEST
+<!doctype html>
+<html>
+
+<head>
+  <title>March Prototype</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    .canvas_div {
+      height: 100%;
+      width: 50%;
+      position: absolute;
+      left: 0;
+    }
+
+    .chat_div {
+      display: flex;
+      flex-flow: column;
+      flex: 0 1 auto;
+      height: 100%;
+      width: 40%;
+      position: absolute;
+      right: 0;
+    }
+
+    .logbox {
+      flex: 1 1 auto;
+      overflow-y: scroll;
+    }
+
+    .formbox {
+      flex: 0 0 36px;
+      overflow: auto;
+    }
+
+    body {
+      font: 13px Helvetica, Arial;
+    }
+
+    form {
+      clear: both;
+      background: #000;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+
+    form input {
+      border: 0;
+      padding: 10px;
+      width: 40%;
+      margin-right: .5%;
+      margin-top: 1px;
+    }
+
+    #messages {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    #messages li {
+      padding: 5px 10px;
+    }
+
+    #messages li:nth-child(odd) {
+      background: #eee;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="canvas_div">
+    <canvas id="gameCanvas" style="position: absolute; left: 0; top: 0; z-index: 0;"></canvas>
+    <canvas id="uiCanvas" style="position: absolute; left: 0; top: 0; z-index: 1;"></canvas>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="js/util.js"></script>
+  <script src="js/network.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/controls.js"></script>
+  <script src="js/page.js"></script>
+  <div class="chat_div">
+    <div class="logbox" id="chat_history">
+      <ul id="messages"> </ul>
+    </div>
+    <div class="formbox">
+      <form action="">
+        <input id="m" autocomplete="off" />
+      </form>
+    </div>
+</body>
+
+</html>
