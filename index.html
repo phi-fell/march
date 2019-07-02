@@ -108,6 +108,11 @@
       padding: 0;
     }
 
+    #sheet, #status, #info {
+      list-style-type: none;
+      margin: 10px;
+    }
+
     #messages li {
       padding: 5px 10px;
       word-wrap: break-word;
@@ -121,11 +126,14 @@
 
 <body>
   <div class="canvas_div">
-    <canvas id="gameCanvas" style="position: absolute; left: 0; top: 0; z-index: 0; width: 100%; height: 100%;"></canvas>
+    <canvas id="gameCanvas"
+      style="position: absolute; left: 0; top: 0; z-index: 0; width: 100%; height: 100%;"></canvas>
     <canvas id="uiCanvas" style="position: absolute; left: 0; top: 0; z-index: 1; width: 100%; height: 100%;"></canvas>
   </div>
   <div class="meta_div">
-    <div class="info_div"></div>
+    <div class="info_div">
+      <ul id="info"></ul>
+    </div>
     <div class="chat_div">
       <div class="logbox" id="chat_history">
         <div class="full-height"> </div>
@@ -140,10 +148,10 @@
   </div>
   <div class="char_div">
     <div class="char_sheet">
-
+      <ul id="sheet"></ul>
     </div>
     <div class="char_status">
-
+      <ul id="status"></ul>
     </div>
   </div>
   <script src="/socket.io/socket.io.js"></script>

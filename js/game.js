@@ -19,7 +19,7 @@ class Game {
                 for (var y = 0; y < this.board[0].length; y++) {
                     if (this.board[x][y] != null) {
                         this._drawSquare(x, y);
-                        this._ctx.fillText(this.board[x][y].name, (x * 64) + 32, (y * 64) + 32);
+                        this._ctx.fillText(this.board[x][y].info.name, (x * 64) + 32, (y * 64) + 32);
                     }
                 }
             }
