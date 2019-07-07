@@ -49,13 +49,14 @@ gameServer.initialize(io);
 
 var version = require('./serverjs/version');
 
-console.log('GotG V' + version.version + ' Launch_ID[' + version.launch_id + ']')
 if (USE_HTTPS) {
   https.listen(443, function () {
+    console.log('GotG V' + version.version + ' Launch_ID[' + version.launch_id + ']');
     console.log('listening on *:443');
   });
 } else {
   http.listen(80, function () {
+    console.log('GotG V' + version.version + ' Launch_ID[' + version.launch_id + ']');
     console.log('listening on *:80');
   });
 }
