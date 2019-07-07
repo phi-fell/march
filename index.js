@@ -38,8 +38,6 @@ if (USE_HTTPS) {
 app.use('/js', express.static(__dirname + '/js'));
 //app.use(express.static(__dirname + '/public'));
 
-app.use('/.well-known/acme-challenge/TOgS3c1XY9f83mg4_z3huaKmiIy3R_Y_io5p7T3v2Fk', express.static(__dirname + '/challenge'));
-
 app.get('/', function (req, res) {
   res.sendFile(__dirname + '/index.html');
 });

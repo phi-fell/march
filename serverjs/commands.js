@@ -101,7 +101,7 @@
         'pass': {
             description: 'Set password',
             exec: function (socket, tok) {
-                auth.setUserPass(server.accessUserFromSocketId(socket).playerId, tok.join(' '));
+                auth.setUserPass(server.accessUserFromSocketId(socket.id).playerId, tok.join(' '));
             }
         },
         'email': {
