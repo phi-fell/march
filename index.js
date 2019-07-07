@@ -34,7 +34,6 @@ if (USE_HTTPS) {
   io = require('socket.io')(http);
 }
 
-
 app.use('/js', express.static(__dirname + '/js'));
 //app.use(express.static(__dirname + '/public'));
 
