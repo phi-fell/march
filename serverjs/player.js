@@ -4,12 +4,6 @@
     var world = require('./world');
     var auth = require('./auth');
 
-    wordList = [];
-    fs.readFile("res/words.txt", function (err, data) {
-        if (err) throw err;
-        wordList = (data + '').split('\n');
-    });
-
     class Player {
         constructor(id, name) {
             this.id = id;

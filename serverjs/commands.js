@@ -4,9 +4,11 @@
     var server = require('./server');
     var player = require('./player');
     var auth = require('./auth');
+    var version = require('./version');
 
     var getHelp = function (socket) {
-        socket.emit('chat message', 'HELP DIALOG PLACEHOLDER')//TODO
+        socket.emit('chat message', 'HELP DIALOG PLACEHOLDER');//TODO
+        socket.emit('chat message', 'GotG V' + version.version + ' Launch_ID[' + version.launch_id + ']');
     }
 
     var commands = {
