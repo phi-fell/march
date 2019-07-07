@@ -1,9 +1,56 @@
 (function () {
     var fs = require('fs');
-    var io = undefined;
-    function execute(game, socket, cmd, tok) {
-        switch (cmd) {
-            case "admin":
+    var game = require('./game');
+    var server = require('./server');
+    var player = require('./player');
+    var auth = require('./auth');
+
+    var getHelp = function (socket) {
+        socket.emit('chat message', 'HELP DIALOG PLACEHOLDER')//TODO
+    }
+
+    var commands = {
+        '?': {
+            description: 'display help dialog',
+            exec: function (socket, tok) {
+                getHelp(socket);
+            },
+        },
+        'help': {
+            description: 'display help dialog',
+            exec: function (socket, tok) {
+                getHelp(socket);
+            },
+        },
+        'chargen': {
+            description: 'Used during character generation',
+            exec: function (socket, tok) {
+                game.doCharGen(socket, tok);
+            },
+        },
+        'login': {
+            description: '',
+            exec: function (socket, tok) {
+                if (tok.length < 2) {
+                    socket.emit('chat message', "Please enter a username and passphrase");
+                } else {
+                    auth.validateUser(socket, tok[0], tok.slice(1).join(' '));
+                }
+            },
+        },
+        'create': {
+            description: '',
+            exec: function (socket, tok) {
+                if (tok.length < 2) {
+                    socket.emit('chat message', "Please enter a username and passphrase");
+                } else {
+                    auth.createUser(socket, tok[0], tok.slice(1).join(' '));
+                }
+            },
+        },
+        'admin': {
+            description: '',
+            exec: function (socket, tok) {
                 if (tok.length >= 2) {
                     fs.readFile("admin/" + tok[0], function (err, data) {
                         if (err) throw err;
@@ -13,8 +60,11 @@
                         }
                     });
                 }
-                break;
-            case "kick":
+            },
+        },
+        'kick': {
+            description: '',
+            exec: function (socket, tok) {
                 if (clientData[socket.id].user.privilege == "admin") {
                     if (tok.length < 1) {
                         socket.emit('chat message', "Please enter a user to kick")
@@ -29,16 +79,45 @@
                         }
                     }
                 }
-                break;
-            case "name":
-                newName = tok.join(' ');
-                socket.broadcast.emit('chat message', clientData[socket.id].info.name + " has changed their name to " + newName);
-                clientData[socket.id].info.name = newName;
-                socket.emit('chat message', "you have changed your name to " + newName)
-                game.flushBoard();
-                game.updateClient(socket.id);
-                break;
-            case "whisper":
+            },
+        },
+        'name': {
+            description: '',
+            exec: function (socket, tok) {
+                var plr = player.accessPlayer(server.accessUserFromSocketId(socket.id).playerId);
+                var newName = tok.join(' ');
+                var oldName = plr.name;
+                plr.name = newName;
+                auth.renameUser(oldName, newName);
+                socket.emit('cache_user', newName);
+                //TODO: handle user credentials in serverjs/auth.js if necessary? (fixing the NAME->ID cache might be sufficient)
+                //TODO: recalculate NAME -> ID cache (wherever that ends up being stored);
+                socket.broadcast.emit('chat message', plr.name + " has changed their name to " + newName);
+                socket.emit('chat message', "you have changed your name to " + newName);
+            },
+        },
+        'pass': {
+            description: 'Set password',
+            exec: function (socket, tok) {
+                auth.setUserPass(server.accessUserFromSocketId(socket).playerId, tok.join(' '));
+            }
+        },
+        'email': {
+            description: 'Set email',
+            exec: function (socket, tok) {
+                socket.emit('chat message', 'this feature has not been implemented yet, sorry');
+                //TODO: set email
+            }
+        },
+        'rememberme': {
+            description: 'set credential caching length (in days)',
+            exec: function (socket, tok) {
+                socket.emit('set_credential_cache_days', tok[0]);
+            }
+        },
+        'whisper': {
+            description: '',
+            exec: function (socket, tok) {
                 if (tok.length < 1) {
                     socket.emit('chat message', "Please enter a user to whisper to")
                 } else {
@@ -50,56 +129,22 @@
                         io.to(game.getClientIdFromName(tok[0])).emit('chat message', clientData[socket.id].info.name + " whispered: " + tok.slice(1).join(' '));
                     }
                 }
-                break;
-            case "move":
-                if (tok.length < 1) {
-                    socket.emit('chat message', "Please enter a direction (up, down, left, right");
-                } else {
-                    posX = clientData[socket.id].status.x;
-                    posY = clientData[socket.id].status.y;
-                    nPosX = posX;
-                    nPosY = posY;
-                    switch (tok[0]) {
-                        case "up":
-                        case "north":
-                            nPosY--;
-                            break;
-                        case "down":
-                        case "south":
-                            nPosY++;
-                            break;
-                        case "left":
-                        case "west":
-                            nPosX--;
-                            break;
-                        case "right":
-                        case "east":
-                            nPosX++;
-                            break;
-                        default:
-                            socket.emit('chat message', 'please pick a valid direction(up, down, left, right, north, south, west, east)');
-                            break;
-                    }
-                    if (nPosX >= 0 && nPosX < game.board.length && nPosY >= 0 && nPosY < game.board[0].length && game.board[nPosX][nPosY] === undefined) {
-                        game.board[nPosX][nPosY] = game.board[posX][posY];
-                        game.board[posX][posY] = undefined;
-                        clientData[socket.id].status.x = nPosX;
-                        clientData[socket.id].status.y = nPosY;
-                        game.flushBoard();
-                        game.updateClient(socket.id);
-                    }
-                }
-                break;
-            default:
-                socket.emit('chat message', 'command not recognized: /' + cmd)
-                break;
+            },
+        },
+        'move': {
+            description: '',
+            exec: function (socket, tok) {
+                var plr = player.accessPlayer(server.accessUserFromSocketId(socket.id).playerId);
+                plr.move(tok[0]);
+            },
         }
     }
-
-    module.exports = function (ioModule) {
-        io = ioModule;
-        return {
-            'execute': execute
-        };
+    function execute(game, socket, cmd, tok) {
+        if (commands[cmd]) {
+            commands[cmd].exec(socket, tok);
+        } else {
+            socket.emit('chat message', 'command not recognized: /' + cmd + ' try /help or /?');
+        }
     }
+    module.exports.execute = execute;
 }());

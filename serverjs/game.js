@@ -1,105 +1,68 @@
 (function () {
     var fs = require('fs');
-    var io = undefined;
 
-    wordList = [];
-    fs.readFile("res/words.txt", function (err, data) {
-        if (err) throw err;
-        wordList = (data + '').split('\n');
-    });
-
-    board = [];
-    for (var i = 0; i < 10; i++) {
-        board[i] = [];
-        for (var j = 0; j < 10; j++) {
-            board[i][j] = undefined;
+    var chargenStages = ['a character origin', 'character attributes', 'your character\'s skills'];
+    var chargenCommands = ['origin', 'attributes', 'skills'];
+    function tryPromptCharacterCreation(socket) {
+        if (clientData[socket.id].hasOwnProperty('player') && !clientData[socket.id].player.created) {
+            let stage = clientData[socket.id].player.creation_stage;
+            socket.emit('chat message', 'please choose ' + chargenStages[stage] + ' with /chargen ' + chargenCommands[stage]);
         }
     }
-
-    function flushBoard() {
-        io.emit('board', board);
-    }
-
-    clientData = [];
-    function addClientData(socket) {
-        genName = wordList[Math.floor(Math.random() * wordList.length)];
-        while (getClientIdFromName(genName) !== undefined) {
-            genName = wordList[Math.floor(Math.random() * wordList.length)];
-        }
-        posX = Math.floor(Math.random() * board.length)
-        posY = Math.floor(Math.random() * board[0].length)
-        while (board[posX][posY] !== undefined) {
-            posX = Math.floor(Math.random() * board.length)
-            posY = Math.floor(Math.random() * board[0].length)
-        }
-        var info = {
-            'address': socket.handshake.address,
-            'name': genName,
-        }
-        var status = {
-            'x': posX,
-            'y': posY,
-            'hp': 7,
-            'max_hp': 10,
-            'sp': 10,
-            'max_sp': 10
-        }
-        var sheet = {
-            'BOD': {
-                'STR': 1,
-                'END': 2,
-                'CON': 3
-            }, 'MOV': {
-                'AGI': 4,
-                'DEX': 5,
-                'SPD': 6
-            }, 'MNT': {
-                'CHA': 7,
-                'LOG': 8,
-                'WIS': 9
-            }, 'OTH': {
-                'MEM': 10,
-                'WIL': 11,
-                'LCK': 12
-            }, 'MNA': {
-                'CAP': 13,
-                'CND': 14,
-                'GEN': 15
-            }, 'FTH': {
-                'CVN': 16,
-                'PTY': 17,
-                'FVR': 18
+    function doCharGen(socket, tok) {
+        if (clientData[socket.id].hasOwnProperty('player')) {
+            if (clientData[socket.id].player.created) {
+                socket.emit('chat message', "Your player is done with character generation");
+            } else {
+                if (tok.length < 1) {
+                    tryPromptCharacterCreation(socket);
+                } else {
+                    if (tok[0] === chargenCommands[clientData[socket.id].player.creation_stage]) {
+                        if (tok[0] === 'origin') {
+                            socket.emit('chat message', "Choosing origin is an in developement feature");
+                            //TODO
+                        }
+                    } else {
+                        tryPromptCharacterCreation(socket);
+                    }
+                }
             }
+        } else {
+            socket.emit('chat message', "First, use /login to play an existing char, or create one with /create");
         }
-        var user = { 'privilege': 'none' };
-        data = { 'id': socket.id, 'user': user, 'info': info, 'status': status, 'sheet': sheet };
-        board[posX][posY] = data;
-        clientData[socket.id] = data;
+
+
     }
-    function removeClientData(id) {
-        board[clientData[id].status.x][clientData[id].status.y] = undefined;
-        delete clientData[id];
+    function loadPlayer(socket, name) {
+        fs.readFile("users/" + name + ".plr", function (err, data) {
+            if (err) {
+                console.log(err);
+                socket.emit('chat message', "Could not load player");
+            } else {
+                clientData[socket.id].player = JSON.parse(data);
+                socket.emit('chat message', "Welcome, " + name + "!");
+                tryPromptCharacterCreation(socket);
+            }
+        });
     }
-    function getClientIdFromName(name) {
-        return Object.keys(clientData).find(key => clientData[key].info.name === name);
+    function createPlayer(socket, name) {
+        var player = {
+            'name': name,
+            'created': false,
+            'creation_stage': 0
+        }
+        fs.writeFile("users/" + name + '.plr', JSON.stringify(player), function (err) {
+            if (err) {
+                console.log(err);
+                socket.emit('chat message', "User creation Failed!");
+            } else {
+                socket.emit('chat message', "User successfully created!");
+                loadPlayer(socket, name);
+            }
+        });
     }
 
-    function updateClient(id) {
-        io.to(id).emit('sheet', clientData[id].sheet);
-        io.to(id).emit('status', clientData[id].status);
-        io.to(id).emit('info', clientData[id].info);
-    }
-
-    module.exports = function (ioModule) {
-        io = ioModule;
-        return {
-            'board': board,
-            'flushBoard': flushBoard,
-            'clientData': clientData,
-            'addClientData': addClientData,
-            'removeClientData': removeClientData,
-            'getClientIdFromName': getClientIdFromName,
-            'updateClient': updateClient
-        };
-    }
+    module.exports.loadPlayer = loadPlayer;
+    module.exports.createPlayer = createPlayer;
+    module.exports.doCharGen = doCharGen;
 }());

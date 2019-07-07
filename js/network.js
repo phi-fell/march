@@ -1,11 +1,27 @@
 var socket = undefined;
+var messageHistory = [];
+var historyPos = 0;
+var currentCache = "";
 $(function () {
+    creds = loadCredentials();
     socket = io();
+    if (creds.user && creds.pass) {
+        console.log('logging in as ' + creds.user);
+        socket.emit('login', creds);
+    } else {
+        console.log('connecting as new user!');
+        socket.emit('new_user', 'new');
+    }
     $('form').submit(function (e) {
         e.preventDefault(); // prevents page reloading
         msg = $('#m').val();
+        messageHistory.push(msg);
+        historyPos = messageHistory.length;
+        currentCache = "";
         if ((msg + '') == '/ping') {
             socket.emit('ping_cmd', Date.now());
+        } else if ((msg + '') == '/clearcredentials') {
+            clearCredentials();
         } else if ((msg + '').startsWith('/')) {
             tok = msg.substring(1).split(' ');
             cmd = tok[0];
@@ -36,53 +52,62 @@ $(function () {
         game.board = msg;
         game.draw();
     });
-    socket.on('sheet', function (msg) {
+    socket.on('player', function (msg) {
+        var sheet = msg.sheet;
+        var status = msg.status;
         var list = $("#sheet");
         list.empty();
         list.append($('<li>').text('Body:'));
-        list.append($('<li>').text(' - Strength: ' + msg.BOD.STR));
-        list.append($('<li>').text(' - Endurance: ' + msg.BOD.END));
-        list.append($('<li>').text(' - Constitution: ' + msg.BOD.CON));
+        list.append($('<li>').text(' - Strength: ' + sheet.BOD.STR));
+        list.append($('<li>').text(' - Endurance: ' + sheet.BOD.END));
+        list.append($('<li>').text(' - Constitution: ' + sheet.BOD.CON));
         list.append($('<li>').text('Movement:'));
-        list.append($('<li>').text(' - Agility: ' + msg.MOV.AGI));
-        list.append($('<li>').text(' - Dexterity: ' + msg.MOV.DEX));
-        list.append($('<li>').text(' - Speed: ' + msg.MOV.SPD));
+        list.append($('<li>').text(' - Agility: ' + sheet.MOV.AGI));
+        list.append($('<li>').text(' - Dexterity: ' + sheet.MOV.DEX));
+        list.append($('<li>').text(' - Speed: ' + sheet.MOV.SPD));
         list.append($('<li>').text('Mental:'));
-        list.append($('<li>').text(' - Charisma: ' + msg.MNT.CHA));
-        list.append($('<li>').text(' - Logic: ' + msg.MNT.LOG));
-        list.append($('<li>').text(' - Wisdom: ' + msg.MNT.WIS));
+        list.append($('<li>').text(' - Charisma: ' + sheet.MNT.CHA));
+        list.append($('<li>').text(' - Logic: ' + sheet.MNT.LOG));
+        list.append($('<li>').text(' - Wisdom: ' + sheet.MNT.WIS));
         list.append($('<li>').text('Other:'));
-        list.append($('<li>').text(' - Memory: ' + msg.OTH.MEM));
-        list.append($('<li>').text(' - Will: ' + msg.OTH.WIL));
-        list.append($('<li>').text(' - Luck: ' + msg.OTH.LCK));
+        list.append($('<li>').text(' - Memory: ' + sheet.OTH.MEM));
+        list.append($('<li>').text(' - Will: ' + sheet.OTH.WIL));
+        list.append($('<li>').text(' - Luck: ' + sheet.OTH.LCK));
         list.append($('<li>').text('Mana:'));
-        list.append($('<li>').text(' - Capacity: ' + msg.MNA.CAP));
-        list.append($('<li>').text(' - Conductivity: ' + msg.MNA.CND));
-        list.append($('<li>').text(' - Generation: ' + msg.MNA.GEN));
+        list.append($('<li>').text(' - Capacity: ' + sheet.MNA.CAP));
+        list.append($('<li>').text(' - Conductivity: ' + sheet.MNA.CND));
+        list.append($('<li>').text(' - Generation: ' + sheet.MNA.GEN));
         list.append($('<li>').text('Faith:'));
-        list.append($('<li>').text(' - Conviction: ' + msg.FTH.CVN));
-        list.append($('<li>').text(' - Piety: ' + msg.FTH.PTY));
-        list.append($('<li>').text(' - Favour: ' + msg.FTH.FVR));
-    });
-    socket.on('status', function (msg) {
+        list.append($('<li>').text(' - Conviction: ' + sheet.FTH.CVN));
+        list.append($('<li>').text(' - Piety: ' + sheet.FTH.PTY));
+        list.append($('<li>').text(' - Favour: ' + sheet.FTH.FVR));
+
         var list = $("#status");
         list.empty();
         list.append($('<li>').text('-----Status-----'));
-        list.append($('<li>').text('Position: (' + msg.x + ', ' + msg.y + ")"));
-        list.append($('<li>').text('Health: ' + msg.hp + '/' + msg.max_hp));
-        list.append($('<li>').text('Stamina: ' + msg.sp + ' / ' + msg.max_sp));
-    });
-    socket.on('info', function (msg) {
+        list.append($('<li>').text('Position: (' + msg.location.x + ', ' + msg.location.y + ")"));
+        list.append($('<li>').text('Health: ' + status.hp + '/' + status.max_hp));
+        list.append($('<li>').text('Stamina: ' + status.sp + '/' + status.max_sp));
+        list.append($('<li>').text('Action Points: ' + status.ap + '/' + status.max_ap + ' (+' + status.ap_recovery + ' /turn)'));
+
         var list = $("#info");
         list.empty();
         list.append($('<li>').text('User: ' + msg.name));
-        list.append($('<li>').text('Address: ' + msg.address.substring(7)));
     });
     socket.on('log', function (msg) {
         console.log(msg);
     });
-    socket.on('force_disconnect',function(msg){
+    socket.on('force_disconnect', function (msg) {
         socket.disconnect();
         $('#messages').append($('<li>').text(msg));
+    });
+    socket.on('cache_credentials', function (msg) {
+        cacheCredentials(msg.user, msg.pass);
+    });
+    socket.on('cache_user', function (msg) {
+        cacheUser(msg);
+    });
+    socket.on('set_credential_cache_days', function (msg) {
+        setCacheTime(parseInt(msg));
     });
 });
