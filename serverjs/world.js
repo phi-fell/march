@@ -56,10 +56,15 @@
         board[ent.location.x][ent.location.y] = undefined;
     }
     function moveEntity(entity, to) {
-        if (to.x >= 0 && to.x < board.length && to.y >= 0 && to.y < board[0].length && board[to.x][to.y] === undefined) {
-            board[entity.location.x][entity.location.y] = undefined;
-            board[to.x][to.y] = entity;
-            entity.location = to;
+        if (to.x >= 0 && to.x < board.length && to.y >= 0 && to.y < board[0].length) {
+            if (board[to.x][to.y] === undefined) {
+                board[entity.location.x][entity.location.y] = undefined;
+                board[to.x][to.y] = entity;
+                entity.location = to;
+            } else {
+                board[to.x][to.y].status.hp--;
+            }
+            //TODO: update clients
         }
     }
     var directionVectors = {

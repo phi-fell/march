@@ -1,35 +1,45 @@
 (function () {
     var uuid = require('uuid/v4');
-    var world = require('./world');
-    class Entity {
-        constructor(id, name) {
-            this.id = id;
-            this.name = name;
-        }
-    }
-    var players = {};
     function generateNewEntityID() {
         return uuid();
     }
-    function generateNewPlayerName() {
-        var genName = wordList[Math.floor(Math.random() * wordList.length)];
-        while (getClientIdFromName(genName) !== undefined || genName.length > 10) {
-            genName = wordList[Math.floor(Math.random() * wordList.length)];
+    class Entity {
+        constructor(name) {
+            this.id = generateNewEntityID();
+            this.name = name;
+            this.health = 10;
         }
-        genName = genName + '' + Math.floor(Math.random() * 10) + '' + Math.floor(Math.random() * 10) + '' + Math.floor(Math.random() * 10)
+        _handleDeath() {
+            //TODO: kill entity
+        }
+        _takeDirectHealthDamage(amount) {
+            //take this damage directly to health and then account for effects (e.g. dying if health = 0 or whatever)
+            //this functions is basically just health -= amount
+            this.health -= amount;
+            if (this.health <= 0) {
+                this.handleDeath();
+            }
+        }
+        _takeNetDamage(amount) {
+            //apply this damage without accounting for armor, resistances, etc.
+            //this function handles e.g. applying the damage first to a magical energy shield before actual health, or whatnot
+            var shield = 0;//for example purposes.
+            var netAmount = amount - sheild;
+            sheild = 0;
+            this.takeDirectHealthDamage(netAmount);
+        }
+        _takeDamage(amount) {
+            //take amount damage, filtered through armor, resists, etc.
+            var armor = 0;//for example purposes
+            this.takeNetDamage(amount - armor);
+        }
+        hit(amount) {
+            //take a hit, first applying chance to dodge, etc.
+            var dodgeChance = 0;
+            if (Math.random() >= dodgeChance) {
+                this.takeDamage(amount);
+            }
+        }
     }
-    function createPlayer() {
-        var plr = new Player(generateNewPlayerID(), generateNewPlayerName());
-
-        players[plr.id] = plr;
-        savePlayer(plr.id);
-        return plr;
-    }
-    function getPlayerByName(name) {
-        return Object.values(players).find(value => value.name === name);
-    }
-    module.exports = {
-        'createPlayer': createPlayer,
-        'getPlaterByName': getPlayerByName,
-    };
+    module.exports = Entity;
 }());

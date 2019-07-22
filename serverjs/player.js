@@ -1,11 +1,14 @@
 (function () {
     var fs = require('fs');
     var uuid = require('uuid/v4');
+    var nameGen = require('./namegen');
     var world = require('./world');
     var auth = require('./auth');
+    var Entity = require('./entity');
 
-    class Player {
+    class Player extends Entity {
         constructor(id, name) {
+            super();
             this.id = id;
             this.name = name;
             this.status = {
@@ -64,7 +67,11 @@
         return uuid();
     }
     function createPlayer() {
-        var plr = new Player(generateNewPlayerID(), generateNewPlayerID());
+        var name = nameGen.generateName();
+        while (getPlayerByName(name)) {
+            name = nameGen.generateName()
+        }
+        var plr = new Player(generateNewPlayerID(), name);
         players[plr.id] = plr;
         world.spawnInRandomEmptyLocation(plr);
         //savePlayer(plr.id);
