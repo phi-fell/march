@@ -1,0 +1,263 @@
+var fs = require('fs');
+var uuid = require('uuid/v4');
+var auth = require('./auth');
+var world = require('./world');
+var commands = require('./commands');
+import { Player } from './player';
+
+var users = {};
+
+export class User {
+    id: string;
+    name: string;
+    online: boolean;
+    socket: any;
+    playerid: string | null;
+    player: any;
+    private _email: string | null;
+    constructor(id, name) {
+        this.id = id;
+        this.name = name;
+        this.online = false;
+        this.socket = null;
+        this.playerid = null;
+        this.player = null;
+        this._email = null;
+    }
+    get email(): string | null {
+        return this._email
+    }
+    set email(value: string | null) {
+        this._email = value;
+        this.saveToDisk();
+    }
+    login(sock: SocketIO.Socket) {
+        if (this.online) {
+            //TODO: ERROR
+            return console.log('USER IS ALREADY ONLINE');
+        }
+        this.socket = sock;
+        this.online = true;
+        this.player.setActive();
+        var user = this;
+        sock.on('disconnect', function () {
+            console.log(user.name + ' (' + sock.handshake.address + ') disconnected');
+            user.logout();
+            user.unload();
+        });
+        /*
+        socket.on('disconnect', function () {
+            console.log(socket.handshake.address + ' disconnected');
+            //game.removeClientData(socket.id);
+            var plr = player.accessPlayer(accessUser(socket.id).playerId);
+            io.emit('chat message', plr.name + ' disconnected');
+            //TODO DISCONNECT PLAYER
+            world.removeEntityFromWorld(plr);
+            player.deletePlayerById(plr.id);
+            removeUser(socket.id);
+        });*/
+        sock.on('ping_cmd', function (msg) {
+            console.log('ping from ' + user.name);
+            sock.emit('pong_cmd', msg);
+        });
+        sock.on('chat message', function (msg) {
+            console.log(user.name + "> " + msg);
+            sock.emit('chat message', user.name + "> " + msg);
+            sock.broadcast.emit('chat message', user.name + "> " + msg);
+        });
+        sock.on('command', function (msg) {
+            console.log(user.name + " requests command /" + msg.cmd + " with arguments [" + msg.tok.join(' ') + "]")
+            commands.execute(user, msg.cmd, msg.tok);
+            sock.emit('board', world.getPlayerBoard(user.playerid));
+            sock.emit('player', world.getPlayerData(user.playerid));
+        });
+        sock.on("player_action", function (msg) {
+            switch (msg + '') {
+                case "move_up":
+                    user.player.move('up');
+                    break;
+                case "move_left":
+                    user.player.move('left');
+                    break;
+                case "move_down":
+                    user.player.move('down');
+                    break;
+                case "move_right":
+                    user.player.move('right');
+                    break;
+                default:
+                    sock.emit('log', 'unknown action: ' + msg);
+                    break;
+            }
+            sock.emit('board', world.getPlayerBoard(user.playerid));
+            sock.emit('player', world.getPlayerData(user.playerid));
+        });
+
+        this.socket.emit('chat message', "Welcome, " + this.name + "!");
+        this.socket.emit('chat message', "Please be aware that during developement, free users may be deleted at any time by developer discretion (usually on major releases, or after a period of no activity)");
+        this.socket.emit('chat message', "For notifications about developement and to be given priority access to features and possibly a longer delay before account purging, use /email");
+        //giveSocketBasicPrivileges(socket);
+        this.socket.emit('board', world.getPlayerBoard(user.playerid));
+        this.socket.emit('player', world.getPlayerData(user.playerid));
+        this.socket.broadcast.emit('chat message', this.name + ' connected');
+    }
+    logout() {
+        if (!this.online) {
+            //TODO: ERROR
+            return console.log('USER IS NOT LOGGED IN');
+        }
+        this.saveToDisk();
+        this.player.setInactive();
+        //TODO: close socket, and save to disk?
+        this.socket.disconnect();
+        this.socket = null;
+        this.online = false;
+    }
+    loadFromData(data) {
+        this.id = data.id;
+        this.name = data.name;
+        if (this.playerid) {
+            this.playerid = data.playerId;
+            this.player = Player.loadPlayer(this.playerid, this.name);
+        } else {
+            this.player = Player.createPlayer();
+            this.playerid = this.player.id;
+            this.saveToDisk();
+        }
+        this.email = data.email;
+        //TODO: keep info on if player exists? on guest status? etc.
+    }
+    unload() {
+        if (this.online) {
+            return console.log('ONLINE USERS CANNOT BE UNLOADED.  LOG OUT FIRST!');
+        } else {
+            //TODO: save data? (or should it be assumed to have been saved on edit?);
+            delete users[this.id];
+        }
+    }
+    saveToDisk() {
+        var data = {
+            'id': this.id,
+            'name': this.name,
+            'playerid': this.playerid,
+            'email': this.email,
+        }
+        fs.writeFile('users/' + this.id + '.user', JSON.stringify(data), function (err) {
+            if (err) {
+                console.log(err);
+            }
+        });
+    }
+    getFreshAuthToken(callback) {
+        auth.generateAndGetFreshAuthTokenForId(this.id, callback);
+    }
+}
+
+function getLoadedUserByID(id) {
+    if (id in users) {
+        return users[id];
+    } else {
+        return null;
+    }
+}
+module.exports.getLoadedUserByID = getLoadedUserByID;
+function getLoadedUserByName(name) {
+    return Object.values(users).find((u: any) => { return u.name === name });
+}
+module.exports.getLoadedUserByName = getLoadedUserByName;
+module.exports.deleteUser = function (id) {
+    //TODO
+}
+
+function generateUserID() {
+    var id = uuid();//assumed to never repeat TODO: ? ensure this somehow?
+    /*
+    while (getUser(id)) {
+        id = uuid();
+    }
+    */
+    return id;
+}
+
+module.exports.createNewUser = function (name, pass) {
+    var id = generateUserID();
+    var ret = new User(id, name);
+    ret.saveToDisk();
+    users[id] = ret;
+    auth.setUserIdByName(id, name);
+    auth.setUserPass(id, pass);
+    return ret;
+}
+module.exports.validateCredentialsByAuthToken = function (username, token, callback) {
+    if (username && token && callback) {
+        auth.getUserIdFromName(username, function (err, id) {
+            if (err) {
+                return callback(err, false);
+            } else {
+                return auth.validateUserByIdAndAuthToken(id, token, function (err, res) {
+                    if (err) {
+                        return callback(err, false);
+                    } else if (res) {
+                        return callback(null, true);
+                    } else {
+                        return callback(null, false);
+                    }
+                });
+            }
+        });
+    } else {
+        try {
+            callback('invalid params', false);
+        } catch (e) { };
+    }
+}
+module.exports.validateCredentialsByPassAndGetAuthToken = function (username, pass, callback) {
+    if (username && pass && callback) {
+        auth.getUserIdFromName(username, function (err, id) {
+            if (err) {
+                return callback(err, false);
+            } else {
+                return auth.validateUserByIdAndPass(id, pass, function (err, res) {
+                    if (err) {
+                        return callback(err, false);
+                    } else if (res) {
+                        auth.generateAndGetFreshAuthTokenForId(id, function (err, token) {
+                            callback(null, true, token);
+                        });
+                    } else {
+                        return callback(null, false);
+                    }
+                });
+            }
+        });
+    } else {
+        try {
+            callback('invalid params', false);
+        } catch (e) { };
+    }
+}
+module.exports.loadUserByName = function (name, callback) {
+    if (!callback) {
+        callback = function (err) {
+            if (err) {
+                console.log(err);
+            }
+        };
+    }
+    auth.getUserIdFromName(name, function (err, id) {
+        if (err) {
+            callback(err);
+        } else {
+            fs.readFile("users/" + id + '.user', function (err, data) {
+                if (err) {
+                    return callback(err);
+                } else {
+                    var ret = new User(id, name);
+                    ret.loadFromData(JSON.parse(data));
+                    users[id] = ret;
+                    callback(null, ret);
+                }
+            });
+        }
+    });
+}

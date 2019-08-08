@@ -76,7 +76,6 @@ function generateProbabilities() {
     console.log('names processed');
     normalizeProbs();
     console.log('probs normalized');
-    delete names;
 }
 
 generateProbabilities();
