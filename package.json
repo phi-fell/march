@@ -30,6 +30,7 @@
     "bcrypt": "^3.0.6",
     "express": "^4.17.1",
     "socket.io": "^2.2.0",
+    "typescript": "^3.5.3",
     "uuid": "^3.3.2"
   }
 }

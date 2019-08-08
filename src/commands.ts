@@ -7,8 +7,10 @@ var version = require('./version');
 import { User } from './user';
 
 var getHelp = function (socket) {
-    socket.emit('chat message', 'HELP DIALOG PLACEHOLDER');//TODO
     socket.emit('chat message', 'GotG V' + version.version + ' Launch_ID[' + version.launch_id + ']');
+    Object.keys(commands).forEach(cmd => {
+        socket.emit('chat message', '/' + cmd + ': ' + commands[cmd].description);
+    });
 }
 
 var commands: any = {
@@ -68,7 +70,7 @@ var commands: any = {
         },
     },
     'name': {
-        description: '',
+        description: 'Change player\'s name',
         exec: function (user: User, tok) {
             var oldName = user.player.name;
             user.player.name = tok.join(' ');
@@ -108,7 +110,7 @@ var commands: any = {
         },
     },
     'move': {
-        description: '',
+        description: 'Move in a direction',
         exec: function (user: User, tok) {
             user.player.move(tok[0]);
         },
