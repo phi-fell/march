@@ -1,6 +1,7 @@
 import { Player } from './player';
-import { Location } from './location'
+import { Location } from './location';
 import { Instance } from './instance';
+import { Entity } from './entity';
 
 var instances: { [key: string]: Instance; } = {};
 
@@ -14,7 +15,7 @@ function getAnyAvailableInstance() {
     return instances[keys[keys.length * Math.random() << 0]];
 };
 
-var board: any = [];//TODO move board to instance
+var board: (Entity | undefined)[][] = [];//TODO move board to instance
 for (var i = 0; i < 10; i++) {
     board[i] = [];
     for (var j = 0; j < 10; j++) {
@@ -30,11 +31,21 @@ function logOff(id: string) {
 }
 function getPlayerBoard(pId: string) {
     //return section of level around player, with Entities and such limited by what they percieve
-    return board;
-}
-function getPlayerData(pId: string) {
-    //return player as it should be seen by client
-    return Player.accessPlayer(pId);
+    var ret: any = [];//TODO move board to instance
+    for (var i = 0; i < 10; i++) {
+        ret[i] = [];
+        for (var j = 0; j < 10; j++) {
+            if (board[i][j] === undefined) {
+                ret[i][j] = undefined;
+            } else {
+                ret[i][j] = {
+                    'name': board[i][j]!.name,
+                    'location': board[i][j]!.location,
+                };
+            }
+        }
+    }
+    return ret;
 }
 function spawnInRandomEmptyLocation(ent: any) {
     //use getAnyAvailableInstance
@@ -49,17 +60,19 @@ function spawnInRandomEmptyLocation(ent: any) {
     };
     board[ent.location.x][ent.location.y] = ent;
 }
-function removeEntityFromWorld(ent: any) {
+function removeEntityFromWorld(ent: Entity) {
     board[ent.location.x][ent.location.y] = undefined;
 }
-function moveEntity(entity: any, to: any) {
+function moveEntity(entity: Entity, to: Location) {
     if (to.x >= 0 && to.x < board.length && to.y >= 0 && to.y < board[0].length) {
         if (board[to.x][to.y] === undefined) {
             board[entity.location.x][entity.location.y] = undefined;
             board[to.x][to.y] = entity;
             entity.location = to;
         } else {
-            board[to.x][to.y].status.hp--;
+            board[to.x][to.y]!.hit(1);
+            //TODO update instance board[to.x][to.y].location.instance_id
+
         }
         //TODO: update clients
     }
@@ -76,7 +89,6 @@ module.exports.directionVectors = directionVectors;
 module.exports.logOn = logOn;
 module.exports.logOff = logOff;
 module.exports.getPlayerBoard = getPlayerBoard;
-module.exports.getPlayerData = getPlayerData;
 module.exports.spawnInRandomEmptyLocation = spawnInRandomEmptyLocation;
 module.exports.moveEntity = moveEntity;
 module.exports.removeEntityFromWorld = removeEntityFromWorld;

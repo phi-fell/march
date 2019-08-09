@@ -38,7 +38,7 @@ export class User {
         }
         this.socket = sock;
         this.online = true;
-        this.player.setActive();
+        this.player.setActive(this);
         var user = this;
         sock.on('disconnect', function () {
             console.log(user.name + ' (' + sock.handshake.address + ') disconnected');
@@ -68,8 +68,7 @@ export class User {
         sock.on('command', function (msg) {
             console.log(user.name + " requests command /" + msg.cmd + " with arguments [" + msg.tok.join(' ') + "]")
             commands.execute(user, msg.cmd, msg.tok);
-            sock.emit('board', world.getPlayerBoard(user.playerid));
-            sock.emit('player', world.getPlayerData(user.playerid));
+            user.player.pushUpdate();
         });
         sock.on("player_action", function (msg) {
             switch (msg + '') {
@@ -89,16 +88,14 @@ export class User {
                     sock.emit('log', 'unknown action: ' + msg);
                     break;
             }
-            sock.emit('board', world.getPlayerBoard(user.playerid));
-            sock.emit('player', world.getPlayerData(user.playerid));
+            user.player.pushUpdate();
         });
 
         this.socket.emit('chat message', "Welcome, " + this.name + "!");
         this.socket.emit('chat message', "Please be aware that during developement, free users may be deleted at any time by developer discretion (usually on major releases, or after a period of no activity)");
         this.socket.emit('chat message', "For notifications about developement and to be given priority access to features and possibly a longer delay before account purging, use /email");
         //giveSocketBasicPrivileges(socket);
-        this.socket.emit('board', world.getPlayerBoard(user.playerid));
-        this.socket.emit('player', world.getPlayerData(user.playerid));
+        this.player.pushUpdate();
         this.socket.broadcast.emit('chat message', this.name + ' connected');
     }
     logout() {
