@@ -53,22 +53,30 @@ module.exports.initialize = function (io: any) {
         });
         socket.on('create_user', function (msg) {
             if (msg.user && msg.pass) {
-                var u = user.createNewUser(msg.user, msg.pass);
-                u.getFreshAuthToken(function (err, token) {
-                    if (err) {
-                        socket.emit('fail');
-                        return socket.disconnect();
-                    } else {
-                        socket.emit('success', {
-                            user: msg.user,
-                            auth: token,
-                        });
-                        return socket.disconnect();
-                    }
-                });
-                u.unload();
+                if (msg.user.length > 32) {
+                    socket.emit('fail', { reason: 'Username too long! 32 character maximum' });
+                    return socket.disconnect();
+                } else if (msg.pass.length > 1024) {
+                    socket.emit('fail', { reason: 'Passphrase too long! 1024 character maximum' });
+                    return socket.disconnect();
+                } else {
+                    var u = user.createNewUser(msg.user, msg.pass);
+                    u.getFreshAuthToken(function (err, token) {
+                        if (err) {
+                            socket.emit('fail');
+                            return socket.disconnect();
+                        } else {
+                            socket.emit('success', {
+                                user: msg.user,
+                                auth: token,
+                            });
+                            return socket.disconnect();
+                        }
+                    });
+                    u.unload();
+                }
             } else {
-                socket.emit('fail');
+                socket.emit('fail', { reason: 'Please supply a username and passphrase' });
                 return socket.disconnect();
             }
         });
