@@ -35,8 +35,13 @@ if (USE_HTTPS) {
   io = require('socket.io')(http);
 }
 
-app.use('/js', express.static(path.resolve(__dirname + '/../site/js')));
-//app.use(express.static(path.resolve(__dirname + '/public'));
+app.get('/', function (req: any, res: any) {
+  res.sendFile(path.resolve(__dirname + '/../site/html/index.html'));
+});
+
+app.get('/favicon.ico', function (req: any, res: any) {
+  res.sendFile(path.resolve(__dirname + '/../site/logo/favicon.ico'));
+});
 
 app.get('/game', function (req: any, res: any) {
   res.sendFile(path.resolve(__dirname + '/../site/html/game.html'));
@@ -50,9 +55,8 @@ app.get('/create', function (req: any, res: any) {
   res.sendFile(path.resolve(__dirname + '/../site/html/new.html'));
 });
 
-app.get('/', function (req: any, res: any) {
-  res.sendFile(path.resolve(__dirname + '/../site/html/index.html'));
-});
+app.use('/js', express.static(path.resolve(__dirname + '/../site/js')));
+//app.use(express.static(path.resolve(__dirname + '/public'));
 
 var gameServer = require('./server.js');
 gameServer.initialize(io);
