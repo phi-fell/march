@@ -18,6 +18,9 @@ $(function () {
             });
             socket.on('fail', function (msg) {
                 console.log('something went wrong');
+                if (msg.reason) {
+                    alert(msg.reason);
+                }
                 window.location.href = '/create';
             });
         } else {
