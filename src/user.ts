@@ -1,4 +1,4 @@
-var fs = require('fs');
+import fs = require('fs');
 var uuid = require('uuid/v4');
 var auth = require('./auth');
 var world = require('./world');
@@ -45,7 +45,6 @@ export class User {
         sock.on('disconnect', function () {
             console.log(user.name + ' (' + sock.handshake.address + ') disconnected');
             user.logout();
-            user.unload();
         });
         /*
         socket.on('disconnect', function () {
@@ -126,6 +125,7 @@ export class User {
         this.socket.disconnect();
         this.socket = null;
         this.online = false;
+        this.unload();
     }
     loadFromData(data) {
         this.id = data.id;
@@ -215,6 +215,7 @@ module.exports.createNewUser = function (name, pass, callback) {
             var ret = new User(id, name);
             ret.player = Player.createPlayer();
             ret.playerid = ret.player.id;
+            ret.player.unload();
             ret.saveToDisk();
             users[id] = ret;
             auth.setUserIdByName(id, name);
@@ -283,12 +284,12 @@ module.exports.loadUserByName = function (name, callback) {
         if (err) {
             callback(err);
         } else {
-            fs.readFile("users/" + id + '.user', function (err: any, data: string) {
+            fs.readFile("users/" + id + '.user', function (err, data) {
                 if (err) {
                     return callback(err);
                 } else {
                     var ret = new User(id, name);
-                    ret.loadFromData(JSON.parse(data));
+                    ret.loadFromData(JSON.parse('' + data));
                     users[id] = ret;
                     callback(null, ret);
                 }

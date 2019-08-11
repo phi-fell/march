@@ -144,7 +144,7 @@ export class Player extends Entity {
     }
     static loadPlayer(id, callback) {
         if (id in players) {
-            return players[id];
+            return callback(null, players[id]);
         } else {
             fs.readFile("players/" + id + '.plr', function (err, data) {
                 if (err) {
