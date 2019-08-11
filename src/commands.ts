@@ -72,14 +72,18 @@ var commands: any = {
     'name': {
         description: 'Change player\'s name',
         exec: function (user: User, tok) {
-            var newName: string = tok.join(' ');
-            if (newName.length > 16) {
-                user.socket.emit('chat message', 'That name is too long.');
+            if (user.player) {
+                var newName: string = tok.join(' ');
+                if (newName.length > 16) {
+                    user.socket.emit('chat message', 'That name is too long.');
+                } else {
+                    var oldName = user.player.name;
+                    user.player.name = tok.join(' ');
+                    user.socket.broadcast.emit('chat message', oldName + " has changed their name to " + user.player.name);
+                    user.socket.emit('chat message', "you have changed your name to " + user.player.name);
+                }
             } else {
-                var oldName = user.player.name;
-                user.player.name = tok.join(' ');
-                user.socket.broadcast.emit('chat message', oldName + " has changed their name to " + user.player.name);
-                user.socket.emit('chat message', "you have changed your name to " + user.player.name);
+                user.socket.emit('chat message', "Error: You somehow don't have a player, this is likely a bug.");
             }
         },
     },
@@ -117,7 +121,11 @@ var commands: any = {
     'move': {
         description: 'Move in a direction',
         exec: function (user: User, tok) {
-            user.player.move(tok[0]);
+            if (user.player) {
+                user.player.move(tok[0]);
+            } else {
+                user.socket.emit('chat message', "Error: You somehow don't have a player, this is likely a bug.");
+            }
         },
     }
 }

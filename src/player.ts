@@ -72,6 +72,7 @@ export class Player extends Entity {
         }
         this.active = true;
         this.user = usr;
+        this.pushUpdate();
     }
     setInactive() {
         if (!this.active) {
@@ -82,8 +83,27 @@ export class Player extends Entity {
         this.unload();
     }
     unload() {
+        this.saveToDisk();
         delete players[this.id];
         world.removeEntityFromWorld(this);
+    }
+    saveToDisk() {
+        var data = {
+            'name': this.name,
+            'location': this.location,
+            'status': this.status,
+            'sheet': this.sheet,
+        }
+        fs.writeFile('players/' + this.id + '.plr', JSON.stringify(data), function (err) {
+            if (err) {
+                console.log(err);
+            }
+        });
+    }
+    loadFromData(data) {
+        this.name = data.name;
+        this.status = data.status;
+        this.sheet = data.sheet;
     }
     pushUpdate() {
         if (this.active) {
@@ -119,18 +139,25 @@ export class Player extends Entity {
         var plr = new Player(this.generateNewPlayerID(), name, new Location(0, 0, ''));
         players[plr.id] = plr;
         world.spawnInRandomEmptyLocation(plr);
-        //savePlayer(plr.id);
+        plr.saveToDisk();
         return plr;
     }
-    static loadPlayer(id, name) {//TODO remove reliance on name here. load it from file (and therefore decouple player name from user name)
+    static loadPlayer(id, callback) {
         if (id in players) {
             return players[id];
         } else {
-            //TODO: load from file
-            var plr = new Player(id, name, new Location(0, 0, ''));
-            players[plr.id] = plr;
-            world.spawnInRandomEmptyLocation(plr);
-            return plr;
+            fs.readFile("players/" + id + '.plr', function (err, data) {
+                if (err) {
+                    return callback(err);
+                } else {
+                    var plrdat = JSON.parse('' + data);
+                    var ret = new Player(id, plrdat.name, plrdat.location);
+                    ret.loadFromData(plrdat);
+                    players[ret.id] = ret;
+                    world.spawnInRandomEmptyLocation(ret);//TODO: this should not always be the behavior
+                    callback(null, ret);
+                }
+            });
         }
     }
 }

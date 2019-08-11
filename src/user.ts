@@ -13,7 +13,7 @@ export class User {
     online: boolean;
     socket: any;
     playerid: string | null;
-    player: any;
+    player: Player | null;
     private _email: string | null;
     constructor(id, name) {
         this.id = id;
@@ -38,7 +38,9 @@ export class User {
         }
         this.socket = sock;
         this.online = true;
-        this.player.setActive(this);
+        if (this.player) {
+            this.player.setActive(this);
+        }
         var user = this;
         sock.on('disconnect', function () {
             console.log(user.name + ' (' + sock.handshake.address + ') disconnected');
@@ -61,41 +63,54 @@ export class User {
             sock.emit('pong_cmd', msg);
         });
         sock.on('chat message', function (msg) {
-            console.log(user.name + "> " + msg);
-            sock.emit('chat message', user.name + "> " + msg);
-            sock.broadcast.emit('chat message', user.name + "> " + msg);
+            if (user.player) {
+                console.log(user.name + ":" + user.player.name + "> " + msg);
+                sock.emit('chat message', user.player.name + "> " + msg);
+                sock.broadcast.emit('chat message', user.player.name + "> " + msg);
+            } else {
+                console.log("ERR: " + user.name + ":NULL> " + msg);
+                sock.emit('chat message', 'Something went wrong.  You don\'t have a player? This is probably a bug, or too many events occured too quickly');
+            }
         });
         sock.on('command', function (msg) {
             console.log(user.name + " requests command /" + msg.cmd + " with arguments [" + msg.tok.join(' ') + "]")
             commands.execute(user, msg.cmd, msg.tok);
-            user.player.pushUpdate();
+            if (user.player) {
+                user.player.pushUpdate();
+            }
         });
         sock.on("player_action", function (msg) {
-            switch (msg + '') {
-                case "move_up":
-                    user.player.move('up');
-                    break;
-                case "move_left":
-                    user.player.move('left');
-                    break;
-                case "move_down":
-                    user.player.move('down');
-                    break;
-                case "move_right":
-                    user.player.move('right');
-                    break;
-                default:
-                    sock.emit('log', 'unknown action: ' + msg);
-                    break;
+            if (user.player) {
+                switch (msg + '') {
+                    case "move_up":
+                        user.player.move('up');
+                        break;
+                    case "move_left":
+                        user.player.move('left');
+                        break;
+                    case "move_down":
+                        user.player.move('down');
+                        break;
+                    case "move_right":
+                        user.player.move('right');
+                        break;
+                    default:
+                        sock.emit('log', 'unknown action: ' + msg);
+                        break;
+                }
+                user.player.pushUpdate();
+            } else {
+                console.log('can\'t move nonexistent player');
             }
-            user.player.pushUpdate();
         });
 
         this.socket.emit('chat message', "Welcome, " + this.name + "!");
         this.socket.emit('chat message', "Please be aware that during developement, free users may be deleted at any time by developer discretion (usually on major releases, or after a period of no activity)");
         this.socket.emit('chat message', "For notifications about developement and to be given priority access to features and possibly a longer delay before account purging, use /email");
         //giveSocketBasicPrivileges(socket);
-        this.player.pushUpdate();
+        if (this.player) {
+            this.player.pushUpdate();
+        }
         this.socket.broadcast.emit('chat message', this.name + ' connected');
     }
     logout() {
@@ -104,7 +119,9 @@ export class User {
             return console.log('USER IS NOT LOGGED IN');
         }
         this.saveToDisk();
-        this.player.setInactive();
+        if (this.player) {
+            this.player.setInactive();
+        }
         //TODO: close socket, and save to disk?
         this.socket.disconnect();
         this.socket = null;
@@ -113,12 +130,25 @@ export class User {
     loadFromData(data) {
         this.id = data.id;
         this.name = data.name;
-        if (this.playerid) {
-            this.playerid = data.playerId;
-            this.player = Player.loadPlayer(this.playerid, this.name);
+        if (data.playerid) {
+            this.playerid = data.playerid;
+            var user: User = this;
+            Player.loadPlayer(this.playerid, function (err, plr) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    user.player = plr;
+                    if (user.online) {
+                        user.player!.setActive(user);
+                    }
+                }
+            });
         } else {
             this.player = Player.createPlayer();
             this.playerid = this.player.id;
+            if (this.online) {
+                this.player.setActive(this);
+            }
             this.saveToDisk();
         }
         this.email = data.email;
@@ -183,6 +213,8 @@ module.exports.createNewUser = function (name, pass, callback) {
         } else {
             var id = generateUserID();
             var ret = new User(id, name);
+            ret.player = Player.createPlayer();
+            ret.playerid = ret.player.id;
             ret.saveToDisk();
             users[id] = ret;
             auth.setUserIdByName(id, name);
@@ -251,7 +283,7 @@ module.exports.loadUserByName = function (name, callback) {
         if (err) {
             callback(err);
         } else {
-            fs.readFile("users/" + id + '.user', function (err, data) {
+            fs.readFile("users/" + id + '.user', function (err: any, data: string) {
                 if (err) {
                     return callback(err);
                 } else {
