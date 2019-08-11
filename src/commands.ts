@@ -72,10 +72,15 @@ var commands: any = {
     'name': {
         description: 'Change player\'s name',
         exec: function (user: User, tok) {
-            var oldName = user.player.name;
-            user.player.name = tok.join(' ');
-            user.socket.broadcast.emit('chat message', oldName + " has changed their name to " + user.player.name);
-            user.socket.emit('chat message', "you have changed your name to " + user.player.name);
+            var newName: string = tok.join(' ');
+            if (newName.length > 16) {
+                user.socket.emit('chat message', 'That name is too long.');
+            } else {
+                var oldName = user.player.name;
+                user.player.name = tok.join(' ');
+                user.socket.broadcast.emit('chat message', oldName + " has changed their name to " + user.player.name);
+                user.socket.emit('chat message', "you have changed your name to " + user.player.name);
+            }
         },
     },
     'email': {
