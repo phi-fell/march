@@ -60,20 +60,25 @@ module.exports.initialize = function (io: any) {
                     socket.emit('fail', { reason: 'Passphrase too long! 1024 character maximum' });
                     return socket.disconnect();
                 } else {
-                    var u = user.createNewUser(msg.user, msg.pass);
-                    u.getFreshAuthToken(function (err, token) {
-                        if (err) {
-                            socket.emit('fail');
-                            return socket.disconnect();
-                        } else {
-                            socket.emit('success', {
-                                user: msg.user,
-                                auth: token,
+                    return user.createNewUser(msg.user, msg.pass, function (err, u) {
+                        if (u) {
+                            u.getFreshAuthToken(function (err, token) {
+                                if (err) {
+                                    socket.emit('fail', { reason: 'An error occurred in auth token generation.  Please notify the developer.' });
+                                    return socket.disconnect();
+                                } else {
+                                    socket.emit('success', {
+                                        user: msg.user,
+                                        auth: token,
+                                    });
+                                    return socket.disconnect();
+                                }
                             });
-                            return socket.disconnect();
+                            u.unload();
+                        } else {
+                            socket.emit('fail', { reason: err });
                         }
                     });
-                    u.unload();
                 }
             } else {
                 socket.emit('fail', { reason: 'Please supply a username and passphrase' });

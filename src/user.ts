@@ -176,14 +176,20 @@ function generateUserID() {
     return id;
 }
 
-module.exports.createNewUser = function (name, pass) {
-    var id = generateUserID();
-    var ret = new User(id, name);
-    ret.saveToDisk();
-    users[id] = ret;
-    auth.setUserIdByName(id, name);
-    auth.setUserPass(id, pass);
-    return ret;
+module.exports.createNewUser = function (name, pass, callback) {
+    auth.getIfUsernameExists(name, function (err, exists) {
+        if (exists) {
+            return callback('Username in use', null);
+        } else {
+            var id = generateUserID();
+            var ret = new User(id, name);
+            ret.saveToDisk();
+            users[id] = ret;
+            auth.setUserIdByName(id, name);
+            auth.setUserPass(id, pass);
+            return callback(null, ret);
+        }
+    });
 }
 module.exports.validateCredentialsByAuthToken = function (username, token, callback) {
     if (username && token && callback) {

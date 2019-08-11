@@ -27,7 +27,7 @@
         });
     }
     function setUserIdByName(id: string, name: string, callback: any) {
-        fs.writeFile("users/" + name + '.id', id + '\n' + name, function (err: any) {
+        fs.writeFile("users/" + name.toLowerCase() + '.id', id + '\n' + name, function (err: any) {
             if (err) {
                 console.log(err);
                 if (callback) {
@@ -41,15 +41,30 @@
         });
     }
     function getUserIdFromName(name: string, callback: any) {
-        fs.readFile("users/" + name + '.id', function (err: any, data: any) {
+        fs.readFile("users/" + name.toLowerCase() + '.id', function (err: any, data: any) {
             if (err) {
                 return callback(err);
             } else {
                 var lines = (data + '').split('\n');
                 if (name === lines[1]) {
                     return callback(null, lines[0]);
-                } else { 
+                } else {
                     return callback('User does not case-sensitively exist (or the .id file is corrupt)');
+                }
+            }
+        });
+    }
+    function getIfUsernameExists(name: string, callback: any) {
+        fs.readFile("users/" + name.toLowerCase() + '.id', function (err: any, data: any) {
+            if (err) {
+                return callback(null, false);
+            } else {
+                var lines = (data + '').split('\n');
+                if (name === lines[1]) {
+                    return callback(null, true);
+                } else {
+                    //for now we don't allow usernames that only differ by case (note the toLowerCase() used on file saving/loading)
+                    return callback('User does not case-sensitively exist (or the .id file is corrupt)', true);
                 }
             }
         });
@@ -59,6 +74,7 @@
         'getUserIdFromName': getUserIdFromName,
         'createUserAndGetPass': createUserAndGetPass,
     };
+    module.exports.getIfUsernameExists = getIfUsernameExists;
     module.exports.generateAndGetFreshAuthTokenForId = function (id: string, callback: any) {
         var token = generateFreshAuthToken();
         bcrypt.hash(token, 10, function (err: any, hash: any) {
