@@ -1,4 +1,5 @@
-var fs = require('fs');
+import fs = require('fs');
+import uuid = require('uuid/v4');
 var game = require('./game');
 var server = require('./server');
 var player = require('./player');
@@ -10,6 +11,14 @@ var getHelp = function (socket) {
     socket.emit('chat message', 'GotG V' + version.version + ' Launch_ID[' + version.launch_id + ']');
     Object.keys(commands).forEach(cmd => {
         socket.emit('chat message', '/' + cmd + ': ' + commands[cmd].description);
+    });
+}
+function reportBug(socket, description) {
+    fs.writeFile('bugs/' + uuid() + '.bug', description, function (err) {
+        if (err) {
+            console.log('Error in writing reported bug!!!');
+            console.log('BUG: ' + description);
+        }
     });
 }
 
@@ -24,6 +33,17 @@ var commands: any = {
         description: 'display help dialog',
         exec: function (user: User, tok) {
             getHelp(user.socket);
+        },
+    },
+    'bug': {
+        description: 'display help dialog',
+        exec: function (user: User, tok) {
+            if (tok.length > 0) {
+                reportBug(user.socket, (new Date()).toDateString() + '\n' + (new Date()).toTimeString() + '\n[' + user.name + '] reported bug:\n' + tok.join(' '));
+                user.socket.emit('chat message', 'Thank you for reporting a bug! It\'s been added to the queue for me to look at when I get a chance!');
+            } else {
+                user.socket.emit('chat message', 'Please provide a description of the bug you\'ve encountered. usage: /bug <message or description>');
+            }
         },
     },
     'chargen': {
