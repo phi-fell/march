@@ -36,7 +36,7 @@ var commands: any = {
         },
     },
     'bug': {
-        description: 'display help dialog',
+        description: 'report a bug with the game <3',
         exec: function (user: User, tok) {
             if (tok.length > 0) {
                 reportBug(user.socket, (new Date()).toDateString() + '\n' + (new Date()).toTimeString() + '\n[' + user.name + '] reported bug:\n' + tok.join(' '));
