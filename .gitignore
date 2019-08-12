@@ -3,6 +3,7 @@ build/*
 package-lock.json
 users/*
 players/*
+world/*
 copytoremote.sh
 launchpatch.sh
 launchminor.sh
