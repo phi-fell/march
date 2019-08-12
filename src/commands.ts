@@ -39,7 +39,7 @@ var commands: any = {
         description: 'report a bug with the game <3',
         exec: function (user: User, tok) {
             if (tok.length > 0) {
-                reportBug(user.socket, (new Date()).toDateString() + '\n' + (new Date()).toTimeString() + '\n[' + user.name + '] reported bug:\n' + tok.join(' '));
+                reportBug(user.socket, (new Date()).toDateString() + '\n' + (new Date()).toTimeString() + '\n[' + user.name + '](' + user.email + ') reported bug:\n' + tok.join(' '));
                 user.socket.emit('chat message', 'Thank you for reporting a bug! It\'s been added to the queue for me to look at when I get a chance!');
             } else {
                 user.socket.emit('chat message', 'Please provide a description of the bug you\'ve encountered. usage: /bug <message or description>');

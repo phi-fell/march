@@ -106,6 +106,7 @@ export class User {
         this.socket.emit('chat message', "Welcome, " + this.name + "!");
         this.socket.emit('chat message', "Please be aware that during developement, free users may be deleted at any time by developer discretion (usually on major releases, or after a period of no activity)");
         this.socket.emit('chat message', "For notifications about developement and to be given priority access to features and possibly a longer delay before account purging, use /email");
+        this.socket.emit('chat message', "(By setting an email address, you give permission for it to be contacted regarding game updates, news, account info, or anything else.  Your email may also be contacted to followup on any bug reports you submit.  You can remove your email simply by changing it to e.g. 'none')");
         //giveSocketBasicPrivileges(socket);
         if (this.player) {
             this.player.pushUpdate();
