@@ -3,16 +3,21 @@ import { Location } from './location';
 import { Instance } from './instance';
 import { Entity } from './entity';
 
-var instances: { [key: string]: Instance; } = {};
+export class World {
+    static instances: { [key: string]: Instance; } = {};
+    static getLoadedInstanceById(id: string) {
+        return World.instances[id] || null;
+    }
+}
 
 function createInstance() {
     var inst: Instance = Instance.generateRandomInstance();
-    instances[inst.id] = inst;
+    World.instances[inst.id] = inst;
     return inst;
 }
 function getAnyAvailableInstance() {
-    var keys = Object.keys(instances)
-    return instances[keys[keys.length * Math.random() << 0]];
+    var keys = Object.keys(World.instances)
+    return World.instances[keys[keys.length * Math.random() << 0]];
 };
 
 var board: (Entity | undefined)[][] = [];//TODO move board to instance
@@ -84,7 +89,7 @@ var directionVectors = {
     'right': { x: 1, y: 0 },
 };
 var instance0 = createInstance();
-instances[instance0.id] = instance0;
+World.instances[instance0.id] = instance0;
 module.exports.directionVectors = directionVectors;
 module.exports.logOn = logOn;
 module.exports.logOff = logOff;
