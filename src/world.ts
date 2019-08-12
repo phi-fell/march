@@ -20,13 +20,7 @@ function getAnyAvailableInstance() {
     return World.instances[keys[keys.length * Math.random() << 0]];
 };
 
-var board: (Entity | undefined)[][] = [];//TODO move board to instance
-for (var i = 0; i < 10; i++) {
-    board[i] = [];
-    for (var j = 0; j < 10; j++) {
-        board[i][j] = undefined;
-    }
-}
+
 
 function logOn(id: string) {
     //add player to world
@@ -40,12 +34,12 @@ function getPlayerBoard(pId: string) {
     for (var i = 0; i < 10; i++) {
         ret[i] = [];
         for (var j = 0; j < 10; j++) {
-            if (board[i][j] === undefined) {
+            if (instance0.board[i][j] === undefined) {
                 ret[i][j] = undefined;
             } else {
                 ret[i][j] = {
-                    'name': board[i][j]!.name,
-                    'location': board[i][j]!.location,
+                    'name': instance0.board[i][j]!.name,
+                    'location': instance0.board[i][j]!.location,
                 };
             }
         }
@@ -55,28 +49,28 @@ function getPlayerBoard(pId: string) {
 function spawnInRandomEmptyLocation(ent: any) {
     //use getAnyAvailableInstance
     do {
-        var posX = Math.floor(Math.random() * board.length);
-        var posY = Math.floor(Math.random() * board[0].length);
-    } while (board[posX][posY] !== undefined);
+        var posX = Math.floor(Math.random() * instance0.board.length);
+        var posY = Math.floor(Math.random() * instance0.board[0].length);
+    } while (instance0.board[posX][posY] !== undefined);
     ent.location = {
         instance: getAnyAvailableInstance().id,
         x: posX,
         y: posY,
     };
-    board[ent.location.x][ent.location.y] = ent;
+    instance0.board[ent.location.x][ent.location.y] = ent;
 }
 function removeEntityFromWorld(ent: Entity) {
-    board[ent.location.x][ent.location.y] = undefined;
+    instance0.board[ent.location.x][ent.location.y] = undefined;
 }
 function moveEntity(entity: Entity, to: Location) {
-    if (to.x >= 0 && to.x < board.length && to.y >= 0 && to.y < board[0].length) {
-        if (board[to.x][to.y] === undefined) {
-            board[entity.location.x][entity.location.y] = undefined;
-            board[to.x][to.y] = entity;
+    if (to.x >= 0 && to.x < instance0.board.length && to.y >= 0 && to.y < instance0.board[0].length) {
+        if (instance0.board[to.x][to.y] === undefined) {
+            instance0.board[entity.location.x][entity.location.y] = undefined;
+            instance0.board[to.x][to.y] = entity;
             entity.location = to;
         } else {
-            board[to.x][to.y]!.hit(1);
-            //TODO update instance board[to.x][to.y].location.instance_id
+            instance0.board[to.x][to.y]!.hit(1);
+            //TODO update instance iboard[to.x][to.y].location.instance_id
 
         }
         //TODO: update clients

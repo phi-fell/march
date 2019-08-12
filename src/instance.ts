@@ -1,12 +1,20 @@
 import uuid = require('uuid/v4');
 import fs = require('fs');
+import { Entity } from './entity';
 import { Player } from './player';
 import { World } from './world';
 
 export class Instance {
     players: Player[];
+    board: (Entity | undefined)[][] = [];//TODO move board to instance
     constructor(public id: string, public attributes: InstanceAttributes) {
         this.players = [];
+        for (var i = 0; i < attributes.width; i++) {
+            this.board[i] = [];
+            for (var j = 0; j < attributes.height; j++) {
+                this.board[i][j] = undefined;
+            }
+        }
     }
     updateAllPlayers() {
         for (var plr of this.players) {
