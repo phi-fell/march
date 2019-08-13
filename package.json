@@ -4,14 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "npm run tsc",
+    "build": "tsc",
     "predev": "npm run build",
     "dev": "node build/index.js -NO_HTTPS",
     "predebug": "npm run predev",
     "debug": "node --inspect build/index.js -NO_HTTPS",
     "preprod": "npm run build",
     "prod": "node build/index.js",
-    "tsc": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
