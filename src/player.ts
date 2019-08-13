@@ -5,6 +5,8 @@ var world = require('./world');
 import { Entity } from './entity';
 import { Location } from './location';
 import { User } from './user';
+import { CharGenStage, CharGen } from './chargen';
+import { Instance } from './instance';
 
 var players = {};
 
@@ -13,8 +15,12 @@ export class Player extends Entity {
     active: boolean;
     status: any;
     sheet: any;
-    constructor(id: string, name: string, location: Location) {
+    chargen: CharGenStage;
+    origin: string | null;
+    constructor(id: string, name: string, location: Location = new Location(0, 0, '')) {
         super(id, name, location);
+        this.chargen = CharGenStage.Tutorial;
+        this.origin = null;
         this.user = null;
         this.active = false;
         this.status = {
@@ -61,7 +67,7 @@ export class Player extends Entity {
                 this.location.x + dir.x,
                 this.location.y + dir.y,
                 this.location.instance_id);
-            world.moveEntity(this, newLoc);
+            Instance.moveEntity(this, newLoc);
         } else {
             console.log('Invalid move direction: ' + direction);
         }
@@ -85,11 +91,12 @@ export class Player extends Entity {
     unload() {
         this.saveToDisk();
         delete players[this.id];
-        world.removeEntityFromWorld(this);
+        Instance.removeEntityFromWorld(this);
     }
     saveToDisk() {
         var data = {
             'name': this.name,
+            'chargen': this.chargen,
             'location': this.location,
             'status': this.status,
             'sheet': this.sheet,
@@ -102,12 +109,20 @@ export class Player extends Entity {
     }
     loadFromData(data) {
         this.name = data.name;
+        this.chargen = data.chargen;
+        //TODO: if player doesn't have location or if it's invalid, or depending on type of instance, or if it no longer exists...
+        // ^ cont. then spawn in a new random location?
+        if (this.chargen == CharGenStage.Done) {
+            Instance.spawnEntityInLocation(this, data.location);
+        } else {
+            CharGen.spawnPlayerInFreshInstance(this);
+        }
         this.status = data.status;
         this.sheet = data.sheet;
     }
     pushUpdate() {
         if (this.active) {
-            this.user!.socket.emit('board', world.getPlayerBoard(this.id));
+            this.user!.socket.emit('board', Instance.getPlayerBoard(this));
             this.user!.socket.emit('player', this.getDataAsViewer());
         } else {
             console.log('Can\'t push update to inactive player');
@@ -136,15 +151,17 @@ export class Player extends Entity {
         while (getPlayerByName(name)) {
             name = nameGen.generateName()
         }
-        var plr = new Player(this.generateNewPlayerID(), name, new Location(0, 0, ''));
+        var plr = new Player(this.generateNewPlayerID(), name);
         players[plr.id] = plr;
-        world.spawnInRandomEmptyLocation(plr);
+        CharGen.spawnPlayerInFreshInstance(plr);
         plr.saveToDisk();
         return plr;
     }
     static loadPlayer(id, callback) {
         if (id in players) {
-            return callback(null, players[id]);
+            return process.nextTick(function () {
+                callback(null, players[id]);
+            });
         } else {
             fs.readFile("players/" + id + '.plr', function (err, data) {
                 if (err) {
@@ -154,7 +171,7 @@ export class Player extends Entity {
                     var ret = new Player(id, plrdat.name, plrdat.location);
                     ret.loadFromData(plrdat);
                     players[ret.id] = ret;
-                    world.spawnInRandomEmptyLocation(ret);//TODO: this should not always be the behavior
+                    //world.spawnInRandomEmptyLocation(ret);//TODO: this should not always be the behavior
                     callback(null, ret);
                 }
             });
