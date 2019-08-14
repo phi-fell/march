@@ -10,6 +10,9 @@ export class InstanceAttributes {
         public height: number,
         public personal: boolean = false, ) {
     }
+    clone() {
+        return new InstanceAttributes(this.seed, this.width, this.height, this.personal);
+    }
     getJSON() {
         return {
             'seed': this.seed,
