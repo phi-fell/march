@@ -7,25 +7,28 @@ function generateNewEntityID() {
     return uuid();
 }
 export class Entity {
-    health: number;
+    status: any;
     constructor(public id: string, public name: string, public location: Location = new Location(0, 0, '')) {
-        this.health = 2;
+        this.status = {
+            'hp': 10,
+            'max_hp': 10,
+            'sp': 10,
+            'max_sp': 10,
+            'ap': 0,
+            'ap_recovery': 25,
+            'max_ap': 60,
+        }
     }
     protected handleDeath() {
         //TODO: add ability to attach listeners to entities e.g. death listener, damage listener, etc.
         //TODO: kill entity
         Instance.removeEntityFromWorld(this);
-        if (this instanceof Player) {
-            (this as Player).user!.socket.emit('force_disconnect', 'YOU HAVE DIED');
-            (this as Player).user!.logout();
-            (this as Player).user!.unload();
-        }
     }
     protected takeDirectHealthDamage(amount) {
         //take this damage directly to health and then account for effects (e.g. dying if health = 0 or whatever)
         //this functions is basically just health -= amount
-        this.health -= amount;
-        if (this.health <= 0) {
+        this.status.hp -= amount;
+        if (this.status.hp <= 0) {
             this.handleDeath();
         }
     }

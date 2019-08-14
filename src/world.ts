@@ -4,6 +4,7 @@ import { Entity } from './entity';
 
 function createInstance() {
     var inst: Instance = Instance.generateRandomInstance();
+    inst.attributes.personal = true;
     Instance.instances[inst.id] = inst;
     return inst;
 }
@@ -39,7 +40,6 @@ var directionVectors = {
     'right': { x: 1, y: 0 },
 };
 var instance0 = createInstance();
-Instance.instances[instance0.id] = instance0;
 module.exports.directionVectors = directionVectors;
 module.exports.logOn = logOn;
 module.exports.logOff = logOff;

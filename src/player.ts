@@ -13,7 +13,6 @@ var players = {};
 export class Player extends Entity {
     user: User | null;
     active: boolean;
-    status: any;
     sheet: any;
     chargen: CharGenStage;
     origin: string | null;
@@ -23,15 +22,6 @@ export class Player extends Entity {
         this.origin = null;
         this.user = null;
         this.active = false;
-        this.status = {
-            'hp': 7,
-            'max_hp': 10,
-            'sp': 10,
-            'max_sp': 10,
-            'ap': 0,
-            'ap_recovery': 25,
-            'max_ap': 60,
-        }
         this.sheet = {
             'BOD': {
                 'STR': 1,
@@ -59,6 +49,17 @@ export class Player extends Entity {
                 'FVR': 18
             }
         }
+    }
+    protected handleDeath() {
+        Instance.removeEntityFromWorld(this);
+        if (this.user) {
+            this.user.player = Player.createPlayer();
+            this.user.playerid = this.user.player.id;
+            this.user.socket.emit('force_disconnect', 'YOU HAVE DIED');
+            this.user.logout();
+            //TODO: remove this player from disk?
+        }
+
     }
     move(direction) {
         if (direction in world.directionVectors) {
@@ -90,8 +91,8 @@ export class Player extends Entity {
     }
     unload() {
         this.saveToDisk();
-        delete players[this.id];
         Instance.removeEntityFromWorld(this);
+        delete players[this.id];
     }
     saveToDisk() {
         var data = {
@@ -113,7 +114,9 @@ export class Player extends Entity {
         //TODO: if player doesn't have location or if it's invalid, or depending on type of instance, or if it no longer exists...
         // ^ cont. then spawn in a new random location?
         if (this.chargen == CharGenStage.Done) {
-            Instance.spawnEntityInLocation(this, data.location);
+            //Instance.spawnEntityInLocation(this, data.location);
+            CharGen.spawnPlayerInFreshInstance(this);
+            //TODO: TEMP ^
         } else {
             CharGen.spawnPlayerInFreshInstance(this);
         }
@@ -122,8 +125,10 @@ export class Player extends Entity {
     }
     pushUpdate() {
         if (this.active) {
-            this.user!.socket.emit('board', Instance.getPlayerBoard(this));
-            this.user!.socket.emit('player', this.getDataAsViewer());
+            this.user!.socket.emit('update', {
+                'board': Instance.getPlayerBoard(this),
+                'player': this.getDataAsViewer(),
+            });
         } else {
             console.log('Can\'t push update to inactive player');
         }

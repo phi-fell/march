@@ -58,13 +58,12 @@ $(function () {
     socket.on('pong_cmd', function (msg) {
         $('#messages').append($('<li>').text('pong! ' + (Date.now() - msg) + 'ms'));
     });
-    socket.on('board', function (msg) {
-        game.board = msg;
+    socket.on('update', function (msg) {
+        game.board = msg.board;
+        game.player = msg.player;
         game.draw();
-    });
-    socket.on('player', function (msg) {
-        var sheet = msg.sheet;
-        var status = msg.status;
+        var sheet = msg.player.sheet;
+        var status = msg.player.status;
         var list = $("#sheet");
         list.empty();
         list.append($('<li>').text('Body:'));
@@ -95,14 +94,14 @@ $(function () {
         var list = $("#status");
         list.empty();
         list.append($('<li>').text('-----Status-----'));
-        list.append($('<li>').text('Position: (' + msg.location.x + ', ' + msg.location.y + ")"));
+        list.append($('<li>').text('Position: (' + msg.player.location.x + ', ' + msg.player.location.y + ")"));
         list.append($('<li>').text('Health: ' + status.hp + '/' + status.max_hp));
         list.append($('<li>').text('Stamina: ' + status.sp + '/' + status.max_sp));
         list.append($('<li>').text('Action Points: ' + status.ap + '/' + status.max_ap + ' (+' + status.ap_recovery + ' /turn)'));
 
         var list = $("#info");
         list.empty();
-        list.append($('<li>').text('User: ' + msg.name));
+        list.append($('<li>').text('Player: ' + msg.player.name));
     });
     socket.on('log', function (msg) {
         console.log(msg);

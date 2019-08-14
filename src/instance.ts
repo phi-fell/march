@@ -7,19 +7,22 @@ import { Location } from './location';
 export class InstanceAttributes {
     constructor(public seed: number/*TODO: string?*/,
         public width: number,
-        public height: number) {
+        public height: number,
+        public personal: boolean = false, ) {
     }
     getJSON() {
         return {
             'seed': this.seed,
             'width': this.width,
             'height': this.height,
+            'personal': this.personal,
         };
     }
     loadFromJSON(data) {
         this.seed = data.seed;
         this.width = data.width;
         this.height = data.height;
+        this.personal = data.personal;
     }
 }
 
@@ -135,6 +138,14 @@ export class Instance {
         var inst: Instance = new Instance(this.generateNewInstanceID(), attr);
         Instance.instances[inst.id] = inst;
         return inst;
+    }
+    static getAvailableNonFullInstance(plr: Player): Instance | null {
+        for (let inst of Object.values(Instance.instances)) {
+            if (!inst.attributes.personal) {
+                return inst;
+            }
+        }
+        return null;
     }
     static getPlayerBoard(plr: Player) {
         //return section of level around player, with Entities and such limited by what they percieve
