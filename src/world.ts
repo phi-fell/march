@@ -1,6 +1,4 @@
-import { Location } from './location';
 import { Instance } from './instance';
-import { Entity } from './entity';
 
 function createInstance() {
     var inst: Instance = Instance.generateRandomInstance();
