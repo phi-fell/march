@@ -56,6 +56,21 @@ export class Entity {
             this.takeDamage(amount);
         }
     }
+    move(to: Location) {
+        var fromInst = Instance.instances[this.location.instance_id];
+        var toInst = Instance.instances[to.instance_id];
+        if (to.x >= 0 && to.x < toInst.board.length && to.y >= 0 && to.y < toInst.board[0].length) {
+            if (toInst.board[to.x][to.y] === undefined) {
+                fromInst.board[this.location.x][this.location.y] = undefined;
+                toInst.board[to.x][to.y] = this;
+                this.location = to.clone();
+            } else {
+                toInst.board[to.x][to.y]!.hit(1);
+            }
+            fromInst.updateAllPlayers();
+            toInst.updateAllPlayers();
+        }
+    }
     static generateNewEntityID() {
         return uuid();
     }

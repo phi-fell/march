@@ -39,6 +39,23 @@ export class Instance {
             }
         }
     }
+    addPlayer(player: Player) {
+        for (var i = 0; i < this.players.length; i++) {
+            if (this.players[i].id === player.id) {
+                return;//no duplicate entries
+            }
+        }
+        this.players.push(player);
+
+    }
+    removePlayer(player: Player) {
+        for (var i = 0; i < this.players.length; i++) {
+            if (this.players[i].id === player.id) {
+                this.players.splice(i, 1);
+                return;//no duplicate entries
+            }
+        }
+    }
     updateAllPlayers() {
         for (var plr of this.players) {
             plr.pushUpdate();
@@ -89,22 +106,6 @@ export class Instance {
         }
     } static removeEntityFromWorld(ent: Entity) {
         Instance.instances[ent.location.instance_id].board[ent.location.x][ent.location.y] = undefined;
-    }
-    static moveEntity(entity: Entity, to: Location) {
-        var fromInst = Instance.instances[entity.location.instance_id];
-        var toInst = Instance.instances[to.instance_id];
-        if (to.x >= 0 && to.x < toInst.board.length && to.y >= 0 && to.y < toInst.board[0].length) {
-            if (toInst.board[to.x][to.y] === undefined) {
-                fromInst.board[entity.location.x][entity.location.y] = undefined;
-                toInst.board[to.x][to.y] = entity;
-                entity.location = to.clone();
-            } else {
-                toInst.board[to.x][to.y]!.hit(1);
-                //TODO update instance iboard[to.x][to.y].location.instance_id
-
-            }
-            //TODO: update clients
-        }
     }
     static getLoadedInstanceById(id: string) {
         return Instance.instances[id] || null;

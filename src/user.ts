@@ -82,16 +82,16 @@ export class User {
             if (user.player) {
                 switch (msg + '') {
                     case "move_up":
-                        user.player.move('up');
+                        user.player.moveInDirection('up');
                         break;
                     case "move_left":
-                        user.player.move('left');
+                        user.player.moveInDirection('left');
                         break;
                     case "move_down":
-                        user.player.move('down');
+                        user.player.moveInDirection('down');
                         break;
                     case "move_right":
-                        user.player.move('right');
+                        user.player.moveInDirection('right');
                         break;
                     default:
                         sock.emit('log', 'unknown action: ' + msg);

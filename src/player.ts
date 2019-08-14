@@ -61,17 +61,24 @@ export class Player extends Entity {
         }
 
     }
-    move(direction) {
+    moveInDirection(direction) {
         if (direction in world.directionVectors) {
             var dir = world.directionVectors[direction];
             var newLoc = new Location(
                 this.location.x + dir.x,
                 this.location.y + dir.y,
                 this.location.instance_id);
-            Instance.moveEntity(this, newLoc);
+            this.move(newLoc);
         } else {
             console.log('Invalid move direction: ' + direction);
         }
+    }
+    move(to: Location) {
+        if (this.location.instance_id !== to.instance_id) {
+            Instance.instances[this.location.instance_id].removePlayer(this);
+            Instance.instances[to.instance_id].addPlayer(this);
+        }
+        super.move(to);
     }
     setActive(usr: User) {
         if (this.active) {

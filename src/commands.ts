@@ -142,7 +142,7 @@ var commands: any = {
         description: 'Move in a direction',
         exec: function (user: User, tok) {
             if (user.player) {
-                user.player.move(tok[0]);
+                user.player.moveInDirection(tok[0]);
             } else {
                 user.socket.emit('chat message', "Error: You somehow don't have a player, this is likely a bug.");
             }
