@@ -11,13 +11,6 @@ function getAnyAvailableInstance() {
     return Instance.instances[keys[keys.length * Math.random() << 0]];
 };
 
-function logOn(id: string) {
-    //add player to world
-}
-function logOff(id: string) {
-    //remove player from world
-}
-
 function spawnInRandomEmptyLocation(ent: any) {
     //use getAnyAvailableInstance
     do {
@@ -39,6 +32,4 @@ var directionVectors = {
 };
 var instance0 = createInstance();
 module.exports.directionVectors = directionVectors;
-module.exports.logOn = logOn;
-module.exports.logOff = logOff;
 module.exports.spawnInRandomEmptyLocation = spawnInRandomEmptyLocation;
