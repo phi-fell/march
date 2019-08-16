@@ -2,6 +2,7 @@ import { Player } from "./player";
 import { Instance, InstanceAttributes } from "./instance";
 import { Entity } from "./entity";
 import { Location } from "./location";
+import { ORIGIN, CharacterOrigin } from "./characterorigin";
 
 export const enum CharGenStage {
     Tutorial,
@@ -29,17 +30,16 @@ class TutorialEnemy extends Entity {
     }
 }
 class OriginEnemy extends Entity {
-    constructor(private player: Player, private origin: string, id: string, name: string, location: Location = new Location(0, 0, '')) {
+    constructor(private player: Player, private origin: ORIGIN, id: string, name: string, location: Location = new Location(0, 0, '')) {
         super(id, name, location)
         this.status.hp = 1;
     }
     protected handleDeath() {
         super.handleDeath();
         this.player.chargen++;
-        this.player.origin = this.origin;
+        this.player.charSheet.origin = new CharacterOrigin(this.origin);
         Instance.removeEntityFromWorld(this.player);
         CharGen.spawnPlayerInFreshInstance(this.player);
-
     }
 }
 
@@ -68,10 +68,10 @@ export class CharGen {
                 //TODO: create origin selection instance
                 var inst = Instance.spinUpNewInstance(new InstanceAttributes(0, 10, 10, true));
                 inst.spawnEntityAtCoords(new Entity(Entity.generateNewEntityID(), 'Choose An Origin'), 4, 1);
-                inst.spawnEntityAtCoords(new OriginEnemy(player, "Blooded", Entity.generateNewEntityID(), 'Blooded Redvein'), 1, 3);
-                inst.spawnEntityAtCoords(new OriginEnemy(player, "Neathling", Entity.generateNewEntityID(), 'Neathling'), 3, 3);
-                inst.spawnEntityAtCoords(new OriginEnemy(player, "Avrilen", Entity.generateNewEntityID(), 'Avrilen'), 5, 3);
-                inst.spawnEntityAtCoords(new OriginEnemy(player, "Marrow", Entity.generateNewEntityID(), 'Marrow Fallen'), 7, 3);
+                inst.spawnEntityAtCoords(new OriginEnemy(player, ORIGIN.BLOODED, Entity.generateNewEntityID(), 'Blooded Redvein'), 1, 3);
+                inst.spawnEntityAtCoords(new OriginEnemy(player, ORIGIN.NEATHLING, Entity.generateNewEntityID(), 'Neathling Outcast'), 3, 3);
+                inst.spawnEntityAtCoords(new OriginEnemy(player, ORIGIN.AVRILEN, Entity.generateNewEntityID(), 'Avrilen Wanderer'), 5, 3);
+                inst.spawnEntityAtCoords(new OriginEnemy(player, ORIGIN.MARROW, Entity.generateNewEntityID(), 'Marrow Fallen'), 7, 3);
                 inst.spawnEntityAtCoords(player, 4, 8);
                 break;
             case CharGenStage.Done:

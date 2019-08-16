@@ -8,7 +8,7 @@ function generateNewEntityID() {
 }
 export class Entity {
     status: any;
-    constructor(public id: string, public name: string, public location: Location = new Location(0, 0, '')) {
+    constructor(public id: string, public name: string, protected _location: Location = new Location(0, 0, '')) {
         this.status = {
             'hp': 10,
             'max_hp': 10,
@@ -18,6 +18,12 @@ export class Entity {
             'ap_recovery': 25,
             'max_ap': 60,
         }
+    }
+    get location(): Location {
+        return this._location;
+    }
+    set location(loc: Location) {
+        this._location = loc;
     }
     protected handleDeath() {
         //TODO: add ability to attach listeners to entities e.g. death listener, damage listener, etc.

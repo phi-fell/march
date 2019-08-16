@@ -7,48 +7,34 @@ import { Location } from './location';
 import { User } from './user';
 import { CharGenStage, CharGen } from './chargen';
 import { Instance } from './instance';
+import { CharacterSheet } from './charactersheet';
 
 var players = {};
 
 export class Player extends Entity {
     user: User | null;
     active: boolean;
-    sheet: any;
+    charSheet: CharacterSheet;
     chargen: CharGenStage;
-    origin: string | null;
-    constructor(id: string, name: string, location: Location = new Location(0, 0, '')) {
-        super(id, name, location);
+    constructor(id: string, name: string, _location: Location = new Location(0, 0, '')) {
+        super(id, name, _location);
         this.chargen = CharGenStage.Tutorial;
-        this.origin = null;
+        this.charSheet = new CharacterSheet;
         this.user = null;
         this.active = false;
-        this.sheet = {
-            'BOD': {
-                'STR': 1,
-                'END': 2,
-                'CON': 3
-            }, 'MOV': {
-                'AGI': 4,
-                'DEX': 5,
-                'SPD': 6
-            }, 'MNT': {
-                'CHA': 7,
-                'LOG': 8,
-                'WIS': 9
-            }, 'OTH': {
-                'MEM': 10,
-                'WIL': 11,
-                'LCK': 12
-            }, 'MNA': {
-                'CAP': 13,
-                'CND': 14,
-                'GEN': 15
-            }, 'FTH': {
-                'CVN': 16,
-                'PTY': 17,
-                'FVR': 18
+    }
+    get location(): Location {//Since we override set, we must override get
+        return this._location;
+    }
+    set location(loc: Location) {
+        if (this.location.instance_id !== loc.instance_id) {
+            var fromInst = Instance.instances[this.location.instance_id];
+            if (fromInst) {
+                Instance.instances[this.location.instance_id].removePlayer(this);
             }
+            Instance.instances[loc.instance_id].addPlayer(this);
         }
+        this._location = loc;
     }
     protected handleDeath() {
         Instance.removeEntityFromWorld(this);
@@ -72,13 +58,6 @@ export class Player extends Entity {
         } else {
             console.log('Invalid move direction: ' + direction);
         }
-    }
-    move(to: Location) {
-        if (this.location.instance_id !== to.instance_id) {
-            Instance.instances[this.location.instance_id].removePlayer(this);
-            Instance.instances[to.instance_id].addPlayer(this);
-        }
-        super.move(to);
     }
     setActive(usr: User) {
         if (this.active) {
@@ -105,9 +84,9 @@ export class Player extends Entity {
         var data = {
             'name': this.name,
             'chargen': this.chargen,
-            'location': this.location,
+            'location': this.location.toJSON(),
             'status': this.status,
-            'sheet': this.sheet,
+            'sheet': this.charSheet.toJSON(),
         }
         fs.writeFile('players/' + this.id + '.plr', JSON.stringify(data), function (err) {
             if (err) {
@@ -128,7 +107,7 @@ export class Player extends Entity {
             CharGen.spawnPlayerInFreshInstance(this);
         }
         this.status = data.status;
-        this.sheet = data.sheet;
+        this.charSheet = CharacterSheet.fromJSON(data.sheet);
     }
     pushUpdate() {
         if (this.active) {
@@ -146,9 +125,9 @@ export class Player extends Entity {
         }
         return {
             'name': this.name,
-            'sheet': this.sheet,
+            'sheet': this.charSheet.toJSON(),
             'status': this.status,
-            'location': this.location,
+            'location': this.location.toJSON(),
         };
     }
 
@@ -180,7 +159,7 @@ export class Player extends Entity {
                     return callback(err);
                 } else {
                     var plrdat = JSON.parse('' + data);
-                    var ret = new Player(id, plrdat.name, plrdat.location);
+                    var ret = new Player(id, plrdat.name, Location.fromJSON(plrdat.location));
                     ret.loadFromData(plrdat);
                     players[ret.id] = ret;
                     //world.spawnInRandomEmptyLocation(ret);//TODO: this should not always be the behavior
