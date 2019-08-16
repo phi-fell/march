@@ -15,8 +15,8 @@ export class Entity {
             'sp': 10,
             'max_sp': 10,
             'ap': 0,
-            'ap_recovery': 25,
             'max_ap': 60,
+            'ap_recovery': 25,
         }
     }
     get location(): Location {
