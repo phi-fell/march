@@ -78,6 +78,7 @@ export class Player extends Entity {
     unload() {
         this.saveToDisk();
         Instance.removeEntityFromWorld(this);
+        Instance.instances[this.location.instance_id].removePlayer(this);
         delete players[this.id];
     }
     saveToDisk() {
@@ -111,8 +112,10 @@ export class Player extends Entity {
     }
     pushUpdate() {
         if (this.active) {
+            let board = Instance.getPlayerBoard(this);
             this.user!.socket.emit('update', {
-                'board': Instance.getPlayerBoard(this),
+                'board': board.board,
+                'tiles': board.tiles,
                 'player': this.getDataAsViewer(),
             });
         } else {
