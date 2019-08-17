@@ -3,9 +3,9 @@ export const enum RESOURCE {
 }
 
 export class CharacterResource {
-    capacity: number;
-    conductance: number;
-    generation: number;
+    public capacity: number;
+    public conductance: number;
+    public generation: number;
     constructor() {
         this.capacity = 0;
         this.conductance = 0;
