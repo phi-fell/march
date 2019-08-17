@@ -22,6 +22,7 @@
             true,
             "always"
         ],
+        "object-literal-sort-keys": false,
         "variable-name": [
             true,
             "ban-keywords",
@@ -35,7 +36,8 @@
             {
                 "ignore-pattern": "TODO:"
             }
-        ]
+        ],
+        "max-classes-per-file": false
     },
     "rulesDirectory": []
 }
