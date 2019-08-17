@@ -1,0 +1,27 @@
+{
+    "defaultSeverity": "error",
+    "extends": [
+        "tslint:recommended"
+    ],
+    "jsRules": {},
+    "rules": {
+        "no-console": false,
+        "quotemark": [
+            true,
+            "single",
+            "avoid-escape"
+        ],
+        "max-line-length": [
+            true,
+            {
+                "limit": 120,
+                "ignore-pattern": "//"
+            }
+        ],
+        "object-literal-key-quotes": [
+            true,
+            "always"
+        ]
+    },
+    "rulesDirectory": []
+}
