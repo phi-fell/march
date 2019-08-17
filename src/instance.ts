@@ -3,8 +3,10 @@ import fs = require('fs');
 import { Entity } from './entity';
 import { Player } from './player';
 import { Location } from './location';
+import { INSTANCE_GEN_TYPE, InstanceGenerator } from './instancegenerator';
 
 export class InstanceAttributes {
+    public genType: INSTANCE_GEN_TYPE = INSTANCE_GEN_TYPE.EMPTY;
     constructor(public seed: number/*TODO: string?*/,
         public width: number,
         public height: number,
@@ -29,18 +31,29 @@ export class InstanceAttributes {
     }
 }
 
+export enum TILE {
+    NONE,
+    UNKNOWN,
+    STONE_FLOOR,
+    STONE_WALL,
+}
+
 export class Instance {
     static instances: { [key: string]: Instance; } = {};
     players: Player[];
+    tiles: TILE[][] = [];
     board: (Entity | undefined)[][] = [];//TODO move board to instance
     constructor(public id: string, public attributes: InstanceAttributes) {
         this.players = [];
         for (var i = 0; i < attributes.width; i++) {
             this.board[i] = [];
+            this.tiles[i] = [];
             for (var j = 0; j < attributes.height; j++) {
                 this.board[i][j] = undefined;
+                this.tiles[i][j] = TILE.NONE;
             }
         }
+        InstanceGenerator.runGeneration(this);
     }
     addPlayer(player: Player) {
         for (var i = 0; i < this.players.length; i++) {
@@ -168,6 +181,9 @@ export class Instance {
                 }
             }
         }
-        return ret;
+        return {
+            'board': ret,
+            'tiles': inst.tiles,
+        };
     }
 }

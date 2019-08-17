@@ -56,6 +56,7 @@ app.get('/create', function (req: any, res: any) {
 });
 
 app.use('/js', express.static(path.resolve(__dirname + '/../site/js')));
+app.use('/tex', express.static(path.resolve(__dirname + '/../site/tex')));
 //app.use(express.static(path.resolve(__dirname + '/public'));
 
 var gameServer = require('./server.js');

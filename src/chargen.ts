@@ -3,6 +3,7 @@ import { Instance, InstanceAttributes } from "./instance";
 import { Entity } from "./entity";
 import { Location } from "./location";
 import { ORIGIN, CharacterOrigin } from "./characterorigin";
+import { INSTANCE_GEN_TYPE } from "./instancegenerator";
 
 export const enum CharGenStage {
     Tutorial,
@@ -47,7 +48,9 @@ export class CharGen {
     static spawnPlayerInFreshInstance(player: Player) {
         switch (player.chargen) {
             case CharGenStage.Tutorial:
-                var inst = Instance.spinUpNewInstance(new InstanceAttributes(0, 10, 10, true));
+                var attr = new InstanceAttributes(0, 10, 10, true);
+                attr.genType = INSTANCE_GEN_TYPE.ONE_ROOM;
+                var inst = Instance.spinUpNewInstance(attr);
                 inst.spawnEntityAtCoords(new Entity(Entity.generateNewEntityID(), 'Use WASD to move'), 2, 1);
                 inst.spawnEntityAtCoords(new Entity(Entity.generateNewEntityID(), 'Move into an enemy to auto-attack'), 5, 2);
                 inst.spawnEntityAtCoords(new Entity(Entity.generateNewEntityID(), 'Destroy the enemy to Proceed'), 8, 3);
@@ -55,7 +58,9 @@ export class CharGen {
                 inst.spawnEntityAtCoords(player, 3, 8);
                 break;
             case CharGenStage.Name:
-                var inst = Instance.spinUpNewInstance(new InstanceAttributes(0, 10, 10, true));
+                var attr = new InstanceAttributes(0, 10, 10, true);
+                attr.genType = INSTANCE_GEN_TYPE.ONE_ROOM;
+                var inst = Instance.spinUpNewInstance(attr);
                 inst.spawnEntityAtCoords(new Entity(Entity.generateNewEntityID(), 'Change your name with /name'), 2, 1);
                 inst.spawnEntityAtCoords(new Entity(Entity.generateNewEntityID(), 'Destroy all enemies to Proceed'), 6, 1);
                 var count: EnemyCount = new EnemyCount(3);
@@ -65,8 +70,9 @@ export class CharGen {
                 inst.spawnEntityAtCoords(player, 5, 8);
                 break;
             case CharGenStage.Origin:
-                //TODO: create origin selection instance
-                var inst = Instance.spinUpNewInstance(new InstanceAttributes(0, 10, 10, true));
+                var attr = new InstanceAttributes(0, 10, 10, true);
+                attr.genType = INSTANCE_GEN_TYPE.ONE_ROOM;
+                var inst = Instance.spinUpNewInstance(attr);
                 inst.spawnEntityAtCoords(new Entity(Entity.generateNewEntityID(), 'Choose An Origin'), 4, 1);
                 inst.spawnEntityAtCoords(new OriginEnemy(player, ORIGIN.BLOODED, Entity.generateNewEntityID(), 'Blooded Redvein'), 1, 3);
                 inst.spawnEntityAtCoords(new OriginEnemy(player, ORIGIN.NEATHLING, Entity.generateNewEntityID(), 'Neathling Outcast'), 3, 3);
@@ -78,7 +84,9 @@ export class CharGen {
                 //TODO: spawn into main world?
                 var inst = Instance.getAvailableNonFullInstance(player);
                 if (!inst) {
-                    inst = Instance.spinUpNewInstance(new InstanceAttributes(0, 100, 100));
+                    var attr = new InstanceAttributes(0, 100, 100);
+                    attr.genType = INSTANCE_GEN_TYPE.MAZE;
+                    inst = Instance.spinUpNewInstance(attr);
                     for (var i = 0; i < 100; i++) {
                         do {
                             var posX = Math.floor(Math.random() * inst.attributes.width);
