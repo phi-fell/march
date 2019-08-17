@@ -1,4 +1,4 @@
-import { InstanceAttributes, Instance, TILE } from "./instance";
+import { Instance, TILE } from "./instance";
 
 export enum INSTANCE_GEN_TYPE {
     EMPTY,

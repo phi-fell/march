@@ -1,9 +1,9 @@
-import uuid = require('uuid/v4');
 import fs = require('fs');
+import uuid = require('uuid/v4');
 import { Entity } from './entity';
-import { Player } from './player';
-import { Location } from './location';
 import { INSTANCE_GEN_TYPE, InstanceGenerator } from './instancegenerator';
+import { Location } from './location';
+import { Player } from './player';
 
 export class InstanceAttributes {
     public genType: INSTANCE_GEN_TYPE = INSTANCE_GEN_TYPE.EMPTY;
