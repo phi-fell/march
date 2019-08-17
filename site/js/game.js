@@ -12,15 +12,16 @@ class Game {
         this.player = undefined;
         this._tilesheet = undefined;
         this._tileset = [];
+        this._subtiles = [];
         this._drawQueued = false;
         this._loadImages();
     }
 
     _loadImages() {
+        const tileSize = 32;//width and height in pixels within sheet
         this._tilesheet = new Image();
         let g = this;
         this._tilesheet.onload = function () {
-            let tileSize = 32;//width and height in pixels within sheet
             let sheetSize = 10;//width and height of sheet in tiles
             for (var i = 0; i < 100; i++) {
                 var tx = i % sheetSize;
@@ -33,6 +34,25 @@ class Game {
             }
         }
         this._tilesheet.src = "tex/tilesheet.png";
+        const MAX_TILE_ID = 5;
+        for (let i = 0; i <= MAX_TILE_ID; i++) {
+            let image = new Image();
+            image.onload = function () {
+                let st = [];
+                for (let x = 0; x * tileSize < image.width; x++) {
+                    st[x] = [];
+                    for (let y = 0; y * tileSize < image.height; y++) {
+                        st[x][y] = document.createElement('canvas');
+                        let context = st[x][y].getContext('2d');
+                        st[x][y].width = tileSize;
+                        st[x][y].height = tileSize;
+                        context.drawImage(image, x * tileSize, y * tileSize, tileSize, tileSize, 0, 0, tileSize, tileSize);
+                    }
+                }
+                g._subtiles[i] = st;
+            }
+            image.src = "tex/tiles/" + i + ".png";
+        }
     }
 
     draw() {
@@ -48,14 +68,6 @@ class Game {
     }
 
     _draw() {
-        let tilepattern = [
-            [3, 3, 3, 3, 3, 3],
-            [3, 3, 8, 7, 10, 3],
-            [3, 8, 15, 2, 13, 10],
-            [3, 4, 2, 2, 2, 5],
-            [3, 9, 14, 2, 12, 11],
-            [3, 3, 9, 6, 11, 3],
-        ];
         this._clear();
         this._drawBoard();
         if (this.board !== undefined) {
@@ -71,65 +83,93 @@ class Game {
             for (var x = 0; x < this.board.length; x++) {
                 for (var y = 0; y < this.board[0].length; y++) {
                     let tile = this.tiles[x][y];
-                    let id = 0;
                     switch (tile) {
-                        case 0: id = 0; break;
-                        case 1: id = 1; break;
-                        case 2: id = 2; break;
                         case 3:
-                            let s = [
-                                [false, false, false],
-                                [false, true, false],
-                                [false, false, false],
-                            ];
-                            let c = 0;
-                            for (let i = -1; i <= 1; i++) {
-                                for (let j = -1; j <= 1; j++) {
-                                    if (i != 0 || j != 0) {
-                                        if (x + i <= 0
-                                            || y + j <= 0
-                                            || x + i >= this.board.length
-                                            || y + j >= this.board[0].length
-                                            || this.tiles[x + i][y + j] != 2) {
-                                            s[i + 1][j + 1] = true;
-                                            c++;
+                            let newAlg = true;
+                            if (newAlg) {
+                                let ids = [
+                                    [0, 0, 0],
+                                    [0, tile, 0],
+                                    [0, 0, 0],
+                                ];
+                                for (let i = -1; i <= 1; i++) {
+                                    for (let j = -1; j <= 1; j++) {
+                                        if (i != 0 || j != 0) {
+                                            if (x + i <= 0
+                                                || y + j <= 0
+                                                || x + i >= this.board.length
+                                                || y + j >= this.board[0].length) {
+                                                ids[i + 1][j + 1] = tile;
+                                            } else {
+                                                ids[i + 1][j + 1] = this.tiles[x + i][y + j];
+                                            }
                                         }
                                     }
                                 }
-                            }
-                            if (c == 8) {//fully surrounded
-                                id = 3;
-                            } else if (s[0][1] && s[1][0] && s[2][1] && s[1][2]) {//must be concave corner
-                                if (!s[2][2]) {//concave top left corner
-                                    id = 8;
-                                } else if (!s[0][2]) {//concave top right corner
-                                    id = 9;
-                                } else if (!s[2][0]) {//concave bottom left corner
-                                    id = 10;
-                                } else if (!s[0][0]) {//concave bottom right corner
-                                    id = 11;
+                                this._drawSubtiles(ids, (x * scale) + offsetX, (y * scale) + offsetY, scale, scale);
+                            } else {
+                                let s = [
+                                    [false, false, false],
+                                    [false, true, false],
+                                    [false, false, false],
+                                ];
+                                let id = 0;
+                                let c = 0;
+                                for (let i = -1; i <= 1; i++) {
+                                    for (let j = -1; j <= 1; j++) {
+                                        if (i != 0 || j != 0) {
+                                            if (x + i <= 0
+                                                || y + j <= 0
+                                                || x + i >= this.board.length
+                                                || y + j >= this.board[0].length
+                                                || this.tiles[x + i][y + j] != 2) {
+                                                s[i + 1][j + 1] = true;
+                                                c++;
+                                            }
+                                        }
+                                    }
                                 }
-                            } else if (s[0][1] && s[1][0] && s[2][1]) {//top wall
-                                id = 4;
-                            } else if (s[0][1] && s[2][1] && s[1][2]) {///bottom wall
-                                id = 5;
-                            } else if (s[0][1] && s[1][0] && s[1][2]) {//left wall
-                                id = 7;
-                            } else if (s[1][0] && s[2][1] && s[1][2]) {//right wall
-                                id = 6;
-                            } else if (s[2][2]) {//convex top left corner
-                                id = 12;
-                            } else if (s[0][2]) {//convex top right corner
-                                id = 13;
-                            } else if (s[2][0]) {//convex bottom left corner
-                                id = 14;
-                            } else if (s[0][0]) {//convex bottom right corner
-                                id = 15;
+                                if (c == 8) {//fully surrounded
+                                    id = 3;
+                                } else if (s[0][1] && s[1][0] && s[2][1] && s[1][2]) {//must be concave corner
+                                    if (!s[2][2]) {//concave top left corner
+                                        id = 8;
+                                    } else if (!s[0][2]) {//concave top right corner
+                                        id = 9;
+                                    } else if (!s[2][0]) {//concave bottom left corner
+                                        id = 10;
+                                    } else if (!s[0][0]) {//concave bottom right corner
+                                        id = 11;
+                                    }
+                                } else if (s[0][1] && s[1][0] && s[2][1]) {//top wall
+                                    id = 4;
+                                } else if (s[0][1] && s[2][1] && s[1][2]) {///bottom wall
+                                    id = 5;
+                                } else if (s[0][1] && s[1][0] && s[1][2]) {//left wall
+                                    id = 7;
+                                } else if (s[1][0] && s[2][1] && s[1][2]) {//right wall
+                                    id = 6;
+                                } else if (s[2][2]) {//convex top left corner
+                                    id = 12;
+                                } else if (s[0][2]) {//convex top right corner
+                                    id = 13;
+                                } else if (s[2][0]) {//convex bottom left corner
+                                    id = 14;
+                                } else if (s[0][0]) {//convex bottom right corner
+                                    id = 15;
+                                }
+                                this._drawTile(id, (x * scale) + offsetX, (y * scale) + offsetY, scale, scale);
                             }
                             break;
-                        default: id = 99; break;
+                        case 0:
+                        case 1:
+                        case 2:
+                            this._drawTile(tile, (x * scale) + offsetX, (y * scale) + offsetY, scale, scale);
+                            break;
+                        default:
+                            this._drawTile(99, (x * scale) + offsetX, (y * scale) + offsetY, scale, scale);
+                            break;
                     }
-                    this._drawTile(id, (x * scale) + offsetX, (y * scale) + offsetY, scale, scale);
                 }
             }
             for (var x = 0; x < this.board.length; x++) {
@@ -139,6 +179,31 @@ class Game {
                         this._ctx.fillText(this.board[x][y].name, ((x + 0.5) * scale) + offsetX, ((y + 0.5) * scale) + offsetY);
                     }
                 }
+            }
+        }
+    }
+
+    _drawSubtiles(id, x, y, w_2, h_2) {
+        let w = w_2 / 2;
+        let h = h_2 / 2;
+        for (let i = 0; i < 2; i++) {
+            for (let j = 0; j < 2; j++) {
+                let xi = i * 2;
+                let yi = j * 2;
+                let tx = 0;
+                let ty = 0
+                if (id[xi][yi] == id[1][1] && id[xi][1] == id[1][1] && id[1][yi] == id[1][1]) {
+                    tx = 5; ty = 1;//surrounded
+                } else if (id[xi][1] != id[1][1] && id[1][yi] != id[1][1]) {
+                    tx = 2 + i; ty = j;//convex corner
+                } else if (id[xi][1] == id[1][1] && id[1][yi] == id[1][1]) {
+                    tx = i; ty = j;//concave corner
+                } else if (id[xi][1] != id[1][1]) {
+                    tx = 5 + i;//vertical wall
+                } else {
+                    tx = 4; ty = j//horizontal wall
+                }
+                this._ctx.drawImage(this._subtiles[id[1][1]][tx][ty], x + (w * i), y + (w * j), w, h);
             }
         }
     }

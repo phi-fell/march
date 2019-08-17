@@ -85,7 +85,7 @@ export class CharGen {
                 var inst = Instance.getAvailableNonFullInstance(player);
                 if (!inst) {
                     var attr = new InstanceAttributes(0, 100, 100);
-                    attr.genType = INSTANCE_GEN_TYPE.MAZE;
+                    attr.genType = INSTANCE_GEN_TYPE.ROOMS;
                     inst = Instance.spinUpNewInstance(attr);
                     for (var i = 0; i < 100; i++) {
                         do {
