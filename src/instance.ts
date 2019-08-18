@@ -166,24 +166,37 @@ export class Instance {
     }
     static getPlayerBoard(plr: Player) {
         //return section of level around player, with Entities and such limited by what they percieve
-        var ret: any = [];//TODO move board to instance
+        var retBoard: any = [];//TODO move board to instance
+        var retTiles: any = [];//TODO move board to instance
         var inst = Instance.instances[plr.location.instance_id];
-        for (var i = 0; i < inst.attributes.width; i++) {
-            ret[i] = [];
-            for (var j = 0; j < inst.attributes.height; j++) {
-                if (inst.board[i][j] === undefined) {
-                    ret[i][j] = undefined;
+        const MAX_RADIUS = 10;
+        let x0 = plr.location.x - MAX_RADIUS
+        let y0 = plr.location.y - MAX_RADIUS
+        let x1 = plr.location.x + MAX_RADIUS
+        let y1 = plr.location.y + MAX_RADIUS
+        for (let i = x0; i <= x1; i++){
+            retTiles[i-x0] = [];
+            retBoard[i-x0] = [];
+            for (let j = y0; j <= y1; j++){
+                if (i < 0 || j < 0 || i >= inst.attributes.width || j >= inst.attributes.height){
+                    retTiles[i-x0][j-y0] = TILE.NONE;
+                    retBoard[i-x0][j-y0] = undefined;
                 } else {
-                    ret[i][j] = {
-                        'name': inst.board[i][j]!.name,
-                        'location': inst.board[i][j]!.location,
-                    };
+                    retTiles[i-x0][j-y0] = inst.tiles[i][j];
+                    if (inst.board[i][j] === undefined) {
+                        retBoard[i-x0][j-y0] = undefined;
+                    } else {
+                        retBoard[i-x0][j-y0] = {
+                            'name': inst.board[i][j]!.name,
+                            'location': inst.board[i][j]!.location,
+                        };
+                    }
                 }
             }
         }
         return {
-            'board': ret,
-            'tiles': inst.tiles,
+            'board': retBoard,
+            'tiles': retTiles,
         };
     }
 }
