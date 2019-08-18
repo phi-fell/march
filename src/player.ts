@@ -65,6 +65,12 @@ export class Player extends Entity {
         }
         this.active = true;
         this.user = usr;
+        const inst = Instance.getLoadedInstanceById(this.location.instance_id);
+        if (inst) {
+            inst.addPlayer(this);//TODO: this should probably occur elsewhere.  on construction? on spawn? probably on spawn.
+        } else {
+            //inst is null, throw error? (any loading from disk should already have occured)
+        }
         this.pushUpdate();
     }
     setInactive() {
