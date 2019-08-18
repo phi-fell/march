@@ -40,7 +40,9 @@ export class Entity {
             } else {
                 toInst.board[to.x][to.y]!.hit(1);
             }
-            fromInst.updateAllPlayers();
+            if (fromInst.id !== toInst.id) {
+                fromInst.updateAllPlayers();
+            }
             toInst.updateAllPlayers();
         }
     }
