@@ -2,7 +2,7 @@ import fs = require('fs');
 import uuid = require('uuid/v4');
 var nameGen = require('./namegen');
 var world = require('./world');
-import { Entity } from './entity';
+import { Entity, SPRITE } from './entity';
 import { Location } from './location';
 import { User } from './user';
 import { CharGenStage, CharGen } from './chargen';
@@ -17,7 +17,7 @@ export class Player extends Entity {
     charSheet: CharacterSheet;
     chargen: CharGenStage;
     constructor(id: string, name: string, _location: Location = new Location(0, 0, '')) {
-        super(id, name, _location);
+        super(id, name, SPRITE.PLAYER, _location);
         this.chargen = CharGenStage.Tutorial;
         this.charSheet = new CharacterSheet;
         this.user = null;

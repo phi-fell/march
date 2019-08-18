@@ -174,21 +174,22 @@ export class Instance {
         let y0 = plr.location.y - MAX_RADIUS
         let x1 = plr.location.x + MAX_RADIUS
         let y1 = plr.location.y + MAX_RADIUS
-        for (let i = x0; i <= x1; i++){
-            retTiles[i-x0] = [];
-            retBoard[i-x0] = [];
-            for (let j = y0; j <= y1; j++){
-                if (i < 0 || j < 0 || i >= inst.attributes.width || j >= inst.attributes.height){
-                    retTiles[i-x0][j-y0] = TILE.NONE;
-                    retBoard[i-x0][j-y0] = undefined;
+        for (let i = x0; i <= x1; i++) {
+            retTiles[i - x0] = [];
+            retBoard[i - x0] = [];
+            for (let j = y0; j <= y1; j++) {
+                if (i < 0 || j < 0 || i >= inst.attributes.width || j >= inst.attributes.height) {
+                    retTiles[i - x0][j - y0] = TILE.NONE;
+                    retBoard[i - x0][j - y0] = undefined;
                 } else {
-                    retTiles[i-x0][j-y0] = inst.tiles[i][j];
+                    retTiles[i - x0][j - y0] = inst.tiles[i][j];
                     if (inst.board[i][j] === undefined) {
-                        retBoard[i-x0][j-y0] = undefined;
+                        retBoard[i - x0][j - y0] = undefined;
                     } else {
-                        retBoard[i-x0][j-y0] = {
+                        retBoard[i - x0][j - y0] = {
                             'name': inst.board[i][j]!.name,
                             'location': inst.board[i][j]!.location,
+                            'sprite': inst.board[i][j]!.sprite,
                         };
                     }
                 }

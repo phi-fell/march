@@ -59,7 +59,6 @@ $(function () {
         $('#messages').append($('<li>').text('pong! ' + (Date.now() - msg) + 'ms'));
     });
     socket.on('update', function (msg) {
-        console.log('update');
         game.board = msg.board;
         game.tiles = msg.tiles;
         game.player = msg.player;

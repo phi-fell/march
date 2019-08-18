@@ -1,11 +1,18 @@
 import uuid = require('uuid/v4');
 import { Instance } from './instance';
 import { Location } from './location';
-import { Player } from './player';
+
+export enum SPRITE {
+    NAME = -1,
+    NONE = 0,
+    PLAYER,
+    SLIME,
+
+}
 
 export class Entity {
     public status: any;
-    constructor(public id: string, public name: string, protected _location: Location = new Location(0, 0, '')) {
+    constructor(public id: string, public name: string, public sprite: SPRITE = SPRITE.NONE, protected _location: Location = new Location(0, 0, '')) {
         this.status = {
             'hp': 10,
             'max_hp': 10,

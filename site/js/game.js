@@ -15,6 +15,7 @@ class Game {
         this._tilesheet = undefined;
         this._tileset = [];
         this._subtiles = [];
+        this._sprites = [];
         this._drawQueued = false;
         this._loadImages();
     }
@@ -54,6 +55,14 @@ class Game {
                 g._subtiles[i] = st;
             }
             image.src = "tex/tiles/" + i + ".png";
+        }
+        const MAX_SPRITE_ID = 2;
+        for (let i = 0; i <= MAX_SPRITE_ID; i++) {
+            this._sprites[i] = new Image();
+            this._sprites[i].onload = function () {
+                //do nothing for now.
+            }
+            this._sprites[i].src = "tex/sprites/" + i + ".png";
         }
     }
 
@@ -118,8 +127,13 @@ class Game {
             for (var x = 1; x < this.board.length - 1; x++) {
                 for (var y = 1; y < this.board[0].length - 1; y++) {
                     if (this.board[x][y] != null) {
-                        this._drawSquare(((x - 1) * scale) + offsetX, ((y - 1) * scale) + offsetY, scale, scale);
-                        this._ctx.fillText(this.board[x][y].name, ((x - 0.5) * scale) + offsetX, ((y - 0.5) * scale) + offsetY);
+                        let sprite = this.board[x][y].sprite;
+                        if (sprite == -1) {
+                            //this._drawSquare(((x - 1) * scale) + offsetX, ((y - 1) * scale) + offsetY, scale, scale);
+                            this._ctx.fillText(this.board[x][y].name, ((x - 0.5) * scale) + offsetX, ((y - 0.5) * scale) + offsetY);
+                        } else {
+                            this._drawSprite(sprite, ((x - 1) * scale) + offsetX, ((y - 1) * scale) + offsetY, scale, scale);
+                        }
                     }
                 }
             }
@@ -153,6 +167,10 @@ class Game {
 
     _drawTile(id, x, y, w, h) {
         this._ctx.drawImage(this._tileset[id], x, y, w, h);
+    }
+
+    _drawSprite(id, x, y, w, h) {
+        this._ctx.drawImage(this._sprites[id], x, y, w, h);
     }
 
     _drawSquare(x, y, w, h) {
