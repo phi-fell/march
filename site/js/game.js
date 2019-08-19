@@ -86,22 +86,23 @@ class Game {
         list.empty();
         list.append($('<li>').text('-----Character Sheet----- (change mode with /sheet)'));
         if (this._sheetdisplaymode === 'attributes' || this._sheetdisplaymode === 'attr') {
+            let lvlupavailable = sheet.exp >= 10;
             list.append($('<li>').text('Body:'));
-            list.append($('<li>').html(' - Strength: ' + sheet.attributes.STRENGTH + ' <button onclick="levelUpAttr(\'STRENGTH\')">+</button> (10 exp)'));
-            list.append($('<li>').html(' - Endurance: ' + sheet.attributes.ENDURANCE + ' <button onclick="levelUpAttr(\'ENDURANCE\')">+</button> (10 exp)'));
-            list.append($('<li>').html(' - Constitution: ' + sheet.attributes.CONSTITUTION + ' <button onclick="levelUpAttr(\'CONSTITUTION\')">+</button> (10 exp)'));
+            list.append($('<li>').html(' - Strength: ' + sheet.attributes.STRENGTH + (lvlupavailable ? ' <button onclick="levelUpAttr(\'STRENGTH\')">+</button> (10 exp)' : '')));
+            list.append($('<li>').html(' - Endurance: ' + sheet.attributes.ENDURANCE + (lvlupavailable ? ' <button onclick="levelUpAttr(\'ENDURANCE\')">+</button> (10 exp)' : '')));
+            list.append($('<li>').html(' - Constitution: ' + sheet.attributes.CONSTITUTION + (lvlupavailable ? ' <button onclick="levelUpAttr(\'CONSTITUTION\')">+</button> (10 exp)' : '')));
             list.append($('<li>').text('Movement:'));
-            list.append($('<li>').html(' - Agility: ' + sheet.attributes.AGILITY + ' <button onclick="levelUpAttr(\'AGILITY\')">+</button> (10 exp)'));
-            list.append($('<li>').html(' - Dexterity: ' + sheet.attributes.DEXTERITY + ' <button onclick="levelUpAttr(\'DEXTERITY\')">+</button> (10 exp)'));
-            list.append($('<li>').html(' - Speed: ' + sheet.attributes.SPEED + ' <button onclick="levelUpAttr(\'SPEED\')">+</button> (10 exp)'));
+            list.append($('<li>').html(' - Agility: ' + sheet.attributes.AGILITY + (lvlupavailable ? ' <button onclick="levelUpAttr(\'AGILITY\')">+</button> (10 exp)' : '')));
+            list.append($('<li>').html(' - Dexterity: ' + sheet.attributes.DEXTERITY + (lvlupavailable ? ' <button onclick="levelUpAttr(\'DEXTERITY\')">+</button> (10 exp)' : '')));
+            list.append($('<li>').html(' - Speed: ' + sheet.attributes.SPEED + (lvlupavailable ? ' <button onclick="levelUpAttr(\'SPEED\')">+</button> (10 exp)' : '')));
             list.append($('<li>').text('Mental:'));
-            list.append($('<li>').html(' - Charisma: ' + sheet.attributes.CHARISMA + ' <button onclick="levelUpAttr(\'CHARISMA\')">+</button> (10 exp)'));
-            list.append($('<li>').html(' - Logic: ' + sheet.attributes.LOGIC + ' <button onclick="levelUpAttr(\'LOGIC\')">+</button> (10 exp)'));
-            list.append($('<li>').html(' - Wisdom: ' + sheet.attributes.WISDOM + ' <button onclick="levelUpAttr(\'WISDOM\')">+</button> (10 exp)'));
+            list.append($('<li>').html(' - Charisma: ' + sheet.attributes.CHARISMA + (lvlupavailable ? ' <button onclick="levelUpAttr(\'CHARISMA\')">+</button> (10 exp)' : '')));
+            list.append($('<li>').html(' - Logic: ' + sheet.attributes.LOGIC + (lvlupavailable ? ' <button onclick="levelUpAttr(\'LOGIC\')">+</button> (10 exp)' : '')));
+            list.append($('<li>').html(' - Wisdom: ' + sheet.attributes.WISDOM + (lvlupavailable ? ' <button onclick="levelUpAttr(\'WISDOM\')">+</button> (10 exp)' : '')));
             list.append($('<li>').text('Other:'));
-            list.append($('<li>').html(' - Memory: ' + sheet.attributes.MEMORY + ' <button onclick="levelUpAttr(\'MEMORY\')">+</button> (10 exp)'));
-            list.append($('<li>').html(' - Will: ' + sheet.attributes.WILLPOWER + ' <button onclick="levelUpAttr(\'WILLPOWER\')">+</button> (10 exp)'));
-            list.append($('<li>').html(' - Luck: ' + sheet.attributes.LUCK + ' <button onclick="levelUpAttr(\'LUCK\')">+</button> (10 exp)'));
+            list.append($('<li>').html(' - Memory: ' + sheet.attributes.MEMORY + (lvlupavailable ? ' <button onclick="levelUpAttr(\'MEMORY\')">+</button> (10 exp)' : '')));
+            list.append($('<li>').html(' - Will: ' + sheet.attributes.WILLPOWER + (lvlupavailable ? ' <button onclick="levelUpAttr(\'WILLPOWER\')">+</button> (10 exp)' : '')));
+            list.append($('<li>').html(' - Luck: ' + sheet.attributes.LUCK + (lvlupavailable ? ' <button onclick="levelUpAttr(\'LUCK\')">+</button> (10 exp)' : '')));
         } else {
             list.append($('<li>').text('Mode \"' + this._sheetdisplaymode + '\" does not exist'));
             list.append($('<li>').text('available modes:'));
