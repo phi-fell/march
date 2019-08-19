@@ -1,10 +1,10 @@
 {
   "name": "gotg_js",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "lint":"tslint -c tslint.json 'src/**/*.ts'",
+    "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "build": "tsc",
     "predev": "npm run build",
     "dev": "node build/index.js -NO_HTTPS",
