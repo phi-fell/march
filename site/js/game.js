@@ -17,6 +17,7 @@ class Game {
         this._subtiles = [];
         this._sprites = [];
         this._drawQueued = false;
+        this._sheetdisplaymode = 'attributes';
         this._loadImages();
     }
 
@@ -76,6 +77,50 @@ class Game {
                 this._draw();
             }, 50);
         }
+    }
+
+    updateMenus() {
+        var sheet = this.player.sheet;
+        var status = this.player.status;
+        var list = $("#sheet");
+        list.empty();
+        list.append($('<li>').text('-----Character Sheet----- (change mode with /sheet)'));
+        if (this._sheetdisplaymode === 'attributes' || this._sheetdisplaymode === 'attr') {
+            list.append($('<li>').text('Body:'));
+            list.append($('<li>').html(' - Strength: ' + sheet.attributes.STRENGTH + ' <button onclick="levelUpAttr(\'STRENGTH\')">+</button> (10 exp)'));
+            list.append($('<li>').html(' - Endurance: ' + sheet.attributes.ENDURANCE + ' <button onclick="levelUpAttr(\'ENDURANCE\')">+</button> (10 exp)'));
+            list.append($('<li>').html(' - Constitution: ' + sheet.attributes.CONSTITUTION + ' <button onclick="levelUpAttr(\'CONSTITUTION\')">+</button> (10 exp)'));
+            list.append($('<li>').text('Movement:'));
+            list.append($('<li>').html(' - Agility: ' + sheet.attributes.AGILITY + ' <button onclick="levelUpAttr(\'AGILITY\')">+</button> (10 exp)'));
+            list.append($('<li>').html(' - Dexterity: ' + sheet.attributes.DEXTERITY + ' <button onclick="levelUpAttr(\'DEXTERITY\')">+</button> (10 exp)'));
+            list.append($('<li>').html(' - Speed: ' + sheet.attributes.SPEED + ' <button onclick="levelUpAttr(\'SPEED\')">+</button> (10 exp)'));
+            list.append($('<li>').text('Mental:'));
+            list.append($('<li>').html(' - Charisma: ' + sheet.attributes.CHARISMA + ' <button onclick="levelUpAttr(\'CHARISMA\')">+</button> (10 exp)'));
+            list.append($('<li>').html(' - Logic: ' + sheet.attributes.LOGIC + ' <button onclick="levelUpAttr(\'LOGIC\')">+</button> (10 exp)'));
+            list.append($('<li>').html(' - Wisdom: ' + sheet.attributes.WISDOM + ' <button onclick="levelUpAttr(\'WISDOM\')">+</button> (10 exp)'));
+            list.append($('<li>').text('Other:'));
+            list.append($('<li>').html(' - Memory: ' + sheet.attributes.MEMORY + ' <button onclick="levelUpAttr(\'MEMORY\')">+</button> (10 exp)'));
+            list.append($('<li>').html(' - Will: ' + sheet.attributes.WILLPOWER + ' <button onclick="levelUpAttr(\'WILLPOWER\')">+</button> (10 exp)'));
+            list.append($('<li>').html(' - Luck: ' + sheet.attributes.LUCK + ' <button onclick="levelUpAttr(\'LUCK\')">+</button> (10 exp)'));
+        } else {
+            list.append($('<li>').text('Mode \"' + this._sheetdisplaymode + '\" does not exist'));
+            list.append($('<li>').text('available modes:'));
+            list.append($('<li>').text(' - attributes (shorthand: attr)'));
+        }
+
+        var list = $("#status");
+        list.empty();
+        list.append($('<li>').text('-----Status-----'));
+        list.append($('<li>').text('Position: (' + this.player.location.x + ', ' + this.player.location.y + ")"));
+        list.append($('<li>').text('Health: ' + status.hp + '/' + status.max_hp));
+        list.append($('<li>').text('Stamina: ' + status.sp + '/' + status.max_sp));
+        list.append($('<li>').text('Action Points: ' + status.ap + '/' + status.max_ap + ' (+' + status.ap_recovery + ' /turn)'));
+
+        var list = $("#info");
+        list.empty();
+        list.append($('<li>').text('Player: ' + this.player.name));
+        list.append($('<li>').text('Origin: ' + sheet.origin.type));
+        list.append($('<li>').text('Exp: ' + sheet.exp));
     }
 
     _draw() {

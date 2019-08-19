@@ -1,6 +1,7 @@
 import uuid = require('uuid/v4');
 import { Instance } from './instance';
 import { Location } from './location';
+import { CharacterSheet } from './charactersheet';
 
 export enum SPRITE {
     NAME = -1,
@@ -12,6 +13,7 @@ export enum SPRITE {
 
 export class Entity {
     public status: any;
+    private lastHitSheet: CharacterSheet | undefined;
     constructor(public id: string, public name: string, public sprite: SPRITE = SPRITE.NONE, protected _location: Location = new Location(0, 0, '')) {
         this.status = {
             'hp': 10,
@@ -22,6 +24,7 @@ export class Entity {
             'max_ap': 60,
             'ap_recovery': 25,
         };
+        this.lastHitSheet = undefined;
     }
     get location(): Location {
         return this._location;
@@ -29,7 +32,10 @@ export class Entity {
     set location(loc: Location) {
         this._location = loc;
     }
-    public hit(amount: number) {
+    public hit(amount: number, charsheet?: CharacterSheet) {
+        if (charsheet) {
+            this.lastHitSheet = charsheet;
+        }
         // take a hit, first applying chance to dodge, etc.
         var dodgeChance = 0;
         if (Math.random() >= dodgeChance) {
@@ -57,6 +63,9 @@ export class Entity {
         // TODO: add ability to attach listeners to entities e.g. death listener, damage listener, etc.
         // TODO: kill entity
         Instance.removeEntityFromWorld(this);
+        if (this.lastHitSheet) {
+            this.lastHitSheet.addExperience(1);//TODO: make amount variable
+        }
     }
     protected takeDirectHealthDamage(amount) {
         // take this damage directly to health and then account for effects (e.g. dying if health = 0 or whatever)

@@ -12,6 +12,43 @@ import { CharacterSheet } from './charactersheet';
 var players = {};
 
 export class Player extends Entity {
+    static generateNewPlayerID() {
+        return uuid();
+    }
+    static accessPlayer(id) {
+        return players[id];
+    }
+    static createPlayer() {
+        var name = nameGen.generateName();
+        while (getPlayerByName(name)) {
+            name = nameGen.generateName()
+        }
+        var plr = new Player(this.generateNewPlayerID(), name);
+        players[plr.id] = plr;
+        CharGen.spawnPlayerInFreshInstance(plr);
+        plr.saveToDisk();
+        return plr;
+    }
+    static loadPlayer(id, callback) {
+        if (id in players) {
+            return process.nextTick(function () {
+                callback(null, players[id]);
+            });
+        } else {
+            fs.readFile("players/" + id + '.plr', function (err, data) {
+                if (err) {
+                    return callback(err);
+                } else {
+                    var plrdat = JSON.parse('' + data);
+                    var ret = new Player(id, plrdat.name, Location.fromJSON(plrdat.location));
+                    ret.loadFromData(plrdat);
+                    players[ret.id] = ret;
+                    //world.spawnInRandomEmptyLocation(ret);//TODO: this should not always be the behavior
+                    callback(null, ret);
+                }
+            });
+        }
+    }
     user: User | null;
     active: boolean;
     charSheet: CharacterSheet;
@@ -36,16 +73,22 @@ export class Player extends Entity {
         }
         this._location = loc;
     }
-    protected handleDeath() {
-        Instance.removeEntityFromWorld(this);
-        if (this.user) {
-            this.user.player = Player.createPlayer();
-            this.user.playerid = this.user.player.id;
-            this.user.socket.emit('force_disconnect', 'YOU HAVE DIED');
-            this.user.logout();
-            //TODO: remove this player from disk?
+    public move(to: Location) {
+        var fromInst = Instance.instances[this.location.instance_id];
+        var toInst = Instance.instances[to.instance_id];
+        if (to.x >= 0 && to.x < toInst.board.length && to.y >= 0 && to.y < toInst.board[0].length) {
+            if (toInst.board[to.x][to.y] === undefined) {
+                fromInst.board[this.location.x][this.location.y] = undefined;
+                toInst.board[to.x][to.y] = this;
+                this.location = to.clone();
+            } else {
+                toInst.board[to.x][to.y]!.hit(1, this.charSheet);
+            }
+            if (fromInst.id !== toInst.id) {
+                fromInst.updateAllPlayers();
+            }
+            toInst.updateAllPlayers();
         }
-
     }
     moveInDirection(direction) {
         if (direction in world.directionVectors) {
@@ -139,43 +182,16 @@ export class Player extends Entity {
             'location': this.location.toJSON(),
         };
     }
+    protected handleDeath() {
+        Instance.removeEntityFromWorld(this);
+        if (this.user) {
+            this.user.player = Player.createPlayer();
+            this.user.playerid = this.user.player.id;
+            this.user.socket.emit('force_disconnect', 'YOU HAVE DIED');
+            this.user.logout();
+            //TODO: remove this player from disk?
+        }
 
-    static generateNewPlayerID() {
-        return uuid();
-    }
-    static accessPlayer(id) {
-        return players[id];
-    }
-    static createPlayer() {
-        var name = nameGen.generateName();
-        while (getPlayerByName(name)) {
-            name = nameGen.generateName()
-        }
-        var plr = new Player(this.generateNewPlayerID(), name);
-        players[plr.id] = plr;
-        CharGen.spawnPlayerInFreshInstance(plr);
-        plr.saveToDisk();
-        return plr;
-    }
-    static loadPlayer(id, callback) {
-        if (id in players) {
-            return process.nextTick(function () {
-                callback(null, players[id]);
-            });
-        } else {
-            fs.readFile("players/" + id + '.plr', function (err, data) {
-                if (err) {
-                    return callback(err);
-                } else {
-                    var plrdat = JSON.parse('' + data);
-                    var ret = new Player(id, plrdat.name, Location.fromJSON(plrdat.location));
-                    ret.loadFromData(plrdat);
-                    players[ret.id] = ret;
-                    //world.spawnInRandomEmptyLocation(ret);//TODO: this should not always be the behavior
-                    callback(null, ret);
-                }
-            });
-        }
     }
 }
 

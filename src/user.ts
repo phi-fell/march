@@ -4,6 +4,7 @@ var auth = require('./auth');
 var world = require('./world');
 var commands = require('./commands');
 import { Player } from './player';
+import { ATTRIBUTE } from './characterattributes';
 
 var users = {};
 
@@ -99,6 +100,18 @@ export class User {
                 }
             } else {
                 console.log('can\'t move nonexistent player');
+            }
+        });
+        sock.on('levelup', (msg) => {
+            if (user.player) {
+                if (msg.type === 'attribute') {
+                    user.player.charSheet.levelUpAttribute(ATTRIBUTE[msg.attr as string]);
+                    user.player.pushUpdate();
+                } else {
+                    console.log('unknown level up type requested: ' + msg.type);
+                }
+            } else {
+                console.log('cannot level up user with null player');
             }
         });
 

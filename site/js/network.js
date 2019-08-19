@@ -2,8 +2,15 @@ var socket = undefined;
 var messageHistory = [];
 var historyPos = 0;
 var currentCache = "";
-$(function () {
 
+function levelUpAttr(val) {
+    socket.emit('levelup', {
+        'type': 'attribute',
+        'attr': val,
+    });
+}
+
+$(function () {
     creds = loadCredentials();
     if (creds.user && creds.auth) {
         socket = io();
@@ -32,6 +39,12 @@ $(function () {
         } else if ((msg + '') == '/logout') {
             clearCredentials();
             window.location.href = '/';
+        } else if ((msg + '').startsWith('/sheet')) {
+            tok = msg.substring(1).split(' ');
+            cmd = tok[0];
+            tok = tok.slice(1);
+            game._sheetdisplaymode = tok.join(' ');
+            game.updateMenus();
         } else if ((msg + '').startsWith('/')) {
             tok = msg.substring(1).split(' ');
             cmd = tok[0];
@@ -63,39 +76,7 @@ $(function () {
         game.tiles = msg.tiles;
         game.player = msg.player;
         game.draw();
-        var sheet = msg.player.sheet;
-        var status = msg.player.status;
-        var list = $("#sheet");
-        list.empty();
-        list.append($('<li>').text('Body:'));
-        list.append($('<li>').text(' - Strength: ' + sheet.attributes.STRENGTH));
-        list.append($('<li>').text(' - Endurance: ' + sheet.attributes.ENDURANCE));
-        list.append($('<li>').text(' - Constitution: ' + sheet.attributes.CONSTITUTION));
-        list.append($('<li>').text('Movement:'));
-        list.append($('<li>').text(' - Agility: ' + sheet.attributes.AGILITY));
-        list.append($('<li>').text(' - Dexterity: ' + sheet.attributes.DEXTERITY));
-        list.append($('<li>').text(' - Speed: ' + sheet.attributes.SPEED));
-        list.append($('<li>').text('Mental:'));
-        list.append($('<li>').text(' - Charisma: ' + sheet.attributes.CHARISMA));
-        list.append($('<li>').text(' - Logic: ' + sheet.attributes.LOGIC));
-        list.append($('<li>').text(' - Wisdom: ' + sheet.attributes.WISDOM));
-        list.append($('<li>').text('Other:'));
-        list.append($('<li>').text(' - Memory: ' + sheet.attributes.MEMORY));
-        list.append($('<li>').text(' - Will: ' + sheet.attributes.WILLPOWER));
-        list.append($('<li>').text(' - Luck: ' + sheet.attributes.LUCK));
-
-        var list = $("#status");
-        list.empty();
-        list.append($('<li>').text('-----Status-----'));
-        list.append($('<li>').text('Position: (' + msg.player.location.x + ', ' + msg.player.location.y + ")"));
-        list.append($('<li>').text('Health: ' + status.hp + '/' + status.max_hp));
-        list.append($('<li>').text('Stamina: ' + status.sp + '/' + status.max_sp));
-        list.append($('<li>').text('Action Points: ' + status.ap + '/' + status.max_ap + ' (+' + status.ap_recovery + ' /turn)'));
-
-        var list = $("#info");
-        list.empty();
-        list.append($('<li>').text('Player: ' + msg.player.name));
-        list.append($('<li>').text('Origin: ' + sheet.origin.type));
+        game.updateMenus();
     });
     socket.on('log', function (msg) {
         console.log(msg);
