@@ -189,6 +189,7 @@ export class Player extends Entity {
             this.user.playerid = this.user.player.id;
             this.user.socket.emit('force_disconnect', 'YOU HAVE DIED');
             this.user.logout();
+            this.unload();
             //TODO: remove this player from disk?
         }
 
