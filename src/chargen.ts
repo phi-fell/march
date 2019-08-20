@@ -1,9 +1,9 @@
-import { Player } from "./player";
-import { Instance, InstanceAttributes } from "./instance";
-import { Entity, SPRITE } from "./entity";
-import { Location } from "./location";
-import { ORIGIN, CharacterOrigin } from "./characterorigin";
-import { INSTANCE_GEN_TYPE } from "./instancegenerator";
+import { CharacterOrigin, ORIGIN } from './characterorigin';
+import { Entity, SPRITE } from './entity';
+import { Instance, InstanceAttributes } from './instance';
+import { INSTANCE_GEN_TYPE } from './instancegenerator';
+import { Location } from './location';
+import { Player } from './player';
 
 export const enum CharGenStage {
     Tutorial,
@@ -17,7 +17,7 @@ class EnemyCount {
 }
 class TutorialEnemy extends Entity {
     constructor(private player: Player, private count: EnemyCount, id: string, name: string, location: Location = new Location(0, 0, '')) {
-        super(id, name, SPRITE.SLIME, location)
+        super(id, name, SPRITE.SLIME, location);
         this.status.hp = 1;
     }
     protected handleDeath() {
@@ -32,7 +32,7 @@ class TutorialEnemy extends Entity {
 }
 class OriginEnemy extends Entity {
     constructor(private player: Player, private origin: ORIGIN, id: string, name: string, location: Location = new Location(0, 0, '')) {
-        super(id, name,SPRITE.NAME, location)
+        super(id, name, SPRITE.NAME, location);
         this.status.hp = 1;
     }
     protected handleDeath() {
@@ -45,34 +45,36 @@ class OriginEnemy extends Entity {
 }
 
 export class CharGen {
-    static spawnPlayerInFreshInstance(player: Player) {
+    public static spawnPlayerInFreshInstance(player: Player) {
         switch (player.chargen) {
-            case CharGenStage.Tutorial:
-                var attr = new InstanceAttributes(0, 10, 10, true);
+            case CharGenStage.Tutorial: {
+                const attr = new InstanceAttributes(0, 10, 10, true);
                 attr.genType = INSTANCE_GEN_TYPE.ONE_ROOM;
-                var inst = Instance.spinUpNewInstance(attr);
+                const inst = Instance.spinUpNewInstance(attr);
                 inst.spawnEntityAtCoords(new Entity(Entity.generateNewEntityID(), 'Use WASD to move', SPRITE.NAME), 2, 1);
                 inst.spawnEntityAtCoords(new Entity(Entity.generateNewEntityID(), 'Move into an enemy to auto-attack', SPRITE.NAME), 5, 2);
                 inst.spawnEntityAtCoords(new Entity(Entity.generateNewEntityID(), 'Destroy the enemy to Proceed', SPRITE.NAME), 8, 3);
                 inst.spawnEntityAtCoords(new TutorialEnemy(player, new EnemyCount(1), Entity.generateNewEntityID(), 'Enemy'), 6, 6);
                 inst.spawnEntityAtCoords(player, 3, 8);
                 break;
-            case CharGenStage.Name:
-                var attr = new InstanceAttributes(0, 10, 10, true);
+            }
+            case CharGenStage.Name: {
+                const attr = new InstanceAttributes(0, 10, 10, true);
                 attr.genType = INSTANCE_GEN_TYPE.ONE_ROOM;
-                var inst = Instance.spinUpNewInstance(attr);
+                const inst = Instance.spinUpNewInstance(attr);
                 inst.spawnEntityAtCoords(new Entity(Entity.generateNewEntityID(), 'Change your name with /name', SPRITE.NAME), 2, 1);
                 inst.spawnEntityAtCoords(new Entity(Entity.generateNewEntityID(), 'Destroy all enemies to Proceed', SPRITE.NAME), 6, 1);
-                var count: EnemyCount = new EnemyCount(3);
+                const count: EnemyCount = new EnemyCount(3);
                 inst.spawnEntityAtCoords(new TutorialEnemy(player, count, Entity.generateNewEntityID(), 'Enemy'), 0, 5);
                 inst.spawnEntityAtCoords(new TutorialEnemy(player, count, Entity.generateNewEntityID(), 'Enemy'), 5, 5);
                 inst.spawnEntityAtCoords(new TutorialEnemy(player, count, Entity.generateNewEntityID(), 'Enemy'), 9, 5);
                 inst.spawnEntityAtCoords(player, 5, 8);
                 break;
-            case CharGenStage.Origin:
-                var attr = new InstanceAttributes(0, 10, 10, true);
+            }
+            case CharGenStage.Origin: {
+                const attr = new InstanceAttributes(0, 10, 10, true);
                 attr.genType = INSTANCE_GEN_TYPE.ONE_ROOM;
-                var inst = Instance.spinUpNewInstance(attr);
+                const inst = Instance.spinUpNewInstance(attr);
                 inst.spawnEntityAtCoords(new Entity(Entity.generateNewEntityID(), 'Choose An Origin', SPRITE.NAME), 4, 1);
                 inst.spawnEntityAtCoords(new OriginEnemy(player, ORIGIN.BLOODED, Entity.generateNewEntityID(), 'Blooded Redvein'), 1, 3);
                 inst.spawnEntityAtCoords(new OriginEnemy(player, ORIGIN.NEATHLING, Entity.generateNewEntityID(), 'Neathling Outcast'), 3, 3);
@@ -80,27 +82,31 @@ export class CharGen {
                 inst.spawnEntityAtCoords(new OriginEnemy(player, ORIGIN.MARROW, Entity.generateNewEntityID(), 'Marrow Fallen'), 7, 3);
                 inst.spawnEntityAtCoords(player, 4, 8);
                 break;
-            case CharGenStage.Done:
-                //TODO: spawn into main world?
-                var inst = Instance.getAvailableNonFullInstance(player);
+            }
+            case CharGenStage.Done: {
+                // TODO: spawn into main world?
+                let inst = Instance.getAvailableNonFullInstance(player);
                 if (!inst) {
-                    var attr = new InstanceAttributes(0, 100, 100);
+                    const attr = new InstanceAttributes(0, 100, 100);
                     attr.genType = INSTANCE_GEN_TYPE.ROOMS;
                     inst = Instance.spinUpNewInstance(attr);
-                    for (var i = 0; i < 100; i++) {
+                    for (let i = 0; i < 100; i++) {
+                        let posX: number;
+                        let posY: number;
                         do {
-                            var posX = Math.floor(Math.random() * inst.attributes.width);
-                            var posY = Math.floor(Math.random() * inst.attributes.height);
-                        } while (inst.board[posX][posY] !== undefined);
-                        inst.spawnEntityAtCoords(new Entity(Entity.generateNewEntityID(), 'Slime ' + i, SPRITE.SLIME), posX, posY);
+                            posX = Math.floor(Math.random() * inst.attributes.width);
+                            posY = Math.floor(Math.random() * inst.attributes.height);
+                        } while (!inst.spawnEntityAtCoords(new Entity(Entity.generateNewEntityID(), 'Slime ' + i, SPRITE.SLIME), posX, posY));
                     }
                 }
+                let posX;
+                let posY;
                 do {
-                    var posX = Math.floor(Math.random() * inst.attributes.width);
-                    var posY = Math.floor(Math.random() * inst.attributes.height);
-                } while (inst.board[posX][posY] !== undefined);
-                inst.spawnEntityAtCoords(player, posX, posY);
+                    posX = Math.floor(Math.random() * inst.attributes.width);
+                    posY = Math.floor(Math.random() * inst.attributes.height);
+                } while (!inst.spawnEntityAtCoords(player, posX, posY));
                 break;
+            }
             default:
                 console.log('ERROR! INVALID CHARGEN STAGE!');
                 break;

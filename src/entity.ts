@@ -30,6 +30,13 @@ export class Entity {
         return this._location;
     }
     set location(loc: Location) {
+        if (this.location.instance_id !== loc.instance_id) {
+            const fromInst = Instance.instances[this.location.instance_id];
+            if (fromInst) {
+                Instance.instances[this.location.instance_id].removeMob(this);
+            }
+            Instance.instances[loc.instance_id].addMob(this);
+        }
         this._location = loc;
     }
     public hit(amount: number, charsheet?: CharacterSheet) {
@@ -43,15 +50,14 @@ export class Entity {
         }
     }
     public move(to: Location) {
-        var fromInst = Instance.instances[this.location.instance_id];
-        var toInst = Instance.instances[to.instance_id];
-        if (to.x >= 0 && to.x < toInst.board.length && to.y >= 0 && to.y < toInst.board[0].length) {
-            if (toInst.board[to.x][to.y] === undefined) {
-                fromInst.board[this.location.x][this.location.y] = undefined;
-                toInst.board[to.x][to.y] = this;
-                this.location = to.clone();
+        const fromInst = Instance.instances[this.location.instance_id];
+        const toInst = Instance.instances[to.instance_id];
+        if (toInst.isTilePassable(to.x, to.y)) {
+            const mobInWay = toInst.getMobInLocation(to.x, to.y);
+            if (mobInWay) {
+                mobInWay.hit(1); // TODO: give all mobs a charsheet??? or a placeholder for EXP calculations?
             } else {
-                toInst.board[to.x][to.y]!.hit(1);
+                this.location = to.clone();
             }
             if (fromInst.id !== toInst.id) {
                 fromInst.updateAllPlayers();
@@ -64,7 +70,7 @@ export class Entity {
         // TODO: kill entity
         Instance.removeEntityFromWorld(this);
         if (this.lastHitSheet) {
-            this.lastHitSheet.addExperience(1);//TODO: make amount variable
+            this.lastHitSheet.addExperience(1); // TODO: make amount variable
         }
     }
     protected takeDirectHealthDamage(amount) {

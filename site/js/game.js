@@ -9,8 +9,9 @@ class Game {
         this._ctx.strokeStyle = "#FFF";
         this._ctx.fillStyle = "#FFF";
         this._ctx.imageSmoothingEnabled = false;
-        this.board = undefined;
+        this.mobs = undefined;
         this.tiles = undefined;
+        this.boardInfo = undefined;
         this.player = undefined;
         this._tilesheet = undefined;
         this._tileset = [];
@@ -127,11 +128,11 @@ class Game {
     _draw() {
         this._clear();
         this._drawBoard();
-        if (this.board !== undefined) {
+        if (this.tiles !== undefined) {
             this._ctx.textBaseline = 'middle';
             this._ctx.textAlign = "center";
-            var scaleX = this._width / (this.board.length - 2);
-            var scaleY = this._height / (this.board[0].length - 2);
+            var scaleX = this._width / (this.tiles.length - 2);
+            var scaleY = this._height / (this.tiles[0].length - 2);
             var scale = Math.max(scaleX, scaleY);
             var offsetX = 0;
             var offsetY = 0;
@@ -140,8 +141,8 @@ class Game {
             } else if (this._height < this._width) {
                 offsetY = (this._height - this._width) / 2;
             }
-            for (var x = 1; x < this.board.length - 1; x++) {
-                for (var y = 1; y < this.board[0].length - 1; y++) {
+            for (var x = 1; x < this.tiles.length - 1; x++) {
+                for (var y = 1; y < this.tiles[0].length - 1; y++) {
                     let tile = this.tiles[x][y];
                     switch (tile) {
                         case 3:
@@ -170,17 +171,15 @@ class Game {
                     }
                 }
             }
-            for (var x = 1; x < this.board.length - 1; x++) {
-                for (var y = 1; y < this.board[0].length - 1; y++) {
-                    if (this.board[x][y] != null) {
-                        let sprite = this.board[x][y].sprite;
-                        if (sprite == -1) {
-                            //this._drawSquare(((x - 1) * scale) + offsetX, ((y - 1) * scale) + offsetY, scale, scale);
-                            this._ctx.fillText(this.board[x][y].name, ((x - 0.5) * scale) + offsetX, ((y - 0.5) * scale) + offsetY);
-                        } else {
-                            this._drawSprite(sprite, ((x - 1) * scale) + offsetX, ((y - 1) * scale) + offsetY, scale, scale);
-                        }
-                    }
+            for (let i = 0; i < this.mobs.length; i++) {
+                let sprite = this.mobs[i].sprite;
+                let x = this.mobs[i].location.x - this.boardInfo.x;
+                let y = this.mobs[i].location.y - this.boardInfo.y;
+                if (sprite == -1) {
+                    //this._drawSquare(((x - 1) * scale) + offsetX, ((y - 1) * scale) + offsetY, scale, scale);
+                    this._ctx.fillText(this.mobs[i].name, ((x - 0.5) * scale) + offsetX, ((y - 0.5) * scale) + offsetY);
+                } else {
+                    this._drawSprite(sprite, ((x - 1) * scale) + offsetX, ((y - 1) * scale) + offsetY, scale, scale);
                 }
             }
         }

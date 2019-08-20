@@ -1,7 +1,6 @@
 import fs = require('fs');
 var uuid = require('uuid/v4');
 var auth = require('./auth');
-var world = require('./world');
 var commands = require('./commands');
 import { Player } from './player';
 import { ATTRIBUTE } from './characterattributes';
@@ -47,17 +46,6 @@ export class User {
             console.log(user.name + ' (' + sock.handshake.address + ') disconnected');
             user.logout();
         });
-        /*
-        socket.on('disconnect', function () {
-            console.log(socket.handshake.address + ' disconnected');
-            //game.removeClientData(socket.id);
-            var plr = player.accessPlayer(accessUser(socket.id).playerId);
-            io.emit('chat message', plr.name + ' disconnected');
-            //TODO DISCONNECT PLAYER
-            world.removeEntityFromWorld(plr);
-            player.deletePlayerById(plr.id);
-            removeUser(socket.id);
-        });*/
         sock.on('ping_cmd', function (msg) {
             console.log('ping from ' + user.name);
             sock.emit('pong_cmd', msg);

@@ -1,7 +1,6 @@
 import fs = require('fs');
 import uuid = require('uuid/v4');
 var nameGen = require('./namegen');
-var world = require('./world');
 import { Entity, SPRITE } from './entity';
 import { Location } from './location';
 import { User } from './user';
@@ -43,7 +42,6 @@ export class Player extends Entity {
                     var ret = new Player(id, plrdat.name, Location.fromJSON(plrdat.location));
                     ret.loadFromData(plrdat);
                     players[ret.id] = ret;
-                    //world.spawnInRandomEmptyLocation(ret);//TODO: this should not always be the behavior
                     callback(null, ret);
                 }
             });
@@ -65,7 +63,7 @@ export class Player extends Entity {
     }
     set location(loc: Location) {
         if (this.location.instance_id !== loc.instance_id) {
-            var fromInst = Instance.instances[this.location.instance_id];
+            const fromInst = Instance.instances[this.location.instance_id];
             if (fromInst) {
                 Instance.instances[this.location.instance_id].removePlayer(this);
             }
@@ -74,15 +72,14 @@ export class Player extends Entity {
         this._location = loc;
     }
     public move(to: Location) {
-        var fromInst = Instance.instances[this.location.instance_id];
-        var toInst = Instance.instances[to.instance_id];
-        if (to.x >= 0 && to.x < toInst.board.length && to.y >= 0 && to.y < toInst.board[0].length) {
-            if (toInst.board[to.x][to.y] === undefined) {
-                fromInst.board[this.location.x][this.location.y] = undefined;
-                toInst.board[to.x][to.y] = this;
-                this.location = to.clone();
+        const fromInst = Instance.instances[this.location.instance_id];
+        const toInst = Instance.instances[to.instance_id];
+        if (toInst.isTilePassable(to.x, to.y)) {
+            const mobInWay = toInst.getMobInLocation(to.x, to.y);
+            if (mobInWay) {
+                mobInWay.hit(1, this.charSheet);
             } else {
-                toInst.board[to.x][to.y]!.hit(1, this.charSheet);
+                this.location = to.clone();
             }
             if (fromInst.id !== toInst.id) {
                 fromInst.updateAllPlayers();
@@ -91,8 +88,8 @@ export class Player extends Entity {
         }
     }
     moveInDirection(direction) {
-        if (direction in world.directionVectors) {
-            var dir = world.directionVectors[direction];
+        if (direction in Instance.directionVectors) {
+            var dir = Instance.directionVectors[direction];
             var newLoc = new Location(
                 this.location.x + dir.x,
                 this.location.y + dir.y,
@@ -108,12 +105,6 @@ export class Player extends Entity {
         }
         this.active = true;
         this.user = usr;
-        const inst = Instance.getLoadedInstanceById(this.location.instance_id);
-        if (inst) {
-            inst.addPlayer(this);//TODO: this should probably occur elsewhere.  on construction? on spawn? probably on spawn.
-        } else {
-            //inst is null, throw error? (any loading from disk should already have occured)
-        }
         this.pushUpdate();
     }
     setInactive() {
@@ -163,8 +154,9 @@ export class Player extends Entity {
         if (this.active) {
             let board = Instance.getPlayerBoard(this);
             this.user!.socket.emit('update', {
-                'board': board.board,
+                'mobs': board.mobs,
                 'tiles': board.tiles,
+                'board_info': board.info,
                 'player': this.getDataAsViewer(),
             });
         } else {
@@ -200,8 +192,3 @@ export class Player extends Entity {
 function getPlayerByName(name) {
     return Object.values(players).find((value: any) => { value.name === name });
 }
-function deletePlayerById(id) {
-    delete players[id];
-}
-module.exports.getPlayerByName = getPlayerByName;
-module.exports.deletePlayerById = deletePlayerById

@@ -1,5 +1,4 @@
 var game = require('./game');
-var world = require('./world');
 var player = require('./player');
 var commands = require('./commands');
 var user = require('./user');
