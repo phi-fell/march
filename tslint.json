@@ -37,7 +37,13 @@
                 "ignore-pattern": "TODO:"
             }
         ],
-        "max-classes-per-file": false
+        "max-classes-per-file": false,
+        "no-shadowed-variable": [
+            true,
+            {
+                "temporalDeadZone": false
+            }
+        ]
     },
     "rulesDirectory": []
 }
