@@ -1,3 +1,5 @@
+import { Instance } from "./instance";
+
 var game = require('./game');
 var player = require('./player');
 var commands = require('./commands');
@@ -18,6 +20,15 @@ function accessUser(sockId) {
     return users[sockId];
 }
 module.exports.accessUserFromSocketId = accessUser;
+
+export class Server {
+    public static updateLoop() {
+        Instance.updateAll();
+        setTimeout(Server.updateLoop, 1000);
+    }
+}
+
+setTimeout(Server.updateLoop, 1000);
 
 module.exports.initialize = function (io: any) {
     io!.on('connection', function (socket) {
@@ -111,17 +122,5 @@ module.exports.initialize = function (io: any) {
                 }
             });
         });
-    });
-}
-function oldInitialize(io) {
-    io.on('connection', function (socket) {
-        console.log('Connection from ' + socket.handshake.address);
-        connectUser(socket);
-        socket.on('disconnect', function () {
-            console.log(socket.handshake.address + ' disconnected');
-            removeUser(socket.id);
-        });
-        //game.flushBoard();
-        //game.updateClient(socket.id);
     });
 }

@@ -131,6 +131,11 @@ export class Instance {
             'info': { 'x': x0, 'y': y0, 'w': (x1 - x0) + 1, 'h': (y1 - y0) + 1 },
         };
     }
+    public static updateAll() {
+        for (let inst_id in this.instances) {
+            this.instances[inst_id].update();
+        }
+    }
     players: Player[];
     tiles: TILE[][] = [];
     mobs: Entity[] = [];
@@ -158,6 +163,9 @@ export class Instance {
         for (var i = 0; i < this.players.length; i++) {
             if (this.players[i].id === player.id) {
                 this.players.splice(i, 1);
+                if (this.players.length <= 0) {
+                    this.unload(); // unload empty instances
+                }
                 return; //no duplicate entries
             }
         }
@@ -211,6 +219,9 @@ export class Instance {
         return true;
 
     }
+    unload() {
+        delete Instance.instances[this.id];
+    }
     saveToDisk() {
         var playerids: string[] = [];
         for (var plr of this.players) {
@@ -237,6 +248,30 @@ export class Instance {
                 }
                 instance.players.push(plr);
             });
+        }
+    }
+    public update() {
+        console.log('Hi from Instance[' + this.id + "]!");
+    }
+    performNextEntityAction() {
+        if (this.mobs.length <= 0) {
+            return; // no mobs to act
+        }
+        this.mobs.sort((a, b) => a.status.ap - b.status.ap); // TODO: handle ties?
+        if (this.mobs[0].status.ap <= 0) {
+            //no mobs have AP remaining:
+            return this.startNewTurn();
+        }
+        for (let i = 0; i < this.mobs.length; i++) {
+            //DO ACTION
+        }
+    }
+    private startNewTurn() {
+        for (const mob of this.mobs) {
+            mob.status.ap += mob.status.ap_recovery;
+            if (mob.status.ap > mob.status.max_ap) {
+                mob.status.ap = mob.status.max_ap;
+            }
         }
     }
 }
