@@ -1,0 +1,39 @@
+doctype html
+
+html
+    head
+        title Instance List
+        style.
+            body {
+                font: 13px Helvetica, Arial;
+            }
+
+            th, td {
+                padding: 5px;
+                border: 1px solid black;
+            }
+            table {
+                border-collapse: collapse;
+                border: 1px solid black;
+            }
+
+    body
+        table.table
+            tr
+                th ID
+                th Personal
+                th Width
+                th Height
+                th Players
+                th Mobs
+            each inst, inst_id in instances
+                tr
+                    td 
+                        a(href='/diagnostic/instance?id='+inst.id)= inst.id
+                    td= inst.attributes.personal
+                    td= inst.attributes.width
+                    td= inst.attributes.height
+                    td= inst.players.length
+                    td= inst.mobs.length
+
+        script (rc="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js")

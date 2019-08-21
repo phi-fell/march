@@ -1,19 +1,26 @@
-var USE_HTTPS = true;
+import { Instance } from "./instance";
 
-process.argv.forEach(function (val, index, array) {
+let USE_HTTPS = true;
+let PUBLISH_DIAGNOSTIC_DATA = false
+
+process.argv.forEach((val, index, array) => {
   if (val === '-NO_HTTPS') {
     USE_HTTPS = false;
+  } else if (val === '-PUBLISH_DIAGNOSTIC_DATA') {
+    PUBLISH_DIAGNOSTIC_DATA = true;
   }
 });
 
 var fs = require('fs');
 var path = require('path');
 var express = require('express');
+const pug = require('pug');
 var app = express();
 
 var https: any = undefined;
 var http: any = undefined;
 var io = undefined;
+
 if (USE_HTTPS) {
   var options = {
     key: fs.readFileSync('/etc/letsencrypt/live/gotg.phi.ac/privkey.pem'),
@@ -54,6 +61,32 @@ app.get('/login', function (req: any, res: any) {
 app.get('/create', function (req: any, res: any) {
   res.sendFile(path.resolve(__dirname + '/../site/html/new.html'));
 });
+
+if (PUBLISH_DIAGNOSTIC_DATA) {
+  /*const diagnostic_page = pug.compileFile(path.resolve(__dirname + '/../site/pug/diagnostic.pug'));
+  app.get('/diagnostic', function (req: any, res: any) {
+    res.send(diagnostic_page({
+      'instances': Instance.instances,
+    }));
+  });*/
+  app.get('/diagnostic/instance', function (req: any, res: any) {
+    if (req.query.id) {
+      const inst = Instance.getLoadedInstanceById(req.query.id);
+      if (inst) {
+        res.send(pug.renderFile(path.resolve(__dirname + '/../site/pug/diagnostic/instance.pug'), {
+          'instance': inst,
+        }));
+      } else {
+        res.send('No such instance!');
+      }
+
+    } else {
+      res.send(pug.renderFile(path.resolve(__dirname + '/../site/pug/diagnostic/instances.pug'), {
+        'instances': Instance.instances,
+      }));
+    }
+  });
+}
 
 app.use('/js', express.static(path.resolve(__dirname + '/../site/js')));
 app.use('/tex', express.static(path.resolve(__dirname + '/../site/tex')));

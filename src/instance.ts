@@ -251,7 +251,7 @@ export class Instance {
         }
     }
     public update() {
-        console.log('Hi from Instance[' + this.id + "]!");
+        //console.log('Hi from Instance[' + this.id + "]!");
     }
     performNextEntityAction() {
         if (this.mobs.length <= 0) {

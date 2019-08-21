@@ -5,22 +5,6 @@ var player = require('./player');
 var commands = require('./commands');
 var user = require('./user');
 
-var users = {}
-function connectUser(socket) {
-    users[socket.id] = {
-        'socketId': socket.id,
-        'socket': socket,
-        'privilege': 'none',
-    }
-}
-function removeUser(socket) {
-    delete users[socket.id];
-}
-function accessUser(sockId) {
-    return users[sockId];
-}
-module.exports.accessUserFromSocketId = accessUser;
-
 export class Server {
     public static updateLoop() {
         Instance.updateAll();
