@@ -1,5 +1,5 @@
 import { CharacterOrigin, ORIGIN } from './characterorigin';
-import { Entity, SPRITE } from './entity';
+import { Entity, SPRITE, ACTION_STATUS } from './entity';
 import { Instance, InstanceAttributes } from './instance';
 import { INSTANCE_GEN_TYPE } from './instancegenerator';
 import { Location } from './location';
@@ -15,10 +15,20 @@ export const enum CharGenStage {
 class EnemyCount {
     constructor(public count: number) { }
 }
+class TextEntity extends Entity {
+    public doNextAction(): ACTION_STATUS {
+        this.status.ap = 0;
+        return ACTION_STATUS.PERFORMED;
+    }
+}
 class TutorialEnemy extends Entity {
     constructor(private player: Player, private count: EnemyCount, id: string, name: string, location: Location = new Location(0, 0, '')) {
         super(id, name, SPRITE.SLIME, location);
         this.status.hp = 1;
+    }
+    public doNextAction(): ACTION_STATUS {
+        this.status.ap = 0;
+        return ACTION_STATUS.PERFORMED;
     }
     protected handleDeath() {
         super.handleDeath();
@@ -34,6 +44,10 @@ class OriginEnemy extends Entity {
     constructor(private player: Player, private origin: ORIGIN, id: string, name: string, location: Location = new Location(0, 0, '')) {
         super(id, name, SPRITE.NAME, location);
         this.status.hp = 1;
+    }
+    public doNextAction(): ACTION_STATUS {
+        this.status.ap = 0;
+        return ACTION_STATUS.PERFORMED;
     }
     protected handleDeath() {
         super.handleDeath();
@@ -51,9 +65,9 @@ export class CharGen {
                 const attr = new InstanceAttributes(0, 10, 10, true);
                 attr.genType = INSTANCE_GEN_TYPE.ONE_ROOM;
                 const inst = Instance.spinUpNewInstance(attr);
-                inst.spawnEntityAtCoords(new Entity(Entity.generateNewEntityID(), 'Use WASD to move', SPRITE.NAME), 2, 1);
-                inst.spawnEntityAtCoords(new Entity(Entity.generateNewEntityID(), 'Move into an enemy to auto-attack', SPRITE.NAME), 5, 2);
-                inst.spawnEntityAtCoords(new Entity(Entity.generateNewEntityID(), 'Destroy the enemy to Proceed', SPRITE.NAME), 8, 3);
+                inst.spawnEntityAtCoords(new TextEntity(Entity.generateNewEntityID(), 'Use WASD to move', SPRITE.NAME), 2, 1);
+                inst.spawnEntityAtCoords(new TextEntity(Entity.generateNewEntityID(), 'Move into an enemy to auto-attack', SPRITE.NAME), 5, 2);
+                inst.spawnEntityAtCoords(new TextEntity(Entity.generateNewEntityID(), 'Destroy the enemy to Proceed', SPRITE.NAME), 8, 3);
                 inst.spawnEntityAtCoords(new TutorialEnemy(player, new EnemyCount(1), Entity.generateNewEntityID(), 'Enemy'), 6, 6);
                 inst.spawnEntityAtCoords(player, 3, 8);
                 break;
@@ -62,8 +76,8 @@ export class CharGen {
                 const attr = new InstanceAttributes(0, 10, 10, true);
                 attr.genType = INSTANCE_GEN_TYPE.ONE_ROOM;
                 const inst = Instance.spinUpNewInstance(attr);
-                inst.spawnEntityAtCoords(new Entity(Entity.generateNewEntityID(), 'Change your name with /name', SPRITE.NAME), 2, 1);
-                inst.spawnEntityAtCoords(new Entity(Entity.generateNewEntityID(), 'Destroy all enemies to Proceed', SPRITE.NAME), 6, 1);
+                inst.spawnEntityAtCoords(new TextEntity(Entity.generateNewEntityID(), 'Change your name with /name', SPRITE.NAME), 2, 1);
+                inst.spawnEntityAtCoords(new TextEntity(Entity.generateNewEntityID(), 'Destroy all enemies to Proceed', SPRITE.NAME), 6, 1);
                 const count: EnemyCount = new EnemyCount(3);
                 inst.spawnEntityAtCoords(new TutorialEnemy(player, count, Entity.generateNewEntityID(), 'Enemy'), 0, 5);
                 inst.spawnEntityAtCoords(new TutorialEnemy(player, count, Entity.generateNewEntityID(), 'Enemy'), 5, 5);
@@ -75,7 +89,7 @@ export class CharGen {
                 const attr = new InstanceAttributes(0, 10, 10, true);
                 attr.genType = INSTANCE_GEN_TYPE.ONE_ROOM;
                 const inst = Instance.spinUpNewInstance(attr);
-                inst.spawnEntityAtCoords(new Entity(Entity.generateNewEntityID(), 'Choose An Origin', SPRITE.NAME), 4, 1);
+                inst.spawnEntityAtCoords(new TextEntity(Entity.generateNewEntityID(), 'Choose An Origin', SPRITE.NAME), 4, 1);
                 inst.spawnEntityAtCoords(new OriginEnemy(player, ORIGIN.BLOODED, Entity.generateNewEntityID(), 'Blooded Redvein'), 1, 3);
                 inst.spawnEntityAtCoords(new OriginEnemy(player, ORIGIN.NEATHLING, Entity.generateNewEntityID(), 'Neathling Outcast'), 3, 3);
                 inst.spawnEntityAtCoords(new OriginEnemy(player, ORIGIN.AVRILEN, Entity.generateNewEntityID(), 'Avrilen Wanderer'), 5, 3);
