@@ -15,6 +15,8 @@ var KEY_MAP = {
     83: 'move_down',
     68: 'move_right',
     32: 'attack',
+    88: 'unwait',
+    90: 'wait',
 };
 class Controls {
     constructor() {

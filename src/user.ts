@@ -2,7 +2,7 @@ import fs = require('fs');
 var uuid = require('uuid/v4');
 var auth = require('./auth');
 var commands = require('./commands');
-import { Player } from './player';
+import { Player, WaitAction, MoveAction, UnwaitAction } from './player';
 import { ATTRIBUTE } from './characterattributes';
 
 var users = {};
@@ -52,35 +52,41 @@ export class User {
         });
         sock.on('chat message', function (msg) {
             if (user.player) {
-                console.log(user.name + ":" + user.player.name + "> " + msg);
-                sock.emit('chat message', user.player.name + "> " + msg);
-                sock.broadcast.emit('chat message', user.player.name + "> " + msg);
+                console.log(user.name + ':' + user.player.name + '> ' + msg);
+                sock.emit('chat message', user.player.name + '> ' + msg);
+                sock.broadcast.emit('chat message', user.player.name + '> ' + msg);
             } else {
-                console.log("ERR: " + user.name + ":NULL> " + msg);
+                console.log('ERR: ' + user.name + ':NULL> ' + msg);
                 sock.emit('chat message', 'Something went wrong.  You don\'t have a player? This is probably a bug, or too many events occured too quickly');
             }
         });
         sock.on('command', function (msg) {
-            console.log(user.name + " requests command /" + msg.cmd + " with arguments [" + msg.tok.join(' ') + "]")
+            console.log(user.name + ' requests command /' + msg.cmd + ' with arguments [' + msg.tok.join(' ') + ']')
             commands.execute(user, msg.cmd, msg.tok);
             if (user.player) {
                 user.player.pushUpdate();
             }
         });
-        sock.on("player_action", function (msg) {
+        sock.on('player_action', function (msg) {
             if (user.player) {
                 switch (msg + '') {
-                    case "move_up":
-                        user.player.moveInDirection('up');
+                    case 'move_up':
+                        user.player.setAction(new MoveAction('up'));
                         break;
-                    case "move_left":
-                        user.player.moveInDirection('left');
+                    case 'move_left':
+                        user.player.setAction(new MoveAction('left'));
                         break;
-                    case "move_down":
-                        user.player.moveInDirection('down');
+                    case 'move_down':
+                        user.player.setAction(new MoveAction('down'));
                         break;
-                    case "move_right":
-                        user.player.moveInDirection('right');
+                    case 'move_right':
+                        user.player.setAction(new MoveAction('right'));
+                        break;
+                    case 'wait':
+                        user.player.setAction(new WaitAction());
+                        break;
+                    case 'unwait':
+                        user.player.setAction(new UnwaitAction());
                         break;
                     default:
                         sock.emit('log', 'unknown action: ' + msg);
@@ -103,10 +109,10 @@ export class User {
             }
         });
 
-        this.socket.emit('chat message', "Welcome, " + this.name + "!");
-        this.socket.emit('chat message', "Please be aware that during developement, free users may be deleted at any time by developer discretion (usually on major releases, or after a period of no activity)");
-        this.socket.emit('chat message', "For notifications about developement and to be given priority access to features and possibly a longer delay before account purging, use /email");
-        this.socket.emit('chat message', "(By setting an email address, you give permission for it to be contacted regarding game updates, news, account info, or anything else.  Your email may also be contacted to followup on any bug reports you submit.  You can remove your email simply by changing it to e.g. 'none')");
+        this.socket.emit('chat message', 'Welcome, ' + this.name + '!');
+        this.socket.emit('chat message', 'Please be aware that during developement, free users may be deleted at any time by developer discretion (usually on major releases, or after a period of no activity)');
+        this.socket.emit('chat message', 'For notifications about developement and to be given priority access to features and possibly a longer delay before account purging, use /email');
+        this.socket.emit('chat message', '(By setting an email address, you give permission for it to be contacted regarding game updates, news, account info, or anything else.  Your email may also be contacted to followup on any bug reports you submit.  You can remove your email simply by changing it to e.g. "none")');
         //giveSocketBasicPrivileges(socket);
         this.socket.broadcast.emit('chat message', this.name + ' connected');
     }
@@ -282,7 +288,7 @@ module.exports.loadUserByName = function (name, callback) {
         if (err) {
             callback(err);
         } else {
-            fs.readFile("users/" + id + '.user', function (err, data) {
+            fs.readFile('users/' + id + '.user', function (err, data) {
                 if (err) {
                     return callback(err);
                 } else {

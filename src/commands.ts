@@ -6,6 +6,8 @@ var player = require('./player');
 var auth = require('./auth');
 var version = require('./version');
 import { User } from './user';
+import { MoveAction } from './player';
+import { Instance } from './instance';
 
 var getHelp = function (socket) {
     socket.emit('chat message', 'GotG V' + version.version + ' Launch_ID[' + version.launch_id + ']');
@@ -142,7 +144,11 @@ var commands: any = {
         description: 'Move in a direction',
         exec: function (user: User, tok) {
             if (user.player) {
-                user.player.moveInDirection(tok[0]);
+                if (tok[0] in Instance.directionVectors) {
+                    user.player.setAction(new MoveAction(tok[0]));
+                } else {
+                    user.socket.emit('chat message', 'Invalid move direction: ' + tok[0]);
+                }
             } else {
                 user.socket.emit('chat message', "Error: You somehow don't have a player, this is likely a bug.");
             }

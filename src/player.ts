@@ -1,7 +1,7 @@
 import fs = require('fs');
 import uuid = require('uuid/v4');
 var nameGen = require('./namegen');
-import { Entity, SPRITE } from './entity';
+import { Entity, SPRITE, ACTION_STATUS } from './entity';
 import { Location } from './location';
 import { User } from './user';
 import { CharGenStage, CharGen } from './chargen';
@@ -9,6 +9,55 @@ import { Instance } from './instance';
 import { CharacterSheet } from './charactersheet';
 
 var players = {};
+
+export enum ACTION_TYPE {
+    WAIT,
+    UNWAIT,
+    MOVE,
+}
+
+const ACTION_COST = [0, 0, 5];
+
+export interface PlayerAction {
+    type: ACTION_TYPE;
+    toJSON(): object;
+}
+
+export class WaitAction implements PlayerAction {
+    public type: ACTION_TYPE.WAIT = ACTION_TYPE.WAIT;
+    public toJSON(): object {
+        return { 'type': ACTION_TYPE[this.type] };
+    }
+}
+export class UnwaitAction implements PlayerAction {
+    public type: ACTION_TYPE.UNWAIT = ACTION_TYPE.UNWAIT;
+    public toJSON(): object {
+        return { 'type': ACTION_TYPE[this.type] };
+    }
+}
+
+export class MoveAction implements PlayerAction {
+    public type: ACTION_TYPE.MOVE = ACTION_TYPE.MOVE;
+    public direction: string;
+    public directionVec: { 'x': number, 'y': number };
+    constructor(dir: string) {
+        this.direction = dir;
+        this.directionVec = { 'x': 0, 'y': 0 };
+        if (dir in Instance.directionVectors) {
+            const dirVec = Instance.directionVectors[dir];
+            this.directionVec.x = dirVec.x;
+            this.directionVec.y = dirVec.y;
+        } else {
+            console.log('Invalid move direction: ' + dir);
+        }
+    }
+    public toJSON(): object {
+        return {
+            'type': ACTION_TYPE[this.type],
+            'direction': this.direction,
+        };
+    }
+}
 
 export class Player extends Entity {
     static generateNewPlayerID() {
@@ -51,11 +100,13 @@ export class Player extends Entity {
     active: boolean;
     charSheet: CharacterSheet;
     chargen: CharGenStage;
+    protected queuedAction: PlayerAction | null;
     constructor(id: string, name: string, _location: Location = new Location(0, 0, '')) {
         super(id, name, SPRITE.PLAYER, _location);
         this.chargen = CharGenStage.Tutorial;
         this.charSheet = new CharacterSheet;
         this.user = null;
+        this.queuedAction = null;
         this.active = false;
     }
     get location(): Location {//Since we override set, we must override get
@@ -71,32 +122,42 @@ export class Player extends Entity {
         }
         this._location = loc;
     }
-    public move(to: Location) {
-        const fromInst = Instance.instances[this.location.instance_id];
-        const toInst = Instance.instances[to.instance_id];
-        if (toInst.isTilePassable(to.x, to.y)) {
-            const mobInWay = toInst.getMobInLocation(to.x, to.y);
-            if (mobInWay) {
-                mobInWay.hit(1, this.charSheet);
-            } else {
-                this.location = to.clone();
-            }
-            if (fromInst.id !== toInst.id) {
-                fromInst.updateAllPlayers();
-            }
-            toInst.updateAllPlayers();
-        }
+    public setAction(action: PlayerAction) {
+        this.queuedAction = action;
+        Instance.getLoadedInstanceById(this.location.instance_id).notifyOfPlayerAction(this.id);
+        this.pushUpdate();
     }
-    moveInDirection(direction) {
-        if (direction in Instance.directionVectors) {
-            var dir = Instance.directionVectors[direction];
-            var newLoc = new Location(
-                this.location.x + dir.x,
-                this.location.y + dir.y,
-                this.location.instance_id);
-            this.move(newLoc);
+    public removeAction() {
+        this.queuedAction = null;
+    }
+    public doNextAction(): ACTION_STATUS {
+        if (this.status.ap === 0) {
+            return ACTION_STATUS.WAITING; // can't do anything else
+        } else if (this.queuedAction) {
+            if (this.status.ap < ACTION_COST[this.queuedAction.type]) {
+                return ACTION_STATUS.WAITING; // not enough ap yet
+            } else {
+                this.status.ap -= ACTION_COST[this.queuedAction.type];
+            }
+            switch (this.queuedAction.type) {
+                case ACTION_TYPE.WAIT:
+                    return ACTION_STATUS.WAITING;
+                    break;
+                case ACTION_TYPE.UNWAIT:
+                    this.queuedAction = null;
+                    return ACTION_STATUS.ASYNC;
+                    break;
+                case ACTION_TYPE.MOVE:
+                    this.move(this.location.getMovedBy(
+                        (this.queuedAction as MoveAction).directionVec.x,
+                        (this.queuedAction as MoveAction).directionVec.y),
+                    );
+                    this.queuedAction = null;
+                    break;
+            }
+            return ACTION_STATUS.PERFORMED;
         } else {
-            console.log('Invalid move direction: ' + direction);
+            return ACTION_STATUS.ASYNC; // needs to decide
         }
     }
     setActive(usr: User) {
@@ -172,7 +233,24 @@ export class Player extends Entity {
             'sheet': this.charSheet.toJSON(),
             'status': this.status,
             'location': this.location.toJSON(),
+            'action': this.queuedAction ? this.queuedAction.toJSON() : { 'type': 'NONE' },
         };
+    }
+    protected move(to: Location) {
+        const fromInst = Instance.instances[this.location.instance_id];
+        const toInst = Instance.instances[to.instance_id];
+        if (toInst.isTilePassable(to.x, to.y)) {
+            const mobInWay = toInst.getMobInLocation(to.x, to.y);
+            if (mobInWay) {
+                mobInWay.hit(1, this.charSheet);
+            } else {
+                this.location = to.clone();
+            }
+            if (fromInst.id !== toInst.id) {
+                // TODO: instead of sending whole board, send action info so that we can update exactly when necessary
+                toInst.updateAllPlayers(); // TODO: is this necessary?  reasoning: players in fromInst WILL be updated at end of update cycle,  toInst could hypothetically not be updated until next update cycle.  (but update cycles should be multiple time per second, so is this necessary?)
+            }
+        }
     }
     protected handleDeath() {
         Instance.removeEntityFromWorld(this);

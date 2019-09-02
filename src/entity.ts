@@ -3,12 +3,20 @@ import { Instance } from './instance';
 import { Location } from './location';
 import { CharacterSheet } from './charactersheet';
 
+export const MOVE_AP = 6;
+
 export enum SPRITE {
     NAME = -1,
     NONE = 0,
     PLAYER,
     SLIME,
 
+}
+
+export enum ACTION_STATUS {
+    PERFORMED,
+    WAITING,
+    ASYNC,
 }
 
 export class Entity {
@@ -39,6 +47,23 @@ export class Entity {
         }
         this._location = loc;
     }
+    public doNextAction(): ACTION_STATUS {
+        if (this.status.ap >= MOVE_AP) {
+            let dirs = [
+                { 'x': 0, 'y': -1 },
+                { 'x': 0, 'y': 1 },
+                { 'x': -1, 'y': 0 },
+                { 'x': 1, 'y': 0 },
+            ];
+            let dir = dirs[Math.floor(Math.random() * 4)];
+            let newLoc = this.location.getMovedBy(dir.x, dir.y);
+            this.move(newLoc); // TODO: ensure move succeeded
+            this.status.ap -= MOVE_AP;
+            return ACTION_STATUS.PERFORMED;
+        } else {
+            return ACTION_STATUS.WAITING;
+        }
+    }
     public hit(amount: number, charsheet?: CharacterSheet) {
         if (charsheet) {
             this.lastHitSheet = charsheet;
@@ -49,7 +74,7 @@ export class Entity {
             this.takeDamage(amount);
         }
     }
-    public move(to: Location) {
+    protected move(to: Location) {
         const fromInst = Instance.instances[this.location.instance_id];
         const toInst = Instance.instances[to.instance_id];
         if (toInst.isTilePassable(to.x, to.y)) {
@@ -60,9 +85,9 @@ export class Entity {
                 this.location = to.clone();
             }
             if (fromInst.id !== toInst.id) {
-                fromInst.updateAllPlayers();
+                // TODO: instead of sending whole board, send action info so that we can update exactly when necessary
+                toInst.updateAllPlayers(); // TODO: is this necessary?  reasoning: players in fromInst WILL be updated at end of update cycle,  toInst could hypothetically not be updated until next update cycle.  (but update cycles should be multiple time per second, so is this necessary?)
             }
-            toInst.updateAllPlayers();
         }
     }
     protected handleDeath() {

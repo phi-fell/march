@@ -74,7 +74,7 @@ $(function () {
     socket.on('update', function (msg) {
         game.mobs = msg.mobs;
         game.tiles = msg.tiles;
-        game.boardInfo= msg.board_info;
+        game.boardInfo = msg.board_info;
         game.player = msg.player;
         game.draw();
         game.updateMenus();

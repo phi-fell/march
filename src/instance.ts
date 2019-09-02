@@ -1,6 +1,6 @@
 import fs = require('fs');
 import uuid = require('uuid/v4');
-import { Entity } from './entity';
+import { Entity, ACTION_STATUS } from './entity';
 import { INSTANCE_GEN_TYPE, InstanceGenerator } from './instancegenerator';
 import { Location } from './location';
 import { Player } from './player';
@@ -123,23 +123,30 @@ export class Instance {
                 'name': mob.name,
                 'location': mob.location,
                 'sprite': mob.sprite,
+                'status': mob.status,//TODO: limit what player can see
             });
         }
         return {
             'mobs': retMobs,
             'tiles': retTiles,
-            'info': { 'x': x0, 'y': y0, 'w': (x1 - x0) + 1, 'h': (y1 - y0) + 1 },
+            'info': {
+                'x': x0, 'y': y0,
+                'w': (x1 - x0) + 1, 'h': (y1 - y0) + 1,
+                'your_turn': inst.waitingForAsyncMove === plr.id,
+            },
         };
     }
     public static updateAll() {
-        for (let inst_id in this.instances) {
+        for (let inst_id in this.instances) { // TODO: use map? instead of object
             this.instances[inst_id].update();
         }
     }
     players: Player[];
     tiles: TILE[][] = [];
     mobs: Entity[] = [];
+    private waitingForAsyncMove: string | null;
     constructor(public id: string, public attributes: InstanceAttributes) {
+        this.waitingForAsyncMove = null;
         this.players = [];
         for (var i = 0; i < attributes.width; i++) {
             this.tiles[i] = [];
@@ -163,8 +170,8 @@ export class Instance {
         for (var i = 0; i < this.players.length; i++) {
             if (this.players[i].id === player.id) {
                 this.players.splice(i, 1);
-                if (this.players.length <= 0) {
-                    this.unload(); // unload empty instances
+                if (this.waitingForAsyncMove === player.id) {
+                    this.waitingForAsyncMove = null;
                 }
                 return; //no duplicate entries
             }
@@ -250,23 +257,58 @@ export class Instance {
             });
         }
     }
-    public update() {
-        //console.log('Hi from Instance[' + this.id + "]!");
-    }
-    performNextEntityAction() {
-        if (this.mobs.length <= 0) {
-            return; // no mobs to act
+    emit(event: string) {
+        // TODO: give events a type, location, etc.  and only emit to some players
+        for (let plr of this.players) {
+            plr.user!.socket.emit('chat message', event);
         }
-        this.mobs.sort((a, b) => a.status.ap - b.status.ap); // TODO: handle ties?
+    }
+    public notifyOfPlayerAction(pID: string) {
+        if (this.waitingForAsyncMove === pID) {
+            this.waitingForAsyncMove = null;
+            this.update();
+        }
+    }
+    public update() {
+        if (this.players.length <= 0) {
+            this.unload(); // unload empty instances
+            return;
+        }
+        if (this.waitingForAsyncMove) {
+            return; // waiting on a player
+        }
+        for (let i = this.mobs.length; i > 0; i--) {
+            if (!this.performNextEntityAction()) {
+                return;
+            }
+        }
+        this.updateAllPlayers();
+    }
+    private performNextEntityAction() {
+        if (this.mobs.length <= 0) {
+            return false; // no mobs to act
+        }
+        this.mobs.sort((a, b) => b.status.ap - a.status.ap); // TODO: handle ties?
         if (this.mobs[0].status.ap <= 0) {
-            //no mobs have AP remaining:
-            return this.startNewTurn();
+            // no mobs have AP remaining:
+            this.startNewTurn();
+            return true;
         }
         for (let i = 0; i < this.mobs.length; i++) {
-            //DO ACTION
+            const actionStatus = this.mobs[i].doNextAction();
+            if (actionStatus === ACTION_STATUS.PERFORMED) {
+                return true;
+            } else if (actionStatus === ACTION_STATUS.ASYNC) {
+                this.waitingForAsyncMove = this.mobs[i].id;
+                (this.mobs[i] as Player).pushUpdate();
+                return false;
+            }
         }
+        this.startNewTurn();
+        return true;
     }
     private startNewTurn() {
+        this.emit('A new round has begun!');
         for (const mob of this.mobs) {
             mob.status.ap += mob.status.ap_recovery;
             if (mob.status.ap > mob.status.max_ap) {

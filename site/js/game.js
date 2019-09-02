@@ -123,6 +123,20 @@ class Game {
         list.append($('<li>').text('Player: ' + this.player.name));
         list.append($('<li>').text('Origin: ' + sheet.origin.type));
         list.append($('<li>').text('Exp: ' + sheet.exp));
+        switch (this.player.action.type) {
+            case 'NONE':
+            case 'WAIT':
+            case 'UNWAIT':
+                list.append($('<li>').text('Action: ' + this.player.action.type));
+                break;
+            case 'MOVE':
+                list.append($('<li>').text('Action: ' + this.player.action.type + " " + this.player.action.direction));
+                break;
+            default:
+                list.append($('<li>').text('Action: UNKNOWN ACTION TYPE!'));
+                break;
+        }
+        list.append($('<li>').text(this.boardInfo.your_turn ? 'It\'s your turn!' : 'Other characters are taking their turn...'));
     }
 
     _draw() {
@@ -180,6 +194,7 @@ class Game {
                     this._ctx.fillText(this.mobs[i].name, ((x - 0.5) * scale) + offsetX, ((y - 0.5) * scale) + offsetY);
                 } else {
                     this._drawSprite(sprite, ((x - 1) * scale) + offsetX, ((y - 1) * scale) + offsetY, scale, scale);
+                    this._ctx.fillText(this.mobs[i].status.ap + '/' + this.mobs[i].status.max_ap + ' (+' + this.mobs[i].status.ap_recovery + ')', ((x - 0.5) * scale) + offsetX, ((y - 0.5) * scale) + offsetY);
                 }
             }
         }
