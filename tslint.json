@@ -43,7 +43,8 @@
             {
                 "temporalDeadZone": false
             }
-        ]
+        ],
+        "interface-name": false
     },
     "rulesDirectory": []
 }
