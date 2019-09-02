@@ -38,6 +38,17 @@ export enum TILE {
     STONE_WALL,
 }
 
+class TileProperties {
+    constructor(public isPassable: boolean) { }
+}
+
+const TILE_PROPS = [
+    new TileProperties(false),
+    new TileProperties(true),
+    new TileProperties(true),
+    new TileProperties(false),
+];
+
 export class Instance {
     public static instances: { [key: string]: Instance; } = {};
     public static directionVectors = {
@@ -202,8 +213,9 @@ export class Instance {
     }
     isTilePassable(x: number, y: number) {
         if (x >= 0 && x < this.attributes.width && y >= 0 && y < this.attributes.height) {
-            return true;
-            // TODO: check for wall
+            if (TILE_PROPS[this.tiles[x][y]].isPassable) {
+                return true;
+            }
         }
         return false;
     }
@@ -216,6 +228,10 @@ export class Instance {
         return null;
     }
     spawnEntityAtCoords(ent: Entity, x: number, y: number): boolean {
+        if (!this.isTilePassable(x, y)) {
+            console.log('Error!  can\'t spawn entity on impassable tile!');
+            return false;
+        }
         for (const mob of this.mobs) {
             if (mob.location.x === x && mob.location.y === y) {
                 console.log('Error!  can\'t delete entity! (or maybe I should just overwrite it?)');

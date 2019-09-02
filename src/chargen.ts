@@ -79,9 +79,9 @@ export class CharGen {
                 inst.spawnEntityAtCoords(new TextEntity(Entity.generateNewEntityID(), 'Change your name with /name', SPRITE.NAME), 2, 1);
                 inst.spawnEntityAtCoords(new TextEntity(Entity.generateNewEntityID(), 'Destroy all enemies to Proceed', SPRITE.NAME), 6, 1);
                 const count: EnemyCount = new EnemyCount(3);
-                inst.spawnEntityAtCoords(new TutorialEnemy(player, count, Entity.generateNewEntityID(), 'Enemy'), 0, 5);
+                inst.spawnEntityAtCoords(new TutorialEnemy(player, count, Entity.generateNewEntityID(), 'Enemy'), 1, 5);
                 inst.spawnEntityAtCoords(new TutorialEnemy(player, count, Entity.generateNewEntityID(), 'Enemy'), 5, 5);
-                inst.spawnEntityAtCoords(new TutorialEnemy(player, count, Entity.generateNewEntityID(), 'Enemy'), 9, 5);
+                inst.spawnEntityAtCoords(new TutorialEnemy(player, count, Entity.generateNewEntityID(), 'Enemy'), 8, 5);
                 inst.spawnEntityAtCoords(player, 5, 8);
                 break;
             }
@@ -115,10 +115,15 @@ export class CharGen {
                 }
                 let posX;
                 let posY;
+                let attempts = 0;
                 do {
                     posX = Math.floor(Math.random() * inst.attributes.width);
                     posY = Math.floor(Math.random() * inst.attributes.height);
-                } while (!inst.spawnEntityAtCoords(player, posX, posY));
+                    attempts++;
+                } while (attempts < 1000 && !inst.spawnEntityAtCoords(player, posX, posY));
+                if (attempts === 1000) {
+                    console.log('COULD NOT SPAWN PLAYER INTO INSTANCE AFTER 1000 ATTEMPTS! ABORTING SPAWN.')
+                }
                 break;
             }
             default:
