@@ -5,6 +5,9 @@ export enum INSTANCE_GEN_TYPE {
     ONE_ROOM,
     MAZE,
     ROOMS,
+    BASIC_DUNGEON,
+    FOREST,
+    VOLCANIC,
 }
 
 function maze(inst: Instance, x: number, y: number) {
@@ -87,6 +90,15 @@ export class InstanceGenerator {
             case INSTANCE_GEN_TYPE.ROOMS:
                 doROOMS(inst);
                 break;
+            case INSTANCE_GEN_TYPE.BASIC_DUNGEON:
+                doBASIC_DUNGEON(inst);
+                break;
+            case INSTANCE_GEN_TYPE.FOREST:
+                //doFOREST(inst);
+                break;
+            case INSTANCE_GEN_TYPE.VOLCANIC:
+                //doVOLCANIC(inst);
+                break;
             default:
                 console.log('INVALID INSTANCE GENERATION TYPE!');
                 break;
@@ -94,9 +106,132 @@ export class InstanceGenerator {
     }
 }
 
+function doSingleRoom(inst: Instance): boolean {
+    const w = (Math.floor(Math.random() * 4) * 2) + 5;
+    const h = (Math.floor(Math.random() * 4) * 2) + 5;
+    const x = (Math.floor((Math.random() * (inst.attributes.width - (w + 2))) / 2) * 2) + 1;
+    const y = (Math.floor((Math.random() * (inst.attributes.height - (h + 2))) / 2) * 2) + 1;
+    for (let i = -1; i < w + 1; i++) {
+        for (let j = -1; j < h + 1; j++) {
+            if (inst.tiles[x + i][y + j] !== TILE.STONE_WALL) {
+                return false;
+            }
+        }
+    }
+    for (let i = 0; i < w; i++) {
+        for (let j = 0; j < h; j++) {
+            inst.tiles[x + i][y + j] = TILE.STONE_FLOOR;
+        }
+    }
+    return true;
+}
+
+function floodFill(inst: Instance, flood: number[][], id: number, x: number, y: number) {
+    if (x < 0 || y < 0 || x >= inst.attributes.width || y >= inst.attributes.height) {
+        return; // bounds check
+    }
+    if (flood[x][y] === id || inst.tiles[x][y] !== TILE.STONE_FLOOR) {
+        return; // no repeats, obstructed by walls
+    }
+    flood[x][y] = id;
+    floodFill(inst, flood, id, x - 1, y);
+    floodFill(inst, flood, id, x + 1, y);
+    floodFill(inst, flood, id, x, y - 1);
+    floodFill(inst, flood, id, x, y + 1);
+}
+
+function connectRegion(inst: Instance, flood: number[][], id: number) {
+    let conCount = 0;
+    const conX: number[] = [];
+    const conY: number[] = [];
+    for (let x = 1; x < inst.attributes.width - 1; x++) {
+        for (let y = 1; y < inst.attributes.height - 1; y++) {
+            if (flood[x][y] === -1) {
+                const adjToReg = flood[x + 1][y] === id
+                    || flood[x - 1][y] === id
+                    || flood[x][y + 1] === id
+                    || flood[x][y - 1] === id;
+                const adjToOther = (flood[x + 1][y] !== id && flood[x + 1][y] !== -1)
+                    || (flood[x - 1][y] !== id && flood[x - 1][y] !== -1)
+                    || (flood[x][y + 1] !== id && flood[x][y + 1] !== -1)
+                    || (flood[x][y - 1] !== id && flood[x][y - 1] !== -1);
+                if (adjToReg && adjToOther) {
+                    conX.push(x);
+                    conY.push(y);
+                    conCount++;
+                }
+            }
+        }
+    }
+    const doCons = conCount * 0.05;
+    for (let j = 0; j < doCons; j++) {
+        const i = Math.floor(Math.random() * conCount);
+        inst.tiles[conX[i]][conY[i]] = TILE.STONE_FLOOR;
+        floodFill(inst, flood, id, conX[i], conY[i]);
+        conX.splice(i, 1);
+        conY.splice(i, 1);
+        conCount--;
+    }
+}
+
+function ensureConnectedness(inst: Instance) {
+    const flood: number[][] = [];
+    for (let i = 0; i < inst.attributes.width; i++) {
+        flood[i] = [];
+        for (let j = 0; j < inst.attributes.height; j++) {
+            flood[i][j] = -1;
+        }
+    }
+    let id = 0;
+    for (let x = 0; x < inst.attributes.width; x++) {
+        for (let y = 0; y < inst.attributes.height; y++) {
+            if (flood[x][y] === -1 && inst.tiles[x][y] === TILE.STONE_FLOOR) {
+                floodFill(inst, flood, id, x, y);
+                id++;
+            }
+        }
+    }
+    for (let a = 0; a < id; a++) {
+        connectRegion(inst, flood, a);
+    }
+}
+
+function pruneLeaf(inst: Instance, x: number, y: number) {
+    if (inst.tiles[x][y] === TILE.STONE_FLOOR) {
+        let wallcount = 0;
+        if (inst.tiles[x + 1][y] === TILE.STONE_WALL) {
+            wallcount++;
+        }
+        if (inst.tiles[x - 1][y] === TILE.STONE_WALL) {
+            wallcount++;
+        }
+        if (inst.tiles[x][y + 1] === TILE.STONE_WALL) {
+            wallcount++;
+        }
+        if (inst.tiles[x][y - 1] === TILE.STONE_WALL) {
+            wallcount++;
+        }
+        if (wallcount === 3) {
+            inst.tiles[x][y] = TILE.STONE_WALL;
+            pruneLeaf(inst, x + 1, y);
+            pruneLeaf(inst, x - 1, y);
+            pruneLeaf(inst, x, y + 1);
+            pruneLeaf(inst, x, y - 1);
+        }
+    }
+}
+
+function prune(inst: Instance) {
+    for (let i = 0; i < inst.attributes.width; i++) {
+        for (let j = 0; j < inst.attributes.height; j++) {
+            pruneLeaf(inst, i, j);
+        }
+    }
+}
+
 function doROOMS(inst: Instance) {
-    for (var i = 0; i < inst.attributes.width; i++) {
-        for (var j = 0; j < inst.attributes.height; j++) {
+    for (let i = 0; i < inst.attributes.width; i++) {
+        for (let j = 0; j < inst.attributes.height; j++) {
             inst.tiles[i][j] = TILE.STONE_WALL;
         }
     }
@@ -112,4 +247,24 @@ function doROOMS(inst: Instance) {
             }
         }
     }
+}
+
+function doBASIC_DUNGEON(inst: Instance) {
+    for (let i = 0; i < inst.attributes.width; i++) {
+        for (let j = 0; j < inst.attributes.height; j++) {
+            inst.tiles[i][j] = TILE.STONE_WALL;
+        }
+    }
+    const count = (inst.attributes.width * inst.attributes.height) / 100;
+    for (let _i = 0; _i < count; _i++) {
+        doSingleRoom(inst);
+    }
+    const STRIDE = 2;
+    for (let x = 1; x < inst.attributes.width; x += STRIDE) {
+        for (let y = 1; y < inst.attributes.height; y += STRIDE) {
+            maze(inst, x, y);
+        }
+    }
+    ensureConnectedness(inst);
+    prune(inst);
 }
