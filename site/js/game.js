@@ -1,3 +1,5 @@
+const TILE_SIZE = 32; // width and height in pixels
+
 class Game {
     constructor(canvas) {
         this._width = canvas.clientWidth;
@@ -13,9 +15,7 @@ class Game {
         this.tiles = undefined;
         this.boardInfo = undefined;
         this.player = undefined;
-        this._tilesheet = undefined;
-        this._tileset = [];
-        this._subtiles = [];
+        this._palette = [];
         this._sprites = [];
         this._drawQueued = false;
         this._sheetdisplaymode = 'attributes';
@@ -23,41 +23,7 @@ class Game {
     }
 
     _loadImages() {
-        const tileSize = 32;//width and height in pixels within sheet
-        this._tilesheet = new Image();
         let g = this;
-        this._tilesheet.onload = function () {
-            let sheetSize = 10;//width and height of sheet in tiles
-            for (var i = 0; i < 100; i++) {
-                var tx = i % sheetSize;
-                var ty = Math.floor(i / sheetSize);
-                g._tileset[i] = document.createElement('canvas');
-                let context = g._tileset[i].getContext('2d');
-                g._tileset[i].width = tileSize;
-                g._tileset[i].height = tileSize;
-                context.drawImage(g._tilesheet, tx * tileSize, ty * tileSize, tileSize, tileSize, 0, 0, tileSize, tileSize);
-            }
-        }
-        this._tilesheet.src = "tex/tilesheet.png";
-        const MAX_TILE_ID = 5;
-        for (let i = 0; i <= MAX_TILE_ID; i++) {
-            let image = new Image();
-            image.onload = function () {
-                let st = [];
-                for (let x = 0; x * tileSize < image.width; x++) {
-                    st[x] = [];
-                    for (let y = 0; y * tileSize < image.height; y++) {
-                        st[x][y] = document.createElement('canvas');
-                        let context = st[x][y].getContext('2d');
-                        st[x][y].width = tileSize;
-                        st[x][y].height = tileSize;
-                        context.drawImage(image, x * tileSize, y * tileSize, tileSize, tileSize, 0, 0, tileSize, tileSize);
-                    }
-                }
-                g._subtiles[i] = st;
-            }
-            image.src = "tex/tiles/" + i + ".png";
-        }
         const MAX_SPRITE_ID = 2;
         for (let i = 0; i <= MAX_SPRITE_ID; i++) {
             this._sprites[i] = new Image();
@@ -65,6 +31,61 @@ class Game {
                 //do nothing for now.
             }
             this._sprites[i].src = "tex/sprites/" + i + ".png";
+        }
+    }
+
+    loadPalette(palette) {
+        let g = this;
+        {
+            g._palette[-1] = {
+                "sheet": false,
+                "image": null,
+            };
+            g._palette[-2] = {
+                "sheet": false,
+                "image": null,
+            };
+            let no_image = new Image();
+            let error_image = new Image();
+            no_image.onload = function () {
+                g._palette[-1].image = no_image;
+            }
+            error_image.onload = function () {
+                g._palette[-2].image = error_image;
+            }
+            no_image.src = "tex/tiles/none.png";
+            error_image.src = "tex/tiles/error.png";
+        }
+        for (let i = 0; i < palette.length; i++) {
+            let image = new Image();
+            image.onload = function () {
+                if (image.width === TILE_SIZE && image.height === TILE_SIZE) {
+                    g._palette[i] = {
+                        "sheet": false,
+                        "image": image,
+                    };
+                } else {
+                    let st = [];
+                    for (let x = 0; x * TILE_SIZE < image.width; x++) {
+                        st[x] = [];
+                        for (let y = 0; y * TILE_SIZE < image.height; y++) {
+                            st[x][y] = document.createElement('canvas');
+                            let context = st[x][y].getContext('2d');
+                            st[x][y].width = TILE_SIZE;
+                            st[x][y].height = TILE_SIZE;
+                            context.drawImage(image, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, 0, TILE_SIZE, TILE_SIZE);
+                        }
+                    }
+                    g._palette[i] = {
+                        "sheet": true,
+                        "subtiles": st,
+                    };
+                }
+            }
+            image.onerror = function () {
+                g._palette[i] = g._palette[-2];
+            }
+            image.src = "tex/tiles/" + palette[i] + ".png";
         }
     }
 
@@ -158,30 +179,25 @@ class Game {
             for (var x = 1; x < this.tiles.length - 1; x++) {
                 for (var y = 1; y < this.tiles[0].length - 1; y++) {
                     let tile = this.tiles[x][y];
-                    switch (tile) {
-                        case 3:
-                            let ids = [
-                                [0, 0, 0],
-                                [0, tile, 0],
-                                [0, 0, 0],
-                            ];
-                            for (let i = -1; i <= 1; i++) {
-                                for (let j = -1; j <= 1; j++) {
-                                    if (i != 0 || j != 0) {
-                                        ids[i + 1][j + 1] = this.tiles[x + i][y + j];
-                                    }
+                    if (tile >= this._palette.length) {
+                        tile = -2; // use error texture
+                    }
+                    if (this._palette[tile].sheet) {
+                        let ids = [
+                            [0, 0, 0],
+                            [0, tile, 0],
+                            [0, 0, 0],
+                        ];
+                        for (let i = -1; i <= 1; i++) {
+                            for (let j = -1; j <= 1; j++) {
+                                if (i != 0 || j != 0) {
+                                    ids[i + 1][j + 1] = this.tiles[x + i][y + j];
                                 }
                             }
-                            this._drawSubtiles(ids, ((x - 1) * scale) + offsetX, ((y - 1) * scale) + offsetY, scale, scale);
-                            break;
-                        case 0:
-                        case 1:
-                        case 2:
-                            this._drawTile(tile, ((x - 1) * scale) + offsetX, ((y - 1) * scale) + offsetY, scale, scale);
-                            break;
-                        default:
-                            this._drawTile(99, ((x - 1) * scale) + offsetX, ((y - 1) * scale) + offsetY, scale, scale);
-                            break;
+                        }
+                        this._drawSubtiles(ids, ((x - 1) * scale) + offsetX, ((y - 1) * scale) + offsetY, scale, scale);
+                    } else {
+                        this._drawTile(tile, ((x - 1) * scale) + offsetX, ((y - 1) * scale) + offsetY, scale, scale);
                     }
                 }
             }
@@ -220,13 +236,13 @@ class Game {
                 } else {
                     tx = 4; ty = j//horizontal wall
                 }
-                this._ctx.drawImage(this._subtiles[id[1][1]][tx][ty], x + (w * i), y + (w * j), w, h);
+                this._ctx.drawImage(this._palette[id[1][1]].subtiles[tx][ty], x + (w * i), y + (w * j), w, h);
             }
         }
     }
 
     _drawTile(id, x, y, w, h) {
-        this._ctx.drawImage(this._tileset[id], x, y, w, h);
+        this._ctx.drawImage(this._palette[id].image, x, y, w, h);
     }
 
     _drawSprite(id, x, y, w, h) {

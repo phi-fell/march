@@ -71,6 +71,9 @@ $(function () {
     socket.on('pong_cmd', function (msg) {
         $('#messages').append($('<li>').text('pong! ' + (Date.now() - msg) + 'ms'));
     });
+    socket.on('palette', function (msg) {
+        game.loadPalette(msg);
+    });
     socket.on('update', function (msg) {
         game.mobs = msg.mobs;
         game.tiles = msg.tiles;

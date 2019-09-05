@@ -4,6 +4,7 @@ var auth = require('./auth');
 var commands = require('./commands');
 import { Player, WaitAction, MoveAction, UnwaitAction } from './player';
 import { ATTRIBUTE } from './characterattributes';
+import { getTilePalette } from './tile';
 
 var users = {};
 
@@ -109,6 +110,7 @@ export class User {
             }
         });
 
+        this.socket.emit('palette', getTilePalette());
         this.socket.emit('chat message', 'Welcome, ' + this.name + '!');
         this.socket.emit('chat message', 'Please be aware that during developement, free users may be deleted at any time by developer discretion (usually on major releases, or after a period of no activity)');
         this.socket.emit('chat message', 'For notifications about developement and to be given priority access to features and possibly a longer delay before account purging, use /email');

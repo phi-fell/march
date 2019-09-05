@@ -1,16 +1,18 @@
 import fs = require('fs');
 import uuid = require('uuid/v4');
-import { Entity, ACTION_STATUS } from './entity';
+import { ACTION_STATUS, Entity } from './entity';
 import { INSTANCE_GEN_TYPE, InstanceGenerator } from './instancegenerator';
 import { Location } from './location';
 import { Player } from './player';
+import { getTileProps, NO_TILE, Tile, getTileFromName } from './tile';
 
 export class InstanceAttributes {
     public genType: INSTANCE_GEN_TYPE = INSTANCE_GEN_TYPE.EMPTY;
     constructor(public seed: number/*TODO: string?*/,
         public width: number,
         public height: number,
-        public personal: boolean = false, ) {
+        public personal: boolean = false,
+    ) {
     }
     clone() {
         return new InstanceAttributes(this.seed, this.width, this.height, this.personal);
@@ -30,34 +32,6 @@ export class InstanceAttributes {
         this.personal = data.personal;
     }
 }
-
-export enum TILE {
-    NONE,
-    UNKNOWN,
-    STONE_FLOOR,
-    STONE_WALL,
-    STAIRS,
-    GRASS,
-    TREE,
-    BUSH,
-    ASH,
-    BASALT,
-    OBSIDIAN_SPIRE,
-    LAVA,
-}
-
-class TileProperties {
-    constructor(public isPassable: boolean, public obstructsView: boolean) { }
-}
-
-const TILE_PROPS = [
-    new TileProperties(false, true),
-    new TileProperties(true, true),
-    new TileProperties(true, false),
-    new TileProperties(false, true),
-    new TileProperties(true, false),
-    new TileProperties(true, false),
-];
 
 export class Instance {
     public static instances: { [key: string]: Instance; } = {};
@@ -121,7 +95,7 @@ export class Instance {
     }
     public static getPlayerBoard(plr: Player) {
         //return section of level around player, with Entities and such limited by what they percieve
-        let retTiles: any = [];
+        let retTiles: Tile[][] = [];
         let retMobs: any = [];
         let inst = Instance.instances[plr.location.instance_id];
         const MAX_RADIUS = 10;
@@ -133,7 +107,7 @@ export class Instance {
             retTiles[i - x0] = [];
             for (let j = y0; j <= y1; j++) {
                 if (i < 0 || j < 0 || i >= inst.attributes.width || j >= inst.attributes.height) {
-                    retTiles[i - x0][j - y0] = TILE.NONE;
+                    retTiles[i - x0][j - y0] = NO_TILE;
                 } else {
                     retTiles[i - x0][j - y0] = inst.tiles[i][j];
                 }
@@ -163,7 +137,7 @@ export class Instance {
         }
     }
     players: Player[];
-    tiles: TILE[][] = [];
+    tiles: Tile[][] = [];
     mobs: Entity[] = [];
     private waitingForAsyncMove: string | null;
     constructor(public id: string, public attributes: InstanceAttributes) {
@@ -172,7 +146,7 @@ export class Instance {
         for (var i = 0; i < attributes.width; i++) {
             this.tiles[i] = [];
             for (var j = 0; j < attributes.height; j++) {
-                this.tiles[i][j] = TILE.NONE;
+                this.tiles[i][j] = NO_TILE;
             }
         }
         InstanceGenerator.runGeneration(this);
@@ -223,7 +197,7 @@ export class Instance {
     }
     isTilePassable(x: number, y: number) {
         if (x >= 0 && x < this.attributes.width && y >= 0 && y < this.attributes.height) {
-            if (TILE_PROPS[this.tiles[x][y]].isPassable) {
+            if (getTileProps(this.tiles[x][y]).passable) {
                 return true;
             }
         }
