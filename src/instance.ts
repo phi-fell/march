@@ -36,17 +36,27 @@ export enum TILE {
     UNKNOWN,
     STONE_FLOOR,
     STONE_WALL,
+    STAIRS,
+    GRASS,
+    TREE,
+    BUSH,
+    ASH,
+    BASALT,
+    OBSIDIAN_SPIRE,
+    LAVA,
 }
 
 class TileProperties {
-    constructor(public isPassable: boolean) { }
+    constructor(public isPassable: boolean, public obstructsView: boolean) { }
 }
 
 const TILE_PROPS = [
-    new TileProperties(false),
-    new TileProperties(true),
-    new TileProperties(true),
-    new TileProperties(false),
+    new TileProperties(false, true),
+    new TileProperties(true, true),
+    new TileProperties(true, false),
+    new TileProperties(false, true),
+    new TileProperties(true, false),
+    new TileProperties(true, false),
 ];
 
 export class Instance {

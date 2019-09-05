@@ -259,6 +259,15 @@ function doBASIC_DUNGEON(inst: Instance) {
     for (let _i = 0; _i < count; _i++) {
         doSingleRoom(inst);
     }
+    let stairNum = Math.floor(Math.random() * 3) + 200;
+    while (stairNum > 0) {
+        const sx = Math.floor(Math.random() * inst.attributes.width);
+        const sy = Math.floor(Math.random() * inst.attributes.height);
+        if (inst.tiles[sx][sy] === TILE.STONE_FLOOR) {
+            inst.tiles[sx][sy] = TILE.STAIRS;
+            stairNum--;
+        }
+    }
     const STRIDE = 2;
     for (let x = 1; x < inst.attributes.width; x += STRIDE) {
         for (let y = 1; y < inst.attributes.height; y += STRIDE) {
