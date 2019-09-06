@@ -8,7 +8,7 @@ var user = require('./user');
 export class Server {
     public static updateLoop() {
         Instance.updateAll();
-        setTimeout(Server.updateLoop, 1000);
+        setTimeout(Server.updateLoop, 200);
     }
 }
 
