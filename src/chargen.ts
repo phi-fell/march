@@ -102,7 +102,7 @@ export class CharGen {
                 let inst = Instance.getAvailableNonFullInstance(player);
                 if (!inst) {
                     const attr = new InstanceAttributes(0, 100, 100);
-                    attr.genType = INSTANCE_GEN_TYPE.BASIC_DUNGEON;
+                    attr.genType = INSTANCE_GEN_TYPE.FOREST;
                     inst = Instance.spinUpNewInstance(attr);
                     for (let i = 0; i < 100; i++) {
                         let posX: number;

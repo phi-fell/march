@@ -95,10 +95,10 @@ export class InstanceGenerator {
                 doBASIC_DUNGEON(inst);
                 break;
             case INSTANCE_GEN_TYPE.FOREST:
-                //doFOREST(inst);
+                doFOREST(inst);
                 break;
             case INSTANCE_GEN_TYPE.VOLCANIC:
-                //doVOLCANIC(inst);
+                doVOLCANIC(inst);
                 break;
             default:
                 console.log('INVALID INSTANCE GENERATION TYPE!');
@@ -277,4 +277,47 @@ function doBASIC_DUNGEON(inst: Instance) {
     }
     ensureConnectedness(inst);
     prune(inst);
+}
+
+function doFOREST(inst: Instance) {
+    for (let i = 0; i < inst.attributes.width; i++) {
+        for (let j = 0; j < inst.attributes.height; j++) {
+            const rand = Math.random();
+            if (rand < 0.85) {
+                inst.tiles[i][j] = getTileFromName("grass");
+            } else if (rand < 0.85) {
+                inst.tiles[i][j] = getTileFromName("dirt");
+            } else if (rand < 0.95) {
+                inst.tiles[i][j] = getTileFromName("bush");
+            } else {
+                inst.tiles[i][j] = getTileFromName("tree");
+            }
+        }
+    }
+    let stairNum = Math.floor(Math.random() * 3) + 20;
+    while (stairNum > 0) {
+        const sx = Math.floor(Math.random() * inst.attributes.width);
+        const sy = Math.floor(Math.random() * inst.attributes.height);
+        if (inst.tiles[sx][sy] === getTileFromName("grass")) {
+            inst.tiles[sx][sy] = getTileFromName("stone_stairs");
+            stairNum--;
+        }
+    }
+}
+
+function doVOLCANIC(inst: Instance) {
+    for (let i = 0; i < inst.attributes.width; i++) {
+        for (let j = 0; j < inst.attributes.height; j++) {
+            const rand = Math.random();
+            if (rand < 0.6) {
+                inst.tiles[i][j] = getTileFromName("ash");
+            } else if (rand < 0.8) {
+                inst.tiles[i][j] = getTileFromName("basalt");
+            } else if (rand < 0.999) {
+                inst.tiles[i][j] = getTileFromName("lava");
+            } else {
+                inst.tiles[i][j] = getTileFromName("obsidian_spire");
+            }
+        }
+    }
 }
