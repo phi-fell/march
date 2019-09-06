@@ -101,8 +101,8 @@ export class Player extends Entity {
     charSheet: CharacterSheet;
     chargen: CharGenStage;
     protected queuedAction: PlayerAction | null;
-    constructor(id: string, name: string, _location: Location = new Location(0, 0, '')) {
-        super(id, name, SPRITE.PLAYER, _location);
+    constructor(id: string, name: string, loc: Location = new Location(0, 0, '')) {
+        super(id, name, SPRITE.PLAYER, loc);
         this.chargen = CharGenStage.Tutorial;
         this.charSheet = new CharacterSheet;
         this.user = null;
@@ -115,10 +115,13 @@ export class Player extends Entity {
     set location(loc: Location) {
         if (this.location.instance_id !== loc.instance_id) {
             const fromInst = Instance.instances[this.location.instance_id];
+            const toInst = Instance.instances[loc.instance_id];
             if (fromInst) {
-                Instance.instances[this.location.instance_id].removePlayer(this);
+                fromInst.removePlayer(this);
             }
-            Instance.instances[loc.instance_id].addPlayer(this);
+            if (toInst) {
+                toInst.addPlayer(this);
+            }
         }
         this._location = loc;
     }

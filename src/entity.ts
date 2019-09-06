@@ -22,7 +22,9 @@ export enum ACTION_STATUS {
 export class Entity {
     public status: any;
     private lastHitSheet: CharacterSheet | undefined;
-    constructor(public id: string, public name: string, public sprite: SPRITE = SPRITE.NONE, protected _location: Location = new Location(0, 0, '')) {
+    protected _location: Location;
+    constructor(public id: string, public name: string, public sprite: SPRITE = SPRITE.NONE, loc = new Location(0, 0, '')) {
+        this._location = new Location(0, 0, '');
         this.status = {
             'hp': 10,
             'max_hp': 10,
@@ -33,6 +35,7 @@ export class Entity {
             'ap_recovery': 25,
         };
         this.lastHitSheet = undefined;
+        this.location = loc;
     }
     get location(): Location {
         return this._location;
@@ -40,10 +43,13 @@ export class Entity {
     set location(loc: Location) {
         if (this.location.instance_id !== loc.instance_id) {
             const fromInst = Instance.instances[this.location.instance_id];
+            const toInst = Instance.instances[loc.instance_id];
             if (fromInst) {
-                Instance.instances[this.location.instance_id].removeMob(this);
+                fromInst.removeMob(this);
             }
-            Instance.instances[loc.instance_id].addMob(this);
+            if (toInst) {
+                toInst.addMob(this);
+            }
         }
         this._location = loc;
     }
