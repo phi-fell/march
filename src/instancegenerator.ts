@@ -260,7 +260,7 @@ function doBASIC_DUNGEON(inst: Instance) {
     for (let _i = 0; _i < count; _i++) {
         doSingleRoom(inst);
     }
-    let stairNum = Math.floor(Math.random() * 3) + 200;
+    let stairNum = Math.floor(Math.random() * 3) + 1;
     while (stairNum > 0) {
         const sx = Math.floor(Math.random() * inst.attributes.width);
         const sy = Math.floor(Math.random() * inst.attributes.height);
