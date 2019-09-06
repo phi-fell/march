@@ -1,0 +1,22 @@
+table.table(class="sortable")
+    tr
+        th ID
+        th Active
+        th Personal
+        th Width
+        th Height
+        th Players
+        th Mobs
+    each inst, inst_id in instances
+        tr
+            td 
+                a(href='/diagnostic/instance?id='+inst.id)= inst.id
+            if inst.players.length > 0
+                td= "yes"
+            else
+                td= "unloading in "+(inst.getMillisUntilUnload()/1000)+" seconds"
+            td= inst.attributes.personal
+            td= inst.attributes.width
+            td= inst.attributes.height
+            td= inst.players.length
+            td= inst.mobs.length

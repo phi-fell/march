@@ -1,0 +1,52 @@
+doctype html
+
+html
+    head
+        title Diagnostic Information
+        style.
+            body {
+                font: 13px Helvetica, Arial;
+            }
+
+            th, td {
+                padding: 5px;
+                border: 1px solid black;
+            }
+            table {
+                border-collapse: collapse;
+                border: 1px solid black;
+            }
+
+            #instances {
+                display: flex;
+                flex-flow: column;
+
+                margin: 5px;
+
+                position: absolute;
+                height: 50%;
+                width: 50%;
+                left: 0%;
+                top: 0%;
+            }
+            #instance_title{
+                flex: 0 0 auto;
+                
+                font: 18px Helvetica, Arial;
+            }
+            #instance_list{
+                flex: 1 1 auto;
+                overflow: auto;
+                position: relative;
+            }
+        script(src="https://kryogenix.org/code/browser/sorttable/sorttable.js")
+
+    body
+        div(id="instances")
+            div(id="instance_title")
+                a(href='/diagnostic/instance')= "Instances"
+                |:
+            div(id="instance_list")
+                include instances_view.pug
+
+        script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js")

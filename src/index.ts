@@ -69,6 +69,11 @@ if (PUBLISH_DIAGNOSTIC_DATA) {
       'instances': Instance.instances,
     }));
   });*/
+  app.get('/diagnostic', (req: any, res: any) => {
+    res.send(pug.renderFile(path.resolve(__dirname + '/../site/pug/diagnostic/main.pug'), {
+      'instances': Instance.instances,
+    }));
+  });
   app.get('/diagnostic/instance', function (req: any, res: any) {
     if (req.query.id) {
       const inst = Instance.getLoadedInstanceById(req.query.id);
