@@ -81,6 +81,7 @@ class Game {
                         "subtiles": st,
                     };
                 }
+                g.draw();
             }
             image.onerror = function () {
                 g._palette[i] = g._palette[-2];
