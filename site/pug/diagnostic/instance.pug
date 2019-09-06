@@ -23,6 +23,7 @@ html
             caption Instance
             tr
                 th ID
+                th Active
                 th Personal
                 th Width
                 th Height
@@ -30,6 +31,10 @@ html
                 th Mobs
             tr
                 td= instance.id
+                if instance.players.length > 0
+                    td= "yes"
+                else
+                    td= "unloading in "+(instance.getMillisUntilUnload()/1000)+" seconds"
                 td= instance.attributes.personal
                 td= instance.attributes.width
                 td= instance.attributes.height
