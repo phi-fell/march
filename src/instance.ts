@@ -6,6 +6,8 @@ import { Location } from './location';
 import { Player } from './player';
 import { getTileProps, NO_TILE, Tile, getTileFromName } from './tile';
 
+const MAX_INACTIVE_TIME = 1000 * 60 * 10; // 10 minutes (as milliseconds)
+
 export class InstanceAttributes {
     public genType: INSTANCE_GEN_TYPE = INSTANCE_GEN_TYPE.EMPTY;
     constructor(public seed: number/*TODO: string?*/,
@@ -140,8 +142,10 @@ export class Instance {
     tiles: Tile[][] = [];
     mobs: Entity[] = [];
     private waitingForAsyncMove: string | null;
+    private lastActiveTime: number;
     constructor(public id: string, public attributes: InstanceAttributes) {
         this.waitingForAsyncMove = null;
+        this.lastActiveTime = Date.now();
         this.players = [];
         for (var i = 0; i < attributes.width; i++) {
             this.tiles[i] = [];
@@ -150,6 +154,9 @@ export class Instance {
             }
         }
         InstanceGenerator.runGeneration(this);
+    }
+    public getMillisUntilUnload(): number {
+        return MAX_INACTIVE_TIME - (Date.now() - this.lastActiveTime);
     }
     addPlayer(player: Player) {
         for (var i = 0; i < this.players.length; i++) {
@@ -271,8 +278,11 @@ export class Instance {
     }
     public update() {
         if (this.players.length <= 0) {
-            this.unload(); // unload empty instances
+            if (Date.now() - this.lastActiveTime > MAX_INACTIVE_TIME)
+                this.unload(); // unload empty instances after 10 minutes
             return;
+        } else {
+            this.lastActiveTime = Date.now();
         }
         if (this.waitingForAsyncMove) {
             return; // waiting on a player
