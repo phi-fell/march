@@ -6,7 +6,7 @@ import { Location } from './location';
 import { User } from './user';
 import { CharGenStage, CharGen } from './chargen';
 import { Instance } from './instance';
-import { CharacterSheet } from './charactersheet';
+import { CharacterSheet } from './character/charactersheet';
 
 var players = {};
 

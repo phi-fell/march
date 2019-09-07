@@ -1,7 +1,7 @@
 import uuid = require('uuid/v4');
 import { Instance } from './instance';
 import { Location } from './location';
-import { CharacterSheet } from './charactersheet';
+import { CharacterSheet } from './character/charactersheet';
 
 export const MOVE_AP = 6;
 

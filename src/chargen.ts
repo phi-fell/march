@@ -1,4 +1,4 @@
-import { CharacterOrigin, ORIGIN } from './characterorigin';
+import { CharacterOrigin, ORIGIN } from './character/characterorigin';
 import { Entity, SPRITE, ACTION_STATUS } from './entity';
 import { Instance, InstanceAttributes } from './instance';
 import { INSTANCE_GEN_TYPE } from './instancegenerator';

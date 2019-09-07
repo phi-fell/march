@@ -3,7 +3,7 @@ var uuid = require('uuid/v4');
 var auth = require('./auth');
 var commands = require('./commands');
 import { Player, WaitAction, MoveAction, UnwaitAction } from './player';
-import { ATTRIBUTE } from './characterattributes';
+import { ATTRIBUTE } from './character/characterattributes';
 import { getTilePalette } from './tile';
 
 var users = {};
