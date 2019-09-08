@@ -1,7 +1,7 @@
 export enum ATTRIBUTE {
     STRENGTH,
     ENDURANCE,
-    CONSTITUTION,
+    VITALITY,
     AGILITY,
     DEXTERITY,
     SPEED,

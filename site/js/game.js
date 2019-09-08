@@ -113,7 +113,7 @@ class Game {
             list.append($('<li>').text('Body:'));
             list.append($('<li>').html(' - Strength: ' + sheet.attributes.STRENGTH + (lvlupavailable ? ' <button onclick="levelUpAttr(\'STRENGTH\')">+</button> (10 exp)' : '')));
             list.append($('<li>').html(' - Endurance: ' + sheet.attributes.ENDURANCE + (lvlupavailable ? ' <button onclick="levelUpAttr(\'ENDURANCE\')">+</button> (10 exp)' : '')));
-            list.append($('<li>').html(' - Constitution: ' + sheet.attributes.CONSTITUTION + (lvlupavailable ? ' <button onclick="levelUpAttr(\'CONSTITUTION\')">+</button> (10 exp)' : '')));
+            list.append($('<li>').html(' - Vitality: ' + sheet.attributes.VITALITY + (lvlupavailable ? ' <button onclick="levelUpAttr(\'VITALITY\')">+</button> (10 exp)' : '')));
             list.append($('<li>').text('Movement:'));
             list.append($('<li>').html(' - Agility: ' + sheet.attributes.AGILITY + (lvlupavailable ? ' <button onclick="levelUpAttr(\'AGILITY\')">+</button> (10 exp)' : '')));
             list.append($('<li>').html(' - Dexterity: ' + sheet.attributes.DEXTERITY + (lvlupavailable ? ' <button onclick="levelUpAttr(\'DEXTERITY\')">+</button> (10 exp)' : '')));
