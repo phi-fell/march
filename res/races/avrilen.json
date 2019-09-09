@@ -1,0 +1,32 @@
+{
+    "name": "Avrilen",
+    "bodySize": "MEDIUM",
+    "baseAttributes": {
+        "STRENGTH": 10,
+        "ENDURANCE": 10,
+        "VITALITTY": 10,
+        "AGILITY": 10,
+        "DEXTERITY": 10,
+        "SPEED": 10,
+        "CHARISMA": 10,
+        "LOGIC": 14,
+        "WISDOM": 10,
+        "PERCEPTION": 2,
+        "WILLPOWER": 0,
+        "LUCK": 0
+    },
+    "attributesPerLevel": {
+        "STRENGTH": 0.5,
+        "ENDURANCE": 0.5,
+        "VITALITY": 0.5,
+        "AGILITY": 0.5,
+        "DEXTERITY": 0.5,
+        "SPEED": 0.5,
+        "CHARISMA": 0.5,
+        "LOGIC": 0.7,
+        "WISDOM": 0.5,
+        "PERCEPTION": 0.1,
+        "WILLPOWER": 0,
+        "LUCK": 0
+    }
+}

@@ -1,0 +1,36 @@
+{
+    "name": "Neathling",
+    "description": "",
+    "bodySize": "MEDIUM",
+    "baseAttributes": {
+        "STRENGTH": 10,
+        "ENDURANCE": 10,
+        "VITALITTY": 10,
+        "AGILITY": 14,
+        "DEXTERITY": 12,
+        "SPEED": 10,
+        "CHARISMA": 10,
+        "LOGIC": 10,
+        "WISDOM": 10,
+        "PERCEPTION": 0,
+        "WILLPOWER": 0,
+        "LUCK": 0
+    },
+    "attributesPerLevel": {
+        "STRENGTH": 0.5,
+        "ENDURANCE": 0.5,
+        "VITALITY": 0.5,
+        "AGILITY": 0.7,
+        "DEXTERITY": 0.6,
+        "SPEED": 0.5,
+        "CHARISMA": 0.5,
+        "LOGIC": 0.5,
+        "WISDOM": 0.5,
+        "PERCEPTION": 0,
+        "WILLPOWER": 0,
+        "LUCK": 0
+    },
+    "traits": [
+        "blind"
+    ]
+}

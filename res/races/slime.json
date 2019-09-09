@@ -1,0 +1,33 @@
+{
+    "name": "Slime",
+    "description": "",
+    "bodySize": "TINY",
+    "baseAttributes": {
+        "STRENGTH": 1,
+        "ENDURANCE": 1,
+        "VITALITTY": 1,
+        "AGILITY": 0,
+        "DEXTERITY": 0,
+        "SPEED": 0,
+        "CHARISMA": 0,
+        "LOGIC": 0,
+        "WISDOM": 0,
+        "PERCEPTION": 0,
+        "WILLPOWER": 0,
+        "LUCK": 0
+    },
+    "attributesPerLevel": {
+        "STRENGTH": 0.2,
+        "ENDURANCE": 1,
+        "VITALITY": 1,
+        "AGILITY": 0,
+        "DEXTERITY": 0,
+        "SPEED": 0,
+        "CHARISMA": 0,
+        "LOGIC": 0,
+        "WISDOM": 0,
+        "PERCEPTION": 0,
+        "WILLPOWER": 0,
+        "LUCK": 0
+    }
+}

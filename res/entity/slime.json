@@ -1,6 +1,8 @@
 {
-    "name":"Petty Slime",
-    "status":{
-        "hp":1
-    }
+    "name": "Petty Slime",
+    "race": {
+        "id": "slime",
+        "level": 0
+    },
+    "classes": []
 }
