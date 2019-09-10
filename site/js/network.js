@@ -10,6 +10,11 @@ function levelUpAttr(val) {
     });
 }
 
+function setSheetDisplayMode(dropdown) {
+    game._sheetdisplaymode = dropdown.value;
+    game.updateMenus();
+}
+
 $(function () {
     creds = loadCredentials();
     if (creds.user && creds.auth) {

@@ -107,7 +107,6 @@ class Game {
         var status = this.player.status;
         var list = $("#sheet");
         list.empty();
-        list.append($('<li>').text('-----Character Sheet----- (change mode with /sheet)'));
         if (this._sheetdisplaymode === 'attributes' || this._sheetdisplaymode === 'attr') {
             let lvlupavailable = sheet.exp >= 10;
             list.append($('<li>').text('Body:'));
@@ -123,9 +122,12 @@ class Game {
             list.append($('<li>').html(' - Logic: ' + sheet.attributes.LOGIC + (lvlupavailable ? ' <button onclick="levelUpAttr(\'LOGIC\')">+</button> (10 exp)' : '')));
             list.append($('<li>').html(' - Wisdom: ' + sheet.attributes.WISDOM + (lvlupavailable ? ' <button onclick="levelUpAttr(\'WISDOM\')">+</button> (10 exp)' : '')));
             list.append($('<li>').text('Other:'));
-            list.append($('<li>').html(' - Memory: ' + sheet.attributes.MEMORY + (lvlupavailable ? ' <button onclick="levelUpAttr(\'MEMORY\')">+</button> (10 exp)' : '')));
+            list.append($('<li>').html(' - Perception: ' + sheet.attributes.PERCEPTION + (lvlupavailable ? ' <button onclick="levelUpAttr(\'PERCEPTION\')">+</button> (10 exp)' : '')));
             list.append($('<li>').html(' - Will: ' + sheet.attributes.WILLPOWER + (lvlupavailable ? ' <button onclick="levelUpAttr(\'WILLPOWER\')">+</button> (10 exp)' : '')));
             list.append($('<li>').html(' - Luck: ' + sheet.attributes.LUCK + (lvlupavailable ? ' <button onclick="levelUpAttr(\'LUCK\')">+</button> (10 exp)' : '')));
+        } else if (this._sheetdisplaymode === 'race') {
+            list.append($('<li>').text('Race: ' + sheet.race.name));
+            list.append($('<li>').text(sheet.race.description));
         } else {
             list.append($('<li>').text('Mode \"' + this._sheetdisplaymode + '\" does not exist'));
             list.append($('<li>').text('available modes:'));
@@ -143,7 +145,7 @@ class Game {
         var list = $("#info");
         list.empty();
         list.append($('<li>').text('Player: ' + this.player.name));
-        list.append($('<li>').text('Origin: ' + sheet.origin.type));
+        list.append($('<li>').text('Race: ' + sheet.race.name));
         list.append($('<li>').text('Exp: ' + sheet.exp));
         switch (this.player.action.type) {
             case 'NONE':
