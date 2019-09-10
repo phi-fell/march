@@ -8,7 +8,7 @@ export enum ATTRIBUTE {
     CHARISMA,
     LOGIC,
     WISDOM,
-    MEMORY,
+    PERCEPTION,
     WILLPOWER,
     LUCK,
 }
@@ -41,6 +41,20 @@ export class CharacterAttributes {
         const ret: CharacterAttributes = new CharacterAttributes();
         for (let i = 0; i < ATTRIBUTE_COUNT; i++) {
             ret.values[i] = this.values[i] + other.values[i];
+        }
+        return ret;
+    }
+    public getScaledBy(scale: number): CharacterAttributes {
+        const ret: CharacterAttributes = new CharacterAttributes();
+        for (let i = 0; i < ATTRIBUTE_COUNT; i++) {
+            ret.values[i] = this.values[i] * scale;
+        }
+        return ret;
+    }
+    public getFloored(): CharacterAttributes {
+        const ret: CharacterAttributes = new CharacterAttributes();
+        for (let i = 0; i < ATTRIBUTE_COUNT; i++) {
+            ret.values[i] = Math.floor(this.values[i]);
         }
         return ret;
     }

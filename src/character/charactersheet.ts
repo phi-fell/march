@@ -1,35 +1,35 @@
 import { ATTRIBUTE, CharacterAttributes } from './characterattributes';
 import { CharacterClass } from './characterclass';
 import { CharacterFaith } from './characterfaith';
-import { CharacterOrigin, ORIGIN } from './characterorigin';
+import { CharacterRace } from './characterrace';
 
 export class CharacterSheet {
     public static fromJSON(json: any) {
         const ret = new CharacterSheet();
         // TODO: load classes
         // TODO: load faiths
-        ret._origin = CharacterOrigin.fromJSON(json.origin);
+        ret._race = CharacterRace.fromJSON(json.race);
         ret._attributes = CharacterAttributes.fromJSON(json.attributes);
         ret._experience = json.exp;
         return ret;
     }
     private _attributes: CharacterAttributes;
-    private _origin: CharacterOrigin;
+    private _race: CharacterRace;
     private _classes: CharacterClass[];
     private _faiths: CharacterFaith[];
     private _experience: number;
     constructor() {
         this._attributes = new CharacterAttributes();
-        this._origin = new CharacterOrigin(ORIGIN.NONE);
+        this._race = new CharacterRace();
         this._classes = [];
         this._faiths = [];
         this._experience = 0;
     }
-    get origin() {
-        return this._origin;
+    get race() {
+        return this._race;
     }
-    set origin(or: CharacterOrigin) {
-        this._origin = or;
+    set race(or: CharacterRace) {
+        this._race = or;
     }
     public addExperience(amount: number) {
         this._experience += amount;
@@ -53,7 +53,7 @@ export class CharacterSheet {
             'attributes': this._attributes.toJSON(),
             'classes': [],
             'faiths': [],
-            'origin': this._origin.toJSON(),
+            'race': this._race.toJSON(),
             'exp': this._experience,
         };
     }

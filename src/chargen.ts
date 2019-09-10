@@ -1,14 +1,14 @@
-import { CharacterOrigin, ORIGIN } from './character/characterorigin';
 import { Entity, SPRITE, ACTION_STATUS } from './entity';
 import { Instance, InstanceAttributes } from './instance';
 import { INSTANCE_GEN_TYPE } from './instancegenerator';
 import { Location } from './location';
 import { Player } from './player';
+import { CharacterRace } from './character/characterrace';
 
 export const enum CharGenStage {
     Tutorial,
     Name,
-    Origin,
+    Race,
     Done,
 }
 
@@ -40,8 +40,8 @@ class TutorialEnemy extends Entity {
         }
     }
 }
-class OriginEnemy extends Entity {
-    constructor(private player: Player, private origin: ORIGIN, id: string, name: string, location: Location = new Location(0, 0, '')) {
+class RaceChoice extends Entity {
+    constructor(private player: Player, private race: string, id: string, name: string, location: Location = new Location(0, 0, '')) {
         super(id, name, SPRITE.NAME, location);
         this.status.hp = 1;
     }
@@ -52,7 +52,7 @@ class OriginEnemy extends Entity {
     protected handleDeath() {
         super.handleDeath();
         this.player.chargen++;
-        this.player.charSheet.origin = new CharacterOrigin(this.origin);
+        this.player.charSheet.race = new CharacterRace(this.race);
         Instance.removeEntityFromWorld(this.player);
         CharGen.spawnPlayerInFreshInstance(this.player);
     }
@@ -85,15 +85,15 @@ export class CharGen {
                 inst.spawnEntityAtCoords(player, 5, 8);
                 break;
             }
-            case CharGenStage.Origin: {
+            case CharGenStage.Race: {
                 const attr = new InstanceAttributes(0, 10, 10, true);
                 attr.genType = INSTANCE_GEN_TYPE.ONE_ROOM;
                 const inst = Instance.spinUpNewInstance(attr);
-                inst.spawnEntityAtCoords(new TextEntity(Entity.generateNewEntityID(), 'Choose An Origin', SPRITE.NAME), 4, 1);
-                inst.spawnEntityAtCoords(new OriginEnemy(player, ORIGIN.BLOODED, Entity.generateNewEntityID(), 'Blooded Redvein'), 1, 3);
-                inst.spawnEntityAtCoords(new OriginEnemy(player, ORIGIN.NEATHLING, Entity.generateNewEntityID(), 'Neathling Outcast'), 3, 3);
-                inst.spawnEntityAtCoords(new OriginEnemy(player, ORIGIN.AVRILEN, Entity.generateNewEntityID(), 'Avrilen Wanderer'), 5, 3);
-                inst.spawnEntityAtCoords(new OriginEnemy(player, ORIGIN.MARROW, Entity.generateNewEntityID(), 'Marrow Fallen'), 7, 3);
+                inst.spawnEntityAtCoords(new TextEntity(Entity.generateNewEntityID(), 'Choose An Race', SPRITE.NAME), 4, 1);
+                inst.spawnEntityAtCoords(new RaceChoice(player, "blooded", Entity.generateNewEntityID(), 'Blooded Redvein'), 1, 3);
+                inst.spawnEntityAtCoords(new RaceChoice(player, "neathling", Entity.generateNewEntityID(), 'Neathling Outcast'), 3, 3);
+                inst.spawnEntityAtCoords(new RaceChoice(player, "avrilen", Entity.generateNewEntityID(), 'Avrilen Wanderer'), 5, 3);
+                inst.spawnEntityAtCoords(new RaceChoice(player, "marrow", Entity.generateNewEntityID(), 'Marrow Fallen'), 7, 3);
                 inst.spawnEntityAtCoords(player, 4, 8);
                 break;
             }
