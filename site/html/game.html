@@ -109,6 +109,7 @@
     }
 
     #sheet,
+    #sheet_title,
     #status,
     #info {
       list-style-type: none;
@@ -150,6 +151,13 @@
   </div>
   <div class="char_div">
     <div class="char_sheet">
+      <div id="sheet_title">
+        -----Character Sheet-----
+        <select onChange="setSheetDisplayMode(this)">
+          <option value="attributes">Attributes</option>
+          <option value="race">Race</option>
+        </select>
+      </div>
       <ul id="sheet"></ul>
     </div>
     <div class="char_status">
