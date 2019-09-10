@@ -4,6 +4,10 @@
         "tslint:recommended"
     ],
     "jsRules": {},
+    "rulesDirectory": [
+        "tslint-consistent-codestyle",
+        "vrsource-tslint-rules/rules"
+    ],
     "rules": {
         "no-console": false,
         "quotemark": [
@@ -27,7 +31,8 @@
             true,
             "ban-keywords",
             "check-format",
-            "allow-leading-underscore"
+            "allow-leading-underscore",
+            "allow-snake-case"
         ],
         "comment-format": [
             true,
@@ -44,7 +49,9 @@
                 "temporalDeadZone": false
             }
         ],
-        "interface-name": false
-    },
-    "rulesDirectory": []
+        "interface-name": false,
+        "no-static-this": true,
+        "no-unnecessary-else":true,
+        "conditional-expression-parens": true
+    }
 }
