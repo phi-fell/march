@@ -1,0 +1,9 @@
+{
+    "item_type": "WEAPON",
+    "name": "Steel Dagger",
+    "one_handed": true,
+    "sharpness": 2,
+    "force": 0,
+    "precision": 2,
+    "speed": 5
+}

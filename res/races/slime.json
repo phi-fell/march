@@ -1,6 +1,6 @@
 {
     "name": "Slime",
-    "description": "",
+    "description": "A being made of a gelatinous substance. Barely sentient, it tends to wander and absorb any organic detritus it comes across.",
     "bodySize": "TINY",
     "baseAttributes": {
         "STRENGTH": 1,

@@ -1,6 +1,6 @@
 {
     "name": "Neathling",
-    "description": "",
+    "description": "Humanoids who prowl the Neath and other parts of the Old Dark alone or in small nomadic tribes.  They do not make sound (and are careful that their actions do not) or emit smell, and are capable of consciously matching their body temperature to that of their surroundings.  While they can be perceived by creatures who see visible light, such light is incredibly rare in their natural habitat.  Moreover, most Neathlings who travel to the surface, or to civilized parts of the neath quickly learn invisibility or darkness magic.",
     "bodySize": "MEDIUM",
     "baseAttributes": {
         "STRENGTH": 10,
@@ -31,6 +31,12 @@
         "LUCK": 0
     },
     "traits": [
-        "blind"
+        "blind",
+        "heat vision",
+        "shiversight",
+        "heat regulation",
+        "olfactory invisibility",
+        "inaudible",
+        "quiet traveler"
     ]
 }

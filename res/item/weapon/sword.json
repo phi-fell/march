@@ -1,0 +1,9 @@
+{
+    "item_type": "WEAPON",
+    "name": "Steel Sword",
+    "one_handed": true,
+    "sharpness": 2,
+    "force": 1,
+    "precision": 1,
+    "speed": 10
+}

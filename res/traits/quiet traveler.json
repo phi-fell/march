@@ -1,0 +1,5 @@
+{
+    "name": "Quiet Traveler",
+    "description": "Naturally quiet when walking, running, etc. Sounds caused by such actions counts as one tier quieter (silent when sneaking, walking is as quiet as sneaking would otherwise be, while running it makes as much sound as others do walking)",
+    "effects":[]
+}

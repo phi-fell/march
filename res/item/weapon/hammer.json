@@ -1,0 +1,9 @@
+{
+    "item_type": "WEAPON",
+    "name": "Steel Hammer",
+    "one_handed": true,
+    "sharpness": 0,
+    "force": 2,
+    "precision": 0,
+    "speed": 12
+}
