@@ -1,0 +1,10 @@
+{
+    "name": "Boneless",
+    "description": "Lacks a skeleton or exoskeleton",
+    "effects": [
+        {
+            "type":"REMOVE_POOL",
+            "pool":"BONE"
+        }
+    ]
+}

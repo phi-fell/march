@@ -29,5 +29,10 @@
         "PERCEPTION": 0,
         "WILLPOWER": 0,
         "LUCK": 0
-    }
+    },
+    "traits": [
+        "bloodless",
+        "boneless",
+        "blind"
+    ]
 }

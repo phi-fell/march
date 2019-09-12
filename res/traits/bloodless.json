@@ -1,0 +1,10 @@
+{
+    "name": "Bloodless",
+    "description": "Lacks blood entirely, dies when flesh gets too low",
+    "effects": [
+        {
+            "type":"REMOVE_POOL",
+            "pool":"BLOOD"
+        }
+    ]
+}
