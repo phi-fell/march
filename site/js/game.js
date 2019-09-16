@@ -104,7 +104,6 @@ class Game {
 
     updateMenus() {
         var sheet = this.player.sheet;
-        var status = this.player.status;
         var list = $("#sheet");
         list.empty();
         if (this._sheetdisplaymode === 'attributes' || this._sheetdisplaymode === 'attr') {
@@ -138,9 +137,25 @@ class Game {
         list.empty();
         list.append($('<li>').text('-----Status-----'));
         list.append($('<li>').text('Position: (' + this.player.location.x + ', ' + this.player.location.y + ")"));
-        list.append($('<li>').text('Health: ' + status.hp + '/' + status.max_hp));
-        list.append($('<li>').text('Stamina: ' + status.sp + '/' + status.max_sp));
-        list.append($('<li>').text('Action Points: ' + status.ap + '/' + status.max_ap + ' (+' + status.ap_recovery + ' /turn)'));
+        if (sheet.status.FLESH) {
+            list.append($('<li>').text('Flesh: ' + sheet.status.FLESH.quantity + '/' + sheet.status.FLESH.capacity));
+        }
+        if (sheet.status.BLOOD) {
+            list.append($('<li>').text('Blood: ' + sheet.status.BLOOD.quantity + '/' + sheet.status.BLOOD.capacity));
+        }
+        if (sheet.status.BONE) {
+            list.append($('<li>').text('Bone: ' + sheet.status.BONE.quantity + '/' + sheet.status.BONE.capacity));
+        }
+        if (sheet.status.SOUL) {
+            list.append($('<li>').text('Soul: ' + sheet.status.SOUL.quantity + '/' + sheet.status.SOUL.capacity));
+        }
+        if (sheet.status.MANA) {
+            list.append($('<li>').text('Mana: ' + sheet.status.MANA.quantity + '/' + sheet.status.MANA.capacity));
+        }
+        if (sheet.status.STAMINA) {
+            list.append($('<li>').text('Stamina: ' + sheet.status.STAMINA.quantity + '/' + sheet.status.STAMINA.capacity));
+        }
+        list.append($('<li>').text('Action Points: ' + sheet.status.action_points + '/' + sheet.status.max_action_points + ' (+' + sheet.status.action_point_recovery + ' /turn)'));
 
         var list = $("#info");
         list.empty();
@@ -213,7 +228,7 @@ class Game {
                     this._ctx.fillText(this.mobs[i].name, ((x - 0.5) * scale) + offsetX, ((y - 0.5) * scale) + offsetY);
                 } else {
                     this._drawSprite(sprite, ((x - 1) * scale) + offsetX, ((y - 1) * scale) + offsetY, scale, scale);
-                    this._ctx.fillText(this.mobs[i].status.ap + '/' + this.mobs[i].status.max_ap + ' (+' + this.mobs[i].status.ap_recovery + ')', ((x - 0.5) * scale) + offsetX, ((y - 0.5) * scale) + offsetY);
+                    this._ctx.fillText(this.mobs[i].sheet.status.action_points + '/' + this.mobs[i].sheet.status.max_action_points + ' (+' + this.mobs[i].sheet.status.action_point_recovery + ')', ((x - 0.5) * scale) + offsetX, ((y - 0.5) * scale) + offsetY);
                 }
             }
         }

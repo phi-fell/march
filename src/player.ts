@@ -98,13 +98,11 @@ export class Player extends Entity {
     }
     user: User | null;
     active: boolean;
-    charSheet: CharacterSheet;
     chargen: CharGenStage;
     protected queuedAction: PlayerAction | null;
     constructor(id: string, name: string, loc: Location = new Location(0, 0, '')) {
         super(id, name, SPRITE.PLAYER, loc);
         this.chargen = CharGenStage.Tutorial;
-        this.charSheet = new CharacterSheet;
         this.user = null;
         this.queuedAction = null;
         this.active = false;
@@ -134,13 +132,14 @@ export class Player extends Entity {
         this.queuedAction = null;
     }
     public doNextAction(): ACTION_STATUS {
-        if (this.status.ap === 0) {
+        if (this.charSheet.status.action_points <= 0) {
             return ACTION_STATUS.WAITING; // can't do anything else
-        } else if (this.queuedAction) {
-            if (this.status.ap < ACTION_COST[this.queuedAction.type]) {
-                return ACTION_STATUS.WAITING; // not enough ap yet
+        }
+        if (this.queuedAction) {
+            if (this.charSheet.hasSufficientAP(ACTION_COST[this.queuedAction.type])) {
+                this.charSheet.useAP(ACTION_COST[this.queuedAction.type]);
             } else {
-                this.status.ap -= ACTION_COST[this.queuedAction.type];
+                return ACTION_STATUS.WAITING; // not enough ap yet
             }
             switch (this.queuedAction.type) {
                 case ACTION_TYPE.WAIT:
@@ -190,7 +189,6 @@ export class Player extends Entity {
             'name': this.name,
             'chargen': this.chargen,
             'location': this.location.toJSON(),
-            'status': this.status,
             'sheet': this.charSheet.toJSON(),
         }
         fs.writeFile('players/' + this.id + '.plr', JSON.stringify(data), function (err) {
@@ -211,7 +209,6 @@ export class Player extends Entity {
         } else {
             CharGen.spawnPlayerInFreshInstance(this);
         }
-        this.status = data.status;
         this.charSheet = CharacterSheet.fromJSON(data.sheet);
     }
     pushUpdate() {
@@ -234,7 +231,6 @@ export class Player extends Entity {
         return {
             'name': this.name,
             'sheet': this.charSheet.toJSON(),
-            'status': this.status,
             'location': this.location.toJSON(),
             'action': this.queuedAction ? this.queuedAction.toJSON() : { 'type': 'NONE' },
         };

@@ -43,6 +43,7 @@ export class User {
             this.player.setActive(this);
         }
         var user = this;
+        console.log(this.name + ' (' + sock.handshake.address + ') connected');
         sock.on('disconnect', function () {
             console.log(user.name + ' (' + sock.handshake.address + ') disconnected');
             user.logout();

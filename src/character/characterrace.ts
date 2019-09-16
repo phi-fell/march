@@ -1,5 +1,6 @@
 import fs = require('fs');
 import { CharacterAttributes } from './characterattributes';
+import { RESOURCE } from './characterresource';
 
 export enum BODY_SIZE {
     MINISCULE, // ants, fleas, etc.                                 no bigger than a dime.
@@ -12,6 +13,51 @@ export enum BODY_SIZE {
     GIANT, // the size of a 5-10 story building, or such
     COLLOSAL, // the size of a skyscraper, or bigger
 }
+
+export enum TEMPERATURE {
+    SUB_FREEZING,
+    FREEZING,
+    VERY_COLD,
+    COLD,
+    COOL,
+    SLIGHT_COOL,
+    AMBIENT,
+    SLIGHT_WARMTH,
+    WARM,
+    HOT,
+    VERY_HOT,
+    BOILING,
+    BLAZING,
+}
+// races should be default be -
+//      cold blooded: AMBIENT when still, SLIGHT_WARMTH when in motion (or ideally have them keep temp from last area until they acclimate)
+//      warm blooded: WARM when still or in motion
+
+export enum SCENT {
+    NONE,
+    NEGLIGIBLE,
+    SOME,
+    SMELLY,
+    VERY_SMELLY,
+}
+
+// races should be default have scent SOME
+// TODO: add traits like "stinky" that make e.g. gobins be SMELLY, etc.
+
+export enum SOUND {
+    NONE,       // no sound at all, sound not detectable by any means
+    INAUDIBLE,  // nigh inaudible, the sound of an ant's footstep or somesuch
+    VERY_QUIET, // the sound of a person quietly breathing, or their heartbeat
+    QUIET,      // the sound of a theif sneaking
+    NORMAL,     // the sound of a normal person walking
+    LOUD,       // the sound of a normal person joggin or sprinting
+    VERY_LOUD,  // the sound of steel clashing with steel
+    DEAFENING,  // the sound of a gunshot
+}
+
+// walking should be normal sound
+// fast_movement and sprinting should be loud (sprinting will take more stamina than fast_movement)
+// sneaking should be quiet (and class bonuses or skills might make one even quieter, or at least have a possibility of such)
 
 export type CharacterRaceID = string;
 export const NO_RACE = '' as CharacterRaceID;
@@ -80,7 +126,8 @@ fs.readdir('res/races', (err, filenames) => {
             }
             const name = filename.split('.')[0];
             const props = JSON.parse(content);
-            props.attributes = CharacterAttributes.fromJSON(props.baseAttributes);
+            props.baseAttributes = CharacterAttributes.fromJSON(props.baseAttributes);
+            props.attributesPerLevel = CharacterAttributes.fromJSON(props.attributesPerLevel);
             characterRaceProps[name] = props;
         });
     });

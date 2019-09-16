@@ -120,7 +120,7 @@ export class Instance {
                 'name': mob.name,
                 'location': mob.location,
                 'sprite': mob.sprite,
-                'status': mob.status,//TODO: limit what player can see
+                'sheet': mob.charSheet.toJSON(),//TODO: limit what player can see
             });
         }
         return {
@@ -298,8 +298,8 @@ export class Instance {
         if (this.mobs.length <= 0) {
             return false; // no mobs to act
         }
-        this.mobs.sort((a, b) => b.status.ap - a.status.ap); // TODO: handle ties?
-        if (this.mobs[0].status.ap <= 0) {
+        this.mobs.sort((a, b) => b.charSheet.status.action_points - a.charSheet.status.action_points); // TODO: handle ties?
+        if (this.mobs[0].charSheet.status.action_points <= 0) {
             // no mobs have AP remaining:
             this.startNewTurn();
             return true;
@@ -320,10 +320,7 @@ export class Instance {
     private startNewTurn() {
         this.emit('A new round has begun!');
         for (const mob of this.mobs) {
-            mob.status.ap += mob.status.ap_recovery;
-            if (mob.status.ap > mob.status.max_ap) {
-                mob.status.ap = mob.status.max_ap;
-            }
+            mob.charSheet.startNewTurn();
         }
     }
 }

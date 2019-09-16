@@ -17,18 +17,17 @@ class EnemyCount {
 }
 class TextEntity extends Entity {
     public doNextAction(): ACTION_STATUS {
-        this.status.ap = 0;
-        return ACTION_STATUS.PERFORMED;
+        this.charSheet.status.action_points = 0;
+        return ACTION_STATUS.WAITING;
     }
 }
 class TutorialEnemy extends Entity {
     constructor(private player: Player, private count: EnemyCount, id: string, name: string, location: Location = new Location(0, 0, '')) {
         super(id, name, SPRITE.SLIME, location);
-        this.status.hp = 1;
     }
     public doNextAction(): ACTION_STATUS {
-        this.status.ap = 0;
-        return ACTION_STATUS.PERFORMED;
+        this.charSheet.status.action_points = 0;
+        return ACTION_STATUS.WAITING;
     }
     protected handleDeath() {
         super.handleDeath();
@@ -43,11 +42,10 @@ class TutorialEnemy extends Entity {
 class RaceChoice extends Entity {
     constructor(private player: Player, private race: string, id: string, name: string, location: Location = new Location(0, 0, '')) {
         super(id, name, SPRITE.NAME, location);
-        this.status.hp = 1;
     }
     public doNextAction(): ACTION_STATUS {
-        this.status.ap = 0;
-        return ACTION_STATUS.PERFORMED;
+        this.charSheet.status.action_points = 0;
+        return ACTION_STATUS.WAITING;
     }
     protected handleDeath() {
         super.handleDeath();

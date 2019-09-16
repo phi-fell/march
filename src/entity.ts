@@ -20,20 +20,15 @@ export enum ACTION_STATUS {
 }
 
 export class Entity {
-    public status: any;
+    public static generateNewEntityID() {
+        return uuid();
+    }
+    public charSheet: CharacterSheet;
     private lastHitSheet: CharacterSheet | undefined;
     protected _location: Location;
     constructor(public id: string, public name: string, public sprite: SPRITE = SPRITE.NONE, loc = new Location(0, 0, '')) {
+        this.charSheet = new CharacterSheet();
         this._location = new Location(0, 0, '');
-        this.status = {
-            'hp': 10,
-            'max_hp': 10,
-            'sp': 10,
-            'max_sp': 10,
-            'ap': 0,
-            'max_ap': 60,
-            'ap_recovery': 25,
-        };
         this.lastHitSheet = undefined;
         this.location = loc;
     }
@@ -54,30 +49,28 @@ export class Entity {
         this._location = loc;
     }
     public doNextAction(): ACTION_STATUS {
-        if (this.status.ap >= MOVE_AP) {
+        if (this.charSheet.hasSufficientAP(MOVE_AP)) {
             let dirs = [
                 { 'x': 0, 'y': -1 },
                 { 'x': 0, 'y': 1 },
                 { 'x': -1, 'y': 0 },
                 { 'x': 1, 'y': 0 },
             ];
-            let dir = dirs[Math.floor(Math.random() * 4)];
-            let newLoc = this.location.getMovedBy(dir.x, dir.y);
+            const dir = dirs[Math.floor(Math.random() * 4)];
+            const newLoc = this.location.getMovedBy(dir.x, dir.y);
             this.move(newLoc); // TODO: ensure move succeeded
-            this.status.ap -= MOVE_AP;
+            this.charSheet.useAP(MOVE_AP);
             return ACTION_STATUS.PERFORMED;
-        } else {
-            return ACTION_STATUS.WAITING;
         }
+        return ACTION_STATUS.WAITING;
     }
     public hit(amount: number, charsheet?: CharacterSheet) {
         if (charsheet) {
             this.lastHitSheet = charsheet;
         }
-        // take a hit, first applying chance to dodge, etc.
-        var dodgeChance = 0;
-        if (Math.random() >= dodgeChance) {
-            this.takeDamage(amount);
+        this.charSheet.takeHit(amount);
+        if (this.charSheet.isDead()) {
+            this.handleDeath();
         }
     }
     protected move(to: Location) {
@@ -103,33 +96,5 @@ export class Entity {
         if (this.lastHitSheet) {
             this.lastHitSheet.addExperience(1); // TODO: make amount variable
         }
-    }
-    protected takeDirectHealthDamage(amount) {
-        // take this damage directly to health and then account for effects (e.g. dying if health = 0 or whatever)
-        // this functions is basically just health -= amount
-        this.status.hp -= amount;
-        if (this.status.hp <= 0) {
-            this.handleDeath();
-        }
-    }
-    protected takeNetDamage(amount) {
-        // apply this damage without accounting for armor, resistances, etc.
-        // this function handles e.g. applying the damage first to a magical energy shield before actual health, or whatnot
-        let shield = 0;// for example purposes. (should probably add a 'takeDirectShieldDamage' function if this were a feature)
-        if (amount <= shield) {
-            shield -= amount;
-        } else {
-            const netAmount = amount - shield;
-            shield = 0;
-            this.takeDirectHealthDamage(netAmount);
-        }
-    }
-    protected takeDamage(amount) {
-        // take amount damage, filtered through armor, resists, etc.
-        const armor = 0;// for example purposes
-        this.takeNetDamage(amount - armor);
-    }
-    static generateNewEntityID() {
-        return uuid();
     }
 }

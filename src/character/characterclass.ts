@@ -1,7 +1,7 @@
 import { CharacterAttributes } from './characterattributes';
 
 export class CharacterClass {
-    public getAttributes(): CharacterAttributes {
+    public getNetAttributes(): CharacterAttributes {
         return new CharacterAttributes();
     }
 }
