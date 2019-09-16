@@ -5,7 +5,7 @@
     "baseAttributes": {
         "STRENGTH": 1,
         "ENDURANCE": 1,
-        "VITALITTY": 1,
+        "VITALITY": 1,
         "AGILITY": 0,
         "DEXTERITY": 0,
         "SPEED": 0,
