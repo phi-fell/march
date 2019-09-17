@@ -68,7 +68,7 @@ export class Entity {
         if (charsheet) {
             this.lastHitSheet = charsheet;
         }
-        this.charSheet.takeHit(amount);
+        this.charSheet.takeHit(this.charSheet, null);
         if (this.charSheet.isDead()) {
             this.handleDeath();
         }

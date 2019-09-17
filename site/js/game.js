@@ -156,6 +156,8 @@ class Game {
             list.append($('<li>').text('Stamina: ' + sheet.status.STAMINA.quantity + '/' + sheet.status.STAMINA.capacity));
         }
         list.append($('<li>').text('Action Points: ' + sheet.status.action_points + '/' + sheet.status.max_action_points + ' (+' + sheet.status.action_point_recovery + ' /turn)'));
+        let weapon_hover = (sheet.equipment.weapon.one_handed ? 'One Handed' : 'Two Handed') + '\n' + "piercing: " + sheet.equipment.weapon.piercing + "\n" + "sharpness: " + sheet.equipment.weapon.sharpness + "\n" + "force: " + sheet.equipment.weapon.force + "\n" + "precision: " + sheet.equipment.weapon.precision + "\n" + "speed: " + sheet.equipment.weapon.speed;
+        list.append($('<li>').html('Weapon: <span title="' + weapon_hover + '"><b>[' + sheet.equipment.weapon.name + ']</b></span>'));
 
         var list = $("#info");
         list.empty();

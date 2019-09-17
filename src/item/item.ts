@@ -15,20 +15,23 @@ export interface ItemSchema {
 
 export type ItemSchemaID = string;
 
-const itemSchemas: { [id: string]: ItemSchema; } = {};
-
 export class Item {
-    constructor(private schemaID) {
+    public static addSchema(id: ItemSchemaID, schema: ItemSchema) {
+        Item.itemSchemas[id] = schema;
+    }
+    protected static itemSchemas: { [id: string]: ItemSchema; } = {};
+    protected _schema: ItemSchema;
+    constructor(schemaID: ItemSchemaID) {
+        this._schema = Item.itemSchemas[schemaID];
     }
     get item_type() {
-        return itemSchemas[this.schemaID].item_type;
+        return this._schema.item_type;
     }
     get name() {
-        return itemSchemas[this.schemaID].name;
+        return this._schema.name;
     }
     public toJSON() {
         return {
-            'schemaID': this.schemaID,
             'name': this.name,
         };
     }
@@ -41,21 +44,23 @@ function addItem(dir, filename) {
         }
         const id = filename.split('.')[0];
         const schema = JSON.parse(content);
-        itemSchemas[id] = schema;
+        schema.item_type = ITEM_TYPE[schema.item_type];
+        Item.addSchema(id, schema);
     });
 }
-function addItemDirectory(directory) {
+function addItemDirectory(root, subdirectory: string | null = null) {
+    const directory = root + (subdirectory ? ('/' + subdirectory) : '');
     fs.readdir(directory, (dir_err, filenames) => {
-        if (dir_err) { 
+        if (dir_err) {
             return console.log(dir_err);
         }
         filenames.forEach((filename) => {
             const file = path.resolve(directory, filename);
             fs.stat(file, (stat_err, stat) => {
                 if (stat && stat.isDirectory()) {
-                    addItemDirectory(directory + '/' + filename);
+                    addItemDirectory(root, (subdirectory ? (subdirectory + '/') : '') + filename);
                 } else {
-                    addItem(directory, filename);
+                    addItem(root, (subdirectory ? (subdirectory + '/') : '') + filename);
                 }
             });
         });

@@ -1,3 +1,4 @@
+import { Weapon } from '../item/weapon';
 import { ATTRIBUTE, CharacterAttributes } from './characterattributes';
 import { CharacterClass } from './characterclass';
 import { CharacterEquipment } from './characterequipment';
@@ -69,11 +70,32 @@ export class CharacterSheet {
     public startNewTurn() {
         this._status.startNewTurn();
     }
-    public takeHit(amount) {
+    public takeHit(attacker: CharacterSheet, weapon: Weapon | null) {
         // take a hit, first applying chance to dodge, etc.
         const dodgeChance = 0;
+        // TODO: multiple classes of hit: critical, direct, glancing, miss
+        // e.g. critical could be a hit to head or vital region: +damage (maybe double dmg?)
+        // e.g. direct is normal
+        // e.g. glancing is almost dodge but not quite. (half? damage)
         if (Math.random() >= dodgeChance) {
-            this.takeDamage(amount);
+            let armor = 0; // TODO: calculate total armor
+            let blunt = this.getNetAttributeValue(ATTRIBUTE.STRENGTH) + (weapon ? (weapon.force) : 0); // [str]D[force] ?
+            if (blunt > armor) {
+                blunt -= armor;
+                armor = 0;
+                this.takeBluntDamage(blunt);
+            } else {
+                armor -= blunt;
+                blunt = 0;
+            }
+            const resilience = 0; // TODO: calculate resilience from natural armor, or equipment
+            const piercing = weapon ? (weapon.piercing) : 0;
+            if (piercing > resilience) {
+                const sharp = (piercing - resilience) * (weapon ? (weapon.sharpness) : 0); // [pierce-res]D[sharp] ?
+                if (sharp > armor) {
+                    this.takeSharpDamage(sharp - armor);
+                }
+            }
         }
     }
     public isDead(): boolean {
@@ -97,31 +119,45 @@ export class CharacterSheet {
             'classes': [],
             'faiths': [],
             'race': this._race.toJSON(),
+            'equipment': this._equipment.toJSON(),
             'status': this._status.toJSON(),
             'exp': this._experience,
         };
     }
-    protected takeDirectHealthDamage(amount) {
-        // take this damage directly to health and then account for effects (e.g. dying if health = 0 or whatever)
-        // this functions is basically just health -= amount
-        this._status.pools[RESOURCE.FLESH].quantity -= amount;
-    }
-    protected takeNetDamage(amount) {
-        // apply this damage without accounting for armor, resistances, etc.
-        // this function handles e.g. applying the damage first to a magical energy shield before actual health, or whatnot
-        let shield = 0; // for example purposes. (should probably add a 'takeDirectShieldDamage' function if this were a feature)
-        if (amount <= shield) {
-            shield -= amount;
-        } else {
-            const netAmount = amount - shield;
-            shield = 0;
-            this.takeDirectHealthDamage(netAmount);
+    protected takeBluntDamage(amount: number) {
+        if (this.hasResource(RESOURCE.FLESH) && this._status.pools[RESOURCE.FLESH].quantity > 0) {
+            if (this._status.pools[RESOURCE.FLESH].quantity > amount) {
+                this._status.pools[RESOURCE.FLESH].quantity -= amount;
+                return;
+            }
+            amount -= this._status.pools[RESOURCE.FLESH].quantity;
+            this._status.pools[RESOURCE.FLESH].quantity = 0;
+        }
+        if (this.hasResource(RESOURCE.BONE) && this._status.pools[RESOURCE.BONE].quantity > 0) {
+            if (this._status.pools[RESOURCE.BONE].quantity > amount) {
+                this._status.pools[RESOURCE.BONE].quantity -= amount;
+                return;
+            }
+            amount -= this._status.pools[RESOURCE.FLESH].quantity;
+            this._status.pools[RESOURCE.FLESH].quantity = 0;
+        }
+        if (this.hasResource(RESOURCE.FLESH)) {
+            this._status.pools[RESOURCE.FLESH].quantity -= amount;
+            amount = 0;
+            return;
         }
     }
-    protected takeDamage(amount) {
-        // take amount damage, filtered through armor, resists, etc.
-        const armor = 0;// for example purposes
-        this.takeNetDamage(amount - armor);
+    protected takeSharpDamage(amount) {
+        if (this.hasResource(RESOURCE.FLESH)) {
+            this._status.pools[RESOURCE.FLESH].quantity -= amount;
+            amount = 0;
+            return;
+        }
+        if (this.hasResource(RESOURCE.BONE)) {
+            this._status.pools[RESOURCE.BONE].quantity -= amount;
+            amount = 0;
+            return;
+        }
     }
     private recalculateDerivedStats() {
         for (const type in RESOURCE) {
