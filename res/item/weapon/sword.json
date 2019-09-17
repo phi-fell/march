@@ -1,6 +1,7 @@
 {
     "item_type": "WEAPON",
     "name": "Steel Sword",
+    "piercing": 2,
     "one_handed": true,
     "sharpness": 2,
     "force": 1,

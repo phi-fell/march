@@ -1,6 +1,7 @@
 {
     "item_type": "WEAPON",
     "name": "Steel Hammer",
+    "piercing": 2,
     "one_handed": true,
     "sharpness": 0,
     "force": 2,

@@ -4,12 +4,12 @@ const tileNames: string[] = [];
 const tilesByName: { [name: string]: Tile; } = {};
 const tileProps: Array<TileProperties> = [];
 
-fs.readdir('res/tiles', (err, filenames) => {
+fs.readdir('res/tile', (err, filenames) => {
     if (err) {
         return console.log(err);
     }
     filenames.forEach((filename) => {
-        fs.readFile('res/tiles/' + filename, 'utf-8', function (err, content) {
+        fs.readFile('res/tile/' + filename, 'utf-8', function (err, content) {
             if (err) {
                 return console.log(err);
             }

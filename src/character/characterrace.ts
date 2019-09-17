@@ -115,12 +115,12 @@ export class CharacterRace {
     }
 }
 
-fs.readdir('res/races', (err, filenames) => {
+fs.readdir('res/race', (err, filenames) => {
     if (err) {
         return console.log(err);
     }
     filenames.forEach((filename) => {
-        fs.readFile('res/races/' + filename, 'utf-8', (err, content) => {
+        fs.readFile('res/race/' + filename, 'utf-8', (err, content) => {
             if (err) {
                 return console.log(err);
             }
