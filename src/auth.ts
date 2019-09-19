@@ -47,7 +47,7 @@ function getUserIdFromName(name: string, callback: any) {
         if (err) {
             return callback(err);
         } else {
-            var lines = (data + '').split('\n');
+            const lines = (data + '').split('\n');
             if (name === lines[1]) {
                 return callback(null, lines[0]);
             } else {
@@ -61,7 +61,7 @@ function getIfUsernameExists(name: string, callback: any) {
         if (err) {
             return callback(null, false);
         } else {
-            var lines = (data + '').split('\n');
+            const lines = (data + '').split('\n');
             if (name === lines[1]) {
                 return callback(null, true);
             } else {
@@ -115,26 +115,25 @@ module.exports.validateUserByIdAndPass = function (id: string, pass: string, cal
     });
 }
 module.exports.validateUserByIdAndAuthToken = function (id: string, token: string, callback: any) {
-    fs.readFile('users/' + id + '.auth', function (err: any, data: any) {
+    fs.readFile('users/' + id + '.auth', (err: any, data: any) => {
         if (err) {
             return callback(err, false);
-        } else {
-            var sd = ('' + data).split('\n');
-            var hash = sd[0];
-            var date = sd[1];
-            if (Date.now() - parseInt(date) > 1000 * 60 * 60 * 24 * 3) {
-                callback(null, false);//Invalidate after 3 days
-            }
-            bcrypt.compare(token, hash, function (err: any, res: boolean) {
-                if (err) {
-                    return callback(err);
-                } else if (res) {
-                    return callback(null, true);
-                } else {
-                    return callback(null, false);
-                }
-            });
         }
+        const sd = ('' + data).split('\n');
+        const hash = sd[0];
+        const date = sd[1];
+        if (Date.now() - parseInt(date) > 1000 * 60 * 60 * 24 * 3) {
+            callback(null, false);//Invalidate after 3 days
+        }
+        bcrypt.compare(token, hash, function (err: any, res: boolean) {
+            if (err) {
+                return callback(err);
+            }
+            if (res) {
+                return callback(null, true);
+            }
+            return callback(null, false);
+        });
     });
 }
 module.exports.setUserIdByName = setUserIdByName;
