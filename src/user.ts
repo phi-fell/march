@@ -130,7 +130,6 @@ export class User {
         }
         //TODO: close socket, and save to disk?
         this.socket.disconnect();
-        this.socket = null;
         this.online = false;
         this.unload();
     }
