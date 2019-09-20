@@ -161,10 +161,6 @@ export class CharacterSheet {
             }
         }
         this._attributes = this._race.getNetAttributes();
-        for (const charClass of this._classes) {
-            this._attributes = this._attributes.getSumWith(charClass.getNetAttributes());
-
-        }
         // TODO: apply effects that modify attributes
         this._status.pools[RESOURCE.FLESH].capacity = this.getNetAttributeValue(ATTRIBUTE.VITALITY);
         this._status.pools[RESOURCE.BLOOD].capacity = this.getNetAttributeValue(ATTRIBUTE.VITALITY) + this.getNetAttributeValue(ATTRIBUTE.ENDURANCE);
