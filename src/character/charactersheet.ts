@@ -1,6 +1,5 @@
 import { Weapon } from '../item/weapon';
 import { ATTRIBUTE, CharacterAttributes } from './characterattributes';
-import { CharacterClass } from './characterclass';
 import { CharacterEquipment } from './characterequipment';
 import { CharacterFaith } from './characterfaith';
 import { CharacterRace } from './characterrace';
@@ -10,7 +9,6 @@ import { CharacterStatus } from './characterstatus';
 export class CharacterSheet {
     public static fromJSON(json: any) {
         const ret = new CharacterSheet();
-        // TODO: load classes
         // TODO: load faiths
         ret._race = CharacterRace.fromJSON(json.race);
         ret._attributes = CharacterAttributes.fromJSON(json.attributes);
@@ -18,7 +16,6 @@ export class CharacterSheet {
         return ret;
     }
     private _race: CharacterRace;
-    private _classes: CharacterClass[];
     private _faiths: CharacterFaith[];
     private _equipment: CharacterEquipment;
     private _status: CharacterStatus;
@@ -28,7 +25,6 @@ export class CharacterSheet {
     private _hasPool: boolean[] = [];
     constructor() {
         this._race = new CharacterRace();
-        this._classes = [];
         this._faiths = [];
         this._equipment = new CharacterEquipment();
         this._status = new CharacterStatus();
@@ -116,7 +112,6 @@ export class CharacterSheet {
     public toJSON() {
         return {
             'attributes': this._attributes.toJSON(),
-            'classes': [],
             'faiths': [],
             'race': this._race.toJSON(),
             'equipment': this._equipment.toJSON(),
