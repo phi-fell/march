@@ -13,7 +13,7 @@
         "LOGIC": 14,
         "WISDOM": 10,
         "PERCEPTION": 2,
-        "WILLPOWER": 0,
+        "MEMORY": 0,
         "LUCK": 0
     },
     "attributesPerLevel": {
@@ -27,7 +27,7 @@
         "LOGIC": 0.7,
         "WISDOM": 0.5,
         "PERCEPTION": 0.1,
-        "WILLPOWER": 0,
+        "MEMORY": 0,
         "LUCK": 0
     }
 }

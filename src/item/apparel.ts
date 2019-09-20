@@ -1,30 +1,4 @@
-import { ITEM_TYPE, ItemSchema } from './item';
-
-export enum APPAREL_SLOT {
-    HEAD,
-    LEFT_EAR, RIGHT_EAR,
-    NECKLACE,
-    SHIRT,
-    CLOAK,
-    LEFT_WRIST, RIGHT_WRIST,
-    THROAT_ARMOR,
-    CHEST_ARMOR,
-    LEFT_SHOULDER_ARMOR, RIGHT_SHOULDER_ARMOR,
-    LEFT_UPPER_ARM_ARMOR, RIGHT_UPPER_ARM_ARMOR,
-    LEFT_ELBOW_ARMOR, RIGHT_ELBOW_ARMOR,
-    LEFT_FOREARM_ARMOR, RIGHT_FOREARM_ARMOR,
-    LEFT_HAND, RIGHT_HAND,
-    LEFT_RING_POINTERFINGER, RIGHT_RING_POINTERFINGER,
-    LEFT_RING_MIDDLEFINGER, RIGHT_RING_MIDDLEFINGER,
-    LEFT_RING_RINGFINGER, RIGHT_RING_RINGFINGER,
-    LEFT_RING_PINKY, RIGHT_RING_PINKY,
-    BELT,
-    PANTS,
-    LEFT_THIGH_ARMOR, RIGHT_THIGH_ARMOR,
-    LEFT_KNEE_ARMOR, RIGHT_KNEE_ARMOR,
-    LEFT_SHIN_ARMOR, RIGHT_SHIN_ARMOR,
-    LEFT_FOOT, RIGHT_FOOT,
-}
+import { ITEM_TYPE, ItemSchema, Item, ItemSchemaID } from './item';
 
 export enum APPAREL_TYPE {
     // jewelry
@@ -51,9 +25,39 @@ export enum APPAREL_TYPE {
     GREAVES,
     LEG,
     FEET,
-
 }
 
 export interface ApparelSchema extends ItemSchema {
     item_type: ITEM_TYPE.APPAREL;
+    coverage: number;
+    resilience: number;
+    armor: number;
+}
+
+export class Apparel extends Item {
+    protected _schema: ApparelSchema;
+    constructor(schemaID: ItemSchemaID) {
+        super(schemaID);
+        this._schema = Item.itemSchemas[schemaID] as ApparelSchema;
+        if (this._schema.item_type !== ITEM_TYPE.APPAREL) {
+            console.log('Non-Apparel Item loaded as Apparel!');
+        }
+    }
+    get coverage(): number {
+        return this._schema.coverage;
+    }
+    get resilience(): number {
+        return this._schema.resilience;
+    }
+    get armor(): number {
+        return this._schema.armor;
+    }
+    public toJSON() {
+        return {
+            'name': this.name,
+            'coverage': this.coverage,
+            'resilience': this.resilience,
+            'armor': this.armor,
+        };
+    }
 }

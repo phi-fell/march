@@ -11,17 +11,19 @@ export class CharacterSheet {
         const ret = new CharacterSheet();
         // TODO: load faiths
         ret._race = CharacterRace.fromJSON(json.race);
-        ret._attributes = CharacterAttributes.fromJSON(json.attributes);
+        ret._allocatedAttributes = CharacterAttributes.fromJSON(json.allocatedAttributes);
         ret._experience = json.exp;
+        ret.recalculateDerivedStats();
         return ret;
     }
+    private _allocatedAttributes: CharacterAttributes = new CharacterAttributes();
     private _race: CharacterRace;
     private _faiths: CharacterFaith[];
     private _equipment: CharacterEquipment;
     private _status: CharacterStatus;
     private _experience: number;
     // cache
-    private _attributes: CharacterAttributes = new CharacterAttributes();
+    private _cachedAttributes: CharacterAttributes = new CharacterAttributes();
     private _hasPool: boolean[] = [];
     constructor() {
         this._race = new CharacterRace();
@@ -55,13 +57,15 @@ export class CharacterSheet {
         this.recalculateDerivedStats();
     }
     public getNetAttributeValue(attr: ATTRIBUTE): number {
-        return this._attributes.get(attr);
+        return this._cachedAttributes.get(attr);
     }
     public levelUpAttribute(attr: ATTRIBUTE) {
-        if (this._experience >= 10) {
-            this._experience -= 10; // TODO: experience should lead to levelups which grant attribute points. or something else like that
-            this._attributes.set(attr, this._attributes.get(attr) + 1);
+        const costs = this._allocatedAttributes.getLevelupCosts();
+        if (this._experience >= costs.get(attr)) {
+            this._experience -= costs.get(attr);
+            this._allocatedAttributes.set(attr, this._allocatedAttributes.get(attr) + 1);
         }
+        this.recalculateDerivedStats();
     }
     public startNewTurn() {
         this._status.startNewTurn();
@@ -111,7 +115,9 @@ export class CharacterSheet {
     }
     public toJSON() {
         return {
-            'attributes': this._attributes.toJSON(),
+            'attributes': this._cachedAttributes.toJSON(),
+            'allocatedAttributes': this._allocatedAttributes.toJSON(),
+            'attributeLevelupCosts': this._allocatedAttributes.getLevelupCosts().toJSON(),
             'faiths': [],
             'race': this._race.toJSON(),
             'equipment': this._equipment.toJSON(),
@@ -160,12 +166,12 @@ export class CharacterSheet {
                 this._hasPool[RESOURCE[type]] = true;
             }
         }
-        this._attributes = this._race.getNetAttributes();
+        this._cachedAttributes = this._race.getNetAttributes().getSumWith(this._allocatedAttributes);
         // TODO: apply effects that modify attributes
         this._status.pools[RESOURCE.FLESH].capacity = this.getNetAttributeValue(ATTRIBUTE.VITALITY);
         this._status.pools[RESOURCE.BLOOD].capacity = this.getNetAttributeValue(ATTRIBUTE.VITALITY) + this.getNetAttributeValue(ATTRIBUTE.ENDURANCE);
         this._status.pools[RESOURCE.BONE].capacity = this.getNetAttributeValue(ATTRIBUTE.VITALITY) + this.getNetAttributeValue(ATTRIBUTE.STRENGTH);
-        this._status.pools[RESOURCE.SOUL].capacity = this.getNetAttributeValue(ATTRIBUTE.WILLPOWER);
+        this._status.pools[RESOURCE.SOUL].capacity = this.getNetAttributeValue(ATTRIBUTE.WISDOM) + this.getNetAttributeValue(ATTRIBUTE.CHARISMA);
         this._status.pools[RESOURCE.STAMINA].capacity = this.getNetAttributeValue(ATTRIBUTE.ENDURANCE);
         this._status.pools[RESOURCE.MANA].capacity = this.getNetAttributeValue(ATTRIBUTE.WISDOM);
     }

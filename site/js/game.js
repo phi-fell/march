@@ -109,21 +109,21 @@ class Game {
         if (this._sheetdisplaymode === 'attributes' || this._sheetdisplaymode === 'attr') {
             let lvlupavailable = sheet.exp >= 10;
             list.append($('<li>').text('Body:'));
-            list.append($('<li>').html(' - Strength: ' + sheet.attributes.STRENGTH + (lvlupavailable ? ' <button onclick="levelUpAttr(\'STRENGTH\')">+</button> (10 exp)' : '')));
-            list.append($('<li>').html(' - Endurance: ' + sheet.attributes.ENDURANCE + (lvlupavailable ? ' <button onclick="levelUpAttr(\'ENDURANCE\')">+</button> (10 exp)' : '')));
-            list.append($('<li>').html(' - Vitality: ' + sheet.attributes.VITALITY + (lvlupavailable ? ' <button onclick="levelUpAttr(\'VITALITY\')">+</button> (10 exp)' : '')));
+            list.append($('<li>').html(' - Strength: ' + sheet.attributes.STRENGTH + ((sheet.exp >= sheet.attributeLevelupCosts.STRENGTH) ? ' <button onclick="levelUpAttr(\'STRENGTH\')">+</button> (' + sheet.attributeLevelupCosts.STRENGTH + 'exp)' : '')));
+            list.append($('<li>').html(' - Endurance: ' + sheet.attributes.ENDURANCE + ((sheet.exp >= sheet.attributeLevelupCosts.ENDURANCE) ? ' <button onclick="levelUpAttr(\'ENDURANCE\')">+</button> (' + sheet.attributeLevelupCosts.ENDURANCE + 'exp)' : '')));
+            list.append($('<li>').html(' - Vitality: ' + sheet.attributes.VITALITY + ((sheet.exp >= sheet.attributeLevelupCosts.VITALITY) ? ' <button onclick="levelUpAttr(\'VITALITY\')">+</button> (' + sheet.attributeLevelupCosts.VITALITY + 'exp)' : '')));
             list.append($('<li>').text('Movement:'));
-            list.append($('<li>').html(' - Agility: ' + sheet.attributes.AGILITY + (lvlupavailable ? ' <button onclick="levelUpAttr(\'AGILITY\')">+</button> (10 exp)' : '')));
-            list.append($('<li>').html(' - Dexterity: ' + sheet.attributes.DEXTERITY + (lvlupavailable ? ' <button onclick="levelUpAttr(\'DEXTERITY\')">+</button> (10 exp)' : '')));
-            list.append($('<li>').html(' - Speed: ' + sheet.attributes.SPEED + (lvlupavailable ? ' <button onclick="levelUpAttr(\'SPEED\')">+</button> (10 exp)' : '')));
+            list.append($('<li>').html(' - Agility: ' + sheet.attributes.AGILITY + ((sheet.exp >= sheet.attributeLevelupCosts.AGILITY) ? ' <button onclick="levelUpAttr(\'AGILITY\')">+</button> (' + sheet.attributeLevelupCosts.AGILITY + 'exp)' : '')));
+            list.append($('<li>').html(' - Dexterity: ' + sheet.attributes.DEXTERITY + ((sheet.exp >= sheet.attributeLevelupCosts.DEXTERITY) ? ' <button onclick="levelUpAttr(\'DEXTERITY\')">+</button> (' + sheet.attributeLevelupCosts.DEXTERITY + 'exp)' : '')));
+            list.append($('<li>').html(' - Speed: ' + sheet.attributes.SPEED + ((sheet.exp >= sheet.attributeLevelupCosts.SPEED) ? ' <button onclick="levelUpAttr(\'SPEED\')">+</button> (' + sheet.attributeLevelupCosts.SPEED + 'exp)' : '')));
             list.append($('<li>').text('Mental:'));
-            list.append($('<li>').html(' - Charisma: ' + sheet.attributes.CHARISMA + (lvlupavailable ? ' <button onclick="levelUpAttr(\'CHARISMA\')">+</button> (10 exp)' : '')));
-            list.append($('<li>').html(' - Logic: ' + sheet.attributes.LOGIC + (lvlupavailable ? ' <button onclick="levelUpAttr(\'LOGIC\')">+</button> (10 exp)' : '')));
-            list.append($('<li>').html(' - Wisdom: ' + sheet.attributes.WISDOM + (lvlupavailable ? ' <button onclick="levelUpAttr(\'WISDOM\')">+</button> (10 exp)' : '')));
+            list.append($('<li>').html(' - Charisma: ' + sheet.attributes.CHARISMA + ((sheet.exp >= sheet.attributeLevelupCosts.CHARISMA) ? ' <button onclick="levelUpAttr(\'CHARISMA\')">+</button> (' + sheet.attributeLevelupCosts.CHARISMA + 'exp)' : '')));
+            list.append($('<li>').html(' - Logic: ' + sheet.attributes.LOGIC + ((sheet.exp >= sheet.attributeLevelupCosts.LOGIC) ? ' <button onclick="levelUpAttr(\'LOGIC\')">+</button> (' + sheet.attributeLevelupCosts.LOGIC + 'exp)' : '')));
+            list.append($('<li>').html(' - Wisdom: ' + sheet.attributes.WISDOM + ((sheet.exp >= sheet.attributeLevelupCosts.WISDOM) ? ' <button onclick="levelUpAttr(\'WISDOM\')">+</button> (' + sheet.attributeLevelupCosts.WISDOM + 'exp)' : '')));
             list.append($('<li>').text('Other:'));
-            list.append($('<li>').html(' - Perception: ' + sheet.attributes.PERCEPTION + (lvlupavailable ? ' <button onclick="levelUpAttr(\'PERCEPTION\')">+</button> (10 exp)' : '')));
-            list.append($('<li>').html(' - Will: ' + sheet.attributes.WILLPOWER + (lvlupavailable ? ' <button onclick="levelUpAttr(\'WILLPOWER\')">+</button> (10 exp)' : '')));
-            list.append($('<li>').html(' - Luck: ' + sheet.attributes.LUCK + (lvlupavailable ? ' <button onclick="levelUpAttr(\'LUCK\')">+</button> (10 exp)' : '')));
+            list.append($('<li>').html(' - Perception: ' + sheet.attributes.PERCEPTION + ((sheet.exp >= sheet.attributeLevelupCosts.PERCEPTION) ? ' <button onclick="levelUpAttr(\'PERCEPTION\')">+</button> (' + sheet.attributeLevelupCosts.PERCEPTION + 'exp)' : '')));
+            list.append($('<li>').html(' - Memory: ' + sheet.attributes.MEMORY + ((sheet.exp >= sheet.attributeLevelupCosts.MEMORY) ? ' <button onclick="levelUpAttr(\'MEMORY\')">+</button> (' + sheet.attributeLevelupCosts.MEMORY + 'exp)' : '')));
+            list.append($('<li>').html(' - Luck: ' + sheet.attributes.LUCK + ((sheet.exp >= sheet.attributeLevelupCosts.LUCK) ? ' <button onclick="levelUpAttr(\'LUCK\')">+</button> (' + sheet.attributeLevelupCosts.LUCK + 'exp)' : '')));
         } else if (this._sheetdisplaymode === 'race') {
             list.append($('<li>').text('Race: ' + sheet.race.name));
             list.append($('<li>').text(sheet.race.description));
@@ -163,7 +163,7 @@ class Game {
         list.empty();
         list.append($('<li>').text('Player: ' + this.player.name));
         list.append($('<li>').text('Race: ' + sheet.race.name));
-        list.append($('<li>').text('Exp: ' + sheet.exp));
+        list.append($('<li>').text('Will: ' + sheet.exp));
         switch (this.player.action.type) {
             case 'NONE':
             case 'WAIT':
