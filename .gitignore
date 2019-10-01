@@ -5,7 +5,3 @@ bugs/*
 users/*
 players/*
 world/*
-copytoremote.sh
-launchpatch.sh
-launchminor.sh
-launchmajor.sh
