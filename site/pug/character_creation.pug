@@ -1,0 +1,162 @@
+doctype html
+
+html
+    head
+        title Create Character
+        style.
+            body {
+                font: 13px Helvetica, Arial;
+            }
+            th, td {
+                text-align: left;
+            }
+            table {
+                border-collapse: collapse;
+                height: 100%;
+                width: 100%;
+            }
+            p {
+                margin: 5px;
+            }
+            .all_div {
+                position: absolute;
+                height: 100%;
+                width: 100%;
+                left: 0%;
+                top: 0%;
+            }
+            .outer_div {
+                padding: 5px;
+                position: relative;
+            }
+            .char_sheet_div {
+                border: 2px solid black;
+                display: flex;
+                flex-flow: column;
+            }
+            .row_div {
+                flex: 1 1 auto;
+
+                display: flex;
+                flex-flow: row;
+            }
+            .col_div {
+                flex: 1 1 auto;
+
+                display: flex;
+                flex-flow: column;
+            }
+            .section_div {
+                border: 2px solid black;
+                margin: 5px;
+                padding: 5px;
+
+                flex: 1 1 auto;
+
+                display: flex;
+                flex-flow: row;
+            }
+        script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js")
+        script.
+            var will=#{will};
+            var attributes='!{attributes}'.split(',');
+            var skills='!{skills}'.split(',');
+        script(src="js/character_creation.js")
+
+    body
+        .all_div
+            .outer_div
+                .char_sheet_div
+                    .row_div
+                        .section_div
+                            p='Name: '
+                            div(contenteditable="true")
+                                p(id="name")
+                        .section_div
+                            p='Race: '
+                            select(id="race" onChange="setRace(this.value)")
+                        .section_div
+                            p='Will: '
+                            p(id="will")
+                    .row_div
+                        .col_div
+                            .section_div
+                                table.table
+                                    tr
+                                        td
+                                            p Flesh
+                                        td
+                                            p(id='flesh')
+                                    tr
+                                        td
+                                            p Blood
+                                        td
+                                            p(id='blood')
+                                    tr
+                                        td
+                                            p Bone
+                                        td
+                                            p(id='bone')
+                                    tr
+                                        td
+                                            p Soul
+                                        td
+                                            p(id='soul')
+                                    tr
+                                        td
+                                            p Stamina
+                                        td
+                                            p(id='stamina')
+                                    tr
+                                        td
+                                            p Action Points
+                                        td
+                                            p(id='ap')
+                                    tr
+                                        td
+                                            p Initiative
+                                        td
+                                            p(id='initiative')
+                            .section_div
+                                table.table
+                                    tr
+                                        th
+                                            p Attribute
+                                        th
+                                            p Value
+                                        th
+                                            p Add/Remove
+                                    each attr in attributes
+                                        tr
+                                            td
+                                                p=attr.charAt(0).toUpperCase() + attr.substring(1).toLowerCase() + ':'
+                                            td
+                                                p(id=attr)
+                                            td
+                                                button(onclick="addAttributePoint('"+attr+"')") +
+                                                button(onclick="removeAttributePoint('"+attr+"')") -
+                            .row_div
+                                .section_div
+                                    p="Inventory: "
+                                .section_div
+                                    .row_div
+                                        p="Gold: "
+                                        p(id="gold")
+                        .section_div
+                                table.table
+                                    tr
+                                        th
+                                            p Skill
+                                        th
+                                            p Maximum
+                                        th
+                                            p Increase/Decrease
+                                    each skill in skills
+                                        tr
+                                            td
+                                                p=skill.split('_').map((w)=>{return w.charAt(0).toUpperCase() + w.substring(1).toLowerCase()}).join(' ')  + ':'
+                                            td
+                                                p(id=skill)
+                                            td
+                                                button(onclick="increaseSkillCap('"+skill+"')") +
+                                                button(onclick="decreaseSkillCap('"+skill+"')") -

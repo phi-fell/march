@@ -4,7 +4,7 @@ import { ACTION_STATUS, Entity } from './entity';
 import { INSTANCE_GEN_TYPE, InstanceGenerator } from './instancegenerator';
 import { Location } from './location';
 import { Player } from './player';
-import { getTileProps, NO_TILE, Tile, getTileFromName } from './tile';
+import { getTileProps, NO_TILE, Tile } from './tile';
 
 const MAX_INACTIVE_TIME = 1000 * 60 * 10; // 10 minutes (as milliseconds)
 
@@ -254,9 +254,9 @@ export class Instance {
     loadFromJSON(data) {
         this.attributes.loadFromJSON(data.attributes);
         this.players = [];
-        var instance = this;
-        for (var plrid of data.players) {
-            Player.loadPlayer(plrid, function (err: any, plr: Player) {
+        const instance = this;
+        for (const plrid of data.players) {
+            Player.loadPlayer(plrid, (err: any, plr: Player) => {
                 if (err) {
                     return console.log(err);
                 }
@@ -289,7 +289,7 @@ export class Instance {
         }
         for (let i = this.mobs.length; i > 0; i--) {
             if (!this.performNextEntityAction()) {
-                return;
+                break;
             }
         }
         this.updateAllPlayers();
@@ -298,12 +298,7 @@ export class Instance {
         if (this.mobs.length <= 0) {
             return false; // no mobs to act
         }
-        this.mobs.sort((a, b) => b.charSheet.status.action_points - a.charSheet.status.action_points); // TODO: handle ties?
-        if (this.mobs[0].charSheet.status.action_points <= 0) {
-            // no mobs have AP remaining:
-            this.startNewTurn();
-            return true;
-        }
+        this.mobs.sort((a, b) => b.charSheet.getInitiative() - a.charSheet.getInitiative()); // TODO: handle ties?
         for (let i = 0; i < this.mobs.length; i++) {
             const actionStatus = this.mobs[i].doNextAction();
             if (actionStatus === ACTION_STATUS.PERFORMED) {

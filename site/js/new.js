@@ -12,9 +12,9 @@ $(function () {
             var socket = io();
             socket.emit('create_user', creds);
             socket.on('success', function (msg) {
-                console.log('success! redirecting to /game');
+                console.log('success! redirecting to /character_creation');
                 cacheCredentials(msg)
-                window.location.href = '/game';
+                window.location.href = '/character_creation';
             });
             socket.on('fail', function (msg) {
                 console.log('something went wrong');

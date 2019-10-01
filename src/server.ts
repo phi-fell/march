@@ -1,9 +1,9 @@
 import { Instance } from "./instance";
+import { validateCredentialsByPassAndGetAuthToken, validateCredentialsByAuthToken, createNewUser, getLoadedUserByName, loadUserByName } from './user';
 
 var game = require('./game');
 var player = require('./player');
 var commands = require('./commands');
-var user = require('./user');
 
 export class Server {
     public static updateLoop() {
@@ -21,7 +21,7 @@ module.exports.initialize = function (io: any) {
             console.log(socket.handshake.address + ' disconnected');
         });
         socket.on('validate', function (msg) {
-            user.validateCredentialsByAuthToken(msg.user, msg.auth, function (err, valid) {
+            validateCredentialsByAuthToken(msg.user, msg.auth, function (err, valid) {
                 if (err || !valid) {
                     socket.emit('fail');
                     return socket.disconnect();
@@ -32,7 +32,7 @@ module.exports.initialize = function (io: any) {
             });
         });
         socket.on('authorize', function (msg) {
-            user.validateCredentialsByPassAndGetAuthToken(msg.user, msg.pass, function (err, valid, token) {
+            validateCredentialsByPassAndGetAuthToken(msg.user, msg.pass, function (err, valid, token) {
                 if (err || !valid) {
                     socket.emit('fail');
                     return socket.disconnect();
@@ -54,7 +54,7 @@ module.exports.initialize = function (io: any) {
                     socket.emit('fail', { reason: 'Passphrase too long! 1024 character maximum' });
                     return socket.disconnect();
                 } else {
-                    return user.createNewUser(msg.user, msg.pass, function (err, u) {
+                    return createNewUser(msg.user, msg.pass, function (err, u) {
                         if (u) {
                             u.getFreshAuthToken(function (err, token) {
                                 if (err) {
@@ -80,18 +80,18 @@ module.exports.initialize = function (io: any) {
             }
         });
         socket.on('login', function (msg) {
-            user.validateCredentialsByAuthToken(msg.user, msg.auth, function (err, valid) {
+            validateCredentialsByAuthToken(msg.user, msg.auth, function (err, valid) {
                 if (err || !valid) {
                     socket.emit('fail');
                     return socket.disconnect();
                 } else {
                     socket.emit('success');
-                    if (user.getLoadedUserByName(msg.user)) {
+                    if (getLoadedUserByName(msg.user)) {
                         socket.emit('force_disconnect', 'You are already logged in on a different window or device.');
                         socket.disconnect();
                         return;
                     } else {
-                        user.loadUserByName(msg.user, function (err, user) {
+                        loadUserByName(msg.user, function (err, user) {
                             if (err) {
                                 console.log(err);
                             }

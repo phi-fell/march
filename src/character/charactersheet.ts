@@ -59,6 +59,9 @@ export class CharacterSheet {
     public getNetAttributeValue(attr: ATTRIBUTE): number {
         return this._cachedAttributes.get(attr);
     }
+    public getInitiative() {
+        return this.status.action_points + this.getNetAttributeValue(ATTRIBUTE.PERCEPTION);
+    }
     public levelUpAttribute(attr: ATTRIBUTE) {
         const costs = this._allocatedAttributes.getLevelupCosts();
         if (this._experience >= costs.get(attr)) {
@@ -71,6 +74,15 @@ export class CharacterSheet {
         this._status.startNewTurn();
     }
     public takeHit(attacker: CharacterSheet, weapon: Weapon | null) {
+        // TODO: combat calculations (not complete)
+        /*
+            chance to dodge: along the lines of hit_success=(1D20 + attacker.DEX) >= (1D20 + defender.AGI) or something
+            if dodged do nothing (return);
+            if hit, do armor coverage
+            roll (attacker dex + weapon [precision) against (defender agi + total armor coverage)
+            if attacker wins, do damage as if defendor has no armor
+            else: see below code
+        */
         // take a hit, first applying chance to dodge, etc.
         const dodgeChance = 0;
         // TODO: multiple classes of hit: critical, direct, glancing, miss
@@ -174,5 +186,7 @@ export class CharacterSheet {
         this._status.pools[RESOURCE.SOUL].capacity = this.getNetAttributeValue(ATTRIBUTE.WISDOM) + this.getNetAttributeValue(ATTRIBUTE.CHARISMA);
         this._status.pools[RESOURCE.STAMINA].capacity = this.getNetAttributeValue(ATTRIBUTE.ENDURANCE);
         this._status.pools[RESOURCE.MANA].capacity = this.getNetAttributeValue(ATTRIBUTE.WISDOM);
+        this._status.max_action_points = (this.getNetAttributeValue(ATTRIBUTE.SPEED) * 5) + 10;
+        this._status.action_point_recovery = (this.getNetAttributeValue(ATTRIBUTE.SPEED) * 2) + 5;
     }
 }

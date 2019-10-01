@@ -8,7 +8,7 @@ export enum SKILL {
     STAFF,
     BOW,
     CROSSBOW,
-    SHEILD,
+    SHIELD,
     // armor
     UNARMORED,
     CLOTH_ARMOR,

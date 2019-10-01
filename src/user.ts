@@ -149,13 +149,6 @@ export class User {
                     }
                 }
             });
-        } else {
-            this.player = Player.createPlayer();
-            this.playerid = this.player.id;
-            if (this.online) {
-                this.player.setActive(this);
-            }
-            this.saveToDisk();
         }
         this.email = data.email;
         //TODO: keep info on if player exists? on guest status? etc.
@@ -186,18 +179,16 @@ export class User {
     }
 }
 
-function getLoadedUserByID(id) {
+export function getLoadedUserByID(id) {
     if (id in users) {
         return users[id];
     } else {
         return null;
     }
 }
-module.exports.getLoadedUserByID = getLoadedUserByID;
-function getLoadedUserByName(name) {
+export function getLoadedUserByName(name) {
     return Object.values(users).find((u: any) => { return u.name === name });
 }
-module.exports.getLoadedUserByName = getLoadedUserByName;
 module.exports.deleteUser = function (id) {
     //TODO
 }
@@ -212,16 +203,13 @@ function generateUserID() {
     return id;
 }
 
-module.exports.createNewUser = function (name, pass, callback) {
+export function createNewUser(name, pass, callback) {
     auth.getIfUsernameExists(name, function (err, exists) {
         if (exists) {
             return callback('Username in use', null);
         } else {
-            var id = generateUserID();
-            var ret = new User(id, name);
-            ret.player = Player.createPlayer();
-            ret.playerid = ret.player.id;
-            ret.player.unload();
+            const id = generateUserID();
+            const ret = new User(id, name);
             ret.saveToDisk();
             users[id] = ret;
             auth.setUserIdByName(id, name);
@@ -230,7 +218,7 @@ module.exports.createNewUser = function (name, pass, callback) {
         }
     });
 }
-module.exports.validateCredentialsByAuthToken = function (username, token, callback) {
+export function validateCredentialsByAuthToken(username, token, callback) {
     if (username && token && callback) {
         auth.getUserIdFromName(username, function (err, id) {
             if (err) {
@@ -253,7 +241,7 @@ module.exports.validateCredentialsByAuthToken = function (username, token, callb
         } catch (e) { };
     }
 }
-module.exports.validateCredentialsByPassAndGetAuthToken = function (username, pass, callback) {
+export function validateCredentialsByPassAndGetAuthToken(username, pass, callback) {
     if (username && pass && callback) {
         auth.getUserIdFromName(username, function (err, id) {
             if (err) {
@@ -278,7 +266,7 @@ module.exports.validateCredentialsByPassAndGetAuthToken = function (username, pa
         } catch (e) { };
     }
 }
-module.exports.loadUserByName = function (name, callback) {
+export function loadUserByName(name, callback) {
     if (!callback) {
         callback = function (err) {
             if (err) {
