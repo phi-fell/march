@@ -150,7 +150,7 @@ app.post('/character_creation', (req: any, res: any) => {
 
 app.use('/js', express.static(path.resolve(__dirname + '/../site/js')));
 app.use('/tex', express.static(path.resolve(__dirname + '/../site/tex')));
-app.use('/public', express.static(path.resolve(__dirname + '/../public'));
+app.use('/public', express.static(path.resolve(__dirname + '/../public')));
 
 var gameServer = require('./server.js');
 gameServer.initialize(io);
