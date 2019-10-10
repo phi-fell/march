@@ -1,9 +1,9 @@
-import { Entity, SPRITE, ACTION_STATUS } from './entity';
+import { CharacterRace } from './character/characterrace';
+import { ACTION_STATUS, Entity, SPRITE } from './entity';
 import { Instance, InstanceAttributes } from './instance';
 import { INSTANCE_GEN_TYPE } from './instancegenerator';
 import { Location } from './location';
 import { Player } from './player';
-import { CharacterRace } from './character/characterrace';
 
 export const enum CharGenStage {
     Tutorial,
@@ -88,10 +88,10 @@ export class CharGen {
                 attr.genType = INSTANCE_GEN_TYPE.ONE_ROOM;
                 const inst = Instance.spinUpNewInstance(attr);
                 inst.spawnEntityAtCoords(new TextEntity(Entity.generateNewEntityID(), 'Choose An Race', SPRITE.NAME), 4, 1);
-                inst.spawnEntityAtCoords(new RaceChoice(player, "blooded", Entity.generateNewEntityID(), 'Blooded Redvein'), 1, 3);
-                inst.spawnEntityAtCoords(new RaceChoice(player, "neathling", Entity.generateNewEntityID(), 'Neathling Outcast'), 3, 3);
-                inst.spawnEntityAtCoords(new RaceChoice(player, "avrilen", Entity.generateNewEntityID(), 'Avrilen Wanderer'), 5, 3);
-                inst.spawnEntityAtCoords(new RaceChoice(player, "marrow", Entity.generateNewEntityID(), 'Marrow Fallen'), 7, 3);
+                inst.spawnEntityAtCoords(new RaceChoice(player, 'blooded', Entity.generateNewEntityID(), 'Blooded Redvein'), 1, 3);
+                inst.spawnEntityAtCoords(new RaceChoice(player, 'neathling', Entity.generateNewEntityID(), 'Neathling Outcast'), 3, 3);
+                inst.spawnEntityAtCoords(new RaceChoice(player, 'avrilen', Entity.generateNewEntityID(), 'Avrilen Wanderer'), 5, 3);
+                inst.spawnEntityAtCoords(new RaceChoice(player, 'marrow', Entity.generateNewEntityID(), 'Marrow Fallen'), 7, 3);
                 inst.spawnEntityAtCoords(player, 4, 8);
                 break;
             }
@@ -120,7 +120,7 @@ export class CharGen {
                     attempts++;
                 } while (attempts < 1000 && !inst.spawnEntityAtCoords(player, posX, posY));
                 if (attempts === 1000) {
-                    console.log('COULD NOT SPAWN PLAYER INTO INSTANCE AFTER 1000 ATTEMPTS! ABORTING SPAWN.')
+                    console.log('COULD NOT SPAWN PLAYER INTO INSTANCE AFTER 1000 ATTEMPTS! ABORTING SPAWN.');
                 }
                 break;
             }

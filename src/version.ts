@@ -1,5 +1,6 @@
-var package_json = require('../package.json');
-var uuid = require('uuid/v4');
-var launch_id = uuid();
-module.exports.version = package_json.version;
-module.exports.launch_id = launch_id;
+import uuid = require('uuid/v4');
+// tslint:disable-next-line: no-var-requires
+const package_json = require('../package.json');
+
+export const version = package_json.version;
+export const launch_id = uuid();
