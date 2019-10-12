@@ -11,9 +11,9 @@
         "SPEED": 10,
         "CHARISMA": 10,
         "LOGIC": 10,
-        "WISDOM": 10,
+        "INTUITION": 10,
         "PERCEPTION": 0,
-        "MEMORY": 0,
+        "WILL": 0,
         "LUCK": 0
     },
     "attributesPerLevel": {
@@ -25,9 +25,9 @@
         "SPEED": 0.5,
         "CHARISMA": 0.5,
         "LOGIC": 0.5,
-        "WISDOM": 0.5,
+        "INTUITION": 0.5,
         "PERCEPTION": 0,
-        "MEMORY": 0,
+        "WILL": 0,
         "LUCK": 0
     },
     "allocationsPerLevel": [
@@ -43,7 +43,7 @@
                 "STRENGTH",
                 "ENDURANCE",
                 "LOGIC",
-                "WISDOM"
+                "INTUITION"
             ]
         }
     ],

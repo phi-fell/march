@@ -119,10 +119,10 @@ class Game {
             list.append($('<li>').text('Mental:'));
             list.append($('<li>').html(' - Charisma: ' + sheet.attributes.CHARISMA + ((sheet.exp >= sheet.attributeLevelupCosts.CHARISMA) ? ' <button onclick="levelUpAttr(\'CHARISMA\')">+</button> (' + sheet.attributeLevelupCosts.CHARISMA + 'exp)' : '')));
             list.append($('<li>').html(' - Logic: ' + sheet.attributes.LOGIC + ((sheet.exp >= sheet.attributeLevelupCosts.LOGIC) ? ' <button onclick="levelUpAttr(\'LOGIC\')">+</button> (' + sheet.attributeLevelupCosts.LOGIC + 'exp)' : '')));
-            list.append($('<li>').html(' - Wisdom: ' + sheet.attributes.WISDOM + ((sheet.exp >= sheet.attributeLevelupCosts.WISDOM) ? ' <button onclick="levelUpAttr(\'WISDOM\')">+</button> (' + sheet.attributeLevelupCosts.WISDOM + 'exp)' : '')));
+            list.append($('<li>').html(' - Intuition: ' + sheet.attributes.INTUITION + ((sheet.exp >= sheet.attributeLevelupCosts.INTUITION) ? ' <button onclick="levelUpAttr(\'INTUITION\')">+</button> (' + sheet.attributeLevelupCosts.INTUITION + 'exp)' : '')));
             list.append($('<li>').text('Other:'));
             list.append($('<li>').html(' - Perception: ' + sheet.attributes.PERCEPTION + ((sheet.exp >= sheet.attributeLevelupCosts.PERCEPTION) ? ' <button onclick="levelUpAttr(\'PERCEPTION\')">+</button> (' + sheet.attributeLevelupCosts.PERCEPTION + 'exp)' : '')));
-            list.append($('<li>').html(' - Memory: ' + sheet.attributes.MEMORY + ((sheet.exp >= sheet.attributeLevelupCosts.MEMORY) ? ' <button onclick="levelUpAttr(\'MEMORY\')">+</button> (' + sheet.attributeLevelupCosts.MEMORY + 'exp)' : '')));
+            list.append($('<li>').html(' - Will: ' + sheet.attributes.WILL + ((sheet.exp >= sheet.attributeLevelupCosts.WILL) ? ' <button onclick="levelUpAttr(\'WILL\')">+</button> (' + sheet.attributeLevelupCosts.WILL + 'exp)' : '')));
             list.append($('<li>').html(' - Luck: ' + sheet.attributes.LUCK + ((sheet.exp >= sheet.attributeLevelupCosts.LUCK) ? ' <button onclick="levelUpAttr(\'LUCK\')">+</button> (' + sheet.attributeLevelupCosts.LUCK + 'exp)' : '')));
         } else if (this._sheetdisplaymode === 'race') {
             list.append($('<li>').text('Race: ' + sheet.race.name));

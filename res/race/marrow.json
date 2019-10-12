@@ -11,9 +11,9 @@
         "SPEED": 10,
         "CHARISMA": 14,
         "LOGIC": 10,
-        "WISDOM": 12,
+        "INTUITION": 12,
         "PERCEPTION": 0,
-        "MEMORY": 0,
+        "WILL": 0,
         "LUCK": 0
     },
     "attributesPerLevel": {
@@ -25,9 +25,9 @@
         "SPEED": 0.5,
         "CHARISMA": 0.7,
         "LOGIC": 0.5,
-        "WISDOM": 0.6,
+        "INTUITION": 0.6,
         "PERCEPTION": 0,
-        "MEMORY": 0,
+        "WILL": 0,
         "LUCK": 0
     }
 }

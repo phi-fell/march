@@ -183,9 +183,9 @@ export class CharacterSheet {
         this._status.pools[RESOURCE.FLESH].capacity = this.getNetAttributeValue(ATTRIBUTE.VITALITY);
         this._status.pools[RESOURCE.BLOOD].capacity = this.getNetAttributeValue(ATTRIBUTE.VITALITY) + this.getNetAttributeValue(ATTRIBUTE.ENDURANCE);
         this._status.pools[RESOURCE.BONE].capacity = this.getNetAttributeValue(ATTRIBUTE.VITALITY) + this.getNetAttributeValue(ATTRIBUTE.STRENGTH);
-        this._status.pools[RESOURCE.SOUL].capacity = this.getNetAttributeValue(ATTRIBUTE.WISDOM) + this.getNetAttributeValue(ATTRIBUTE.CHARISMA);
+        this._status.pools[RESOURCE.SOUL].capacity = this.getNetAttributeValue(ATTRIBUTE.INTUITION) + this.getNetAttributeValue(ATTRIBUTE.CHARISMA);
         this._status.pools[RESOURCE.STAMINA].capacity = this.getNetAttributeValue(ATTRIBUTE.ENDURANCE);
-        this._status.pools[RESOURCE.MANA].capacity = this.getNetAttributeValue(ATTRIBUTE.WISDOM);
+        this._status.pools[RESOURCE.MANA].capacity = this.getNetAttributeValue(ATTRIBUTE.INTUITION);
         this._status.max_action_points = (this.getNetAttributeValue(ATTRIBUTE.SPEED) * 5) + 10;
         this._status.action_point_recovery = (this.getNetAttributeValue(ATTRIBUTE.SPEED) * 2) + 5;
     }

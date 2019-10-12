@@ -19,7 +19,7 @@ function recalculate() {
     $('#flesh').text(getAttrVal('VITALITY'));
     $('#blood').text(getAttrVal('VITALITY') + getAttrVal('ENDURANCE'));
     $('#bone').text(getAttrVal('VITALITY') + getAttrVal('STRENGTH'));
-    $('#soul').text(getAttrVal('WISDOM') + getAttrVal('CHARISMA'));
+    $('#soul').text(getAttrVal('INTUITION') + getAttrVal('CHARISMA'));
     $('#stamina').text(getAttrVal('ENDURANCE'));
     $('#ap').text('/' + ((getAttrVal('SPEED') * 5) + 10) + ' (+' + ((getAttrVal('SPEED') * 2) + 5) + ')');
     $('#initiative').text('AP + ' + getAttrVal('PERCEPTION'));
@@ -37,7 +37,7 @@ function setRace(race) {
         race_attributes.DEXTERITY += 2;
     } else if (race === "marrow") {
         race_attributes.CHARISMA += 4;
-        race_attributes.WISDOM += 2;
+        race_attributes.INTUITION += 2;
     } else if (race === "blooded") {
         race_attributes.VITALITY += 4;
         race_attributes.ENDURANCE += 2;

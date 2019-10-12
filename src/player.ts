@@ -226,7 +226,7 @@ export class Player extends Entity {
     }
     getDataAsViewer(viewer?: Player) {
         if (viewer) {
-            //TODO: limit data based on line of sight, some attribute (wisdom?) or skill (knowledge skills? perception?)
+            //TODO: limit data based on line of sight, some attribute (intuition?) or skill (knowledge skills? perception?)
         }
         return {
             'name': this.name,
