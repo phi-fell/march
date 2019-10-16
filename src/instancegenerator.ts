@@ -1,5 +1,5 @@
-import { Instance } from "./instance";
-import { getTileFromName } from "./tile";
+import { Instance } from './instance';
+import { getTileFromName } from './tile';
 
 export enum INSTANCE_GEN_TYPE {
     EMPTY,
@@ -17,10 +17,10 @@ function maze(inst: Instance, x: number, y: number) {
         || y <= 0
         || x >= inst.attributes.width - 1
         || y >= inst.attributes.height - 1
-        || inst.tiles[x][y] === getTileFromName("stone_floor")) {
+        || inst.tiles[x][y] === getTileFromName('stone_floor')) {
         return false;
     }
-    inst.tiles[x][y] = getTileFromName("stone_floor");
+    inst.tiles[x][y] = getTileFromName('stone_floor');
     const dirsleft = [true, true, true, true];
     while (dirsleft[0] || dirsleft[1] || dirsleft[2] || dirsleft[3]) {
         const dir = Math.floor(Math.random() * 4);
@@ -28,25 +28,25 @@ function maze(inst: Instance, x: number, y: number) {
             if (dir === 0) {
                 if (maze(inst, x + STRIDE, y)) {
                     for (let i = 0; i < STRIDE; i++) {
-                        inst.tiles[x + i][y] = getTileFromName("stone_floor");
+                        inst.tiles[x + i][y] = getTileFromName('stone_floor');
                     }
                 }
             } else if (dir === 1) {
                 if (maze(inst, x, y + STRIDE)) {
                     for (let i = 0; i < STRIDE; i++) {
-                        inst.tiles[x][y + i] = getTileFromName("stone_floor");
+                        inst.tiles[x][y + i] = getTileFromName('stone_floor');
                     }
                 }
             } else if (dir === 2) {
                 if (maze(inst, x - STRIDE, y)) {
                     for (let i = 0; i < STRIDE; i++) {
-                        inst.tiles[x - i][y] = getTileFromName("stone_floor");
+                        inst.tiles[x - i][y] = getTileFromName('stone_floor');
                     }
                 }
             } else if (dir === 3) {
                 if (maze(inst, x, y - STRIDE)) {
                     for (let i = 0; i < STRIDE; i++) {
-                        inst.tiles[x][y - i] = getTileFromName("stone_floor");
+                        inst.tiles[x][y - i] = getTileFromName('stone_floor');
                     }
                 }
             }
@@ -62,7 +62,7 @@ export class InstanceGenerator {
             case INSTANCE_GEN_TYPE.EMPTY:
                 for (var i = 0; i < inst.attributes.width; i++) {
                     for (var j = 0; j < inst.attributes.height; j++) {
-                        inst.tiles[i][j] = getTileFromName("stone_floor");
+                        inst.tiles[i][j] = getTileFromName('stone_floor');
                     }
                 }
                 break;
@@ -70,9 +70,9 @@ export class InstanceGenerator {
                 for (var i = 0; i < inst.attributes.width; i++) {
                     for (var j = 0; j < inst.attributes.height; j++) {
                         if (i === 0 || j === 0 || i === inst.attributes.width - 1 || j === inst.attributes.height - 1) {
-                            inst.tiles[i][j] = getTileFromName("stone_wall");
+                            inst.tiles[i][j] = getTileFromName('stone_wall');
                         } else {
-                            inst.tiles[i][j] = getTileFromName("stone_floor");
+                            inst.tiles[i][j] = getTileFromName('stone_floor');
                         }
                     }
                 }
@@ -80,7 +80,7 @@ export class InstanceGenerator {
             case INSTANCE_GEN_TYPE.MAZE:
                 for (var i = 0; i < inst.attributes.width; i++) {
                     for (var j = 0; j < inst.attributes.height; j++) {
-                        inst.tiles[i][j] = getTileFromName("stone_wall");
+                        inst.tiles[i][j] = getTileFromName('stone_wall');
                     }
                 }
                 const STRIDE = 2;
@@ -114,14 +114,14 @@ function doSingleRoom(inst: Instance): boolean {
     const y = (Math.floor((Math.random() * (inst.attributes.height - (h + 2))) / 2) * 2) + 1;
     for (let i = -1; i < w + 1; i++) {
         for (let j = -1; j < h + 1; j++) {
-            if (inst.tiles[x + i][y + j] !== getTileFromName("stone_wall")) {
+            if (inst.tiles[x + i][y + j] !== getTileFromName('stone_wall')) {
                 return false;
             }
         }
     }
     for (let i = 0; i < w; i++) {
         for (let j = 0; j < h; j++) {
-            inst.tiles[x + i][y + j] = getTileFromName("stone_floor");
+            inst.tiles[x + i][y + j] = getTileFromName('stone_floor');
         }
     }
     return true;
@@ -131,7 +131,7 @@ function floodFill(inst: Instance, flood: number[][], id: number, x: number, y: 
     if (x < 0 || y < 0 || x >= inst.attributes.width || y >= inst.attributes.height) {
         return; // bounds check
     }
-    if (flood[x][y] === id || inst.tiles[x][y] !== getTileFromName("stone_floor")) {
+    if (flood[x][y] === id || inst.tiles[x][y] !== getTileFromName('stone_floor')) {
         return; // no repeats, obstructed by walls
     }
     flood[x][y] = id;
@@ -167,7 +167,7 @@ function connectRegion(inst: Instance, flood: number[][], id: number) {
     const doCons = conCount * 0.05;
     for (let j = 0; j < doCons; j++) {
         const i = Math.floor(Math.random() * conCount);
-        inst.tiles[conX[i]][conY[i]] = getTileFromName("stone_floor");
+        inst.tiles[conX[i]][conY[i]] = getTileFromName('stone_floor');
         floodFill(inst, flood, id, conX[i], conY[i]);
         conX.splice(i, 1);
         conY.splice(i, 1);
@@ -186,7 +186,7 @@ function ensureConnectedness(inst: Instance) {
     let id = 0;
     for (let x = 0; x < inst.attributes.width; x++) {
         for (let y = 0; y < inst.attributes.height; y++) {
-            if (flood[x][y] === -1 && inst.tiles[x][y] === getTileFromName("stone_floor")) {
+            if (flood[x][y] === -1 && inst.tiles[x][y] === getTileFromName('stone_floor')) {
                 floodFill(inst, flood, id, x, y);
                 id++;
             }
@@ -198,22 +198,22 @@ function ensureConnectedness(inst: Instance) {
 }
 
 function pruneLeaf(inst: Instance, x: number, y: number) {
-    if (inst.tiles[x][y] === getTileFromName("stone_floor")) {
+    if (inst.tiles[x][y] === getTileFromName('stone_floor')) {
         let wallcount = 0;
-        if (inst.tiles[x + 1][y] === getTileFromName("stone_wall")) {
+        if (inst.tiles[x + 1][y] === getTileFromName('stone_wall')) {
             wallcount++;
         }
-        if (inst.tiles[x - 1][y] === getTileFromName("stone_wall")) {
+        if (inst.tiles[x - 1][y] === getTileFromName('stone_wall')) {
             wallcount++;
         }
-        if (inst.tiles[x][y + 1] === getTileFromName("stone_wall")) {
+        if (inst.tiles[x][y + 1] === getTileFromName('stone_wall')) {
             wallcount++;
         }
-        if (inst.tiles[x][y - 1] === getTileFromName("stone_wall")) {
+        if (inst.tiles[x][y - 1] === getTileFromName('stone_wall')) {
             wallcount++;
         }
         if (wallcount === 3) {
-            inst.tiles[x][y] = getTileFromName("stone_wall");
+            inst.tiles[x][y] = getTileFromName('stone_wall');
             pruneLeaf(inst, x + 1, y);
             pruneLeaf(inst, x - 1, y);
             pruneLeaf(inst, x, y + 1);
@@ -233,7 +233,7 @@ function prune(inst: Instance) {
 function doROOMS(inst: Instance) {
     for (let i = 0; i < inst.attributes.width; i++) {
         for (let j = 0; j < inst.attributes.height; j++) {
-            inst.tiles[i][j] = getTileFromName("stone_wall");
+            inst.tiles[i][j] = getTileFromName('stone_wall');
         }
     }
     const count = (inst.attributes.width * inst.attributes.height) / 100;
@@ -244,7 +244,7 @@ function doROOMS(inst: Instance) {
         const y = Math.floor(Math.random() * (inst.attributes.height - (h + 2))) + 1;
         for (let i = 0; i < w; i++) {
             for (let j = 0; j < h; j++) {
-                inst.tiles[x + i][y + j] = getTileFromName("stone_floor");
+                inst.tiles[x + i][y + j] = getTileFromName('stone_floor');
             }
         }
     }
@@ -253,7 +253,7 @@ function doROOMS(inst: Instance) {
 function doBASIC_DUNGEON(inst: Instance) {
     for (let i = 0; i < inst.attributes.width; i++) {
         for (let j = 0; j < inst.attributes.height; j++) {
-            inst.tiles[i][j] = getTileFromName("stone_wall");
+            inst.tiles[i][j] = getTileFromName('stone_wall');
         }
     }
     const count = (inst.attributes.width * inst.attributes.height) / 100;
@@ -264,8 +264,8 @@ function doBASIC_DUNGEON(inst: Instance) {
     while (stairNum > 0) {
         const sx = Math.floor(Math.random() * inst.attributes.width);
         const sy = Math.floor(Math.random() * inst.attributes.height);
-        if (inst.tiles[sx][sy] === getTileFromName("stone_floor")) {
-            inst.tiles[sx][sy] = getTileFromName("stone_stairs");
+        if (inst.tiles[sx][sy] === getTileFromName('stone_floor')) {
+            inst.tiles[sx][sy] = getTileFromName('stone_stairs');
             stairNum--;
         }
     }
@@ -284,13 +284,13 @@ function doFOREST(inst: Instance) {
         for (let j = 0; j < inst.attributes.height; j++) {
             const rand = Math.random();
             if (rand < 0.85) {
-                inst.tiles[i][j] = getTileFromName("grass");
+                inst.tiles[i][j] = getTileFromName('grass');
             } else if (rand < 0.85) {
-                inst.tiles[i][j] = getTileFromName("dirt");
+                inst.tiles[i][j] = getTileFromName('dirt');
             } else if (rand < 0.95) {
-                inst.tiles[i][j] = getTileFromName("bush");
+                inst.tiles[i][j] = getTileFromName('bush');
             } else {
-                inst.tiles[i][j] = getTileFromName("tree");
+                inst.tiles[i][j] = getTileFromName('tree');
             }
         }
     }
@@ -298,8 +298,8 @@ function doFOREST(inst: Instance) {
     while (stairNum > 0) {
         const sx = Math.floor(Math.random() * inst.attributes.width);
         const sy = Math.floor(Math.random() * inst.attributes.height);
-        if (inst.tiles[sx][sy] === getTileFromName("grass")) {
-            inst.tiles[sx][sy] = getTileFromName("stone_stairs");
+        if (inst.tiles[sx][sy] === getTileFromName('grass')) {
+            inst.tiles[sx][sy] = getTileFromName('stone_stairs');
             stairNum--;
         }
     }
@@ -310,13 +310,13 @@ function doVOLCANIC(inst: Instance) {
         for (let j = 0; j < inst.attributes.height; j++) {
             const rand = Math.random();
             if (rand < 0.6) {
-                inst.tiles[i][j] = getTileFromName("ash");
+                inst.tiles[i][j] = getTileFromName('ash');
             } else if (rand < 0.8) {
-                inst.tiles[i][j] = getTileFromName("basalt");
+                inst.tiles[i][j] = getTileFromName('basalt');
             } else if (rand < 0.999) {
-                inst.tiles[i][j] = getTileFromName("lava");
+                inst.tiles[i][j] = getTileFromName('lava');
             } else {
-                inst.tiles[i][j] = getTileFromName("obsidian_spire");
+                inst.tiles[i][j] = getTileFromName('obsidian_spire');
             }
         }
     }

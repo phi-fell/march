@@ -20,13 +20,13 @@ import path = require('path');
 import pug from 'pug';
 import socketIO = require('socket.io');
 import { ATTRIBUTE } from './character/characterattributes';
-import { SKILL } from './character/characterskills';
-import { Server } from './server';
-import { getLoadedUserByName, loadUserByName, validateCredentialsByAuthToken, User } from './user';
-import version = require('./version');
 import { CharacterSheet } from './character/charactersheet';
-import { Player } from './player';
+import { SKILL } from './character/characterskills';
 import { generateName } from './namegen';
+import { Player } from './player';
+import { Server } from './server';
+import { getLoadedUserByName, loadUserByName, User, validateCredentialsByAuthToken } from './user';
+import version = require('./version');
 
 const app = express();
 app.use(cookieParser());

@@ -122,7 +122,7 @@ export class Instance {
                 'name': mob.name,
                 'location': mob.location,
                 'sprite': mob.sprite,
-                'sheet': mob.charSheet.toJSON(),//TODO: limit what player can see
+                'sheet': mob.charSheet.toJSON(), // TODO: limit what player can see
             });
         }
         return {
@@ -136,8 +136,8 @@ export class Instance {
         };
     }
     public static updateAll() {
-        for (let inst_id in this.instances) { // TODO: use map? instead of object
-            this.instances[inst_id].update();
+        for (const inst of Object.values(Instance.instances)) { // TODO: use map? instead of object
+            inst.update();
         }
     }
     players: Player[];

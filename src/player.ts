@@ -1,14 +1,14 @@
 import fs = require('fs');
 import uuid = require('uuid/v4');
-import { Entity, SPRITE, ACTION_STATUS } from './entity';
-import { Location } from './location';
-import { User } from './user';
-import { CharGenStage, CharGen } from './chargen';
-import { Instance } from './instance';
 import { CharacterSheet } from './character/charactersheet';
+import { CharGen, CharGenStage } from './chargen';
+import { ACTION_STATUS, Entity, SPRITE } from './entity';
+import { Instance } from './instance';
+import { Location } from './location';
 import { generateName } from './namegen';
+import { User } from './user';
 
-var players = {};
+const players = {};
 
 export enum ACTION_TYPE {
     WAIT,
@@ -60,13 +60,13 @@ export class MoveAction implements PlayerAction {
 }
 
 export class Player extends Entity {
-    static generateNewPlayerID() {
+    public static generateNewPlayerID() {
         return uuid();
     }
-    static accessPlayer(id) {
+    public static accessPlayer(id) {
         return players[id];
     }
-    static createPlayer() {
+    public static createPlayer() {
         var name = generateName();
         var plr = new Player(this.generateNewPlayerID(), name);
         players[plr.id] = plr;
@@ -74,13 +74,13 @@ export class Player extends Entity {
         plr.saveToDisk();
         return plr;
     }
-    static loadPlayer(id, callback) {
+    public static loadPlayer(id, callback) {
         if (id in players) {
-            return process.nextTick(function () {
+            return process.nextTick(() => {
                 callback(null, players[id]);
             });
         } else {
-            fs.readFile("players/" + id + '.plr', function (err, data) {
+            fs.readFile("players/" + id + '.plr', (err, data) => {
                 if (err) {
                     return callback(err);
                 } else {
@@ -161,23 +161,23 @@ export class Player extends Entity {
             return ACTION_STATUS.ASYNC; // needs to decide
         }
     }
-    setActive(usr: User) {
+    public setActive(usr: User) {
         if (this.active) {
-            //TODO: error?
+            // TODO: error?
         }
         this.active = true;
         this.user = usr;
         this.pushUpdate();
     }
-    setInactive() {
+    public setInactive() {
         if (!this.active) {
-            //TODO: error?
+            // TODO: error?
         }
         this.active = false;
         this.user = null;
         this.unload();
     }
-    unload() {
+    public unload() {
         this.saveToDisk();
         if (Instance.getLoadedInstanceById(this.location.instance_id)) {
             Instance.removeEntityFromWorld(this);
@@ -185,36 +185,36 @@ export class Player extends Entity {
         }
         delete players[this.id];
     }
-    saveToDisk() {
+    public saveToDisk() {
         var data = {
             'name': this.name,
             'chargen': this.chargen,
             'location': this.location.toJSON(),
             'sheet': this.charSheet.toJSON(),
         }
-        fs.writeFile('players/' + this.id + '.plr', JSON.stringify(data), function (err) {
+        fs.writeFile('players/' + this.id + '.plr', JSON.stringify(data), (err) => {
             if (err) {
                 console.log(err);
             }
         });
     }
-    loadFromData(data) {
+    public loadFromData(data) {
         this.name = data.name;
         this.chargen = data.chargen;
-        //TODO: if player doesn't have location or if it's invalid, or depending on type of instance, or if it no longer exists...
+        // TODO: if player doesn't have location or if it's invalid, or depending on type of instance, or if it no longer exists...
         // ^ cont. then spawn in a new random location?
         if (this.chargen === CharGenStage.Done) {
             //Instance.spawnEntityInLocation(this, data.location);
             CharGen.spawnPlayerInFreshInstance(this);
-            //TODO: TEMP ^
+            // TODO: TEMP ^
         } else {
             CharGen.spawnPlayerInFreshInstance(this);
         }
         this.charSheet = CharacterSheet.fromJSON(data.sheet);
     }
-    pushUpdate() {
+    public pushUpdate() {
         if (this.active) {
-            let board = Instance.getPlayerBoard(this);
+            const board = Instance.getPlayerBoard(this);
             this.user!.socket.emit('update', {
                 'mobs': board.mobs,
                 'tiles': board.tiles,
@@ -225,9 +225,9 @@ export class Player extends Entity {
             console.log('Can\'t push update to inactive player');
         }
     }
-    getDataAsViewer(viewer?: Player) {
+    public getDataAsViewer(viewer?: Player) {
         if (viewer) {
-            //TODO: limit data based on line of sight, some attribute (intuition?) or skill (knowledge skills? perception?)
+            // TODO: limit data based on line of sight, some attribute (intuition?) or skill (knowledge skills? perception?)
         }
         return {
             'name': this.name,
@@ -260,7 +260,7 @@ export class Player extends Entity {
             this.user.socket.emit('force_disconnect', 'YOU HAVE DIED');
             this.user.logout();
             this.unload();
-            //TODO: remove this player from disk?
+            // TODO: remove this player from disk?
         }
 
     }

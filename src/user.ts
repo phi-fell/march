@@ -44,15 +44,15 @@ export class User {
         }
         var user = this;
         console.log(this.name + ' (' + sock.handshake.address + ') connected');
-        sock.on('disconnect', function () {
+        sock.on('disconnect', () => {
             console.log(user.name + ' (' + sock.handshake.address + ') disconnected');
             user.logout();
         });
-        sock.on('ping_cmd', function (msg) {
+        sock.on('ping_cmd', (msg) => {
             console.log('ping from ' + user.name);
             sock.emit('pong_cmd', msg);
         });
-        sock.on('chat message', function (msg) {
+        sock.on('chat message', (msg) => {
             if (user.player) {
                 console.log(user.name + ':' + user.player.name + '> ' + msg);
                 sock.emit('chat message', user.player.name + '> ' + msg);
@@ -62,14 +62,14 @@ export class User {
                 sock.emit('chat message', 'Something went wrong.  You don\'t have a player? This is probably a bug, or too many events occured too quickly');
             }
         });
-        sock.on('command', function (msg) {
+        sock.on('command', (msg) => {
             console.log(user.name + ' requests command /' + msg.cmd + ' with arguments [' + msg.tok.join(' ') + ']')
             commands.execute(user, msg.cmd, msg.tok);
             if (user.player) {
                 user.player.pushUpdate();
             }
         });
-        sock.on('player_action', function (msg) {
+        sock.on('player_action', (msg) => {
             if (user.player) {
                 switch (msg + '') {
                     case 'move_up':
@@ -139,7 +139,7 @@ export class User {
         if (data.playerid) {
             this.playerid = data.playerid;
             var user: User = this;
-            Player.loadPlayer(this.playerid, function (err, plr) {
+            Player.loadPlayer(this.playerid, (err, plr) => {
                 if (err) {
                     console.log(err);
                 } else {
@@ -168,7 +168,7 @@ export class User {
             'playerid': this.playerid,
             'email': this.email,
         }
-        fs.writeFile('users/' + this.id + '.user', JSON.stringify(data), function (err) {
+        fs.writeFile('users/' + this.id + '.user', JSON.stringify(data), (err) => {
             if (err) {
                 console.log(err);
             }
@@ -193,7 +193,7 @@ export function getLoadedUserByName(name): User | null {
     }
     return null;
 }
-module.exports.deleteUser = function (id) {
+module.exports.deleteUser = (id) => {
     //TODO
 }
 
@@ -208,7 +208,7 @@ function generateUserID() {
 }
 
 export function createNewUser(name, pass, callback) {
-    auth.getIfUsernameExists(name, function (err, exists) {
+    auth.getIfUsernameExists(name, (err, exists) => {
         if (exists) {
             return callback('Username in use', null);
         } else {
@@ -224,11 +224,11 @@ export function createNewUser(name, pass, callback) {
 }
 export function validateCredentialsByAuthToken(username, token, callback) {
     if (username && token && callback) {
-        auth.getUserIdFromName(username, function (err, id) {
+        auth.getUserIdFromName(username, (err, id) => {
             if (err) {
                 return callback(err, false);
             } else {
-                return auth.validateUserByIdAndAuthToken(id, token, function (err, res) {
+                return auth.validateUserByIdAndAuthToken(id, token, (err, res) => {
                     if (err) {
                         return callback(err, false);
                     } else if (res) {
@@ -247,15 +247,15 @@ export function validateCredentialsByAuthToken(username, token, callback) {
 }
 export function validateCredentialsByPassAndGetAuthToken(username, pass, callback) {
     if (username && pass && callback) {
-        auth.getUserIdFromName(username, function (err, id) {
+        auth.getUserIdFromName(username, (err, id) => {
             if (err) {
                 return callback(err, false);
             } else {
-                return auth.validateUserByIdAndPass(id, pass, function (err, res) {
+                return auth.validateUserByIdAndPass(id, pass, (err, res) => {
                     if (err) {
                         return callback(err, false);
                     } else if (res) {
-                        auth.generateAndGetFreshAuthTokenForId(id, function (err, token) {
+                        auth.generateAndGetFreshAuthTokenForId(id, (err, token) => {
                             callback(null, true, token);
                         });
                     } else {
@@ -265,32 +265,31 @@ export function validateCredentialsByPassAndGetAuthToken(username, pass, callbac
             }
         });
     } else {
-        try {
+        if (callback) {
             callback('invalid params', false);
-        } catch (e) { };
+        }
     }
 }
 export function loadUserByName(name, callback) {
     if (!callback) {
-        callback = function (err) {
+        callback = (err) => {
             if (err) {
                 console.log(err);
             }
         };
     }
-    auth.getUserIdFromName(name, function (err, id) {
-        if (err) {
-            callback(err);
+    auth.getUserIdFromName(name, (auth_err, id) => {
+        if (auth_err) {
+            callback(auth_err);
         } else {
-            fs.readFile('users/' + id + '.user', function (err, data) {
-                if (err) {
-                    return callback(err);
-                } else {
-                    var ret = new User(id, name);
-                    ret.loadFromData(JSON.parse('' + data));
-                    users[id] = ret;
-                    callback(null, ret);
+            fs.readFile('users/' + id + '.user', (read_err, data) => {
+                if (read_err) {
+                    return callback(read_err);
                 }
+                const ret = new User(id, name);
+                ret.loadFromData(JSON.parse('' + data));
+                users[id] = ret;
+                callback(null, ret);
             });
         }
     });

@@ -2,14 +2,14 @@ import fs = require('fs');
 
 const tileNames: string[] = [];
 const tilesByName: { [name: string]: Tile; } = {};
-const tileProps: Array<TileProperties> = [];
+const tileProps: TileProperties[] = [];
 
-fs.readdir('res/tile', (err, filenames) => {
-    if (err) {
-        return console.log(err);
+fs.readdir('res/tile', (dir_err, filenames) => {
+    if (dir_err) {
+        return console.log(dir_err);
     }
     filenames.forEach((filename) => {
-        fs.readFile('res/tile/' + filename, 'utf-8', function (err, content) {
+        fs.readFile('res/tile/' + filename, 'utf-8', (err, content) => {
             if (err) {
                 return console.log(err);
             }
@@ -38,9 +38,8 @@ export function getTilePalette(): string[] {
 export function getTileFromName(name: string): Tile {
     if (tilesByName.hasOwnProperty(name)) {
         return tilesByName[name];
-    } else {
-        return ERROR_TILE;
     }
+    return ERROR_TILE;
 }
 
 export function getTileName(tile: Tile): string {
