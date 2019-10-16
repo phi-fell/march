@@ -242,7 +242,7 @@ export class Player extends Entity {
         if (toInst.isTilePassable(to.x, to.y)) {
             const mobInWay = toInst.getMobInLocation(to.x, to.y);
             if (mobInWay) {
-                mobInWay.hit(1, this.charSheet);
+                mobInWay.hit(this.charSheet);
             } else {
                 this.location = to.clone();
             }

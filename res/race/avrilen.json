@@ -1,6 +1,7 @@
 {
     "name": "Avrilen",
     "description": "",
+    "playable": true,
     "bodySize": "MEDIUM",
     "baseAttributes": {
         "STRENGTH": 10,
@@ -12,22 +13,9 @@
         "CHARISMA": 10,
         "LOGIC": 14,
         "INTUITION": 10,
-        "PERCEPTION": 2,
-        "WILL": 0,
-        "LUCK": 0
+        "PERCEPTION": 12,
+        "WILL": 10,
+        "LUCK": 10
     },
-    "attributesPerLevel": {
-        "STRENGTH": 0.5,
-        "ENDURANCE": 0.5,
-        "VITALITY": 0.5,
-        "AGILITY": 0.5,
-        "DEXTERITY": 0.5,
-        "SPEED": 0.5,
-        "CHARISMA": 0.5,
-        "LOGIC": 0.7,
-        "INTUITION": 0.5,
-        "PERCEPTION": 0.1,
-        "WILL": 0,
-        "LUCK": 0
-    }
+    "traits": []
 }

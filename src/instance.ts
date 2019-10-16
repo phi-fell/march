@@ -280,12 +280,12 @@ export class Instance {
     }
     public update() {
         if (this.players.length <= 0) {
-            if (Date.now() - this.lastActiveTime > MAX_INACTIVE_TIME)
+            if (Date.now() - this.lastActiveTime > MAX_INACTIVE_TIME) {
                 this.unload(); // unload empty instances after 10 minutes
+            }
             return;
-        } else {
-            this.lastActiveTime = Date.now();
         }
+        this.lastActiveTime = Date.now();
         if (this.waitingForAsyncMove) {
             return; // waiting on a player
         }
@@ -303,7 +303,10 @@ export class Instance {
         this.mobs.sort((a, b) => b.charSheet.getInitiative() - a.charSheet.getInitiative()); // TODO: handle ties?
         for (let i = 0; i < this.mobs.length; i++) {
             const actionStatus = this.mobs[i].doNextAction();
-            if (actionStatus === ACTION_STATUS.PERFORMED) {
+            if (actionStatus === ACTION_STATUS.WAITING) {
+                this.mobs[i].charSheet.startRest();
+            } else if (actionStatus === ACTION_STATUS.PERFORMED) {
+                this.mobs[i].charSheet.endRest();
                 return true;
             } else if (actionStatus === ACTION_STATUS.ASYNC) {
                 this.waitingForAsyncMove = this.mobs[i].id;

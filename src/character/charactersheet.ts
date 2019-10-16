@@ -19,9 +19,11 @@ export class CharacterSheet {
         ret._allocatedAttributes = CharacterAttributes.fromJSON(json.attributes);
         ret._skills = CharacterSkills.fromJSON(json.skills);
         ret._essence = STARTING_ESSENCE - (ret._race.getEssenceCost() + ret._allocatedAttributes.getEssenceCost() + ret._skills.getEssenceCost());
-        if (ret._essence < 0){
+        if (ret._essence < 0) {
             return null;
         }
+        ret.recalculateDerivedStats();
+        ret._status.restoreFully();
         return ret;
     }
     public static fromJSON(json: any) {
@@ -29,6 +31,8 @@ export class CharacterSheet {
         // TODO: load faiths
         ret._race = CharacterRace.fromJSON(json.race);
         ret._allocatedAttributes = CharacterAttributes.fromJSON(json.allocatedAttributes);
+        ret._skills = CharacterSkills.fromJSON(json.skills);
+        ret._status = CharacterStatus.fromJSON(json.status);
         ret._essence = json.exp;
         ret.recalculateDerivedStats();
         return ret;
@@ -90,6 +94,12 @@ export class CharacterSheet {
     public startNewTurn() {
         this._status.startNewTurn();
     }
+    public startRest() {
+        this._status.startRest();
+    }
+    public endRest() {
+        this._status.endRest();
+    }
     public takeHit(attacker: CharacterSheet, weapon: Weapon | null) {
         // TODO: combat calculations (not complete)
         /*
@@ -108,7 +118,7 @@ export class CharacterSheet {
         // e.g. glancing is almost dodge but not quite. (half? damage)
         if (Math.random() >= dodgeChance) {
             let armor = 0; // TODO: calculate total armor
-            let blunt = this.getNetAttributeValue(ATTRIBUTE.STRENGTH) + (weapon ? (weapon.force) : 0); // [str]D[force] ?
+            let blunt = attacker.getNetAttributeValue(ATTRIBUTE.STRENGTH) + (weapon ? (weapon.force) : 0); // [str]D[force] ?
             if (blunt > armor) {
                 blunt -= armor;
                 armor = 0;
@@ -147,6 +157,7 @@ export class CharacterSheet {
             'attributes': this._cachedAttributes.toJSON(),
             'allocatedAttributes': this._allocatedAttributes.toJSON(),
             'attributeLevelupCosts': this._allocatedAttributes.getLevelupCosts().toJSON(),
+            'skills': this._skills.toJSON(),
             'faiths': [],
             'race': this._race.toJSON(),
             'equipment': this._equipment.toJSON(),

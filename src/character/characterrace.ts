@@ -66,9 +66,10 @@ export const NO_RACE = '' as CharacterRaceID;
 interface CharacterRaceProperties {
     name: string;
     description: string;
+    playable: boolean;
     bodySize: BODY_SIZE;
     baseAttributes: CharacterAttributes;
-    attributesPerLevel: CharacterAttributes;
+    traits: string[];
 }
 
 const characterRaceProps: { [id: string]: CharacterRaceProperties; } = {};
@@ -76,13 +77,14 @@ const characterRaceProps: { [id: string]: CharacterRaceProperties; } = {};
 characterRaceProps[NO_RACE] = {
     'name': 'None',
     'description': '',
+    'playable': false,
     'bodySize': BODY_SIZE.MEDIUM,
     'baseAttributes': new CharacterAttributes(),
-    'attributesPerLevel': new CharacterAttributes(),
+    'traits': [],
 };
 
 export class CharacterRace {
-    public static raceExists(id){
+    public static raceExists(id) {
         return characterRaceProps.hasOwnProperty(id);
     }
     public static fromJSON(json) {
@@ -102,14 +104,11 @@ export class CharacterRace {
     get baseAttributes() {
         return characterRaceProps[this.raceID].baseAttributes.clone();
     }
-    get attributesPerLevel() {
-        return characterRaceProps[this.raceID].attributesPerLevel.clone();
-    }
     public getEssenceCost(): number {
         return 0;
     }
     public getNetAttributes() {
-        return this.baseAttributes.getSumWith(this.attributesPerLevel.getScaledBy(this.level)).getFloored();
+        return this.baseAttributes.clone();
     }
     public toJSON() {
         return {
@@ -133,7 +132,6 @@ fs.readdir('res/race', (err, filenames) => {
             const name = filename.split('.')[0];
             const props = JSON.parse(content);
             props.baseAttributes = CharacterAttributes.fromJSON(props.baseAttributes);
-            props.attributesPerLevel = CharacterAttributes.fromJSON(props.attributesPerLevel);
             characterRaceProps[name] = props;
         });
     });

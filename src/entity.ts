@@ -64,11 +64,11 @@ export class Entity {
         }
         return ACTION_STATUS.WAITING;
     }
-    public hit(amount: number, charsheet?: CharacterSheet) {
+    public hit(charsheet: CharacterSheet) {
         if (charsheet) {
             this.lastHitSheet = charsheet;
         }
-        this.charSheet.takeHit(this.charSheet, null);
+        this.charSheet.takeHit(charsheet, null);
         if (this.charSheet.isDead()) {
             this.handleDeath();
         }
@@ -79,7 +79,7 @@ export class Entity {
         if (toInst.isTilePassable(to.x, to.y)) {
             const mobInWay = toInst.getMobInLocation(to.x, to.y);
             if (mobInWay) {
-                mobInWay.hit(1); // TODO: give all mobs a charsheet??? or a placeholder for EXP calculations?
+                mobInWay.hit(this.charSheet); // TODO: give all mobs a charsheet??? or a placeholder for EXP calculations?
             } else {
                 this.location = to.clone();
             }
