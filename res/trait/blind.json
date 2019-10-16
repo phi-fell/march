@@ -1,5 +1,7 @@
 {
     "name": "Blind",
+    "buyable": true,
+    "cost": -15,
     "description": "Incapable of perceiving visible light.",
     "effects":[]
 }

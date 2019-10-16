@@ -1,5 +1,7 @@
 {
     "name": "Thermal Sight",
+    "buyable": true,
+    "cost": 30,
     "description": "Can sense temperature of nearby objects as if it were sight.",
-    "effects":[]
+    "effects": []
 }

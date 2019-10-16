@@ -1,5 +1,7 @@
 {
     "name": "Olfactory Invisibility",
+    "buyable": true,
+    "cost": 10,
     "description": "Does not naturally emit any smell(s).",
     "effects":[]
 }

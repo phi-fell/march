@@ -28,6 +28,7 @@ import { Server } from './server';
 import { getLoadedUserByName, loadUserByName, User, validateCredentialsByAuthToken } from './user';
 import version = require('./version');
 import { CharacterRace } from './character/characterrace';
+import { CharacterTrait } from './character/charactertrait';
 
 const app = express();
 app.use(cookieParser());
@@ -132,6 +133,7 @@ app.get('/character_creation', (req: any, res: any) => {
                     'attributes': Object.keys(ATTRIBUTE).filter((attr) => typeof ATTRIBUTE[attr as any] === 'number'),
                     'skills': Object.keys(SKILL).filter((attr) => typeof SKILL[attr as any] === 'number'),
                     'races': CharacterRace.getPlayableRacesJSONString(),
+                    'traits': CharacterTrait.getTraitsJSONString(),
                 }));
             });
         });

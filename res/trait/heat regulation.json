@@ -1,5 +1,7 @@
 {
     "name": "Heat Regulation",
+    "buyable": true,
+    "cost": 20,
     "description": "Can control body temperature precisely.",
     "effects":[]
 }

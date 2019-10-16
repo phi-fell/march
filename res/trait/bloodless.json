@@ -1,5 +1,7 @@
 {
     "name": "Bloodless",
+    "buyable": false,
+    "cost": 0,
     "description": "Lacks blood entirely, dies when flesh gets too low",
     "effects": [
         {

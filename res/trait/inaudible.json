@@ -1,5 +1,7 @@
 {
     "name": "Inaudible",
+    "buyable": true,
+    "cost": 20,
     "description": "Does not naturally emit any sounds (breathing, heartbeat, etc).  Actions still emit sound",
     "effects":[]
 }

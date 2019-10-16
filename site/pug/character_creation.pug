@@ -34,6 +34,12 @@ html
                 display: flex;
                 flex-flow: column;
             }
+            .no_grow {
+                flex: 0 0 auto;
+
+                display:flex;
+                flex-flow: row;
+            }
             .row_div {
                 flex: 1 1 auto;
 
@@ -62,6 +68,7 @@ html
             var attributes='!{attributes}'.split(',');
             var skills='!{skills}'.split(',');
             var races=JSON.parse('!{races}');
+            var traits=JSON.parse('!{traits}');
         script(src="js/character_creation.js")
         script(src="js/auth.js")
 
@@ -84,43 +91,51 @@ html
                             button(onclick="finishCreation()") create
                     .row_div
                         .col_div
-                            .section_div
-                                table.table
-                                    tr
-                                        td
-                                            p Flesh
-                                        td
-                                            p(id='flesh')
-                                    tr
-                                        td
-                                            p Blood
-                                        td
-                                            p(id='blood')
-                                    tr
-                                        td
-                                            p Bone
-                                        td
-                                            p(id='bone')
-                                    tr
-                                        td
-                                            p Soul
-                                        td
-                                            p(id='soul')
-                                    tr
-                                        td
-                                            p Stamina
-                                        td
-                                            p(id='stamina')
-                                    tr
-                                        td
-                                            p Action Points
-                                        td
-                                            p(id='ap')
-                                    tr
-                                        td
-                                            p Initiative
-                                        td
-                                            p(id='initiative')
+                            .row_div
+                                .section_div
+                                    table.table
+                                        tr
+                                            td
+                                                p Flesh:
+                                            td
+                                                p(id='flesh')
+                                        tr
+                                            td
+                                                p Blood:
+                                            td
+                                                p(id='blood')
+                                        tr
+                                            td
+                                                p Bone:
+                                            td
+                                                p(id='bone')
+                                        tr
+                                            td
+                                                p Soul:
+                                            td
+                                                p(id='soul')
+                                        tr
+                                            td
+                                                p Stamina:
+                                            td
+                                                p(id='stamina')
+                                        tr
+                                            td
+                                                p Action Points:
+                                            td
+                                                p(id='ap')
+                                        tr
+                                            td
+                                                p Initiative:
+                                            td
+                                                p(id='initiative')
+                                .section_div
+                                    .col_div
+                                        p Traits:
+                                        ul(id='traits')
+                                        .no_grow
+                                            select(id="traitbuy")
+                                            button(onclick="addTraitChoice()") +
                             .section_div
                                 table.table
                                     tr
