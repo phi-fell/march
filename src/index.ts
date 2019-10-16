@@ -27,6 +27,7 @@ import { Player } from './player';
 import { Server } from './server';
 import { getLoadedUserByName, loadUserByName, User, validateCredentialsByAuthToken } from './user';
 import version = require('./version');
+import { CharacterRace } from './character/characterrace';
 
 const app = express();
 app.use(cookieParser());
@@ -76,91 +77,6 @@ app.get('/login', (req: any, res: any) => {
 
 app.get('/create', (req: any, res: any) => {
     res.sendFile(path.resolve(__dirname + '/../site/html/new.html'));
-});
-
-app.post('/create', (req: any, res: any) => {
-    if (!req.body.credentials.user || !req.body.credentials.auth) {
-        res.send({
-            'status': 'fail',
-            // tslint:disable-next-line: max-line-length
-            'alert': 'You are not logged in with valid credentials.  Please log in.  (you can try logging in in a separate window, closing that window, and then continuing from here, so as not to lose your choices)',
-        });
-        return;
-    }
-    validateCredentialsByAuthToken(req.body.credentials.user, req.body.credentials.auth, (validate_err, valid) => {
-        if (validate_err || !valid) {
-            res.send({
-                'status': 'fail',
-                // tslint:disable-next-line: max-line-length
-                'alert': 'You are not logged in with valid credentials.  Please log in.  (you can try logging in in a separate window, closing that window, and then continuing from here, so as not to lose your choices)',
-            });
-            return;
-        }
-        const sheet = CharacterSheet.validateAndCreateFromJSON(req.body);
-        if (sheet === null) {
-            res.send({
-                'status': 'fail',
-                // tslint:disable-next-line: max-line-length
-                'alert': 'You\'re character is not valid.  This is likely a bug, if so please contact the developer.  (or you messed with the data.  tsk tsk.  nice try)',
-            });
-            return;
-        }
-        const u: User | null = getLoadedUserByName(req.body.credentials.user);
-        if (u) {
-            if (u.player) {
-                res.send({
-                    'status': 'fail',
-                    // tslint:disable-next-line: max-line-length
-                    'alert': 'This user already has a player.',
-                });
-                return;
-            }
-            u.player = new Player(Player.generateNewPlayerID(), req.body.name || generateName());
-            u.player.charSheet = sheet;
-            u.playerid = u.player.id;
-            u.player.saveToDisk();
-            u.player.unload();
-            u.saveToDisk();
-            res.send({
-                'status': 'success',
-                'redirect': '/game',
-            });
-            return;
-        }
-        loadUserByName(req.body.credentials.user, (load_err, user) => {
-            if (load_err) {
-                console.log(load_err);
-                res.send({
-                    'status': 'fail',
-                    // tslint:disable-next-line: max-line-length
-                    'alert': 'Something went wrong.  User could not be loaded from disk.  This is likely a bug, in which case please contact the developer.',
-                });
-                return;
-            }
-            if (user.player) {
-                res.send({
-                    'status': 'fail',
-                    // tslint:disable-next-line: max-line-length
-                    'alert': 'This user already has a player.',
-                });
-                user.unload();
-                return;
-            }
-            user.player = new Player(Player.generateNewPlayerID(), req.body.name || generateName());
-            user.player.charSheet = sheet;
-            user.playerid = user.player.id;
-            user.player.saveToDisk();
-            user.saveToDisk();
-            res.send({
-                'status': 'success',
-                'redirect': '/game',
-            });
-            user.player.unload();
-            user.unload();
-            return;
-        });
-
-    });
 });
 
 if (PUBLISH_DIAGNOSTIC_DATA) {
@@ -215,6 +131,7 @@ app.get('/character_creation', (req: any, res: any) => {
                     'essence': 100,
                     'attributes': Object.keys(ATTRIBUTE).filter((attr) => typeof ATTRIBUTE[attr as any] === 'number'),
                     'skills': Object.keys(SKILL).filter((attr) => typeof SKILL[attr as any] === 'number'),
+                    'races': CharacterRace.getPlayableRacesJSONString(),
                 }));
             });
         });
@@ -224,23 +141,88 @@ app.get('/character_creation', (req: any, res: any) => {
 });
 
 app.post('/character_creation', (req: any, res: any) => {
-    if (req.cookies.user && req.cookies.auth) {
-        res.send(req.cookies.user + ': ' + req.cookies.auth);
-        /*res.send(pug.renderFile(path.resolve(__dirname + '/../site/pug/character_creation.pug'), {
-          'sheet': Instance.instances,
-        }));*/
-        /*
-        // (within User):
-            this.player = Player.createPlayer();
-            this.playerid = this.player.id;
-            if (this.online) {
-                this.player.setActive(this);
-            }
-            this.saveToDisk();
-        */
-    } else {
-        res.redirect('/');
+    if (!req.cookies.user || !req.cookies.auth) {
+        res.send({
+            'status': 'fail',
+            // tslint:disable-next-line: max-line-length
+            'alert': 'You are not logged in with valid credentials.  Please log in.  (you can try logging in in a separate window, closing that window, and then continuing from here, so as not to lose your choices)',
+        });
+        return;
     }
+    validateCredentialsByAuthToken(req.cookies.user, req.cookies.auth, (validate_err, valid) => {
+        if (validate_err || !valid) {
+            res.send({
+                'status': 'fail',
+                // tslint:disable-next-line: max-line-length
+                'alert': 'You are not logged in with valid credentials.  Please log in.  (you can try logging in in a separate window, closing that window, and then continuing from here, so as not to lose your choices)',
+            });
+            return;
+        }
+        const sheet = CharacterSheet.validateAndCreateFromJSON(req.body);
+        if (sheet === null) {
+            res.send({
+                'status': 'fail',
+                // tslint:disable-next-line: max-line-length
+                'alert': 'You\'re character is not valid.  This is likely a bug, if so please contact the developer.  (or you messed with the data.  tsk tsk.  nice try)',
+            });
+            return;
+        }
+        const u: User | null = getLoadedUserByName(req.cookies.user);
+        if (u) {
+            if (u.player) {
+                res.send({
+                    'status': 'fail',
+                    // tslint:disable-next-line: max-line-length
+                    'alert': 'This user already has a player.',
+                });
+                return;
+            }
+            u.player = new Player(Player.generateNewPlayerID(), req.body.name || generateName());
+            u.player.charSheet = sheet;
+            u.playerid = u.player.id;
+            u.player.saveToDisk();
+            u.player.unload();
+            u.saveToDisk();
+            res.send({
+                'status': 'success',
+                'redirect': '/game',
+            });
+            return;
+        }
+        loadUserByName(req.cookies.user, (load_err, user) => {
+            if (load_err) {
+                console.log(load_err);
+                res.send({
+                    'status': 'fail',
+                    // tslint:disable-next-line: max-line-length
+                    'alert': 'Something went wrong.  User could not be loaded from disk.  This is likely a bug, in which case please contact the developer.',
+                });
+                return;
+            }
+            if (user.player) {
+                res.send({
+                    'status': 'fail',
+                    // tslint:disable-next-line: max-line-length
+                    'alert': 'This user already has a player.',
+                });
+                user.unload();
+                return;
+            }
+            user.player = new Player(Player.generateNewPlayerID(), req.body.name || generateName());
+            user.player.charSheet = sheet;
+            user.playerid = user.player.id;
+            user.player.saveToDisk();
+            user.saveToDisk();
+            res.send({
+                'status': 'success',
+                'redirect': '/game',
+            });
+            user.player.unload();
+            user.unload();
+            return;
+        });
+
+    });
 });
 
 app.use('/js', express.static(path.resolve(__dirname + '/../site/js')));

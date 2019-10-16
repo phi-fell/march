@@ -3,15 +3,14 @@ let race_attributes = {};
 
 let skill_caps = {};
 
-let race_choice = "avrilen";
+let race_choice = races[0][0];
 
 function finishCreation() {
     $.ajax({
-        url: '/create',
+        url: '/character_creation',
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify({
-            'credentials': loadCredentials(),
             'name': $('#name').text(),
             'race': race_choice,
             'attributes': allocated_attributes,
@@ -53,22 +52,7 @@ function recalculate() {
 
 function setRace(race) {
     race_choice = race;
-    for (let attr of attributes) {
-        race_attributes[attr] = 10;
-    }
-    if (race === "avrilen") {
-        race_attributes.LOGIC += 4;
-        race_attributes.PERCEPTION += 2;
-    } else if (race === "neathling") {
-        race_attributes.AGILITY += 4;
-        race_attributes.DEXTERITY += 2;
-    } else if (race === "marrow") {
-        race_attributes.CHARISMA += 4;
-        race_attributes.INTUITION += 2;
-    } else if (race === "blooded") {
-        race_attributes.VITALITY += 4;
-        race_attributes.ENDURANCE += 2;
-    }
+    race_attributes = races.find((r) => r[0] === race)[1].baseAttributes;
     recalculate();
 }
 
@@ -108,9 +92,8 @@ $(() => {
         skill_caps[skill] = 0;
     }
     $('#name').text('Enter A Name');
-    $('#race').append($('<option value="avrilen">').text("Avrilen Wanderer"));
-    $('#race').append($('<option value="neathling">').text("Neathling Outcast"));
-    $('#race').append($('<option value="marrow">').text("Marrow Fallen"));
-    $('#race').append($('<option value="blooded">').text("Blooded Redvein"));
+    for (const r of races) {
+        $('#race').append($('<option value="' + r[0] + '">').text(r[1].name));
+    }
     $("#race").val(race_choice).change();
 });

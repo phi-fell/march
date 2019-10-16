@@ -84,6 +84,15 @@ characterRaceProps[NO_RACE] = {
 };
 
 export class CharacterRace {
+    public static getRaceList() {
+        return Object.entries(characterRaceProps);
+    }
+    public static getPlayableRaces() {
+        return Object.entries(characterRaceProps).filter((pair) => pair[1].playable);
+    }
+    public static getPlayableRacesJSONString() {
+        return JSON.stringify(CharacterRace.getPlayableRaces());
+    }
     public static raceExists(id) {
         return characterRaceProps.hasOwnProperty(id);
     }
