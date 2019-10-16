@@ -3,13 +3,39 @@ let race_attributes = {};
 
 let skill_caps = {};
 
+let race_choice = "avrilen";
+
+function finishCreation() {
+    $.ajax({
+        url: '/create',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            'credentials': loadCredentials(),
+            'name': $('#name').text(),
+            'race': race_choice,
+            'attributes': allocated_attributes,
+            'skills': skill_caps,
+        }),
+        success: (data) => {
+            console.log(data);
+            if (data.status === 'fail') {
+                alert(data.alert);
+            } else if (data.status === 'success') {
+                window.location.href = data.redirect || '/';
+            }
+        },
+        dataType: 'json',
+    });
+}
+
 function getAttrVal(attr) {
     return allocated_attributes[attr] + race_attributes[attr];
 }
 
 function recalculate() {
     $('#gold').text(60);
-    $('#will').text(will);
+    $('#essence').text(essence);
     for (let attr of attributes) {
         $('#' + attr).text(getAttrVal(attr));
     }
@@ -26,6 +52,7 @@ function recalculate() {
 }
 
 function setRace(race) {
+    race_choice = race;
     for (let attr of attributes) {
         race_attributes[attr] = 10;
     }
@@ -46,28 +73,28 @@ function setRace(race) {
 }
 
 function addAttributePoint(attr) {
-    if (will >= allocated_attributes[attr] + 1) {
-        will -= ++allocated_attributes[attr];
+    if (essence >= allocated_attributes[attr] + 1) {
+        essence -= ++allocated_attributes[attr];
     }
     recalculate();
 }
 function removeAttributePoint(attr) {
     if (allocated_attributes[attr] > 0) {
-        will += allocated_attributes[attr]--;
+        essence += allocated_attributes[attr]--;
     }
     recalculate();
 }
 
 function increaseSkillCap(skill) {
-    if (will >= skill_caps[skill] + 1) {
-        will -= ++skill_caps[skill];
+    if (essence >= skill_caps[skill] + 1) {
+        essence -= ++skill_caps[skill];
     }
     recalculate();
 }
 
 function decreaseSkillCap(skill) {
     if (skill_caps[skill] > 0) {
-        will += skill_caps[skill]--;
+        essence += skill_caps[skill]--;
     }
     recalculate();
 }
@@ -85,8 +112,5 @@ $(() => {
     $('#race').append($('<option value="neathling">').text("Neathling Outcast"));
     $('#race').append($('<option value="marrow">').text("Marrow Fallen"));
     $('#race').append($('<option value="blooded">').text("Blooded Redvein"));
-    $("#race").val("avrilen").change();
-
-    $('#gold').text(60);
-    $('#will').text(will);
+    $("#race").val(race_choice).change();
 });

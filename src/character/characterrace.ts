@@ -82,6 +82,9 @@ characterRaceProps[NO_RACE] = {
 };
 
 export class CharacterRace {
+    public static raceExists(id){
+        return characterRaceProps.hasOwnProperty(id);
+    }
     public static fromJSON(json) {
         return new CharacterRace(json.raceID, json.level);
     }
@@ -101,6 +104,9 @@ export class CharacterRace {
     }
     get attributesPerLevel() {
         return characterRaceProps[this.raceID].attributesPerLevel.clone();
+    }
+    public getEssenceCost(): number {
+        return 0;
     }
     public getNetAttributes() {
         return this.baseAttributes.getSumWith(this.attributesPerLevel.getScaledBy(this.level)).getFloored();

@@ -7,8 +7,6 @@ import { Player } from './player';
 
 export const enum CharGenStage {
     Tutorial,
-    Name,
-    Race,
     Done,
 }
 
@@ -39,22 +37,6 @@ class TutorialEnemy extends Entity {
         }
     }
 }
-class RaceChoice extends Entity {
-    constructor(private player: Player, private race: string, id: string, name: string, location: Location = new Location(0, 0, '')) {
-        super(id, name, SPRITE.NAME, location);
-    }
-    public doNextAction(): ACTION_STATUS {
-        this.charSheet.status.action_points = 0;
-        return ACTION_STATUS.WAITING;
-    }
-    protected handleDeath() {
-        super.handleDeath();
-        this.player.chargen++;
-        this.player.charSheet.race = new CharacterRace(this.race);
-        Instance.removeEntityFromWorld(this.player);
-        CharGen.spawnPlayerInFreshInstance(this.player);
-    }
-}
 
 export class CharGen {
     public static spawnPlayerInFreshInstance(player: Player) {
@@ -68,31 +50,6 @@ export class CharGen {
                 inst.spawnEntityAtCoords(new TextEntity(Entity.generateNewEntityID(), 'Destroy the enemy to Proceed', SPRITE.NAME), 8, 3);
                 inst.spawnEntityAtCoords(new TutorialEnemy(player, new EnemyCount(1), Entity.generateNewEntityID(), 'Enemy'), 6, 6);
                 inst.spawnEntityAtCoords(player, 3, 8);
-                break;
-            }
-            case CharGenStage.Name: {
-                const attr = new InstanceAttributes(0, 10, 10, true);
-                attr.genType = INSTANCE_GEN_TYPE.ONE_ROOM;
-                const inst = Instance.spinUpNewInstance(attr);
-                inst.spawnEntityAtCoords(new TextEntity(Entity.generateNewEntityID(), 'Change your name with /name', SPRITE.NAME), 2, 1);
-                inst.spawnEntityAtCoords(new TextEntity(Entity.generateNewEntityID(), 'Destroy all enemies to Proceed', SPRITE.NAME), 6, 1);
-                const count: EnemyCount = new EnemyCount(3);
-                inst.spawnEntityAtCoords(new TutorialEnemy(player, count, Entity.generateNewEntityID(), 'Enemy'), 1, 5);
-                inst.spawnEntityAtCoords(new TutorialEnemy(player, count, Entity.generateNewEntityID(), 'Enemy'), 5, 5);
-                inst.spawnEntityAtCoords(new TutorialEnemy(player, count, Entity.generateNewEntityID(), 'Enemy'), 8, 5);
-                inst.spawnEntityAtCoords(player, 5, 8);
-                break;
-            }
-            case CharGenStage.Race: {
-                const attr = new InstanceAttributes(0, 10, 10, true);
-                attr.genType = INSTANCE_GEN_TYPE.ONE_ROOM;
-                const inst = Instance.spinUpNewInstance(attr);
-                inst.spawnEntityAtCoords(new TextEntity(Entity.generateNewEntityID(), 'Choose An Race', SPRITE.NAME), 4, 1);
-                inst.spawnEntityAtCoords(new RaceChoice(player, 'blooded', Entity.generateNewEntityID(), 'Blooded Redvein'), 1, 3);
-                inst.spawnEntityAtCoords(new RaceChoice(player, 'neathling', Entity.generateNewEntityID(), 'Neathling Outcast'), 3, 3);
-                inst.spawnEntityAtCoords(new RaceChoice(player, 'avrilen', Entity.generateNewEntityID(), 'Avrilen Wanderer'), 5, 3);
-                inst.spawnEntityAtCoords(new RaceChoice(player, 'marrow', Entity.generateNewEntityID(), 'Marrow Fallen'), 7, 3);
-                inst.spawnEntityAtCoords(player, 4, 8);
                 break;
             }
             case CharGenStage.Done: {

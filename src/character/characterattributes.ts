@@ -17,13 +17,13 @@ export enum ATTRIBUTE {
     LUCK, // the extent to which you have the world's favor
 }
 
-const ATTRIBUTE_COUNT = 12;
+const ATTRIBUTE_COUNT: number = ATTRIBUTE.LUCK + 1;
 
 export class CharacterAttributes {
     public static fromJSON(json: any) {
         const ret = new CharacterAttributes();
         for (let i = 0; i < ATTRIBUTE_COUNT; i++) {
-            ret.values[i] = json[ATTRIBUTE[i]];
+            ret.values[i] = json[ATTRIBUTE[i]] || 0;
         }
         return ret;
     }
@@ -40,6 +40,13 @@ export class CharacterAttributes {
     }
     public set(attr: ATTRIBUTE, val: number) {
         this.values[attr] = val;
+    }
+    public getEssenceCost(): number {
+        let ret: number = 0;
+        for (let i = 0; i < ATTRIBUTE_COUNT; i++) {
+            ret += ((this.values[i] + 1) * (this.values[i])) / 2;
+        }
+        return ret;
     }
     public getLevelupCosts() {
         const ret: CharacterAttributes = new CharacterAttributes();

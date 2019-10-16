@@ -186,8 +186,12 @@ export function getLoadedUserByID(id) {
         return null;
     }
 }
-export function getLoadedUserByName(name) {
-    return Object.values(users).find((u: any) => { return u.name === name });
+export function getLoadedUserByName(name): User | null {
+    const ret = Object.values(users).find((u: any) => { return u.name === name });
+    if (ret) {
+        return ret as User;
+    }
+    return null;
 }
 module.exports.deleteUser = function (id) {
     //TODO

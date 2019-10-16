@@ -163,7 +163,7 @@ class Game {
         list.empty();
         list.append($('<li>').text('Player: ' + this.player.name));
         list.append($('<li>').text('Race: ' + sheet.race.name));
-        list.append($('<li>').text('Will: ' + sheet.exp));
+        list.append($('<li>').text('Essence: ' + sheet.exp));
         switch (this.player.action.type) {
             case 'NONE':
             case 'WAIT':

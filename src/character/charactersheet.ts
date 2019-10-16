@@ -4,24 +4,42 @@ import { CharacterEquipment } from './characterequipment';
 import { CharacterFaith } from './characterfaith';
 import { CharacterRace } from './characterrace';
 import { RESOURCE } from './characterresource';
+import { CharacterSkills } from './characterskills';
 import { CharacterStatus } from './characterstatus';
 
+export const STARTING_ESSENCE = 100;
+
 export class CharacterSheet {
+    public static validateAndCreateFromJSON(json: any) {
+        const ret = new CharacterSheet();
+        if (!CharacterRace.raceExists(json.race)) {
+            return null;
+        }
+        ret._race = new CharacterRace(json.race);
+        ret._allocatedAttributes = CharacterAttributes.fromJSON(json.attributes);
+        ret._skills = CharacterSkills.fromJSON(json.skills);
+        ret._essence = STARTING_ESSENCE - (ret._race.getEssenceCost() + ret._allocatedAttributes.getEssenceCost() + ret._skills.getEssenceCost());
+        if (ret._essence < 0){
+            return null;
+        }
+        return ret;
+    }
     public static fromJSON(json: any) {
         const ret = new CharacterSheet();
         // TODO: load faiths
         ret._race = CharacterRace.fromJSON(json.race);
         ret._allocatedAttributes = CharacterAttributes.fromJSON(json.allocatedAttributes);
-        ret._experience = json.exp;
+        ret._essence = json.exp;
         ret.recalculateDerivedStats();
         return ret;
     }
     private _allocatedAttributes: CharacterAttributes = new CharacterAttributes();
+    private _skills: CharacterSkills = new CharacterSkills();
     private _race: CharacterRace;
     private _faiths: CharacterFaith[];
     private _equipment: CharacterEquipment;
     private _status: CharacterStatus;
-    private _experience: number;
+    private _essence: number;
     // cache
     private _cachedAttributes: CharacterAttributes = new CharacterAttributes();
     private _hasPool: boolean[] = [];
@@ -30,7 +48,7 @@ export class CharacterSheet {
         this._faiths = [];
         this._equipment = new CharacterEquipment();
         this._status = new CharacterStatus();
-        this._experience = 0;
+        this._essence = 0;
         this.recalculateDerivedStats();
     }
     get race() {
@@ -53,8 +71,7 @@ export class CharacterSheet {
         return this._hasPool[resource];
     }
     public addExperience(amount: number) {
-        this._experience += amount;
-        this.recalculateDerivedStats();
+        this._essence += amount;
     }
     public getNetAttributeValue(attr: ATTRIBUTE): number {
         return this._cachedAttributes.get(attr);
@@ -64,8 +81,8 @@ export class CharacterSheet {
     }
     public levelUpAttribute(attr: ATTRIBUTE) {
         const costs = this._allocatedAttributes.getLevelupCosts();
-        if (this._experience >= costs.get(attr)) {
-            this._experience -= costs.get(attr);
+        if (this._essence >= costs.get(attr)) {
+            this._essence -= costs.get(attr);
             this._allocatedAttributes.set(attr, this._allocatedAttributes.get(attr) + 1);
         }
         this.recalculateDerivedStats();
@@ -134,7 +151,7 @@ export class CharacterSheet {
             'race': this._race.toJSON(),
             'equipment': this._equipment.toJSON(),
             'status': this._status.toJSON(),
-            'exp': this._experience,
+            'exp': this._essence,
         };
     }
     protected takeBluntDamage(amount: number) {

@@ -1,12 +1,12 @@
 import fs = require('fs');
 import uuid = require('uuid/v4');
-var nameGen = require('./namegen');
 import { Entity, SPRITE, ACTION_STATUS } from './entity';
 import { Location } from './location';
 import { User } from './user';
 import { CharGenStage, CharGen } from './chargen';
 import { Instance } from './instance';
 import { CharacterSheet } from './character/charactersheet';
+import { generateName } from './namegen';
 
 var players = {};
 
@@ -67,10 +67,7 @@ export class Player extends Entity {
         return players[id];
     }
     static createPlayer() {
-        var name = nameGen.generateName();
-        while (getPlayerByName(name)) {
-            name = nameGen.generateName()
-        }
+        var name = generateName();
         var plr = new Player(this.generateNewPlayerID(), name);
         players[plr.id] = plr;
         CharGen.spawnPlayerInFreshInstance(plr);
@@ -125,7 +122,9 @@ export class Player extends Entity {
     }
     public setAction(action: PlayerAction) {
         this.queuedAction = action;
-        Instance.getLoadedInstanceById(this.location.instance_id).notifyOfPlayerAction(this.id);
+        if (Instance.getLoadedInstanceById(this.location.instance_id)) {
+            Instance.getLoadedInstanceById(this.location.instance_id)!.notifyOfPlayerAction(this.id);
+        }
         this.pushUpdate();
     }
     public removeAction() {
@@ -180,8 +179,10 @@ export class Player extends Entity {
     }
     unload() {
         this.saveToDisk();
-        Instance.removeEntityFromWorld(this);
-        Instance.instances[this.location.instance_id].removePlayer(this);
+        if (Instance.getLoadedInstanceById(this.location.instance_id)) {
+            Instance.removeEntityFromWorld(this);
+            Instance.getLoadedInstanceById(this.location.instance_id)!.removePlayer(this);
+        }
         delete players[this.id];
     }
     saveToDisk() {
@@ -202,7 +203,7 @@ export class Player extends Entity {
         this.chargen = data.chargen;
         //TODO: if player doesn't have location or if it's invalid, or depending on type of instance, or if it no longer exists...
         // ^ cont. then spawn in a new random location?
-        if (this.chargen == CharGenStage.Done) {
+        if (this.chargen === CharGenStage.Done) {
             //Instance.spawnEntityInLocation(this, data.location);
             CharGen.spawnPlayerInFreshInstance(this);
             //TODO: TEMP ^
@@ -263,9 +264,4 @@ export class Player extends Entity {
         }
 
     }
-}
-
-//TODO: remove below or merge as static methods
-function getPlayerByName(name) {
-    return Object.values(players).find((value: any) => { value.name === name });
 }

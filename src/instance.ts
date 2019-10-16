@@ -52,9 +52,11 @@ export class Instance {
         }
     }
     public static removeEntityFromWorld(ent: Entity) {
-        Instance.instances[ent.location.instance_id].removeMob(ent);
+        if (Instance.instances[ent.location.instance_id]) {
+            Instance.instances[ent.location.instance_id].removeMob(ent);
+        }
     }
-    public static getLoadedInstanceById(id: string) {
+    public static getLoadedInstanceById(id: string): Instance | null {
         return Instance.instances[id] || null;
     }
     public static generateNewInstanceID() {

@@ -80,7 +80,7 @@ function generateProbabilities() {
 
 generateProbabilities();
 
-module.exports.generateName = function () {
+export function generateName() {
     var name = "";
     while (name.length < 4 || name.length > 12) {
         name = "";

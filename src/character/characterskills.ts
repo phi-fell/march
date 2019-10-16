@@ -44,5 +44,55 @@ export enum SKILL {
     ENCHANTING,
 }
 
+const SKILL_COUNT: number = SKILL.ENCHANTING + 1;
+
 export class CharacterSkills {
+    public static fromJSON(json: any) {
+        const ret = new CharacterSkills();
+        for (let i = 0; i < SKILL_COUNT; i++) {
+            ret.values[i] = json[SKILL[i]] || 0;
+        }
+        return ret;
+    }
+    private values: number[];
+    constructor() {
+        this.values = [];
+        for (let i = 0; i < SKILL_COUNT; i++) {
+            this.values[i] = 0;
+        }
+    }
+    public get(skill: SKILL): number {
+        return this.values[skill];
+    }
+    public set(skill: SKILL, val: number) {
+        this.values[skill] = val;
+    }
+    public getEssenceCost(): number {
+        let ret: number = 0;
+        for (let i = 0; i < SKILL_COUNT; i++) {
+            ret += ((this.values[i] + 1) * (this.values[i])) / 2;
+        }
+        return ret;
+    }
+    public getLevelupCosts() {
+        const ret: CharacterSkills = new CharacterSkills();
+        for (let i = 0; i < SKILL_COUNT; i++) {
+            ret.values[i] = this.values[i] + 1;
+        }
+        return ret;
+    }
+    public clone() {
+        const ret: CharacterSkills = new CharacterSkills();
+        for (let i = 0; i < SKILL_COUNT; i++) {
+            ret.values[i] = this.values[i];
+        }
+        return ret;
+    }
+    public toJSON() {
+        const ret = {};
+        for (let i = 0; i < SKILL_COUNT; i++) {
+            ret[SKILL[i]] = this.values[i];
+        }
+        return ret;
+    }
 }
