@@ -40,7 +40,7 @@ let redirectapp: any;
 let io;
 
 if (USE_HTTPS) {
-    const options = {
+    const options = { // TODO: make certificate path variable?
         'key': fs.readFileSync('/etc/letsencrypt/live/gotg.phi.ac/privkey.pem'),
         'cert': fs.readFileSync('/etc/letsencrypt/live/gotg.phi.ac/cert.pem'),
     };
