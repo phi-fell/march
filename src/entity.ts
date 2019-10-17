@@ -24,8 +24,8 @@ export class Entity {
         return uuid();
     }
     public charSheet: CharacterSheet;
-    private lastHitSheet: CharacterSheet | undefined;
     protected _location: Location;
+    private lastHitSheet: CharacterSheet | undefined;
     constructor(public id: string, public name: string, public sprite: SPRITE = SPRITE.NONE, loc = new Location(0, 0, '')) {
         this.charSheet = new CharacterSheet();
         this._location = new Location(0, 0, '');
@@ -50,7 +50,7 @@ export class Entity {
     }
     public doNextAction(): ACTION_STATUS {
         if (this.charSheet.hasSufficientAP(MOVE_AP)) {
-            let dirs = [
+            const dirs = [
                 { 'x': 0, 'y': -1 },
                 { 'x': 0, 'y': 1 },
                 { 'x': -1, 'y': 0 },
@@ -72,6 +72,13 @@ export class Entity {
         if (this.charSheet.isDead()) {
             this.handleDeath();
         }
+    }
+    public startNewTurn() {
+        if (this.charSheet.isDead()) {
+            this.handleDeath();
+            return;
+        }
+        this.charSheet.startNewTurn();
     }
     protected move(to: Location) {
         const fromInst = Instance.instances[this.location.instance_id];

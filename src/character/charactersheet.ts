@@ -138,17 +138,17 @@ export class CharacterSheet {
         }
     }
     public isDead(): boolean {
-        if (this.hasResource(RESOURCE.SOUL) && this._status.pools[RESOURCE.SOUL].quantity <= 0) {
+        if (this.hasResource(RESOURCE.SOUL) && this._status.pools[RESOURCE.SOUL].quantity < 0) {
             return true;
         }
         if (this.hasResource(RESOURCE.BLOOD)) {
-            return this._status.pools[RESOURCE.BLOOD].quantity <= 0;
+            return this._status.pools[RESOURCE.BLOOD].quantity < 0;
         }
         if (this.hasResource(RESOURCE.FLESH)) {
-            return this._status.pools[RESOURCE.FLESH].quantity <= 0;
+            return this._status.pools[RESOURCE.FLESH].quantity < 0;
         }
         if (this.hasResource(RESOURCE.BONE)) {
-            return this._status.pools[RESOURCE.BONE].quantity <= 0;
+            return this._status.pools[RESOURCE.BONE].quantity < 0;
         }
         return false; // TODO: more conditions? modify conditions?
     }
@@ -166,6 +166,7 @@ export class CharacterSheet {
         };
     }
     protected takeBluntDamage(amount: number) {
+        // if fleshy, lower flesh to 0
         if (this.hasResource(RESOURCE.FLESH) && this._status.pools[RESOURCE.FLESH].quantity > 0) {
             if (this._status.pools[RESOURCE.FLESH].quantity > amount) {
                 this._status.pools[RESOURCE.FLESH].quantity -= amount;
@@ -174,6 +175,10 @@ export class CharacterSheet {
             amount -= this._status.pools[RESOURCE.FLESH].quantity;
             this._status.pools[RESOURCE.FLESH].quantity = 0;
         }
+        // then do flesh AND bone damage
+        if (this.hasResource(RESOURCE.FLESH)) {
+            this._status.pools[RESOURCE.FLESH].quantity -= amount;
+        }
         if (this.hasResource(RESOURCE.BONE) && this._status.pools[RESOURCE.BONE].quantity > 0) {
             if (this._status.pools[RESOURCE.BONE].quantity > amount) {
                 this._status.pools[RESOURCE.BONE].quantity -= amount;
@@ -181,11 +186,6 @@ export class CharacterSheet {
             }
             amount -= this._status.pools[RESOURCE.FLESH].quantity;
             this._status.pools[RESOURCE.FLESH].quantity = 0;
-        }
-        if (this.hasResource(RESOURCE.FLESH)) {
-            this._status.pools[RESOURCE.FLESH].quantity -= amount;
-            amount = 0;
-            return;
         }
     }
     protected takeSharpDamage(amount) {
@@ -205,6 +205,12 @@ export class CharacterSheet {
             if (isNaN(Number(type))) {
                 this._hasPool[RESOURCE[type]] = true;
             }
+        }
+        if (this._race.traits.includes("bloodless")){
+            this._hasPool[RESOURCE.BLOOD] = false;
+        }
+        if (this._race.traits.includes("boneless")){
+            this._hasPool[RESOURCE.BONE] = false;
         }
         this._cachedAttributes = this._race.getNetAttributes().getSumWith(this._allocatedAttributes);
         // TODO: apply effects that modify attributes

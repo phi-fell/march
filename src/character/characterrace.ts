@@ -97,9 +97,9 @@ export class CharacterRace {
         return characterRaceProps.hasOwnProperty(id);
     }
     public static fromJSON(json) {
-        return new CharacterRace(json.raceID, json.level);
+        return new CharacterRace(json.raceID);
     }
-    constructor(private raceID: CharacterRaceID = NO_RACE, public level = 0) {
+    constructor(private raceID: CharacterRaceID = NO_RACE) {
     }
     get name() {
         return characterRaceProps[this.raceID].name;
@@ -113,6 +113,9 @@ export class CharacterRace {
     get baseAttributes() {
         return characterRaceProps[this.raceID].baseAttributes.clone();
     }
+    get traits() {
+        return characterRaceProps[this.raceID].traits;
+    }
     public getEssenceCost(): number {
         return 0;
     }
@@ -122,7 +125,6 @@ export class CharacterRace {
     public toJSON() {
         return {
             'raceID': this.raceID,
-            'level': this.level,
             'name': this.name,
             'description': this.description,
         };

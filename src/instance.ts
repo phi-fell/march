@@ -320,7 +320,7 @@ export class Instance {
     private startNewTurn() {
         this.emit('A new round has begun!');
         for (const mob of this.mobs) {
-            mob.charSheet.startNewTurn();
+            mob.startNewTurn();
         }
     }
 }

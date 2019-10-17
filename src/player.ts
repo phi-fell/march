@@ -255,13 +255,12 @@ export class Player extends Entity {
     protected handleDeath() {
         Instance.removeEntityFromWorld(this);
         if (this.user) {
-            this.user.player = Player.createPlayer();
-            this.user.playerid = this.user.player.id;
+            this.user.player = null;
+            this.user.playerid = null;
             this.user.socket.emit('force_disconnect', 'YOU HAVE DIED');
             this.user.logout();
             this.unload();
             // TODO: remove this player from disk?
         }
-
     }
 }

@@ -1,4 +1,5 @@
-import { ATTRIBUTE } from './character/characterattributes'
+import { ATTRIBUTE } from './character/characterattributes';
+import { CharacterRace } from './character/characterrace';
 import { ACTION_STATUS, Entity, SPRITE } from './entity';
 import { Instance, InstanceAttributes } from './instance';
 import { INSTANCE_GEN_TYPE } from './instancegenerator';
@@ -63,6 +64,7 @@ export class CharGen {
                         let posX: number;
                         let posY: number;
                         const ent = new Entity(Entity.generateNewEntityID(), 'Slime ' + i, SPRITE.SLIME);
+                        ent.charSheet.race = new CharacterRace('slime');
                         ent.charSheet.addExperience(1);
                         ent.charSheet.levelUpAttribute(ATTRIBUTE.STRENGTH);
                         do {
