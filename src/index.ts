@@ -40,6 +40,10 @@ let http_server: any;
 let redirectapp: any;
 let io;
 
+function validateAdminToken(token) {
+    return token && token.match(/^[0-9a-zA-Z]+$/); // TODO: admin credentials
+}
+
 if (USE_HTTPS) {
     const options = { // TODO: make certificate path variable?
         'key': fs.readFileSync('/etc/letsencrypt/live/gotg.phi.ac/privkey.pem'),
@@ -85,23 +89,27 @@ function execute(command, callback) {
     childProcess.exec(command, function (error, stdout, stderr) { callback(stdout); });
 };
 
-app.get('/version', (req: any, res: any) => {
-    execute('git log', (output) => {
-        const regex = /(?:commit )([a-z0-9]+)(?:[\n]*Author[^\n]*)(?:[\n]Date[^\n]*[\s]*)([^\n]*)/g;
-        let match;
-        const versions: any[] = [];
-        while (match = regex.exec(output)) {
-            if (match[2].match(/^[0-9]+.[0-9]+.[0-9]+$/)) {
-                versions.push({
-                    'version': match[2],
-                    'hash': match[1],
-                });
+app.get('/version', (req: any, res: any, next: any) => {
+    if (validateAdminToken(req.cookies.admin_token)) {
+        execute('git log', (output) => {
+            const regex = /(?:commit )([a-z0-9]+)(?:[\n]*Author[^\n]*)(?:[\n]Date[^\n]*[\s]*)([^\n]*)/g;
+            let match;
+            const versions: any[] = [];
+            while (match = regex.exec(output)) {
+                if (match[2].match(/^[0-9]+.[0-9]+.[0-9]+$/)) {
+                    versions.push({
+                        'version': match[2],
+                        'hash': match[1],
+                    });
+                }
             }
-        }
-        res.send(pug.renderFile(path.resolve(__dirname + '/../site/pug/version.pug'), {
-            'versions': versions,
-        }));
-    });
+            res.send(pug.renderFile(path.resolve(__dirname + '/../site/pug/version.pug'), {
+                'versions': versions,
+            }));
+        });
+    } else {
+        next();
+    }
 });
 
 if (PUBLISH_DIAGNOSTIC_DATA) {
@@ -111,26 +119,34 @@ if (PUBLISH_DIAGNOSTIC_DATA) {
         'instances': Instance.instances,
       }));
     });*/
-    app.get('/diagnostic', (req: any, res: any) => {
-        res.send(pug.renderFile(path.resolve(__dirname + '/../site/pug/diagnostic/main.pug'), {
-            'instances': Instance.instances,
-        }));
-    });
-    app.get('/diagnostic/instance', (req: any, res: any) => {
-        if (req.query.id) {
-            const inst = Instance.getLoadedInstanceById(req.query.id);
-            if (inst) {
-                res.send(pug.renderFile(path.resolve(__dirname + '/../site/pug/diagnostic/instance.pug'), {
-                    'instance': inst,
-                }));
-            } else {
-                res.send('No such instance!');
-            }
-
-        } else {
-            res.send(pug.renderFile(path.resolve(__dirname + '/../site/pug/diagnostic/instances.pug'), {
+    app.get('/diagnostic', (req: any, res: any, next: any) => {
+        if (validateAdminToken(req.cookies.admin_token)) {
+            res.send(pug.renderFile(path.resolve(__dirname + '/../site/pug/diagnostic/main.pug'), {
                 'instances': Instance.instances,
             }));
+        } else {
+            next();
+        }
+    });
+    app.get('/diagnostic/instance', (req: any, res: any, next: any) => {
+        if (validateAdminToken(req.cookies.admin_token)) {
+            if (req.query.id) {
+                const inst = Instance.getLoadedInstanceById(req.query.id);
+                if (inst) {
+                    res.send(pug.renderFile(path.resolve(__dirname + '/../site/pug/diagnostic/instance.pug'), {
+                        'instance': inst,
+                    }));
+                } else {
+                    next();
+                }
+
+            } else {
+                res.send(pug.renderFile(path.resolve(__dirname + '/../site/pug/diagnostic/instances.pug'), {
+                    'instances': Instance.instances,
+                }));
+            }
+        } else {
+            next();
         }
     });
 }
