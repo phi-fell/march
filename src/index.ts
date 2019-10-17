@@ -11,6 +11,7 @@ process.argv.forEach((val, index, array) => {
     }
 });
 
+import childProcess = require('child_process');
 import cookieParser = require('cookie-parser');
 import express = require('express');
 import fs = require('fs');
@@ -78,6 +79,29 @@ app.get('/login', (req: any, res: any) => {
 
 app.get('/create', (req: any, res: any) => {
     res.sendFile(path.resolve(__dirname + '/../site/html/new.html'));
+});
+
+function execute(command, callback) {
+    childProcess.exec(command, function (error, stdout, stderr) { callback(stdout); });
+};
+
+app.get('/version', (req: any, res: any) => {
+    execute('git log', (output) => {
+        const regex = /(?:commit )([a-z0-9]+)(?:[\n]*Author[^\n]*)(?:[\n]Date[^\n]*[\s]*)([^\n]*)/g;
+        let match;
+        const versions: any[] = [];
+        while (match = regex.exec(output)) {
+            if (match[2].match(/^[0-9]+.[0-9]+.[0-9]+$/)) {
+                versions.push({
+                    'version': match[2],
+                    'hash': match[1],
+                });
+            }
+        }
+        res.send(pug.renderFile(path.resolve(__dirname + '/../site/pug/version.pug'), {
+            'versions': versions,
+        }));
+    });
 });
 
 if (PUBLISH_DIAGNOSTIC_DATA) {

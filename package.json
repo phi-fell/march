@@ -11,7 +11,7 @@
     "predebug": "npm run predev",
     "debug": "node --inspect build/index.js -NO_HTTPS -PUBLISH_DIAGNOSTIC_DATA",
     "preprod": "npm run build",
-    "prod": "nodemon --watch src --delay 10 -e ts build/index.js -PUBLISH_DIAGNOSTIC_DATA",
+    "prod": "nodemon --watch build --delay 10 build/index.js -PUBLISH_DIAGNOSTIC_DATA",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
