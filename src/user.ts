@@ -43,9 +43,8 @@ export class User {
             this.player.setActive(this);
         }
         var user = this;
-        console.log(this.name + ' (' + sock.handshake.address + ') connected');
+        console.log(sock.handshake.address + ' logged in as ' + this.name);
         sock.on('disconnect', () => {
-            console.log(user.name + ' (' + sock.handshake.address + ') disconnected');
             user.logout();
         });
         sock.on('ping_cmd', (msg) => {
@@ -118,12 +117,17 @@ export class User {
         this.socket.emit('chat message', '(By setting an email address, you give permission for it to be contacted regarding game updates, news, account info, or anything else.  Your email may also be contacted to followup on any bug reports you submit.  You can remove your email simply by changing it to e.g. "none")');
         //giveSocketBasicPrivileges(socket);
         this.socket.broadcast.emit('chat message', this.name + ' connected');
+
+        if (!this.socket.connected) {
+            this.logout();
+        }
     }
     logout() {
         if (!this.online) {
             //TODO: ERROR
             return console.log('USER IS NOT LOGGED IN');
         }
+        console.log(this.name + ' logged out.');
         this.saveToDisk();
         if (this.player) {
             this.player.setInactive();

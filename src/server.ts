@@ -87,7 +87,6 @@ export class Server {
                         socket.removeAllListeners('authorize');
                         socket.removeAllListeners('create_user');
                         socket.removeAllListeners('login');
-                        socket.removeAllListeners('disconnect');
                         user.login(socket);
                     });
                 });
