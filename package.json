@@ -12,7 +12,7 @@
     "predebug": "npm run predev",
     "debug": "node --inspect build/index.js -NO_HTTPS -PUBLISH_DIAGNOSTIC_DATA",
     "preprod": "npm run pull & npm run build",
-    "prod": "node build/index.js -PUBLISH_DIAGNOSTIC_DATA",
+    "prod": "nodemon --watch src --watch res --delay 10 build/index.js -PUBLISH_DIAGNOSTIC_DATA",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -33,6 +33,7 @@
     "bcrypt": "^3.0.6",
     "cookie-parser": "^1.4.4",
     "express": "^4.17.1",
+    "nodemon": "^1.19.4",
     "pug": "^2.0.4",
     "socket.io": "^2.2.0",
     "typescript": "^3.5.3",
