@@ -1,9 +1,5 @@
 import fs = require('fs');
 import uuid = require('uuid/v4');
-var game = require('./game');
-var server = require('./server');
-var player = require('./player');
-var auth = require('./auth');
 var version = require('./version');
 import { User } from './user';
 import { MoveAction } from './player';
@@ -46,12 +42,6 @@ var commands: any = {
             } else {
                 user.socket.emit('chat message', 'Please provide a description of the bug you\'ve encountered. usage: /bug <message or description>');
             }
-        },
-    },
-    'chargen': {
-        description: 'Used during character generation',
-        exec: function (user: User, tok) {
-            game.doCharGen(user.socket, tok);
         },
     },
     'admin': {
