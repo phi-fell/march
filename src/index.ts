@@ -30,6 +30,7 @@ import { getLoadedUserByName, loadUserByName, User, validateCredentialsByAuthTok
 import version = require('./version');
 import { CharacterRace } from './character/characterrace';
 import { CharacterTrait } from './character/charactertrait';
+import { executeCmd } from './terminal';
 
 const app = express();
 app.use(cookieParser());
@@ -83,6 +84,30 @@ app.get('/login', (req: any, res: any) => {
 
 app.get('/create', (req: any, res: any) => {
     res.sendFile(path.resolve(__dirname + '/../site/html/new.html'));
+});
+
+app.get('/terminal', (req: any, res: any, next: any) => {
+    if (validateAdminToken(req.cookies.admin_token)) {
+        res.sendFile(path.resolve(__dirname + '/../site/html/terminal.html'));
+    } else {
+        next();
+    }
+});
+app.get('/cmd', (req: any, res: any, next: any) => {
+    if (validateAdminToken(req.cookies.admin_token)) {
+        res.sendFile(path.resolve(__dirname + '/../site/html/terminal.html'));
+    } else {
+        next();
+    }
+});
+app.post('/terminal', (req: any, res: any, next: any) => {
+    if (validateAdminToken(req.cookies.admin_token)) {
+        res.send({
+            'result': executeCmd(req.body.cmd),
+        });
+    } else {
+        next();
+    }
 });
 
 function execute(command, callback) {
