@@ -51,7 +51,8 @@
         ],
         "interface-name": false,
         "no-static-this": true,
-        "no-unnecessary-else":true,
-        "conditional-expression-parens": true
+        "no-unnecessary-else": true,
+        "conditional-expression-parens": true,
+        "no-bitwise": false
     }
 }
