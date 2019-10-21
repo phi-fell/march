@@ -7,11 +7,11 @@
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "build": "tsc",
     "predev": "npm run lint && npm run build",
-    "dev": "nodemon --watch nodemon build/index.js -NO_HTTPS -PUBLISH_DIAGNOSTIC_DATA",
+    "dev": "node build/index.js -NO_HTTPS -PUBLISH_DIAGNOSTIC_DATA",
     "predebug": "npm run predev",
     "debug": "node --inspect build/index.js -NO_HTTPS -PUBLISH_DIAGNOSTIC_DATA",
     "preprod": "npm run build",
-    "prod": "nodemon --watch build --delay 2 build/index.js -PUBLISH_DIAGNOSTIC_DATA",
+    "prod": "nodemon --watch build --delay 1 build/index.js -PUBLISH_DIAGNOSTIC_DATA",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

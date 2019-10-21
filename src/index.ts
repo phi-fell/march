@@ -120,7 +120,7 @@ function executeSync(command) {
 
 app.get('/version', (req: any, res: any, next: any) => {
     if (validateAdminToken(req.cookies.admin_token)) {
-        executeSync('git checkout master');
+        executeSync('git pull && git checkout master');
         execute('git log', (output) => {
             const regex = /(?:commit )([a-z0-9]+)(?:[\n]*Author[^\n]*)(?:[\n]Date[^\n]*[\s]*)([^\n]*)/g;
             let match = regex.exec(output);
@@ -146,15 +146,14 @@ app.get('/version', (req: any, res: any, next: any) => {
 
 app.post('/version', (req: any, res: any, next: any) => {
     if (validateAdminToken(req.cookies.admin_token)) {
+        console.log('Restarting...');
         console.log('git checkout ' + req.body.hash);
         executeSync('git checkout ' + req.body.hash);
         console.log('npm run build');
         executeSync('npm run build');
-        console.log('Restarting...');
         res.send({
             'status': 'success',
         });
-        executeSync('touch nodemon/restart.js');
         process.exit();
     } else {
         next();
