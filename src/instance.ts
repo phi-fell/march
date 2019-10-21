@@ -63,8 +63,11 @@ export class Instance {
     public static generateNewInstanceID() {
         return Random.uuid();
     }
+    /*
+        DEPRECATED: this function is due for removal, moving to getInstanceFromSchema()
+    */
     public static generateRandomInstance() {
-        let attr: InstanceAttributes = new InstanceAttributes(4/* chosen by fair dice roll. guaranteed to be random */, 10, 10);
+        let attr: InstanceAttributes = new InstanceAttributes("4"/* chosen by fair dice roll. guaranteed to be random */, 10, 10);
         return new Instance(this.generateNewInstanceID(), attr);
     }
     public static loadInstance(id: string, callback) {
@@ -77,7 +80,7 @@ export class Instance {
                     return callback(err);
                 } else {
                     let instdat = JSON.parse('' + data);
-                    let ret = new Instance(id, new InstanceAttributes(0, 0, 0));
+                    let ret = new Instance(id, new InstanceAttributes(Random.uuid(), 0, 0));
                     ret.loadFromJSON(instdat);
                     Instance.instances[ret.id] = ret;
                     callback(null, ret);
@@ -86,7 +89,7 @@ export class Instance {
         }
     }
     public static spinUpNewInstance(attr: InstanceAttributes) {
-        let inst: Instance = new Instance(this.generateNewInstanceID(), attr);
+        const inst: Instance = new Instance(this.generateNewInstanceID(), attr);
         Instance.instances[inst.id] = inst;
         return inst;
     }
@@ -122,7 +125,7 @@ export class Instance {
             retMobs.push({
                 'name': mob.name,
                 'location': mob.location,
-                'sprite': mob.sprite,
+                'type': mob.schema_id,
                 'sheet': mob.charSheet.toJSON(), // TODO: limit what player can see
             });
         }
@@ -233,6 +236,31 @@ export class Instance {
             }
         }
         ent.location = new Location(x, y, this.id);
+        return true;
+    }
+    spawnEntityAnywhere(ent: Entity): boolean {
+        let posX: number;
+        let posY: number;
+        let validpos = false;
+        let attempts = 0;
+        do {
+            attempts++;
+            posX = Math.floor(Math.random() * this.attributes.width);
+            posY = Math.floor(Math.random() * this.attributes.height);
+            if (this.isTilePassable(posX, posY)) {
+                validpos = true;
+                for (const mob of this.mobs) {
+                    if (mob.location.x === posX && mob.location.y === posY) {
+                        validpos = false;
+                    }
+                }
+            }
+            if (attempts > 1000) {
+                console.log('Could not spawn mob after 1000 attempts!');
+                return false;
+            }
+        } while (!validpos);
+        ent.location = new Location(posX, posY, this.id);
         return true;
 
     }

@@ -16,23 +16,44 @@ class Game {
         this.boardInfo = undefined;
         this.player = undefined;
         this._palette = [];
-        this._sprites = [];
+        this._sprites = {};
         this._drawQueued = false;
         this._sheetdisplaymode = 'attributes';
         this._loadImages();
     }
 
-    _loadImages() {
-        let g = this;
-        const MAX_SPRITE_ID = 2;
-        for (let i = 0; i <= MAX_SPRITE_ID; i++) {
-            this._sprites[i] = new Image();
-            this._sprites[i].onload = function () {
-                //do nothing for now.
-            }
-            this._sprites[i].src = "tex/sprites/" + i + ".png";
+    _getSprite(id) {
+        if (this._sprites[id]) {
+            return this._sprites[id];
+        } else {
+            this._loadSprite(id);
+            return this._sprites['error'];
         }
     }
+
+    _loadSprite(id) {
+        this._sprites[id] = this._sprites['error'];
+        let g = this;
+        let img = new Image();
+        img.onload = function () {
+            g._sprites[id] = img;
+        }
+        img.src = "tex/sprites/" + id + ".png";
+
+    }
+
+    _loadImages() {
+        let g = this;
+        this._sprites['error'] = new Image();
+        this._sprites['error'].onload = function () {
+            //do nothing for now.
+        }
+        this._sprites['error'].onerror = function () {
+            console.log('default sprite could not be loaded!')
+        }
+        this._sprites['error'].src = "tex/sprites/error.png";
+    }
+
 
     loadPalette(palette) {
         let g = this;
@@ -222,15 +243,16 @@ class Game {
                 }
             }
             for (let i = 0; i < this.mobs.length; i++) {
-                let sprite = this.mobs[i].sprite;
+                let sprite = this.mobs[i].type;
                 let x = this.mobs[i].location.x - this.boardInfo.x;
                 let y = this.mobs[i].location.y - this.boardInfo.y;
-                if (sprite == -1) {
+                if (sprite === 'text') {
                     //this._drawSquare(((x - 1) * scale) + offsetX, ((y - 1) * scale) + offsetY, scale, scale);
                     this._ctx.fillText(this.mobs[i].name, ((x - 0.5) * scale) + offsetX, ((y - 0.5) * scale) + offsetY);
                 } else {
                     this._drawSprite(sprite, ((x - 1) * scale) + offsetX, ((y - 1) * scale) + offsetY, scale, scale);
-                    this._ctx.fillText(this.mobs[i].sheet.status.action_points + '/' + this.mobs[i].sheet.status.max_action_points + ' (+' + this.mobs[i].sheet.status.action_point_recovery + ')', ((x - 0.5) * scale) + offsetX, ((y - 0.5) * scale) + offsetY);
+                    //V displays action points on mobs
+                    //this._ctx.fillText(this.mobs[i].sheet.status.action_points + '/' + this.mobs[i].sheet.status.max_action_points + ' (+' + this.mobs[i].sheet.status.action_point_recovery + ')', ((x - 0.5) * scale) + offsetX, ((y - 0.5) * scale) + offsetY);
                 }
             }
         }
@@ -266,7 +288,7 @@ class Game {
     }
 
     _drawSprite(id, x, y, w, h) {
-        this._ctx.drawImage(this._sprites[id], x, y, w, h);
+        this._ctx.drawImage(this._getSprite(id), x, y, w, h);
     }
 
     _drawSquare(x, y, w, h) {

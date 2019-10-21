@@ -5,14 +5,6 @@ import { Random } from './math/random';
 
 export const MOVE_AP = 6;
 
-export enum SPRITE {
-    NAME = -1,
-    NONE = 0,
-    PLAYER,
-    SLIME,
-
-}
-
 export enum ACTION_STATUS {
     PERFORMED,
     WAITING,
@@ -26,7 +18,7 @@ export class Entity {
     public charSheet: CharacterSheet;
     protected _location: Location;
     private lastHitSheet: CharacterSheet | undefined;
-    constructor(public id: string, public name: string, public sprite: SPRITE = SPRITE.NONE, loc = new Location(0, 0, '')) {
+    constructor(public id: string, public name: string, public schema_id = '', loc = new Location(0, 0, '')) {
         this.charSheet = new CharacterSheet();
         this._location = new Location(0, 0, '');
         this.lastHitSheet = undefined;

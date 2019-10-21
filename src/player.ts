@@ -2,7 +2,7 @@ import fs = require('fs');
 
 import { CharacterSheet } from './character/charactersheet';
 import { CharGen, CharGenStage } from './chargen';
-import { ACTION_STATUS, Entity, SPRITE } from './entity';
+import { ACTION_STATUS, Entity } from './entity';
 import { Instance } from './instance';
 import { Location } from './location';
 import { Random } from './math/random';
@@ -99,7 +99,7 @@ export class Player extends Entity {
     chargen: CharGenStage;
     protected queuedAction: PlayerAction | null;
     constructor(id: string, name: string, loc: Location = new Location(0, 0, '')) {
-        super(id, name, SPRITE.PLAYER, loc);
+        super(id, name, 'player', loc);
         this.chargen = CharGenStage.Tutorial;
         this.user = null;
         this.queuedAction = null;

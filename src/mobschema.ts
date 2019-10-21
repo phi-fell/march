@@ -1,0 +1,40 @@
+import fs = require('fs');
+
+import { CharacterRaceID } from './character/characterrace';
+import { CharacterSheet } from './character/charactersheet';
+import { Entity } from './entity';
+
+interface MobSchema {
+    name: string;
+    race: CharacterRaceID;
+    attributes: any;
+    skills: any;
+}
+
+const mobSchemas: { [id: string]: MobSchema; } = {};
+
+export function getMobFromSchema(schema_id: string) {
+    const ret = new Entity(Entity.generateNewEntityID(), mobSchemas[schema_id].name, schema_id);
+    const sheet = CharacterSheet.validateAndCreateFromJSON(mobSchemas[schema_id]);
+    if (sheet) {
+        ret.charSheet = sheet;
+        return ret;
+    }
+    return null;
+}
+
+fs.readdir('res/entity', (err, filenames) => {
+    if (err) {
+        return console.log(err);
+    }
+    filenames.forEach((filename) => {
+        fs.readFile('res/entity/' + filename, 'utf-8', (err, content) => {
+            if (err) {
+                return console.log(err);
+            }
+            const name = filename.split('.')[0];
+            const props = JSON.parse(content);
+            mobSchemas[name] = props as MobSchema;
+        });
+    });
+});
