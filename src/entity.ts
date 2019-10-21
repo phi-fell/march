@@ -1,7 +1,7 @@
-import uuid = require('uuid/v4');
 import { CharacterSheet } from './character/charactersheet';
 import { Instance } from './instance';
 import { Location } from './location';
+import { Random } from './math/random';
 
 export const MOVE_AP = 6;
 
@@ -21,7 +21,7 @@ export enum ACTION_STATUS {
 
 export class Entity {
     public static generateNewEntityID() {
-        return uuid();
+        return Random.uuid();
     }
     public charSheet: CharacterSheet;
     protected _location: Location;

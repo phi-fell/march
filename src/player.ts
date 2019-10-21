@@ -1,10 +1,11 @@
 import fs = require('fs');
-import uuid = require('uuid/v4');
+
 import { CharacterSheet } from './character/charactersheet';
 import { CharGen, CharGenStage } from './chargen';
 import { ACTION_STATUS, Entity, SPRITE } from './entity';
 import { Instance } from './instance';
 import { Location } from './location';
+import { Random } from './math/random';
 import { generateName } from './namegen';
 import { User } from './user';
 
@@ -61,14 +62,14 @@ export class MoveAction implements PlayerAction {
 
 export class Player extends Entity {
     public static generateNewPlayerID() {
-        return uuid();
+        return Random.uuid();
     }
     public static accessPlayer(id) {
         return players[id];
     }
     public static createPlayer() {
-        var name = generateName();
-        var plr = new Player(this.generateNewPlayerID(), name);
+        let name = generateName();
+        let plr = new Player(this.generateNewPlayerID(), name);
         players[plr.id] = plr;
         CharGen.spawnPlayerInFreshInstance(plr);
         plr.saveToDisk();
@@ -80,12 +81,12 @@ export class Player extends Entity {
                 callback(null, players[id]);
             });
         } else {
-            fs.readFile("players/" + id + '.plr', (err, data) => {
+            fs.readFile('players/' + id + '.plr', (err, data) => {
                 if (err) {
                     return callback(err);
                 } else {
-                    var plrdat = JSON.parse('' + data);
-                    var ret = new Player(id, plrdat.name, Location.fromJSON(plrdat.location));
+                    let plrdat = JSON.parse('' + data);
+                    let ret = new Player(id, plrdat.name, Location.fromJSON(plrdat.location));
                     ret.loadFromData(plrdat);
                     players[ret.id] = ret;
                     callback(null, ret);
@@ -186,7 +187,7 @@ export class Player extends Entity {
         delete players[this.id];
     }
     public saveToDisk() {
-        var data = {
+        let data = {
             'name': this.name,
             'chargen': this.chargen,
             'location': this.location.toJSON(),

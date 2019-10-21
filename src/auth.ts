@@ -1,11 +1,12 @@
 import bcrypt = require('bcrypt');
 import fs = require('fs');
-import uuid = require('uuid/v4');
+import { Random } from './math/random';
+
 function generateNewUserPassword() {
-    return uuid();
+    return Random.uuid();
 }
 function generateFreshAuthToken() {
-    return uuid();
+    return Random.uuid();
 }
 function createUserAndGetPass(id: string) {
     const pass = generateNewUserPassword();

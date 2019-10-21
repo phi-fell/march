@@ -1,8 +1,9 @@
 import fs = require('fs');
-import uuid = require('uuid/v4');
+
 import { ACTION_STATUS, Entity } from './entity';
 import { INSTANCE_GEN_TYPE, InstanceGenerator } from './instancegenerator';
 import { Location } from './location';
+import { Random } from './math/random';
 import { Player } from './player';
 import { getTileProps, NO_TILE, Tile } from './tile';
 
@@ -10,12 +11,12 @@ const MAX_INACTIVE_TIME = 1000 * 60 * 10; // 10 minutes (as milliseconds)
 
 export class InstanceAttributes {
     public genType: INSTANCE_GEN_TYPE = INSTANCE_GEN_TYPE.EMPTY;
-    constructor(public seed: number/*TODO: string?*/,
+    constructor(
+        public seed: string = Random.uuid(),
         public width: number,
         public height: number,
         public personal: boolean = false,
-    ) {
-    }
+    ) { }
     clone() {
         return new InstanceAttributes(this.seed, this.width, this.height, this.personal);
     }
@@ -60,23 +61,23 @@ export class Instance {
         return Instance.instances[id] || null;
     }
     public static generateNewInstanceID() {
-        return uuid();
+        return Random.uuid();
     }
     public static generateRandomInstance() {
-        var attr: InstanceAttributes = new InstanceAttributes(4/* chosen by fair dice roll. guaranteed to be random */, 10, 10);
+        let attr: InstanceAttributes = new InstanceAttributes(4/* chosen by fair dice roll. guaranteed to be random */, 10, 10);
         return new Instance(this.generateNewInstanceID(), attr);
     }
     public static loadInstance(id: string, callback) {
-        var loaded = Instance.getLoadedInstanceById(id);
+        let loaded = Instance.getLoadedInstanceById(id);
         if (loaded) {
             return callback(null, loaded);
         } else {
-            fs.readFile("world/" + id + '.inst', function (err, data) {
+            fs.readFile('world/' + id + '.inst', function (err, data) {
                 if (err) {
                     return callback(err);
                 } else {
-                    var instdat = JSON.parse('' + data);
-                    var ret = new Instance(id, new InstanceAttributes(0, 0, 0));
+                    let instdat = JSON.parse('' + data);
+                    let ret = new Instance(id, new InstanceAttributes(0, 0, 0));
                     ret.loadFromJSON(instdat);
                     Instance.instances[ret.id] = ret;
                     callback(null, ret);
@@ -85,7 +86,7 @@ export class Instance {
         }
     }
     public static spinUpNewInstance(attr: InstanceAttributes) {
-        var inst: Instance = new Instance(this.generateNewInstanceID(), attr);
+        let inst: Instance = new Instance(this.generateNewInstanceID(), attr);
         Instance.instances[inst.id] = inst;
         return inst;
     }
@@ -149,9 +150,9 @@ export class Instance {
         this.waitingForAsyncMove = null;
         this.lastActiveTime = Date.now();
         this.players = [];
-        for (var i = 0; i < attributes.width; i++) {
+        for (let i = 0; i < attributes.width; i++) {
             this.tiles[i] = [];
-            for (var j = 0; j < attributes.height; j++) {
+            for (let j = 0; j < attributes.height; j++) {
                 this.tiles[i][j] = NO_TILE;
             }
         }
@@ -161,7 +162,7 @@ export class Instance {
         return MAX_INACTIVE_TIME - (Date.now() - this.lastActiveTime);
     }
     addPlayer(player: Player) {
-        for (var i = 0; i < this.players.length; i++) {
+        for (let i = 0; i < this.players.length; i++) {
             if (this.players[i].id === player.id) {
                 return console.log('ERROR! duplicate player ID!'); // no duplicate entries
             }
@@ -171,7 +172,7 @@ export class Instance {
     }
     removePlayer(player: Player) {
         this.removeMob(player);
-        for (var i = 0; i < this.players.length; i++) {
+        for (let i = 0; i < this.players.length; i++) {
             if (this.players[i].id === player.id) {
                 this.players.splice(i, 1);
                 if (this.waitingForAsyncMove === player.id) {
@@ -239,11 +240,11 @@ export class Instance {
         delete Instance.instances[this.id];
     }
     saveToDisk() {
-        var playerids: string[] = [];
-        for (var plr of this.players) {
+        let playerids: string[] = [];
+        for (let plr of this.players) {
             playerids.push(plr.id);
         }
-        var data = {
+        let data = {
             'attributes': this.attributes.getJSON(),
             'players': playerids,
         }

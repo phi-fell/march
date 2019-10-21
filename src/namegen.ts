@@ -1,12 +1,12 @@
-var fs = require('fs');
+let fs = require('fs');
 
-var probs = {};
+let probs = {};
 
 function randomChar(char) {
-    var rand = Math.random();
-    var sum = 0;
-    for (var i = 0; i < 26; i++) {
-        var letter = String.fromCharCode(97 + i);
+    let rand = Math.random();
+    let sum = 0;
+    for (let i = 0; i < 26; i++) {
+        let letter = String.fromCharCode(97 + i);
         sum += probs[char][letter];
         if (rand < sum) {
             return letter;
@@ -16,16 +16,16 @@ function randomChar(char) {
 };
 
 function normalizeProbs() {
-    for (var i = -1; i < 26; i++) {
-        var letter1 = '';
+    for (let i = -1; i < 26; i++) {
+        let letter1 = '';
         if (i == -1) {
             letter1 = 'start';
         } else {
             letter1 = String.fromCharCode(97 + i);
         }
-        var sum = 0.0;
-        for (var j = 0; j < 27; j++) {
-            var letter2 = '';
+        let sum = 0.0;
+        for (let j = 0; j < 27; j++) {
+            let letter2 = '';
             if (j == 26) {
                 letter2 = 'end';
             } else {
@@ -33,8 +33,8 @@ function normalizeProbs() {
             }
             sum += probs[letter1][letter2];
         }
-        for (var j = 0; j < 27; j++) {
-            var letter2 = '';
+        for (let j = 0; j < 27; j++) {
+            let letter2 = '';
             if (j == 26) {
                 letter2 = 'end';
             } else {
@@ -47,15 +47,15 @@ function normalizeProbs() {
 }
 
 function generateProbabilities() {
-    var names = ('' + fs.readFileSync("res/" + 'words.txt')).toLowerCase().split('\n');
+    let names = ('' + fs.readFileSync('res/' + 'words.txt')).toLowerCase().split('\n');
     console.log('names loaded');
     probs['start'] = {};
-    for (var i = 0; i < 26; i++) {
-        var letter1 = String.fromCharCode(97 + i);
+    for (let i = 0; i < 26; i++) {
+        let letter1 = String.fromCharCode(97 + i);
         probs['start'][letter1] = 0;
         probs[letter1] = {};
-        for (var j = 0; j < 26; j++) {
-            var letter2 = String.fromCharCode(97 + j);
+        for (let j = 0; j < 26; j++) {
+            let letter2 = String.fromCharCode(97 + j);
             probs[letter1][letter2] = 0;
         }
         probs[letter1]['end'] = 0;
@@ -63,9 +63,9 @@ function generateProbabilities() {
     probs['start']['end'] = 0;
     console.log('probs setup');
     for (const n of names) {
-        var name = n.trim();
+        let name = n.trim();
         probs['start'][name.charAt(0)]++;
-        for (var i = 0; i < name.length; i++) {
+        for (let i = 0; i < name.length; i++) {
             if (i + 1 == name.length) {
                 probs[name.charAt(i)]['end']++;
             } else {
@@ -81,10 +81,10 @@ function generateProbabilities() {
 generateProbabilities();
 
 export function generateName() {
-    var name = "";
+    let name = '';
     while (name.length < 4 || name.length > 12) {
-        name = "";
-        var next = randomChar('start');
+        name = '';
+        let next = randomChar('start');
         while (next != 'end') {
             name += next;
             next = randomChar(next);

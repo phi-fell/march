@@ -206,10 +206,10 @@ export class CharacterSheet {
                 this._hasPool[RESOURCE[type]] = true;
             }
         }
-        if (this._race.traits.includes("bloodless")){
+        if (this._race.traits.includes('bloodless')) {
             this._hasPool[RESOURCE.BLOOD] = false;
         }
-        if (this._race.traits.includes("boneless")){
+        if (this._race.traits.includes('boneless')) {
             this._hasPool[RESOURCE.BONE] = false;
         }
         this._cachedAttributes = this._race.getNetAttributes().getSumWith(this._allocatedAttributes);

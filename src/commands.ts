@@ -1,18 +1,19 @@
 import fs = require('fs');
-import uuid = require('uuid/v4');
-var version = require('./version');
-import { User } from './user';
-import { MoveAction } from './player';
-import { Instance } from './instance';
 
-var getHelp = function (socket) {
-    socket.emit('chat message', 'GotG V' + version.version + ' Launch_ID[' + version.launch_id + ']');
+import { Instance } from './instance';
+import { Random } from './math/random';
+import { MoveAction } from './player';
+import { User } from './user';
+import { launch_id, version } from './version';
+
+function getHelp(socket) {
+    socket.emit('chat message', 'GotG V' + version + ' Launch_ID[' + launch_id + ']');
     Object.keys(commands).forEach(cmd => {
         socket.emit('chat message', '/' + cmd + ': ' + commands[cmd].description);
     });
 }
 function reportBug(socket, description) {
-    fs.writeFile('bugs/' + uuid() + '.bug', description, function (err) {
+    fs.writeFile('bugs/' + Random.uuid() + '.bug', description, function (err) {
         if (err) {
             console.log('Error in writing reported bug!!!');
             console.log('BUG: ' + description);
@@ -20,7 +21,7 @@ function reportBug(socket, description) {
     });
 }
 
-var commands: any = {
+const commands: any = {
     '?': {
         description: 'display help dialog',
         exec: function (user: User, tok) {
@@ -85,11 +86,11 @@ var commands: any = {
         description: 'Change player\'s name',
         exec: function (user: User, tok) {
             if (user.player) {
-                var newName: string = tok.join(' ');
+                const newName: string = tok.join(' ');
                 if (newName.length > 16) {
                     user.socket.emit('chat message', 'That name is too long.');
                 } else {
-                    var oldName = user.player.name;
+                    const oldName = user.player.name;
                     user.player.name = tok.join(' ');
                     user.socket.broadcast.emit('chat message', oldName + " has changed their name to " + user.player.name);
                     user.socket.emit('chat message', "you have changed your name to " + user.player.name);

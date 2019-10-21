@@ -1,12 +1,13 @@
 import fs = require('fs');
-var uuid = require('uuid/v4');
-var auth = require('./auth');
-var commands = require('./commands');
-import { Player, WaitAction, MoveAction, UnwaitAction } from './player';
+
 import { ATTRIBUTE } from './character/characterattributes';
+import { Random } from './math/random';
+import { MoveAction, Player, UnwaitAction, WaitAction } from './player';
 import { getTilePalette } from './tile';
 
-var users = {};
+let auth = require('./auth');
+let commands = require('./commands');
+let users = {};
 
 export class User {
     id: string;
@@ -42,7 +43,7 @@ export class User {
         if (this.player) {
             this.player.setActive(this);
         }
-        var user = this;
+        let user = this;
         console.log(sock.handshake.address + ' logged in as ' + this.name);
         sock.on('disconnect', () => {
             user.logout();
@@ -142,7 +143,7 @@ export class User {
         this.name = data.name;
         if (data.playerid) {
             this.playerid = data.playerid;
-            var user: User = this;
+            let user: User = this;
             Player.loadPlayer(this.playerid, (err, plr) => {
                 if (err) {
                     console.log(err);
@@ -166,7 +167,7 @@ export class User {
         }
     }
     saveToDisk() {
-        var data = {
+        let data = {
             'id': this.id,
             'name': this.name,
             'playerid': this.playerid,
@@ -202,10 +203,10 @@ module.exports.deleteUser = (id) => {
 }
 
 function generateUserID() {
-    var id = uuid();//assumed to never repeat TODO: ? ensure this somehow?
+    let id = Random.uuid();//assumed to never repeat TODO: ? ensure this somehow?
     /*
     while (getUser(id)) {
-        id = uuid();
+        id = Random.uuid();
     }
     */
     return id;
