@@ -116,6 +116,7 @@ function execute(command, callback) {
 
 function execDetached(command) {
     childProcess.spawn(command, [], {
+        'shell': true,
         'detached': true,
         'stdio': 'ignore',
     });
