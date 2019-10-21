@@ -63,13 +63,6 @@ export class Instance {
     public static generateNewInstanceID() {
         return Random.uuid();
     }
-    /*
-        DEPRECATED: this function is due for removal, moving to getInstanceFromSchema()
-    */
-    public static generateRandomInstance() {
-        let attr: InstanceAttributes = new InstanceAttributes("4"/* chosen by fair dice roll. guaranteed to be random */, 10, 10);
-        return new Instance(this.generateNewInstanceID(), attr);
-    }
     public static loadInstance(id: string, callback) {
         let loaded = Instance.getLoadedInstanceById(id);
         if (loaded) {
