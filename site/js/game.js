@@ -37,6 +37,7 @@ class Game {
         let img = new Image();
         img.onload = function () {
             g._sprites[id] = img;
+            g.draw();
         }
         img.src = "tex/sprites/" + id + ".png";
 
