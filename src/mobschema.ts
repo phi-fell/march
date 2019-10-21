@@ -23,14 +23,14 @@ export function getMobFromSchema(schema_id: string) {
     return null;
 }
 
-fs.readdir('res/entity', (err, filenames) => {
-    if (err) {
-        return console.log(err);
+fs.readdir('res/entity', (dir_err, filenames) => {
+    if (dir_err) {
+        return console.log(dir_err);
     }
     filenames.forEach((filename) => {
-        fs.readFile('res/entity/' + filename, 'utf-8', (err, content) => {
-            if (err) {
-                return console.log(err);
+        fs.readFile('res/entity/' + filename, 'utf-8', (file_err, content) => {
+            if (file_err) {
+                return console.log(file_err);
             }
             const name = filename.split('.')[0];
             const props = JSON.parse(content);

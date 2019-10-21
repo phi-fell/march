@@ -68,8 +68,8 @@ export class Player extends Entity {
         return players[id];
     }
     public static createPlayer() {
-        let name = generateName();
-        let plr = new Player(this.generateNewPlayerID(), name);
+        const name = generateName();
+        const plr = new Player(Player.generateNewPlayerID(), name);
         players[plr.id] = plr;
         CharGen.spawnPlayerInFreshInstance(plr);
         plr.saveToDisk();
@@ -80,23 +80,21 @@ export class Player extends Entity {
             return process.nextTick(() => {
                 callback(null, players[id]);
             });
-        } else {
-            fs.readFile('players/' + id + '.plr', (err, data) => {
-                if (err) {
-                    return callback(err);
-                } else {
-                    let plrdat = JSON.parse('' + data);
-                    let ret = new Player(id, plrdat.name, Location.fromJSON(plrdat.location));
-                    ret.loadFromData(plrdat);
-                    players[ret.id] = ret;
-                    callback(null, ret);
-                }
-            });
         }
+        fs.readFile('players/' + id + '.plr', (err, data) => {
+            if (err) {
+                return callback(err);
+            }
+            const plrdat = JSON.parse('' + data);
+            const ret = new Player(id, plrdat.name, Location.fromJSON(plrdat.location));
+            ret.loadFromData(plrdat);
+            players[ret.id] = ret;
+            callback(null, ret);
+        });
     }
-    user: User | null;
-    active: boolean;
-    chargen: CharGenStage;
+    public user: User | null;
+    public active: boolean;
+    public chargen: CharGenStage;
     protected queuedAction: PlayerAction | null;
     constructor(id: string, name: string, loc: Location = new Location(0, 0, '')) {
         super(id, name, 'player', loc);
@@ -105,7 +103,7 @@ export class Player extends Entity {
         this.queuedAction = null;
         this.active = false;
     }
-    get location(): Location {//Since we override set, we must override get
+    get location(): Location { // Since we override set, we must override get
         return this._location;
     }
     set location(loc: Location) {
@@ -158,9 +156,8 @@ export class Player extends Entity {
                     break;
             }
             return ACTION_STATUS.PERFORMED;
-        } else {
-            return ACTION_STATUS.ASYNC; // needs to decide
         }
+        return ACTION_STATUS.ASYNC; // needs to decide
     }
     public setActive(usr: User) {
         if (this.active) {
@@ -187,12 +184,12 @@ export class Player extends Entity {
         delete players[this.id];
     }
     public saveToDisk() {
-        let data = {
+        const data = {
             'name': this.name,
             'chargen': this.chargen,
             'location': this.location.toJSON(),
             'sheet': this.charSheet.toJSON(),
-        }
+        };
         fs.writeFile('players/' + this.id + '.plr', JSON.stringify(data), (err) => {
             if (err) {
                 console.log(err);
@@ -205,7 +202,7 @@ export class Player extends Entity {
         // TODO: if player doesn't have location or if it's invalid, or depending on type of instance, or if it no longer exists...
         // ^ cont. then spawn in a new random location?
         if (this.chargen === CharGenStage.Done) {
-            //Instance.spawnEntityInLocation(this, data.location);
+            // Instance.spawnEntityInLocation(this, data.location);
             CharGen.spawnPlayerInFreshInstance(this);
             // TODO: TEMP ^
         } else {
@@ -234,7 +231,7 @@ export class Player extends Entity {
             'name': this.name,
             'sheet': this.charSheet.toJSON(),
             'location': this.location.toJSON(),
-            'action': this.queuedAction ? this.queuedAction.toJSON() : { 'type': 'NONE' },
+            'action': (this.queuedAction) ? this.queuedAction.toJSON() : { 'type': 'NONE' },
         };
     }
     protected move(to: Location) {

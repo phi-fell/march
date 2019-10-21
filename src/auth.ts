@@ -1,18 +1,22 @@
 import bcrypt = require('bcrypt');
 import fs = require('fs');
+
 import { Random } from './math/random';
 
 function generateNewUserPassword() {
     return Random.uuid();
 }
+
 function generateFreshAuthToken() {
     return Random.uuid();
 }
-function createUserAndGetPass(id: string) {
+
+export function createUserAndGetPass(id: string) {
     const pass = generateNewUserPassword();
     setUserPass(id, pass);
     return pass;
 }
+
 function setUserPasswordHash(id: string, hash: string) {
     fs.writeFile('users/' + id + '.hash', hash, (err: any) => {
         if (err) {
@@ -20,7 +24,8 @@ function setUserPasswordHash(id: string, hash: string) {
         }
     });
 }
-function setUserPass(id: string, pass: string) {
+
+export function setUserPass(id: string, pass: string) {
     bcrypt.hash(pass, 10, (err: any, hash: any) => {
         if (err) {
             console.log(err);
@@ -29,8 +34,9 @@ function setUserPass(id: string, pass: string) {
         }
     });
 }
-function setUserIdByName(id: string, name: string, callback: any) {
-    fs.writeFile('users/' + name.toLowerCase() + '.id', id + '\n' + name, function (err: any) {
+
+export function setUserIdByName(id: string, name: string, callback?: any) {
+    fs.writeFile('users/' + name.toLowerCase() + '.id', id + '\n' + name, (err: any) => {
         if (err) {
             console.log(err);
             if (callback) {
@@ -43,7 +49,8 @@ function setUserIdByName(id: string, name: string, callback: any) {
         }
     });
 }
-function getUserIdFromName(name: string, callback: any) {
+
+export function getUserIdFromName(name: string, callback: any) {
     fs.readFile('users/' + name.toLowerCase() + '.id', function (err: any, data: any) {
         if (err) {
             return callback(err);
@@ -57,7 +64,8 @@ function getUserIdFromName(name: string, callback: any) {
         }
     });
 }
-function getIfUsernameExists(name: string, callback: any) {
+
+export function getIfUsernameExists(name: string, callback: any) {
     fs.readFile('users/' + name.toLowerCase() + '.id', function (err: any, data: any) {
         if (err) {
             return callback(null, false);
@@ -73,13 +81,8 @@ function getIfUsernameExists(name: string, callback: any) {
         }
     });
 }
-module.exports = {
-    'createUserAndGetPass': createUserAndGetPass,
-    'getUserIdFromName': getUserIdFromName,
-    'setUserPass': setUserPass,
-};
-module.exports.getIfUsernameExists = getIfUsernameExists;
-module.exports.generateAndGetFreshAuthTokenForId = function (id: string, callback: any) {
+
+export function generateAndGetFreshAuthTokenForId(id: string, callback: any) {
     const token = generateFreshAuthToken();
     bcrypt.hash(token, 10, function (err: any, hash: any) {
         if (err) {
@@ -98,7 +101,8 @@ module.exports.generateAndGetFreshAuthTokenForId = function (id: string, callbac
         }
     });
 }
-module.exports.validateUserByIdAndPass = function (id: string, pass: string, callback: any) {
+
+export function validateUserByIdAndPass(id: string, pass: string, callback: any) {
     fs.readFile('users/' + id + '.hash', function (err: any, data: any) {
         if (err) {
             return callback(err);
@@ -115,7 +119,8 @@ module.exports.validateUserByIdAndPass = function (id: string, pass: string, cal
         }
     });
 }
-module.exports.validateUserByIdAndAuthToken = function (id: string, token: string, callback: any) {
+
+export function validateUserByIdAndAuthToken(id: string, token: string, callback: any) {
     fs.readFile('users/' + id + '.auth', (err: any, data: any) => {
         if (err) {
             return callback(err, false);
@@ -137,4 +142,3 @@ module.exports.validateUserByIdAndAuthToken = function (id: string, token: strin
         });
     });
 }
-module.exports.setUserIdByName = setUserIdByName;

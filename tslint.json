@@ -36,7 +36,6 @@
         ],
         "comment-format": [
             true,
-            "check-lowercase",
             "check-space",
             {
                 "ignore-pattern": "TODO:"

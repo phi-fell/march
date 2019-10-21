@@ -13,7 +13,7 @@ function getHelp(socket) {
     });
 }
 function reportBug(socket, description) {
-    fs.writeFile('bugs/' + Random.uuid() + '.bug', description, function (err) {
+    fs.writeFile('bugs/' + Random.uuid() + '.bug', description, (err) => {
         if (err) {
             console.log('Error in writing reported bug!!!');
             console.log('BUG: ' + description);
@@ -144,13 +144,13 @@ const commands: any = {
                 user.socket.emit('chat message', "Error: You somehow don't have a player, this is likely a bug.");
             }
         },
-    }
-}
-function execute(user: User, cmd, tok) {
+    },
+};
+
+export function execute(user: User, cmd, tok) {
     if (commands[cmd]) {
         commands[cmd].exec(user, tok);
     } else {
         user.socket.emit('chat message', 'command not recognized: /' + cmd + ' try /help or /?');
     }
 }
-module.exports.execute = execute;
