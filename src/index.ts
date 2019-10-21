@@ -142,13 +142,21 @@ app.get('/version', (req: any, res: any, next: any) => {
 app.post('/version', (req: any, res: any, next: any) => {
     if (validateAdminToken(req.cookies.admin_token)) {
         console.log('git checkout ' + req.body.hash);
-        execute('git checkout ' + req.body.hash, (output) => { console.log(output); });
-        execute('npm run build', (output) => { console.log(output); });
-        execute('git checkout master', (output) => { /* ignore */ });
-        res.send({
-            'status': 'success',
+        execute('git checkout ' + req.body.hash, (ch_output) => {
+            console.log(ch_output);
+            console.log('npm run build');
+            execute('npm run build', (b_output) => {
+                console.log(b_output);
+                console.log('git checkout master');
+                execute('git checkout master', (cm_output) => {
+                    console.log(cm_output);
+                    res.send({
+                        'status': 'success',
+                    });
+                    execute('touch nodemon/restart.js', (output) => { /* ignore */ });
+                });
+            });
         });
-        execute('touch nodemon/restart.js', (output) => { /* ignore */ });
     } else {
         next();
     }
