@@ -1,0 +1,9 @@
+{
+    "name": "Common Slime",
+    "race": "slime",
+    "attributes": {
+        "VITALITY": 9,
+        "SPEED": 4
+    },
+    "skills": {}
+}

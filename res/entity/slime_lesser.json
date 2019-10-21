@@ -1,0 +1,8 @@
+{
+    "name": "Lesser Slime",
+    "race": "slime",
+    "attributes": {
+        "VITALITY": 4
+    },
+    "skills": {}
+}

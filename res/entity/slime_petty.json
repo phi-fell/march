@@ -1,5 +1,6 @@
 {
     "name": "Petty Slime",
     "race": "slime",
-    "attributes": {}
+    "attributes": {},
+    "skills": {}
 }

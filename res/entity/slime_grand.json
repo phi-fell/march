@@ -1,0 +1,9 @@
+{
+    "name": "Grand Slime",
+    "race": "slime",
+    "attributes": {
+        "VITALITY": 19,
+        "SPEED": 14
+    },
+    "skills": {}
+}

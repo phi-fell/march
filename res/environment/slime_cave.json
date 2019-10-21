@@ -1,5 +1,22 @@
 {
-    "adjacencies": [],
-    "mobs":[],
-    "generation":""
+    "name": "Slime Cave",
+    "generation": "BASIC_DUNGEON",
+    "width": 100,
+    "height": 100,
+    "mobs": [
+        {
+            "id": "slime_petty",
+            "count": 100
+        },
+        {
+            "id": "slime_lesser",
+            "count": 10
+        }
+    ],
+    "adjacencies": [
+        {
+            "id": "slime_cave",
+            "weight": 1
+        }
+    ]
 }
