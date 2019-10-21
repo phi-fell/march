@@ -114,6 +114,13 @@ function execute(command, callback) {
     childProcess.exec(command, (error, stdout, stderr) => { callback(stdout); });
 }
 
+function execDetached(command) {
+    childProcess.spawn(command, [], {
+        'detached': true,
+        'stdio': ['ignore'],
+    });
+}
+
 app.get('/version', (req: any, res: any, next: any) => {
     if (validateAdminToken(req.cookies.admin_token)) {
         execute('git log', (output) => {
@@ -148,13 +155,12 @@ app.post('/version', (req: any, res: any, next: any) => {
             execute('npm run build', (b_output) => {
                 console.log(b_output);
                 console.log('git checkout master');
-                execute('git checkout master', (cm_output) => {
-                    console.log(cm_output);
-                    res.send({
-                        'status': 'success',
-                    });
-                    execute('touch nodemon/restart.js', (output) => { /* ignore */ });
+                execDetached('sleep 5 && git checkout master');
+                console.log('Restarting...');
+                res.send({
+                    'status': 'success',
                 });
+                execute('touch nodemon/restart.js', (output) => { /* ignore */ });
             });
         });
     } else {
