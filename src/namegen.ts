@@ -48,7 +48,6 @@ function normalizeProbs() {
 
 function generateProbabilities() {
     const names = ('' + readFileSync('res/' + 'words.txt')).toLowerCase().split('\n');
-    console.log('names loaded');
     probs.start = {};
     for (let i = 0; i < 26; i++) {
         const letter1 = String.fromCharCode(97 + i);
@@ -61,7 +60,6 @@ function generateProbabilities() {
         probs[letter1].end = 0;
     }
     probs.start.end = 0;
-    console.log('probs setup');
     for (const n of names) {
         const name = n.trim();
         probs.start[name.charAt(0)]++;
@@ -73,9 +71,7 @@ function generateProbabilities() {
             }
         }
     }
-    console.log('names processed');
     normalizeProbs();
-    console.log('probs normalized');
 }
 
 generateProbabilities();
