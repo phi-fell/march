@@ -114,16 +114,13 @@ function execute(command, callback) {
     childProcess.exec(command, (error, stdout, stderr) => { callback(stdout); });
 }
 
-function execDetached(command) {
-    childProcess.spawn(command, [], {
-        'shell': true,
-        'detached': true,
-        'stdio': 'ignore',
-    }).unref();
+function executeSync(command) {
+    childProcess.execSync(command);
 }
 
 app.get('/version', (req: any, res: any, next: any) => {
     if (validateAdminToken(req.cookies.admin_token)) {
+        executeSync('git checkout master');
         execute('git log', (output) => {
             const regex = /(?:commit )([a-z0-9]+)(?:[\n]*Author[^\n]*)(?:[\n]Date[^\n]*[\s]*)([^\n]*)/g;
             let match = regex.exec(output);
@@ -155,8 +152,6 @@ app.post('/version', (req: any, res: any, next: any) => {
             console.log('npm run build');
             execute('npm run build', (b_output) => {
                 console.log(b_output);
-                console.log('git checkout master');
-                execDetached('sleep 5 && git checkout master');
                 console.log('Restarting...');
                 res.send({
                     'status': 'success',
