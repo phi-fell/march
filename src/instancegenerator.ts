@@ -60,15 +60,15 @@ export class InstanceGenerator {
     static runGeneration(inst: Instance) {
         switch (inst.attributes.genType) {
             case INSTANCE_GEN_TYPE.EMPTY:
-                for (var i = 0; i < inst.attributes.width; i++) {
-                    for (var j = 0; j < inst.attributes.height; j++) {
+                for (let i = 0; i < inst.attributes.width; i++) {
+                    for (let j = 0; j < inst.attributes.height; j++) {
                         inst.tiles[i][j] = getTileFromName('stone_floor');
                     }
                 }
                 break;
             case INSTANCE_GEN_TYPE.ONE_ROOM:
-                for (var i = 0; i < inst.attributes.width; i++) {
-                    for (var j = 0; j < inst.attributes.height; j++) {
+                for (let i = 0; i < inst.attributes.width; i++) {
+                    for (let j = 0; j < inst.attributes.height; j++) {
                         if (i === 0 || j === 0 || i === inst.attributes.width - 1 || j === inst.attributes.height - 1) {
                             inst.tiles[i][j] = getTileFromName('stone_wall');
                         } else {
@@ -78,8 +78,8 @@ export class InstanceGenerator {
                 }
                 break;
             case INSTANCE_GEN_TYPE.MAZE:
-                for (var i = 0; i < inst.attributes.width; i++) {
-                    for (var j = 0; j < inst.attributes.height; j++) {
+                for (let i = 0; i < inst.attributes.width; i++) {
+                    for (let j = 0; j < inst.attributes.height; j++) {
                         inst.tiles[i][j] = getTileFromName('stone_wall');
                     }
                 }
