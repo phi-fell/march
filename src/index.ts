@@ -141,7 +141,6 @@ app.get('/version', (req: any, res: any, next: any) => {
 
 app.post('/version', (req: any, res: any, next: any) => {
     if (validateAdminToken(req.cookies.admin_token)) {
-        console.log(req.body);
         execute('git checkout ' + req.body.hash, (output) => { console.log(output); });
         execute('npm run build', (output) => { console.log(output); });
         res.send({
