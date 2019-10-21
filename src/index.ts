@@ -148,10 +148,8 @@ app.post('/version', (req: any, res: any, next: any) => {
     if (validateAdminToken(req.cookies.admin_token)) {
         console.log('git checkout ' + req.body.hash);
         executeSync('git checkout ' + req.body.hash);
-        console.log(ch_output);
         console.log('npm run build');
         executeSync('npm run build');
-        console.log(b_output);
         console.log('Restarting...');
         res.send({
             'status': 'success',
