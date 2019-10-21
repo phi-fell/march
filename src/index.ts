@@ -119,7 +119,7 @@ function execDetached(command) {
         'shell': true,
         'detached': true,
         'stdio': 'ignore',
-    });
+    }).unref();
 }
 
 app.get('/version', (req: any, res: any, next: any) => {
