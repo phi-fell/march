@@ -148,6 +148,7 @@ app.post('/version', (req: any, res: any, next: any) => {
         res.send({
             'status': 'success',
         });
+        process.exit();
     } else {
         next();
     }
