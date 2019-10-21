@@ -19,7 +19,7 @@ import { Player } from './player';
 import { Server } from './server';
 import { executeCmd } from './terminal';
 import { getLoadedUserByName, loadUserByName, User, validateCredentialsByAuthToken } from './user';
-import version = require('./version');
+import { launch_id, version } from './version';
 
 let USE_HTTPS = true;
 let PUBLISH_DIAGNOSTIC_DATA = false;
@@ -131,7 +131,20 @@ app.get('/version', (req: any, res: any, next: any) => {
             }
             res.send(pug.renderFile(path.resolve(__dirname + '/../site/pug/version.pug'), {
                 'versions': versions,
+                'current': version,
             }));
+        });
+    } else {
+        next();
+    }
+});
+
+app.post('/version', (req: any, res: any, next: any) => {
+    if (validateAdminToken(req.cookies.admin_token)) {
+        execute('git checkout ' + req.body.hash, (output) => { /* ignore */ });
+        execute('npm run build', (output) => { /* ignore */ });
+        res.send({
+            'status': 'success',
         });
     } else {
         next();
@@ -302,12 +315,12 @@ Server.updateLoop();
 
 if (USE_HTTPS) {
     https_server.listen(443, () => {
-        console.log('GotG V' + version.version + ' Launch_ID[' + version.launch_id + ']');
+        console.log('GotG V' + version + ' Launch_ID[' + launch_id + ']');
         console.log('listening on *:443');
     });
 } else {
     http_server.listen(80, () => {
-        console.log('GotG V' + version.version + ' Launch_ID[' + version.launch_id + ']');
+        console.log('GotG V' + version + ' Launch_ID[' + launch_id + ']');
         console.log('listening on *:80');
     });
 }
