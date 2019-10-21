@@ -141,8 +141,9 @@ app.get('/version', (req: any, res: any, next: any) => {
 
 app.post('/version', (req: any, res: any, next: any) => {
     if (validateAdminToken(req.cookies.admin_token)) {
-        execute('git checkout ' + req.body.hash, (output) => { /* ignore */ });
-        execute('npm run build', (output) => { /* ignore */ });
+        console.log(req.body);
+        execute('git checkout ' + req.body.hash, (output) => { console.log(output); });
+        execute('npm run build', (output) => { console.log(output); });
         res.send({
             'status': 'success',
         });
