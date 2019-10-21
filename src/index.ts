@@ -120,7 +120,7 @@ function executeSync(command) {
 
 app.get('/version', (req: any, res: any, next: any) => {
     if (validateAdminToken(req.cookies.admin_token)) {
-        executeSync('git pull && git checkout master');
+        executeSync('git checkout master && git pull');
         execute('git log', (output) => {
             const regex = /(?:commit )([a-z0-9]+)(?:[\n]*Author[^\n]*)(?:[\n]Date[^\n]*[\s]*)([^\n]*)/g;
             let match = regex.exec(output);
