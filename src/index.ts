@@ -147,18 +147,17 @@ app.get('/version', (req: any, res: any, next: any) => {
 app.post('/version', (req: any, res: any, next: any) => {
     if (validateAdminToken(req.cookies.admin_token)) {
         console.log('git checkout ' + req.body.hash);
-        execute('git checkout ' + req.body.hash, (ch_output) => {
-            console.log(ch_output);
-            console.log('npm run build');
-            execute('npm run build', (b_output) => {
-                console.log(b_output);
-                console.log('Restarting...');
-                res.send({
-                    'status': 'success',
-                });
-                execute('touch nodemon/restart.js', (output) => { /* ignore */ });
-            });
+        executeSync('git checkout ' + req.body.hash);
+        console.log(ch_output);
+        console.log('npm run build');
+        executeSync('npm run build');
+        console.log(b_output);
+        console.log('Restarting...');
+        res.send({
+            'status': 'success',
         });
+        executeSync('touch nodemon/restart.js');
+        process.exit();
     } else {
         next();
     }
