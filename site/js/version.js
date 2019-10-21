@@ -1,6 +1,6 @@
 function launch_version(hash) {
     $.ajax({
-        url: '/version',
+        url: '/diagnostic/version',
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify({

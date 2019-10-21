@@ -118,7 +118,7 @@ function executeSync(command) {
     childProcess.execSync(command, { 'stdio': 'ignore' });
 }
 
-app.get('/version', (req: any, res: any, next: any) => {
+app.get('/diagnostic/version', (req: any, res: any, next: any) => {
     if (validateAdminToken(req.cookies.admin_token)) {
         executeSync('git checkout master && git pull');
         execute('git log', (output) => {
@@ -134,7 +134,7 @@ app.get('/version', (req: any, res: any, next: any) => {
                 }
                 match = regex.exec(output);
             }
-            res.send(pug.renderFile(path.resolve(__dirname + '/../site/pug/version.pug'), {
+            res.send(pug.renderFile(path.resolve(__dirname + '/../site/pug/diagnostic/version.pug'), {
                 'versions': versions,
                 'current': version,
             }));
@@ -144,7 +144,7 @@ app.get('/version', (req: any, res: any, next: any) => {
     }
 });
 
-app.post('/version', (req: any, res: any, next: any) => {
+app.post('diagnostic/version', (req: any, res: any, next: any) => {
     if (validateAdminToken(req.cookies.admin_token)) {
         console.log('Restarting...');
         console.log('git checkout ' + req.body.hash);
