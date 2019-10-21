@@ -115,7 +115,7 @@ function execute(command, callback) {
 }
 
 function executeSync(command) {
-    childProcess.execSync(command);
+    childProcess.execSync(command, { 'stdio': 'ignore' });
 }
 
 app.get('/version', (req: any, res: any, next: any) => {
