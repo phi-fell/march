@@ -1,4 +1,25 @@
+import childProcess = require('child_process');
+import cookieParser = require('cookie-parser');
+import express = require('express');
+import fs = require('fs');
+import http = require('http');
+import https = require('https');
+import path = require('path');
+import pug from 'pug';
+import socketIO = require('socket.io');
+
+import { ATTRIBUTE } from './character/characterattributes';
+import { CharacterRace } from './character/characterrace';
+import { CharacterSheet } from './character/charactersheet';
+import { SKILL } from './character/characterskills';
+import { CharacterTrait } from './character/charactertrait';
 import { Instance } from './instance';
+import { generateName } from './namegen';
+import { Player } from './player';
+import { Server } from './server';
+import { executeCmd } from './terminal';
+import { getLoadedUserByName, loadUserByName, User, validateCredentialsByAuthToken } from './user';
+import version = require('./version');
 
 let USE_HTTPS = true;
 let PUBLISH_DIAGNOSTIC_DATA = false;
@@ -10,27 +31,6 @@ process.argv.forEach((val, index, array) => {
         PUBLISH_DIAGNOSTIC_DATA = true;
     }
 });
-
-import childProcess = require('child_process');
-import cookieParser = require('cookie-parser');
-import express = require('express');
-import fs = require('fs');
-import http = require('http');
-import https = require('https');
-import path = require('path');
-import pug from 'pug';
-import socketIO = require('socket.io');
-import { ATTRIBUTE } from './character/characterattributes';
-import { CharacterSheet } from './character/charactersheet';
-import { SKILL } from './character/characterskills';
-import { generateName } from './namegen';
-import { Player } from './player';
-import { Server } from './server';
-import { getLoadedUserByName, loadUserByName, User, validateCredentialsByAuthToken } from './user';
-import version = require('./version');
-import { CharacterRace } from './character/characterrace';
-import { CharacterTrait } from './character/charactertrait';
-import { executeCmd } from './terminal';
 
 const app = express();
 app.use(cookieParser());
@@ -111,22 +111,23 @@ app.post('/terminal', (req: any, res: any, next: any) => {
 });
 
 function execute(command, callback) {
-    childProcess.exec(command, function (error, stdout, stderr) { callback(stdout); });
-};
+    childProcess.exec(command, (error, stdout, stderr) => { callback(stdout); });
+}
 
 app.get('/version', (req: any, res: any, next: any) => {
     if (validateAdminToken(req.cookies.admin_token)) {
         execute('git log', (output) => {
             const regex = /(?:commit )([a-z0-9]+)(?:[\n]*Author[^\n]*)(?:[\n]Date[^\n]*[\s]*)([^\n]*)/g;
-            let match;
+            let match = regex.exec(output);
             const versions: any[] = [];
-            while (match = regex.exec(output)) {
+            while (match) {
                 if (match[2].match(/^[0-9]+.[0-9]+.[0-9]+$/)) {
                     versions.push({
                         'version': match[2],
                         'hash': match[1],
                     });
                 }
+                match = regex.exec(output);
             }
             res.send(pug.renderFile(path.resolve(__dirname + '/../site/pug/version.pug'), {
                 'versions': versions,

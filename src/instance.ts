@@ -17,10 +17,10 @@ export class InstanceAttributes {
         public height: number,
         public personal: boolean = false,
     ) { }
-    clone() {
+    public clone() {
         return new InstanceAttributes(this.seed, this.width, this.height, this.personal);
     }
-    getJSON() {
+    public getJSON() {
         return {
             'seed': this.seed,
             'width': this.width,
@@ -28,7 +28,7 @@ export class InstanceAttributes {
             'personal': this.personal,
         };
     }
-    loadFromJSON(data) {
+    public loadFromJSON(data) {
         this.seed = data.seed;
         this.width = data.width;
         this.height = data.height;
@@ -64,30 +64,28 @@ export class Instance {
         return Random.uuid();
     }
     public static loadInstance(id: string, callback) {
-        let loaded = Instance.getLoadedInstanceById(id);
+        const loaded = Instance.getLoadedInstanceById(id);
         if (loaded) {
             return callback(null, loaded);
-        } else {
-            fs.readFile('world/' + id + '.inst', function (err, data) {
-                if (err) {
-                    return callback(err);
-                } else {
-                    let instdat = JSON.parse('' + data);
-                    let ret = new Instance(id, new InstanceAttributes(Random.uuid(), 0, 0));
-                    ret.loadFromJSON(instdat);
-                    Instance.instances[ret.id] = ret;
-                    callback(null, ret);
-                }
-            });
         }
+        fs.readFile('world/' + id + '.inst', (err, data) => {
+            if (err) {
+                return callback(err);
+            }
+            const instdat = JSON.parse('' + data);
+            const ret = new Instance(id, new InstanceAttributes(Random.uuid(), 0, 0));
+            ret.loadFromJSON(instdat);
+            Instance.instances[ret.id] = ret;
+            callback(null, ret);
+        });
     }
     public static spinUpNewInstance(attr: InstanceAttributes) {
-        const inst: Instance = new Instance(this.generateNewInstanceID(), attr);
+        const inst: Instance = new Instance(Instance.generateNewInstanceID(), attr);
         Instance.instances[inst.id] = inst;
         return inst;
     }
     public static getAvailableNonFullInstance(plr: Player): Instance | null {
-        for (let inst of Object.values(Instance.instances)) {
+        for (const inst of Object.values(Instance.instances)) {
             if (!inst.attributes.personal) {
                 return inst;
             }
@@ -95,15 +93,15 @@ export class Instance {
         return null;
     }
     public static getPlayerBoard(plr: Player) {
-        //return section of level around player, with Entities and such limited by what they percieve
-        let retTiles: Tile[][] = [];
-        let retMobs: any = [];
-        let inst = Instance.instances[plr.location.instance_id];
+        // return section of level around player, with Entities and such limited by what they percieve
+        const retTiles: Tile[][] = [];
+        const retMobs: any = [];
+        const inst = Instance.instances[plr.location.instance_id];
         const MAX_RADIUS = 10;
-        let x0 = plr.location.x - MAX_RADIUS;
-        let y0 = plr.location.y - MAX_RADIUS;
-        let x1 = plr.location.x + MAX_RADIUS;
-        let y1 = plr.location.y + MAX_RADIUS;
+        const x0 = plr.location.x - MAX_RADIUS;
+        const y0 = plr.location.y - MAX_RADIUS;
+        const x1 = plr.location.x + MAX_RADIUS;
+        const y1 = plr.location.y + MAX_RADIUS;
         for (let i = x0; i <= x1; i++) {
             retTiles[i - x0] = [];
             for (let j = y0; j <= y1; j++) {
@@ -137,9 +135,9 @@ export class Instance {
             inst.update();
         }
     }
-    players: Player[];
-    tiles: Tile[][] = [];
-    mobs: Entity[] = [];
+    public players: Player[];
+    public tiles: Tile[][] = [];
+    public mobs: Entity[] = [];
     private waitingForAsyncMove: string | null;
     private lastActiveTime: number;
     constructor(public id: string, public attributes: InstanceAttributes) {
@@ -157,16 +155,16 @@ export class Instance {
     public getMillisUntilUnload(): number {
         return MAX_INACTIVE_TIME - (Date.now() - this.lastActiveTime);
     }
-    addPlayer(player: Player) {
-        for (let i = 0; i < this.players.length; i++) {
-            if (this.players[i].id === player.id) {
+    public addPlayer(player: Player) {
+        for (const p of this.players) {
+            if (p.id === player.id) {
                 return console.log('ERROR! duplicate player ID!'); // no duplicate entries
             }
         }
         this.players.push(player);
         this.addMob(player);
     }
-    removePlayer(player: Player) {
+    public removePlayer(player: Player) {
         this.removeMob(player);
         for (let i = 0; i < this.players.length; i++) {
             if (this.players[i].id === player.id) {
@@ -174,34 +172,34 @@ export class Instance {
                 if (this.waitingForAsyncMove === player.id) {
                     this.waitingForAsyncMove = null;
                 }
-                return; //no duplicate entries
+                return; // no duplicate entries
             }
         }
-        console.log('Tried to remove nonexistent player!')
+        console.log('Tried to remove nonexistent player!');
     }
-    addMob(mob: Entity) {
+    public addMob(mob: Entity) {
         for (const m of this.mobs) {
             if (m.id === mob.id) {
-                return console.log('ERROR! duplicate mob ID!');//no duplicate entries
+                return console.log('ERROR! duplicate mob ID!'); // no duplicate entries
             }
         }
         this.mobs.push(mob);
     }
-    removeMob(mob: Entity) {
+    public removeMob(mob: Entity) {
         for (let i = 0; i < this.mobs.length; i++) {
             if (this.mobs[i].id === mob.id) {
                 this.mobs.splice(i, 1);
-                return; //no duplicate entries
+                return; // no duplicate entries
             }
         }
         console.log('Tried to remove nonexistent mob!');
     }
-    updateAllPlayers() {
+    public updateAllPlayers() {
         for (const plr of this.players) {
             plr.pushUpdate();
         }
     }
-    isTilePassable(x: number, y: number) {
+    public isTilePassable(x: number, y: number) {
         if (x >= 0 && x < this.attributes.width && y >= 0 && y < this.attributes.height) {
             if (getTileProps(this.tiles[x][y]).passable) {
                 return true;
@@ -209,7 +207,7 @@ export class Instance {
         }
         return false;
     }
-    getMobInLocation(x: number, y: number): Entity | null {
+    public getMobInLocation(x: number, y: number): Entity | null {
         for (const mob of this.mobs) {
             if (mob.location.x === x && mob.location.y === y) {
                 return mob;
@@ -217,7 +215,7 @@ export class Instance {
         }
         return null;
     }
-    spawnEntityAtCoords(ent: Entity, x: number, y: number): boolean {
+    public spawnEntityAtCoords(ent: Entity, x: number, y: number): boolean {
         if (!this.isTilePassable(x, y)) {
             console.log('Error!  can\'t spawn entity on impassable tile!');
             return false;
@@ -231,7 +229,7 @@ export class Instance {
         ent.location = new Location(x, y, this.id);
         return true;
     }
-    spawnEntityAnywhere(ent: Entity): boolean {
+    public spawnEntityAnywhere(ent: Entity): boolean {
         let posX: number;
         let posY: number;
         let validpos = false;
@@ -257,25 +255,25 @@ export class Instance {
         return true;
 
     }
-    unload() {
+    public unload() {
         delete Instance.instances[this.id];
     }
-    saveToDisk() {
-        let playerids: string[] = [];
-        for (let plr of this.players) {
+    public saveToDisk() {
+        const playerids: string[] = [];
+        for (const plr of this.players) {
             playerids.push(plr.id);
         }
-        let data = {
+        const data = {
             'attributes': this.attributes.getJSON(),
             'players': playerids,
-        }
-        fs.writeFile('world/' + this.id + '.inst', JSON.stringify(data), function (err) {
+        };
+        fs.writeFile('world/' + this.id + '.inst', JSON.stringify(data), (err) => {
             if (err) {
                 console.log(err);
             }
         });
     }
-    loadFromJSON(data) {
+    public loadFromJSON(data) {
         this.attributes.loadFromJSON(data.attributes);
         this.players = [];
         const instance = this;
@@ -288,9 +286,9 @@ export class Instance {
             });
         }
     }
-    emit(event: string) {
+    public emit(event: string) {
         // TODO: give events a type, location, etc.  and only emit to some players
-        for (let plr of this.players) {
+        for (const plr of this.players) {
             plr.user!.socket.emit('chat message', event);
         }
     }
@@ -323,16 +321,16 @@ export class Instance {
             return false; // no mobs to act
         }
         this.mobs.sort((a, b) => b.charSheet.getInitiative() - a.charSheet.getInitiative()); // TODO: handle ties?
-        for (let i = 0; i < this.mobs.length; i++) {
-            const actionStatus = this.mobs[i].doNextAction();
+        for (const mob of this.mobs) {
+            const actionStatus = mob.doNextAction();
             if (actionStatus === ACTION_STATUS.WAITING) {
-                this.mobs[i].charSheet.startRest();
+                mob.charSheet.startRest();
             } else if (actionStatus === ACTION_STATUS.PERFORMED) {
-                this.mobs[i].charSheet.endRest();
+                mob.charSheet.endRest();
                 return true;
             } else if (actionStatus === ACTION_STATUS.ASYNC) {
-                this.waitingForAsyncMove = this.mobs[i].id;
-                (this.mobs[i] as Player).pushUpdate();
+                this.waitingForAsyncMove = mob.id;
+                (mob as Player).pushUpdate();
                 return false;
             }
         }

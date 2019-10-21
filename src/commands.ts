@@ -8,7 +8,7 @@ import { launch_id, version } from './version';
 
 function getHelp(socket) {
     socket.emit('chat message', 'GotG V' + version + ' Launch_ID[' + launch_id + ']');
-    Object.keys(commands).forEach(cmd => {
+    Object.keys(commands).forEach((cmd) => {
         socket.emit('chat message', '/' + cmd + ': ' + commands[cmd].description);
     });
 }
@@ -23,31 +23,34 @@ function reportBug(socket, description) {
 
 const commands: any = {
     '?': {
-        description: 'display help dialog',
-        exec: function (user: User, tok) {
+        'description': 'display help dialog',
+        'exec': (user: User, tok) => {
             getHelp(user.socket);
         },
     },
     'help': {
-        description: 'display help dialog',
-        exec: function (user: User, tok) {
+        'description': 'display help dialog',
+        'exec': (user: User, tok) => {
             getHelp(user.socket);
         },
     },
     'bug': {
-        description: 'report a bug with the game <3',
-        exec: function (user: User, tok) {
+        'description': 'report a bug with the game <3',
+        'exec': (user: User, tok) => {
             if (tok.length > 0) {
-                reportBug(user.socket, (new Date()).toDateString() + '\n' + (new Date()).toTimeString() + '\n[' + user.name + '](' + user.email + ') reported bug:\n' + tok.join(' '));
-                user.socket.emit('chat message', 'Thank you for reporting a bug! It\'s been added to the queue for me to look at when I get a chance!');
+                reportBug(user.socket,
+                    (new Date()).toDateString() + '\n' + (new Date()).toTimeString()
+                    + '\n[' + user.name + '](' + user.email + ') reported bug:\n' + tok.join(' '));
+                user.socket.emit('chat message',
+                    'Thank you for reporting a bug! It\'s been added to the queue for me to look at when I get a chance!');
             } else {
                 user.socket.emit('chat message', 'Please provide a description of the bug you\'ve encountered. usage: /bug <message or description>');
             }
         },
     },
     'admin': {
-        description: '',
-        exec: function (user: User, tok) {
+        'description': '',
+        'exec': (user: User, tok) => {
             /*
             if (tok.length >= 2) {
                 fs.readFile("admin/" + tok[0], function (err, data) {
@@ -62,8 +65,8 @@ const commands: any = {
         },
     },
     'kick': {
-        description: '',
-        exec: function (user: User, tok) {
+        'description': '',
+        'exec': (user: User, tok) => {
             /*
             if (clientData[socket.id].user.privilege == "admin") {
                 if (tok.length < 1) {
@@ -83,8 +86,8 @@ const commands: any = {
         },
     },
     'name': {
-        description: 'Change player\'s name',
-        exec: function (user: User, tok) {
+        'description': 'Change player\'s name',
+        'exec': (user: User, tok) => {
             if (user.player) {
                 const newName: string = tok.join(' ');
                 if (newName.length > 16) {
@@ -92,8 +95,8 @@ const commands: any = {
                 } else {
                     const oldName = user.player.name;
                     user.player.name = tok.join(' ');
-                    user.socket.broadcast.emit('chat message', oldName + " has changed their name to " + user.player.name);
-                    user.socket.emit('chat message', "you have changed your name to " + user.player.name);
+                    user.socket.broadcast.emit('chat message', oldName + ' has changed their name to ' + user.player.name);
+                    user.socket.emit('chat message', 'you have changed your name to ' + user.player.name);
                 }
             } else {
                 user.socket.emit('chat message', "Error: You somehow don't have a player, this is likely a bug.");
@@ -101,8 +104,8 @@ const commands: any = {
         },
     },
     'email': {
-        description: 'Set email',
-        exec: function (user: User, tok) {
+        'description': 'Set email',
+        'exec': (user: User, tok) => {
             if (tok.length > 0) {
                 user.email = tok.join(' ');
                 user.socket.emit('chat message', 'Your email has been set to "' + user.email + '"');
@@ -111,11 +114,11 @@ const commands: any = {
             } else {
                 user.socket.emit('chat message', 'You have no email set.  use /email <new_email> to set it.');
             }
-        }
+        },
     },
     'whisper': {
-        description: '',
-        exec: function (user: User, tok) {
+        'description': '',
+        'exec': (user: User, tok) => {
             /*
             if (tok.length < 1) {
                 socket.emit('chat message', "Please enter a user to whisper to")
@@ -125,15 +128,16 @@ const commands: any = {
                     socket.emit('chat message', "Could not find user " + tok[0])
                 } else {
                     socket.emit('chat message', "@" + tok[0] + " << " + tok.slice(1).join(' '));
-                    io.to(game.getClientIdFromName(tok[0])).emit('chat message', clientData[socket.id].info.name + " whispered: " + tok.slice(1).join(' '));
+                    io.to(game.getClientIdFromName(tok[0]))
+                        .emit('chat message', clientData[socket.id].info.name + " whispered: " + tok.slice(1).join(' '));
                 }
             }
             */
         },
     },
     'move': {
-        description: 'Move in a direction',
-        exec: function (user: User, tok) {
+        'description': 'Move in a direction',
+        'exec': (user: User, tok) => {
             if (user.player) {
                 if (tok[0] in Instance.directionVectors) {
                     user.player.setAction(new MoveAction(tok[0]));

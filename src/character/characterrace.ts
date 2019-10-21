@@ -1,6 +1,6 @@
 import fs = require('fs');
+
 import { CharacterAttributes } from './characterattributes';
-import { RESOURCE } from './characterresource';
 
 export enum BODY_SIZE {
     MINISCULE, // ants, fleas, etc.                                 no bigger than a dime.
@@ -61,7 +61,6 @@ export enum SOUND {
 
 export type CharacterRaceID = string;
 export const NO_RACE = '' as CharacterRaceID;
-
 
 interface CharacterRaceProperties {
     name: string;
@@ -131,14 +130,14 @@ export class CharacterRace {
     }
 }
 
-fs.readdir('res/race', (err, filenames) => {
-    if (err) {
-        return console.log(err);
+fs.readdir('res/race', (dir_err, filenames) => {
+    if (dir_err) {
+        return console.log(dir_err);
     }
     filenames.forEach((filename) => {
-        fs.readFile('res/race/' + filename, 'utf-8', (err, content) => {
-            if (err) {
-                return console.log(err);
+        fs.readFile('res/race/' + filename, 'utf-8', (read_err, content) => {
+            if (read_err) {
+                return console.log(read_err);
             }
             const name = filename.split('.')[0];
             const props = JSON.parse(content);

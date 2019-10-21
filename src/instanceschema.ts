@@ -33,14 +33,14 @@ export function getInstanceFromSchema(schema_id: string, seed: string = Random.u
     return inst;
 }
 
-fs.readdir('res/environment', (err, filenames) => {
-    if (err) {
-        return console.log(err);
+fs.readdir('res/environment', (dir_err, filenames) => {
+    if (dir_err) {
+        return console.log(dir_err);
     }
     filenames.forEach((filename) => {
-        fs.readFile('res/environment/' + filename, 'utf-8', (err, content) => {
-            if (err) {
-                return console.log(err);
+        fs.readFile('res/environment/' + filename, 'utf-8', (read_err, content) => {
+            if (read_err) {
+                return console.log(read_err);
             }
             const name = filename.split('.')[0];
             const props = JSON.parse(content);

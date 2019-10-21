@@ -1,4 +1,4 @@
-import { ITEM_TYPE, ItemSchema, Item, ItemSchemaID } from './item';
+import { Item, ITEM_TYPE, ItemSchema, ItemSchemaID } from './item';
 
 export enum APPAREL_TYPE {
     // jewelry

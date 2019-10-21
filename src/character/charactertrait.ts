@@ -26,7 +26,7 @@ export class CharacterTrait {
         public cost: number,
         public name: string,
         public description: string,
-        public effects: string[]
+        public effects: string[],
     ) { }
     public getEssenceCost(): number {
         return this.cost;
@@ -43,14 +43,14 @@ export class CharacterTrait {
     }
 }
 
-fs.readdir('res/trait', (err, filenames) => {
-    if (err) {
-        return console.log(err);
+fs.readdir('res/trait', (dir_err, filenames) => {
+    if (dir_err) {
+        return console.log(dir_err);
     }
     filenames.forEach((filename) => {
-        fs.readFile('res/trait/' + filename, 'utf-8', (err, content) => {
-            if (err) {
-                return console.log(err);
+        fs.readFile('res/trait/' + filename, 'utf-8', (read_err, content) => {
+            if (read_err) {
+                return console.log(read_err);
             }
             const id = filename.split('.')[0];
             const json = JSON.parse(content);

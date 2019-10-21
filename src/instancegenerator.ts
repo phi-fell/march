@@ -57,7 +57,7 @@ function maze(inst: Instance, x: number, y: number) {
 }
 
 export class InstanceGenerator {
-    static runGeneration(inst: Instance) {
+    public static runGeneration(inst: Instance) {
         switch (inst.attributes.genType) {
             case INSTANCE_GEN_TYPE.EMPTY:
                 for (let i = 0; i < inst.attributes.width; i++) {
@@ -84,8 +84,8 @@ export class InstanceGenerator {
                     }
                 }
                 const STRIDE = 2;
-                let x = Math.max((STRIDE * Math.floor(Math.random() * ((inst.attributes.width / STRIDE) - 1))) + 1, 1);
-                let y = Math.max((STRIDE * Math.floor(Math.random() * ((inst.attributes.height / STRIDE) - 1))) + 1, 1);
+                const x = Math.max((STRIDE * Math.floor(Math.random() * ((inst.attributes.width / STRIDE) - 1))) + 1, 1);
+                const y = Math.max((STRIDE * Math.floor(Math.random() * ((inst.attributes.height / STRIDE) - 1))) + 1, 1);
                 maze(inst, x, y);
                 break;
             case INSTANCE_GEN_TYPE.ROOMS:

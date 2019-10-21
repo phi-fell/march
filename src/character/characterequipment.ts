@@ -1,5 +1,4 @@
 import { Weapon } from '../item/weapon';
-import { Apparel } from '../item/apparel';
 
 export enum APPAREL_SLOT {
     HEAD,
@@ -31,10 +30,10 @@ export class CharacterEquipment {
     public static fromJSON(json) {
         return new CharacterEquipment();
     }
-    //public helmet: Apparel;
-    //public chest_armor: Apparel;
-    //public leg_armor: Apparel;
-    //public boots: Apparel;
+    // public helmet: Apparel;
+    // public chest_armor: Apparel;
+    // public leg_armor: Apparel;
+    // public boots: Apparel;
     public weapon: Weapon;
     constructor() {
         this.weapon = new Weapon('weapon/sword');
