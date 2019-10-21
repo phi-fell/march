@@ -4,9 +4,12 @@ export class Random {
     public static float() {
         return Random.r.float();
     }
+    public static uuid() {
+        return uuid();
+    }
     private static r = new Random();
     private state: number[];
-    constructor(seed: string = uuid()) {
+    constructor(seed: string = Random.uuid()) {
         let hash = 1779033703 ^ seed.length;
         for (let i = 0; i < seed.length; i++) {
             hash = Math.imul(hash ^ seed.charCodeAt(i), 3432918353);
