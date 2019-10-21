@@ -148,7 +148,7 @@ app.post('/version', (req: any, res: any, next: any) => {
         res.send({
             'status': 'success',
         });
-        process.exit();
+        execute('touch nodemon/restart.js', (output) => { /* ignore */ });
     } else {
         next();
     }

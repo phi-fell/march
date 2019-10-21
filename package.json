@@ -7,7 +7,7 @@
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "build": "tsc",
     "predev": "npm run lint && npm run build",
-    "dev": "nodemon --watch src build/index.js -NO_HTTPS -PUBLISH_DIAGNOSTIC_DATA",
+    "dev": "nodemon --watch nodemon build/index.js -NO_HTTPS -PUBLISH_DIAGNOSTIC_DATA",
     "predebug": "npm run predev",
     "debug": "node --inspect build/index.js -NO_HTTPS -PUBLISH_DIAGNOSTIC_DATA",
     "preprod": "npm run build",
