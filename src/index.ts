@@ -118,21 +118,30 @@ function executeSync(command) {
     childProcess.execSync(command, { 'stdio': 'ignore' });
 }
 
+function getVersions(callback) {
+    executeSync('git checkout master && git pull');
+    execute('git log', (output) => {
+        const regex = /(?:commit )([a-z0-9]+)(?:[\n]*Author[^\n]*)(?:[\n]Date[^\n]*[\s]*)([^\n]*)/g;
+        let match = regex.exec(output);
+        const versions: any[] = [];
+        while (match) {
+            if (match[2].match(/^[0-9]+.[0-9]+.[0-9]+$/)) {
+                versions.push({
+                    'version': match[2],
+                    'hash': match[1],
+                });
+            }
+            match = regex.exec(output);
+        }
+        callback(null, versions);
+    });
+}
+
 app.get('/diagnostic/version', (req: any, res: any, next: any) => {
     if (validateAdminToken(req.cookies.admin_token)) {
-        executeSync('git checkout master && git pull');
-        execute('git log', (output) => {
-            const regex = /(?:commit )([a-z0-9]+)(?:[\n]*Author[^\n]*)(?:[\n]Date[^\n]*[\s]*)([^\n]*)/g;
-            let match = regex.exec(output);
-            const versions: any[] = [];
-            while (match) {
-                if (match[2].match(/^[0-9]+.[0-9]+.[0-9]+$/)) {
-                    versions.push({
-                        'version': match[2],
-                        'hash': match[1],
-                    });
-                }
-                match = regex.exec(output);
+        getVersions((err, versions) => {
+            if (err) {
+                return console.log(err);
             }
             res.send(pug.renderFile(path.resolve(__dirname + '/../site/pug/diagnostic/version.pug'), {
                 'versions': versions,
@@ -169,9 +178,13 @@ if (PUBLISH_DIAGNOSTIC_DATA) {
     });*/
     app.get('/diagnostic', (req: any, res: any, next: any) => {
         if (validateAdminToken(req.cookies.admin_token)) {
-            res.send(pug.renderFile(path.resolve(__dirname + '/../site/pug/diagnostic/main.pug'), {
-                'instances': Instance.instances,
-            }));
+            getVersions((err, versions) => {
+                res.send(pug.renderFile(path.resolve(__dirname + '/../site/pug/diagnostic/main.pug'), {
+                    'instances': Instance.instances,
+                    'versions': versions,
+                    'current': version,
+                }));
+            });
         } else {
             next();
         }

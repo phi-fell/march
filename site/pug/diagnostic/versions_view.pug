@@ -1,0 +1,14 @@
+table.table(class="sortable")
+    tr
+        th Version
+        th Commit Hash
+        th
+    each version in versions
+        tr
+            td=version.version
+            td=version.hash
+            if version.version == current
+                td Running
+            else
+                td
+                    button(onclick="launch_version('"+version.hash+"')") Launch

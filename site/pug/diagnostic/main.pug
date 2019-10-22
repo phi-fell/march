@@ -5,7 +5,7 @@ html
         title Diagnostic Information
         style.
             body {
-                font: 13px Helvetica, Arial;
+                font: 13px 'Lucida Console','Courier New';
             }
 
             th, td {
@@ -29,17 +29,42 @@ html
                 left: 0%;
                 top: 0%;
             }
-            #instance_title{
+            #instance_title {
                 flex: 0 0 auto;
-                
-                font: 18px Helvetica, Arial;
+
+                font: 18px 'Lucida Console','Courier New';
             }
-            #instance_list{
+            #instance_list {
                 flex: 1 1 auto;
                 overflow: auto;
                 position: relative;
             }
+
+            #versions {
+                display: flex;
+                flex-flow: column;
+
+                margin: 5px;
+
+                position: absolute;
+                height: 50%;
+                width: 50%;
+                left: 50%;
+                top: 50%;
+            }
+            #version_title {
+                flex: 0 0 auto;
+
+                font: 18px 'Lucida Console','Courier New';
+            }
+            #version_list {
+                flex: 1 1 auto;
+                overflow: auto;
+                position: relative;
+            }
+        script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js")
         script(src="https://kryogenix.org/code/browser/sorttable/sorttable.js")
+        script(src="js/version.js")
 
     body
         div(id="instances")
@@ -48,5 +73,10 @@ html
                 |:
             div(id="instance_list")
                 include instances_view.pug
+        div(id="versions")
+            div(id="version_title")
+                a(href='/diagnostic/version')= "Versions"
+                |:
+            div(id="version_list")
+                include versions_view.pug
 
-        script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js")
