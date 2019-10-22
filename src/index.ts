@@ -153,7 +153,7 @@ app.get('/diagnostic/version', (req: any, res: any, next: any) => {
     }
 });
 
-app.post('diagnostic/version', (req: any, res: any, next: any) => {
+app.post('/diagnostic/version', (req: any, res: any, next: any) => {
     if (validateAdminToken(req.cookies.admin_token)) {
         console.log('Restarting...');
         console.log('git checkout ' + req.body.hash);
