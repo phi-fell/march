@@ -7,9 +7,9 @@
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "build": "tsc",
     "predev": "npm run lint && npm run build",
-    "dev": "node build/index.js -NO_HTTPS -PUBLISH_DIAGNOSTIC_DATA",
+    "dev": "node build/index.js -NO_HTTPS -PUBLISH_DIAGNOSTIC_DATA -UNLOCK_DIAGNOSTIC",
     "predebug": "npm run predev",
-    "debug": "node --inspect build/index.js -NO_HTTPS -PUBLISH_DIAGNOSTIC_DATA",
+    "debug": "node --inspect build/index.js -NO_HTTPS -PUBLISH_DIAGNOSTIC_DATA -UNLOCK_DIAGNOSTIC",
     "preprod": "npm run build",
     "prod": "node build/watcher.js -PUBLISH_DIAGNOSTIC_DATA",
     "test": "echo \"Error: no test specified\" && exit 1"

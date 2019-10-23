@@ -22,12 +22,15 @@ import { launch_id, version, version_hash, versions } from './version';
 
 let USE_HTTPS = true;
 let PUBLISH_DIAGNOSTIC_DATA = false;
+let UNLOCK_DIAGNOSTIC = false;
 
 process.argv.forEach((val, index, array) => {
     if (val === '-NO_HTTPS') {
         USE_HTTPS = false;
     } else if (val === '-PUBLISH_DIAGNOSTIC_DATA') {
         PUBLISH_DIAGNOSTIC_DATA = true;
+    } else if (val === '-UNLOCK_DIAGNOSTIC') {
+        UNLOCK_DIAGNOSTIC = true;
     }
 });
 
@@ -40,8 +43,15 @@ let http_server: any;
 let redirectapp: any;
 let io;
 
+if (!UNLOCK_DIAGNOSTIC) {
+    const admin_token: string = String(readFileSync('admin/token'));
+}
+
 function validateAdminToken(token) {
-    return token && token.match(/^[0-9a-zA-Z]+$/); // TODO: admin credentials
+    if (UNLOCK_DIAGNOSTIC) {
+        return true;
+    }
+    return token && token == admin_token; // TODO: admin credentials
 }
 
 if (USE_HTTPS) {
@@ -109,33 +119,33 @@ app.post('/terminal', (req: any, res: any, next: any) => {
     }
 });
 
-app.get('/diagnostic/version', (req: any, res: any, next: any) => {
-    if (validateAdminToken(req.cookies.admin_token)) {
-        res.send(pug.renderFile(path.resolve(__dirname + '/../site/pug/diagnostic/version.pug'), {
-            'versions': versions,
-            'current': version_hash,
-        }));
-    } else {
-        next();
-    }
-});
-
-app.post('/diagnostic/version', (req: any, res: any, next: any) => {
-    if (validateAdminToken(req.cookies.admin_token)) {
-        writeFileSync('config/launch.json', JSON.stringify({
-            'hash': req.body.hash,
-            'rebuild': true,
-        }));
-        res.send({
-            'status': 'success',
-        });
-        process.exit();
-    } else {
-        next();
-    }
-});
-
 if (PUBLISH_DIAGNOSTIC_DATA) {
+    app.get('/diagnostic/version', (req: any, res: any, next: any) => {
+        if (validateAdminToken(req.cookies.admin_token)) {
+            res.send(pug.renderFile(path.resolve(__dirname + '/../site/pug/diagnostic/version.pug'), {
+                'versions': versions,
+                'current': version_hash,
+            }));
+        } else {
+            next();
+        }
+    });
+
+    app.post('/diagnostic/version', (req: any, res: any, next: any) => {
+        if (validateAdminToken(req.cookies.admin_token)) {
+            writeFileSync('config/launch.json', JSON.stringify({
+                'hash': req.body.hash,
+                'rebuild': true,
+            }));
+            res.send({
+                'status': 'success',
+            });
+            process.exit();
+        } else {
+            next();
+        }
+    });
+
     /*const diagnostic_page = pug.compileFile(path.resolve(__dirname + '/../site/pug/diagnostic.pug'));
     app.get('/diagnostic', (req: any, res: any) => {
       res.send(diagnostic_page({

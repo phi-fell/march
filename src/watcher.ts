@@ -19,6 +19,8 @@ class Watcher {
                 this.child_args.push('-NO_HTTPS');
             } else if (val === '-PUBLISH_DIAGNOSTIC_DATA') {
                 this.child_args.push('-PUBLISH_DIAGNOSTIC_DATA');
+            } else if (val === '-UNLOCK_DIAGNOSTIC') {
+                this.child_args.push('-UNLOCK_DIAGNOSTIC');
             } else if (val === '-DEBUG') {
                 this.debug = true;
             }
