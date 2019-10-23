@@ -1,13 +1,15 @@
-table.table(class="sortable")
+table.table
     tr
         th Version
         th Commit Hash
         th
+            if current != "master"
+                button(onclick="launch_version('master')") Latest
     each version in versions
         tr
             td=version.version
             td=version.hash
-            if version.version == current
+            if version.hash == current
                 td Running
             else
                 td

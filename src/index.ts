@@ -1,7 +1,6 @@
-import childProcess = require('child_process');
 import cookieParser = require('cookie-parser');
 import express = require('express');
-import fs = require('fs');
+import { readFileSync, writeFileSync } from 'fs';
 import http = require('http');
 import https = require('https');
 import path = require('path');
@@ -19,7 +18,7 @@ import { Player } from './player';
 import { Server } from './server';
 import { executeCmd } from './terminal';
 import { getLoadedUserByName, loadUserByName, User, validateCredentialsByAuthToken } from './user';
-import { launch_id, version } from './version';
+import { launch_id, version, version_hash, versions } from './version';
 
 let USE_HTTPS = true;
 let PUBLISH_DIAGNOSTIC_DATA = false;
@@ -47,8 +46,8 @@ function validateAdminToken(token) {
 
 if (USE_HTTPS) {
     const options = { // TODO: make certificate path variable?
-        'key': fs.readFileSync('/etc/letsencrypt/live/gotg.phi.ac/privkey.pem'),
-        'cert': fs.readFileSync('/etc/letsencrypt/live/gotg.phi.ac/cert.pem'),
+        'key': readFileSync('/etc/letsencrypt/live/gotg.phi.ac/privkey.pem'),
+        'cert': readFileSync('/etc/letsencrypt/live/gotg.phi.ac/cert.pem'),
     };
 
     https_server = https.createServer(options, app);
@@ -110,44 +109,12 @@ app.post('/terminal', (req: any, res: any, next: any) => {
     }
 });
 
-function execute(command, callback) {
-    childProcess.exec(command, (error, stdout, stderr) => { callback(stdout); });
-}
-
-function executeSync(command) {
-    childProcess.execSync(command, { 'stdio': 'ignore' });
-}
-
-function getVersions(callback) {
-    executeSync('git checkout master && git pull');
-    execute('git log', (output) => {
-        const regex = /(?:commit )([a-z0-9]+)(?:[\n]*Author[^\n]*)(?:[\n]Date[^\n]*[\s]*)([^\n]*)/g;
-        let match = regex.exec(output);
-        const versions: any[] = [];
-        while (match) {
-            if (match[2].match(/^[0-9]+.[0-9]+.[0-9]+$/)) {
-                versions.push({
-                    'version': match[2],
-                    'hash': match[1],
-                });
-            }
-            match = regex.exec(output);
-        }
-        callback(null, versions);
-    });
-}
-
 app.get('/diagnostic/version', (req: any, res: any, next: any) => {
     if (validateAdminToken(req.cookies.admin_token)) {
-        getVersions((err, versions) => {
-            if (err) {
-                return console.log(err);
-            }
-            res.send(pug.renderFile(path.resolve(__dirname + '/../site/pug/diagnostic/version.pug'), {
-                'versions': versions,
-                'current': version,
-            }));
-        });
+        res.send(pug.renderFile(path.resolve(__dirname + '/../site/pug/diagnostic/version.pug'), {
+            'versions': versions,
+            'current': version_hash,
+        }));
     } else {
         next();
     }
@@ -155,11 +122,10 @@ app.get('/diagnostic/version', (req: any, res: any, next: any) => {
 
 app.post('/diagnostic/version', (req: any, res: any, next: any) => {
     if (validateAdminToken(req.cookies.admin_token)) {
-        console.log('Restarting...');
-        console.log('git checkout ' + req.body.hash);
-        executeSync('git checkout ' + req.body.hash);
-        console.log('npm run build');
-        executeSync('npm run build');
+        writeFileSync('config/launch.json', JSON.stringify({
+            'hash': req.body.hash,
+            'rebuild': true,
+        }));
         res.send({
             'status': 'success',
         });
@@ -178,13 +144,11 @@ if (PUBLISH_DIAGNOSTIC_DATA) {
     });*/
     app.get('/diagnostic', (req: any, res: any, next: any) => {
         if (validateAdminToken(req.cookies.admin_token)) {
-            getVersions((err, versions) => {
-                res.send(pug.renderFile(path.resolve(__dirname + '/../site/pug/diagnostic/main.pug'), {
-                    'instances': Instance.instances,
-                    'versions': versions,
-                    'current': version,
-                }));
-            });
+            res.send(pug.renderFile(path.resolve(__dirname + '/../site/pug/diagnostic/main.pug'), {
+                'instances': Instance.instances,
+                'versions': versions,
+                'current': version_hash,
+            }));
         } else {
             next();
         }
@@ -324,7 +288,6 @@ app.post('/character_creation', (req: any, res: any) => {
             user.unload();
             return;
         });
-
     });
 });
 
