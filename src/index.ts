@@ -43,15 +43,16 @@ let http_server: any;
 let redirectapp: any;
 let io;
 
+let admin_token: string = '';
 if (!UNLOCK_DIAGNOSTIC) {
-    const admin_token: string = String(readFileSync('admin/token'));
+    admin_token = String(readFileSync('admin/token'));
 }
 
 function validateAdminToken(token) {
     if (UNLOCK_DIAGNOSTIC) {
         return true;
     }
-    return token && token == admin_token; // TODO: admin credentials
+    return token && token === admin_token; // TODO: admin credentials
 }
 
 if (USE_HTTPS) {
