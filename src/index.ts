@@ -18,7 +18,7 @@ import { Player } from './player';
 import { Server } from './server';
 import { executeCmd } from './terminal';
 import { getLoadedUserByName, loadUserByName, User, validateCredentialsByAuthToken } from './user';
-import { launch_id, version, version_hash, versions } from './version';
+import { launch_id, Version, version, version_hash, versions } from './version';
 
 let USE_HTTPS = true;
 let PUBLISH_DIAGNOSTIC_DATA = false;
@@ -127,6 +127,17 @@ if (PUBLISH_DIAGNOSTIC_DATA) {
                 'versions': versions,
                 'current': version_hash,
             }));
+        } else {
+            next();
+        }
+    });
+
+    app.post('/diagnostic/version/refresh', (req: any, res: any, next: any) => {
+        if (validateAdminToken(req.cookies.admin_token)) {
+            Version.refresh();
+            res.send({
+                'status': 'success',
+            });
         } else {
             next();
         }
