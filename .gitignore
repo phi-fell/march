@@ -5,3 +5,5 @@ bugs/*
 users/*
 players/*
 world/*
+config/launch.json
+config/versions.json
