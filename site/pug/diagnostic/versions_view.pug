@@ -3,8 +3,7 @@ table.table
         th Version
         th Commit Hash
         th
-            if current != "master"
-                button(onclick="refresh_versions()") Refresh
+            button(onclick="refresh_versions()") Refresh
     each version in versions
         tr
             td=version.version

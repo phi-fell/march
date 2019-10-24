@@ -7,6 +7,7 @@ table.table(class="sortable")
         th Height
         th Players
         th Mobs
+        th Portals
     each inst, inst_id in instances
         tr
             td 
@@ -20,3 +21,4 @@ table.table(class="sortable")
             td= inst.attributes.height
             td= inst.players.length
             td= inst.mobs.length
+            td= inst.portals.length

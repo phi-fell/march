@@ -41,6 +41,22 @@ html
                 td= instance.players.length
                 td= instance.mobs.length
         table.table
+            caption Portals
+            tr
+                th Location
+                th Type
+                th Destination
+            each portal, ii in instance.portals
+                tr
+                    td= portal.location.instance_id === instance.id ? ('(' + portal.location.x + ', ' + portal.location.y + ')') : 'ERROR! WRONG INSTANCE!'
+                    td= portal.destination_schema
+                    td
+                        if portal.destination
+                            a(href='/diagnostic/instance?id='+portal.destination.instance_id)= portal.destination.instance_id
+                            =' (' + portal.destination.x + ', ' + portal.destination.y + ')'
+                        else
+                            = "Not yet reified"
+        table.table
             caption Players
             tr
                 th ID
@@ -63,7 +79,6 @@ html
                     td= mob.id
                     td= mob.name
                     td= mob.location.instance_id === instance.id ? ('(' + mob.location.x + ', ' + mob.location.y + ')') : 'ERROR! WRONG INSTANCE!'
-
 
         script(src="/socket.io/socket.io.js")
         script(rc="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js")
