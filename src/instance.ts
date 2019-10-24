@@ -2,15 +2,18 @@ import fs = require('fs');
 
 import { ACTION_STATUS, Entity } from './entity';
 import { INSTANCE_GEN_TYPE, InstanceGenerator } from './instancegenerator';
+import { InstanceSchemaID } from './instanceschema';
 import { Location } from './location';
 import { Random } from './math/random';
 import { Player } from './player';
+import { Portal } from './portal';
 import { getTileProps, NO_TILE, Tile } from './tile';
 
 const MAX_INACTIVE_TIME = 1000 * 60 * 10; // 10 minutes (as milliseconds)
 
 export class InstanceAttributes {
     public genType: INSTANCE_GEN_TYPE = INSTANCE_GEN_TYPE.EMPTY;
+    public schemaID: InstanceSchemaID = '';
     constructor(
         public seed: string = Random.uuid(),
         public width: number,
@@ -38,12 +41,6 @@ export class InstanceAttributes {
 
 export class Instance {
     public static instances: { [key: string]: Instance; } = {};
-    public static directionVectors = {
-        'up': { 'x': 0, 'y': -1 },
-        'down': { 'x': 0, 'y': 1 },
-        'left': { 'x': -1, 'y': 0 },
-        'right': { 'x': 1, 'y': 0 },
-    };
     public static spawnEntityInLocation(ent: Entity, loc: Location) {
         const inst = Instance.instances[loc.instance_id];
         if (inst) {
@@ -96,6 +93,7 @@ export class Instance {
         // return section of level around player, with Entities and such limited by what they percieve
         const retTiles: Tile[][] = [];
         const retMobs: any = [];
+        const retPortals: any = [];
         const inst = Instance.instances[plr.location.instance_id];
         const MAX_RADIUS = 10;
         const x0 = plr.location.x - MAX_RADIUS;
@@ -116,12 +114,21 @@ export class Instance {
             retMobs.push({
                 'name': mob.name,
                 'location': mob.location,
+                'direction': mob.direction,
                 'type': mob.schema_id,
                 'sheet': mob.charSheet.toJSON(), // TODO: limit what player can see
             });
         }
+        for (const portal of inst.portals) {
+            if (portal.location.x >= x0 && portal.location.x <= x1 && portal.location.y >= y0 && portal.location.y <= y1) {
+                retPortals.push({
+                    'location': portal.location,
+                });
+            }
+        }
         return {
             'mobs': retMobs,
+            'portals': retPortals,
             'tiles': retTiles,
             'info': {
                 'x': x0, 'y': y0,
@@ -138,6 +145,7 @@ export class Instance {
     public players: Player[];
     public tiles: Tile[][] = [];
     public mobs: Entity[] = [];
+    public portals: Portal[] = [];
     private waitingForAsyncMove: string | null;
     private lastActiveTime: number;
     constructor(public id: string, public attributes: InstanceAttributes) {

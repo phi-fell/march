@@ -11,8 +11,9 @@ import {
 } from './auth';
 import { ATTRIBUTE } from './character/characterattributes';
 import { execute } from './commands';
+import { DIRECTION } from './direction';
 import { Random } from './math/random';
-import { MoveAction, Player, UnwaitAction, WaitAction } from './player';
+import { AttackAction, MoveAction, Player, TurnAction, UnwaitAction, UsePortalAction, WaitAction } from './player';
 import { getTilePalette } from './tile';
 
 const users = {};
@@ -82,22 +83,40 @@ export class User {
             if (user.player) {
                 switch (msg + '') {
                     case 'move_up':
-                        user.player.setAction(new MoveAction('up'));
+                        user.player.setAction(new MoveAction(DIRECTION.UP));
                         break;
                     case 'move_left':
-                        user.player.setAction(new MoveAction('left'));
+                        user.player.setAction(new MoveAction(DIRECTION.LEFT));
                         break;
                     case 'move_down':
-                        user.player.setAction(new MoveAction('down'));
+                        user.player.setAction(new MoveAction(DIRECTION.DOWN));
                         break;
                     case 'move_right':
-                        user.player.setAction(new MoveAction('right'));
+                        user.player.setAction(new MoveAction(DIRECTION.RIGHT));
+                        break;
+                    case 'turn_up':
+                        user.player.setAction(new TurnAction(DIRECTION.UP));
+                        break;
+                    case 'turn_left':
+                        user.player.setAction(new TurnAction(DIRECTION.LEFT));
+                        break;
+                    case 'turn_down':
+                        user.player.setAction(new TurnAction(DIRECTION.DOWN));
+                        break;
+                    case 'turn_right':
+                        user.player.setAction(new TurnAction(DIRECTION.RIGHT));
                         break;
                     case 'wait':
                         user.player.setAction(new WaitAction());
                         break;
                     case 'unwait':
                         user.player.setAction(new UnwaitAction());
+                        break;
+                    case 'attack':
+                        user.player.setAction(new AttackAction());
+                        break;
+                    case 'portal':
+                        user.player.setAction(new UsePortalAction());
                         break;
                     default:
                         sock.emit('log', 'unknown action: ' + msg);

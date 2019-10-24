@@ -2,6 +2,7 @@ import fs = require('fs');
 
 import { CharacterSheet } from './character/charactersheet';
 import { CharGen, CharGenStage } from './chargen';
+import { DIRECTION, directionVectors } from './direction';
 import { ACTION_STATUS, Entity } from './entity';
 import { Instance } from './instance';
 import { Location } from './location';
@@ -15,9 +16,12 @@ export enum ACTION_TYPE {
     WAIT,
     UNWAIT,
     MOVE,
+    TURN,
+    USE_PORTAL,
+    ATTACK,
 }
 
-const ACTION_COST = [0, 0, 5];
+const ACTION_COST = [0, 0, 5, 2, 5, 10];
 
 export interface PlayerAction {
     type: ACTION_TYPE;
@@ -39,23 +43,45 @@ export class UnwaitAction implements PlayerAction {
 
 export class MoveAction implements PlayerAction {
     public type: ACTION_TYPE.MOVE = ACTION_TYPE.MOVE;
-    public direction: string;
     public directionVec: { 'x': number, 'y': number };
-    constructor(dir: string) {
-        this.direction = dir;
+    constructor(public direction: DIRECTION) {
         this.directionVec = { 'x': 0, 'y': 0 };
-        if (dir in Instance.directionVectors) {
-            const dirVec = Instance.directionVectors[dir];
-            this.directionVec.x = dirVec.x;
-            this.directionVec.y = dirVec.y;
-        } else {
-            console.log('Invalid move direction: ' + dir);
-        }
+        const dirVec = directionVectors[direction];
+        this.directionVec.x = dirVec.x;
+        this.directionVec.y = dirVec.y;
     }
     public toJSON(): object {
         return {
             'type': ACTION_TYPE[this.type],
             'direction': this.direction,
+        };
+    }
+}
+
+export class TurnAction implements PlayerAction {
+    public type: ACTION_TYPE.TURN = ACTION_TYPE.TURN;
+    constructor(public direction: DIRECTION) { }
+    public toJSON(): object {
+        return {
+            'type': ACTION_TYPE[this.type],
+            'direction': this.direction,
+        };
+    }
+}
+
+export class UsePortalAction implements PlayerAction {
+    public type: ACTION_TYPE.USE_PORTAL = ACTION_TYPE.USE_PORTAL;
+    public toJSON(): object {
+        return {
+            'type': ACTION_TYPE[this.type],
+        };
+    }
+}
+export class AttackAction implements PlayerAction {
+    public type: ACTION_TYPE.ATTACK = ACTION_TYPE.ATTACK;
+    public toJSON(): object {
+        return {
+            'type': ACTION_TYPE[this.type],
         };
     }
 }
@@ -108,8 +134,8 @@ export class Player extends Entity {
     }
     set location(loc: Location) {
         if (this.location.instance_id !== loc.instance_id) {
-            const fromInst = Instance.instances[this.location.instance_id];
-            const toInst = Instance.instances[loc.instance_id];
+            const fromInst = Instance.getLoadedInstanceById(this.location.instance_id);
+            const toInst = Instance.getLoadedInstanceById(loc.instance_id);
             if (fromInst) {
                 fromInst.removePlayer(this);
             }
@@ -134,9 +160,7 @@ export class Player extends Entity {
             return ACTION_STATUS.WAITING; // can't do anything else
         }
         if (this.queuedAction) {
-            if (this.charSheet.hasSufficientAP(ACTION_COST[this.queuedAction.type])) {
-                this.charSheet.useAP(ACTION_COST[this.queuedAction.type]);
-            } else {
+            if (!this.charSheet.hasSufficientAP(ACTION_COST[this.queuedAction.type])) {
                 return ACTION_STATUS.WAITING; // not enough ap yet
             }
             switch (this.queuedAction.type) {
@@ -148,12 +172,47 @@ export class Player extends Entity {
                     return ACTION_STATUS.ASYNC;
                     break;
                 case ACTION_TYPE.MOVE:
-                    this.move(this.location.getMovedBy(
+                    const success = this.move(this.location.getMovedBy(
                         (this.queuedAction as MoveAction).directionVec.x,
                         (this.queuedAction as MoveAction).directionVec.y),
                     );
+                    if (success) {
+                        this.charSheet.useAP(ACTION_COST[this.queuedAction.type]);
+                    }
                     this.queuedAction = null;
                     break;
+                case ACTION_TYPE.TURN:
+                    if (this.direction !== (this.queuedAction as TurnAction).direction) {
+                        this.direction = (this.queuedAction as TurnAction).direction;
+                        this.charSheet.useAP(ACTION_COST[this.queuedAction.type]);
+                    }
+                    this.queuedAction = null;
+                    break;
+                case ACTION_TYPE.USE_PORTAL: {
+                    const inst = Instance.getLoadedInstanceById(this.location.instance_id)!;
+                    for (const portal of inst.portals) {
+                        if (portal.location.equals(this._location)) {
+                            this.charSheet.useAP(ACTION_COST[this.queuedAction.type]);
+                            this.queuedAction = null;
+                            portal.reify();
+                            this.location = portal.getReifiedDestination();
+                            break;
+                        }
+                    }
+                    this.queuedAction = null;
+                    break;
+                } case ACTION_TYPE.ATTACK: {
+                    const inst = Instance.getLoadedInstanceById(this.location.instance_id)!;
+                    const vec = directionVectors[this.direction];
+                    const attackPos = this.location.getMovedBy(vec.x, vec.y);
+                    const opponent = inst.getMobInLocation(attackPos.x, attackPos.y);
+                    this.charSheet.useAP(ACTION_COST[this.queuedAction.type]);
+                    if (opponent) {
+                        opponent.hit(this.charSheet);
+                    }
+                    this.queuedAction = null;
+                    break;
+                }
             }
             return ACTION_STATUS.PERFORMED;
         }
@@ -235,20 +294,18 @@ export class Player extends Entity {
         };
     }
     protected move(to: Location) {
-        const fromInst = Instance.instances[this.location.instance_id];
-        const toInst = Instance.instances[to.instance_id];
-        if (toInst.isTilePassable(to.x, to.y)) {
-            const mobInWay = toInst.getMobInLocation(to.x, to.y);
-            if (mobInWay) {
-                mobInWay.hit(this.charSheet);
-            } else {
-                this.location = to.clone();
-            }
-            if (fromInst.id !== toInst.id) {
-                // TODO: instead of sending whole board, send action info so that we can update exactly when necessary
-                toInst.updateAllPlayers(); // TODO: is this necessary?  reasoning: players in fromInst WILL be updated at end of update cycle,  toInst could hypothetically not be updated until next update cycle.  (but update cycles should be multiple time per second, so is this necessary?)
-            }
+        if (this.location.instance_id !== to.instance_id) {
+            return false; // .move() should only be used within an instance
         }
+        const inst = Instance.getLoadedInstanceById(this.location.instance_id)!;
+        if (!inst.isTilePassable(to.x, to.y)) {
+            return false;
+        }
+        if (inst.getMobInLocation(to.x, to.y)) {
+            return false;
+        }
+        this.location = to;
+        return true;
     }
     protected handleDeath() {
         Instance.removeEntityFromWorld(this);

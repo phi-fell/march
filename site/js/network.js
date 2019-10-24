@@ -50,6 +50,10 @@ $(function () {
             tok = tok.slice(1);
             game._sheetdisplaymode = tok.join(' ');
             game.updateMenus();
+        } else if ((msg + '').startsWith('/action')) {
+            tok = msg.substring(1).split(' ');
+            tok = tok.slice(1);
+            socket.emit('player_action', tok.join(' '));
         } else if ((msg + '').startsWith('/')) {
             tok = msg.substring(1).split(' ');
             cmd = tok[0];

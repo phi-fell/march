@@ -1,4 +1,5 @@
 import { CharacterSheet } from './character/charactersheet';
+import { DIRECTION } from './direction';
 import { Instance } from './instance';
 import { Location } from './location';
 import { Random } from './math/random';
@@ -18,7 +19,13 @@ export class Entity {
     public charSheet: CharacterSheet;
     protected _location: Location;
     private lastHitSheet: CharacterSheet | undefined;
-    constructor(public id: string, public name: string, public schema_id = '', loc = new Location(0, 0, '')) {
+    constructor(
+        public id: string,
+        public name: string,
+        public schema_id = '',
+        loc = new Location(0, 0, ''),
+        public direction: DIRECTION = DIRECTION.UP,
+    ) {
         this.charSheet = new CharacterSheet();
         this._location = new Location(0, 0, '');
         this.lastHitSheet = undefined;

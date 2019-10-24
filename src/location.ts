@@ -16,6 +16,9 @@ export class Location {
     public getMovedBy(dx: number, dy: number) {
         return new Location(this._x + dx, this._y + dy, this._instance_id);
     }
+    public equals(rhs: Location) {
+        return this._x === rhs._x && this._y === rhs._y && this._instance_id === rhs._instance_id;
+    }
     public clone() {
         return new Location(this._x, this._y, this._instance_id);
     }

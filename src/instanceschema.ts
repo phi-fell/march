@@ -14,11 +14,14 @@ interface InstanceSchema {
     adjacencies: any[];
 }
 
+export type InstanceSchemaID = string;
+
 const instanceSchemas: { [id: string]: InstanceSchema; } = {};
 
-export function getInstanceFromSchema(schema_id: string, seed: string = Random.uuid()): Instance | null {
+export function getInstanceFromSchema(schema_id: InstanceSchemaID, seed: string = Random.uuid()): Instance | null {
     const schema = instanceSchemas[schema_id];
     const iattr = new InstanceAttributes(seed, schema.width, schema.height);
+    iattr.schemaID = schema_id;
     iattr.genType = INSTANCE_GEN_TYPE[schema.generation];
     const inst = Instance.spinUpNewInstance(iattr);
     for (const mob of schema.mobs) {

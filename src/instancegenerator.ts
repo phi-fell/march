@@ -1,4 +1,6 @@
 import { Instance } from './instance';
+import { Location } from './location';
+import { Portal } from './portal';
 import { getTileFromName } from './tile';
 
 export enum INSTANCE_GEN_TYPE {
@@ -266,6 +268,7 @@ function doBASIC_DUNGEON(inst: Instance) {
         const sy = Math.floor(Math.random() * inst.attributes.height);
         if (inst.tiles[sx][sy] === getTileFromName('stone_floor')) {
             inst.tiles[sx][sy] = getTileFromName('stone_stairs');
+            inst.portals.push(new Portal(new Location(sx, sy, inst.id), inst.attributes.schemaID));
             stairNum--;
         }
     }

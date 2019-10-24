@@ -1,6 +1,6 @@
 import fs = require('fs');
 
-import { Instance } from './instance';
+import { DIRECTION } from './direction';
 import { Random } from './math/random';
 import { MoveAction } from './player';
 import { User } from './user';
@@ -139,8 +139,8 @@ const commands: any = {
         'description': 'Move in a direction',
         'exec': (user: User, tok) => {
             if (user.player) {
-                if (tok[0] in Instance.directionVectors) {
-                    user.player.setAction(new MoveAction(tok[0]));
+                if (tok[0] in DIRECTION && isNaN(Number(tok[0]))) {
+                    user.player.setAction(new MoveAction(DIRECTION[tok[0] as string]));
                 } else {
                     user.socket.emit('chat message', 'Invalid move direction: ' + tok[0]);
                 }

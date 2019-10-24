@@ -195,11 +195,29 @@ class Game {
             case 'MOVE':
                 list.append($('<li>').text('Action: ' + this.player.action.type + " " + this.player.action.direction));
                 break;
+            case 'TURN':
+                list.append($('<li>').text('Action: ' + this.player.action.type + " " + this.player.action.direction));
+                break;
+            case 'USE_PORTAL':
+                list.append($('<li>').text('Action: ' + this.player.action.type));
+                break;
+            case 'ATTACK':
+                list.append($('<li>').text('Action: ' + this.player.action.type));
+                break;
             default:
                 list.append($('<li>').text('Action: UNKNOWN ACTION TYPE!'));
                 break;
         }
         list.append($('<li>').text(this.boardInfo.your_turn ? 'It\'s your turn!' : 'Other characters are taking their turn...'));
+
+        list.append($('<li>').text('----- Controls -----'));
+        list.append($('<li>').text(' - Turn with the arrow keys'));
+        list.append($('<li>').text('Use WASD to move'));
+        list.append($('<li>').text('strafing takes more AP than moving forward'));
+        list.append($('<li>').text(' - Attack with spacebar'));
+        list.append($('<li>').text('but only in the direction you\'re facing'));
+        list.append($('<li>').text(' - Z to wait, X to stop waiting'));
+        list.append($('<li>').text(' - > to use stairs'));
     }
 
     _draw() {
@@ -251,7 +269,7 @@ class Game {
                     //this._drawSquare(((x - 1) * scale) + offsetX, ((y - 1) * scale) + offsetY, scale, scale);
                     this._ctx.fillText(this.mobs[i].name, ((x - 0.5) * scale) + offsetX, ((y - 0.5) * scale) + offsetY);
                 } else {
-                    this._drawSprite(sprite, ((x - 1) * scale) + offsetX, ((y - 1) * scale) + offsetY, scale, scale);
+                    this._drawSprite(sprite, ((x - 1) * scale) + offsetX, ((y - 1) * scale) + offsetY, scale, scale, this.mobs[i].direction);
                     //V displays action points on mobs
                     //this._ctx.fillText(this.mobs[i].sheet.status.action_points + '/' + this.mobs[i].sheet.status.max_action_points + ' (+' + this.mobs[i].sheet.status.action_point_recovery + ')', ((x - 0.5) * scale) + offsetX, ((y - 0.5) * scale) + offsetY);
                 }
@@ -288,8 +306,12 @@ class Game {
         this._ctx.drawImage(this._palette[id].image, x, y, w, h);
     }
 
-    _drawSprite(id, x, y, w, h) {
-        this._ctx.drawImage(this._getSprite(id), x, y, w, h);
+    _drawSprite(id, x, y, w, h, dir) {
+        this._ctx.save();
+        this._ctx.translate(x + w / 2, y + h / 2);
+        this._ctx.rotate(Math.PI * (dir / -2));
+        this._ctx.drawImage(this._getSprite(id), -w / 2, -h / 2, w, h);
+        this._ctx.restore();
     }
 
     _drawSquare(x, y, w, h) {

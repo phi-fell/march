@@ -17,6 +17,7 @@ var KEY_MAP = {
     32: 'attack',
     88: 'unwait',
     90: 'wait',
+    190: 'portal',
 };
 class Controls {
     constructor() {
