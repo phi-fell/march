@@ -25,6 +25,8 @@ html
                 th ID
                 th Active
                 th Personal
+                th Schema
+                th Seed
                 th Width
                 th Height
                 th Players
@@ -36,6 +38,8 @@ html
                 else
                     td= "unloading in "+(instance.getMillisUntilUnload()/1000)+" seconds"
                 td= instance.attributes.personal
+                td= instance.attributes.schema
+                td= instance.attributes.seed
                 td= instance.attributes.width
                 td= instance.attributes.height
                 td= instance.players.length
