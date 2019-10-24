@@ -21,7 +21,10 @@ export class InstanceAttributes {
         public personal: boolean = false,
     ) { }
     public clone() {
-        return new InstanceAttributes(this.seed, this.width, this.height, this.personal);
+        const ret = new InstanceAttributes(this.seed, this.width, this.height, this.personal);
+        ret.genType = this.genType;
+        ret.schemaID = this.schemaID;
+        return ret;
     }
     public getJSON() {
         return {

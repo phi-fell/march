@@ -14,7 +14,7 @@ table.table(class="sortable")
         tr
             td 
                 a(href='/diagnostic/instance?id='+inst.id)= inst.id
-            td= inst.attributes.schema
+            td= inst.attributes.schemaID
             if inst.players.length > 0
                 td= "yes"
             else

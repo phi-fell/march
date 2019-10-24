@@ -212,12 +212,12 @@ class Game {
 
         list.append($('<li>').text('----- Controls -----'));
         list.append($('<li>').text(' - Turn with the arrow keys'));
-        list.append($('<li>').text('Use WASD to move'));
+        list.append($('<li>').text(' - Use WASD to move'));
         list.append($('<li>').text('strafing takes more AP than moving forward'));
         list.append($('<li>').text(' - Attack with spacebar'));
         list.append($('<li>').text('but only in the direction you\'re facing'));
-        list.append($('<li>').text(' - Z to wait, X to stop waiting'));
-        list.append($('<li>').text(' - > to use stairs'));
+        list.append($('<li>').text(' - press Z to wait, X to stop waiting'));
+        list.append($('<li>').text(' - press . or > to use stairs'));
     }
 
     _draw() {
