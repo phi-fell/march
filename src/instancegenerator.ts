@@ -267,7 +267,6 @@ function doBASIC_DUNGEON(inst: Instance) {
         const sx = Math.floor(Math.random() * inst.attributes.width);
         const sy = Math.floor(Math.random() * inst.attributes.height);
         if (inst.tiles[sx][sy] === getTileFromName('stone_floor')) {
-            inst.tiles[sx][sy] = getTileFromName('stone_stairs');
             inst.portals.push(new Portal(new Location(sx, sy, inst.id), inst.attributes.schemaID));
             stairNum--;
         }
@@ -280,6 +279,9 @@ function doBASIC_DUNGEON(inst: Instance) {
     }
     ensureConnectedness(inst);
     prune(inst);
+    for (const portal of inst.portals) {
+        inst.tiles[portal.location.x][portal.location.y] = getTileFromName('stone_stairs');
+    }
 }
 
 function doFOREST(inst: Instance) {
