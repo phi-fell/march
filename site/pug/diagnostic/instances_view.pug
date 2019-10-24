@@ -1,6 +1,7 @@
 table.table(class="sortable")
     tr
         th ID
+        th Schema
         th Active
         th Personal
         th Width
@@ -8,10 +9,12 @@ table.table(class="sortable")
         th Players
         th Mobs
         th Portals
+        th Seed
     each inst, inst_id in instances
         tr
             td 
                 a(href='/diagnostic/instance?id='+inst.id)= inst.id
+            td= inst.attributes.schema
             if inst.players.length > 0
                 td= "yes"
             else
@@ -22,3 +25,4 @@ table.table(class="sortable")
             td= inst.players.length
             td= inst.mobs.length
             td= inst.portals.length
+            td= inst.attributes.seed

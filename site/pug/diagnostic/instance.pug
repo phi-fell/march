@@ -23,27 +23,27 @@ html
             caption Instance
             tr
                 th ID
+                th Schema
                 th Active
                 th Personal
-                th Schema
-                th Seed
                 th Width
                 th Height
                 th Players
                 th Mobs
+                th Seed
             tr
                 td= instance.id
+                td= instance.attributes.schema
                 if instance.players.length > 0
                     td= "yes"
                 else
                     td= "unloading in "+(instance.getMillisUntilUnload()/1000)+" seconds"
                 td= instance.attributes.personal
-                td= instance.attributes.schema
-                td= instance.attributes.seed
                 td= instance.attributes.width
                 td= instance.attributes.height
                 td= instance.players.length
                 td= instance.mobs.length
+                td= instance.attributes.seed
         table.table
             caption Portals
             tr
