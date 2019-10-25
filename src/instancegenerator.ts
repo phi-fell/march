@@ -62,6 +62,7 @@ export class InstanceGenerator {
                 break;
             case INSTANCE_GEN_TYPE.SLIME_ABYSS:
                 generate_SLIME_ABYSS(inst);
+                break;
             case INSTANCE_GEN_TYPE.FOREST:
                 doFOREST(inst);
                 break;
