@@ -12,7 +12,6 @@ export class Portal {
         return this.destination!;
     }
     public reify() {
-        console.log(JSON.stringify(this));
         if (this.destination && Instance.getLoadedInstanceById(this.destination.instance_id)) {
             return true;
         }
