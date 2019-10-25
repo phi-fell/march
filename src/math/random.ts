@@ -6,6 +6,12 @@ export class Random {
     public static float() {
         return Random.r.float();
     }
+    public static floatRange(min_inclusive: number, max_exclusive: number): number {
+        return Random.r.floatRange(min_inclusive, max_exclusive);
+    }
+    public static int(min_inclusive, max_exclusive): number {
+        return Random.r.int(min_inclusive, max_exclusive);
+    }
     public static uuid() {
         return uuid_rand();
     }
@@ -38,7 +44,7 @@ export class Random {
             this.state[i] = (hash ^= hash >>> 16) >>> 0;
         }
     }
-    public float() {
+    public float(): number {
         this.state[0] >>>= 0; this.state[1] >>>= 0; this.state[2] >>>= 0; this.state[3] >>>= 0;
         let ret = (this.state[0] + this.state[1]) | 0;
         this.state[0] = this.state[1] ^ this.state[1] >>> 9;
@@ -48,5 +54,11 @@ export class Random {
         ret = ret + this.state[3] | 0;
         this.state[2] = this.state[2] + ret | 0;
         return (ret >>> 0) / 4294967296;
+    }
+    public floatRange(min_inclusive: number, max_exclusive: number): number {
+        return (this.float() * (max_exclusive - min_inclusive)) + min_inclusive;
+    }
+    public int(min_inclusive, max_exclusive): number {
+        return Math.floor(this.floatRange(min_inclusive, max_exclusive));
     }
 }

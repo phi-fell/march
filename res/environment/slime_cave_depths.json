@@ -29,6 +29,10 @@
         {
             "id": "slime_cave_abyss",
             "weight": 1
+        },
+        {
+            "id": "slime_cave_labyrinth",
+            "weight": 1
         }
     ]
 }

@@ -1,16 +1,16 @@
 {
     "name": "Slime Cave Entrance",
     "generation": "SLIME_CAVE",
-    "width": 100,
-    "height": 100,
+    "width": 30,
+    "height": 30,
     "mobs": [
         {
             "id": "slime_petty",
-            "count": 180
+            "count": 8
         },
         {
             "id": "slime_lesser",
-            "count": 20
+            "count": 2
         }
     ],
     "adjacencies": [

@@ -1,0 +1,26 @@
+{
+    "name": "Slime Labyrinth",
+    "generation": "SLIME_MAZE",
+    "width": 100,
+    "height": 100,
+    "mobs": [
+        {
+            "id": "slime_grand",
+            "count": 50
+        }
+    ],
+    "adjacencies": [
+        {
+            "id": "slime_cave_labyrinth",
+            "weight": 20
+        },
+        {
+            "id": "slime_cave_abyss",
+            "weight": 5
+        },
+        {
+            "id": "slime_cave_depths",
+            "weight": 1
+        }
+    ]
+}
