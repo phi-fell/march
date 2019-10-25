@@ -2,7 +2,8 @@
     "name": "Lesser Slime",
     "race": "slime",
     "attributes": {
-        "VITALITY": 4
+        "STRENGTH": 5,
+        "VITALITY": 5
     },
     "skills": {}
 }

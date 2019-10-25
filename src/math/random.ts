@@ -1,21 +1,37 @@
-import uuid = require('uuid/v4');
+import { randomBytes } from 'crypto';
+import uuid_rand = require('uuid/v4');
+import uuid_deterministic = require('uuid/v5');
 
 export class Random {
     public static float() {
         return Random.r.float();
     }
     public static uuid() {
-        return uuid();
+        return uuid_rand();
+    }
+    public static getDeterministicID() {
+        return uuid_deterministic(
+            '' + Random.float() + ', ' + Random.float() + ', ' + Random.float() + ', ' + Random.float(),
+            Random.r.seed,
+        );
+    }
+    public static getSecureID() {
+        return randomBytes(16).toString('hex');
+    }
+    public static reSeed(seed: string) {
+        Random.r.reSeed(seed);
     }
     private static r = new Random();
-    private state: number[];
-    constructor(seed: string = Random.uuid()) {
+    private state: number[] = [];
+    constructor(private seed: string = Random.uuid()) {
+        this.reSeed(seed);
+    }
+    public reSeed(seed: string) {
         let hash = 1779033703 ^ seed.length;
         for (let i = 0; i < seed.length; i++) {
             hash = Math.imul(hash ^ seed.charCodeAt(i), 3432918353);
             hash = hash << 13 | hash >>> 19;
         }
-        this.state = [];
         for (let i = 0; i < 4; i++) {
             hash = Math.imul(hash ^ hash >>> 16, 2246822507);
             hash = Math.imul(hash ^ hash >>> 13, 3266489909);

@@ -3,6 +3,7 @@ import { Instance, InstanceAttributes } from './instance';
 import { INSTANCE_GEN_TYPE } from './instancegenerator';
 import { getInstanceFromSchema } from './instanceschema';
 import { Location } from './location';
+import { Random } from './math/random';
 import { Player } from './player';
 
 export const enum CharGenStage {
@@ -56,7 +57,7 @@ export class CharGen {
                 // TODO: spawn into main world?
                 let inst = Instance.getAvailableNonFullInstance(player);
                 if (!inst) {
-                    inst = getInstanceFromSchema('slime_cave');
+                    inst = getInstanceFromSchema('forest', Random.uuid());
                 }
                 if (!inst) {
                     const attr = new InstanceAttributes('ERROR', 10, 10, true);

@@ -1,3 +1,4 @@
+import { Random } from '../math/random';
 import { CharacterResource, RESOURCE } from './characterresource';
 
 export class CharacterStatus {
@@ -78,10 +79,10 @@ export class CharacterStatus {
         flesh_ratio = Math.max(flesh_ratio, 0.05);
         blood_ratio = Math.max(blood_ratio, 0.05);
         if (this.pools[RESOURCE.FLESH].quantity < this.pools[RESOURCE.FLESH].capacity) {
-            this.pools[RESOURCE.FLESH].quantity += Math.floor(Math.random() + blood_ratio);
+            this.pools[RESOURCE.FLESH].quantity += Math.floor(Random.float() + blood_ratio);
         }
         if (this.pools[RESOURCE.BLOOD].quantity < this.pools[RESOURCE.BLOOD].capacity) {
-            this.pools[RESOURCE.BLOOD].quantity += Math.floor(Math.random() + flesh_ratio);
+            this.pools[RESOURCE.BLOOD].quantity += Math.floor(Random.float() + flesh_ratio);
         }
     }
 }

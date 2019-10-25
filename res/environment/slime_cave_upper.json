@@ -1,0 +1,34 @@
+{
+    "name": "Upper Slime Caves",
+    "generation": "SLIME_CAVE",
+    "width": 100,
+    "height": 100,
+    "mobs": [
+        {
+            "id": "slime_petty",
+            "count": 64
+        },
+        {
+            "id": "slime_lesser",
+            "count": 80
+        },
+        {
+            "id": "slime_common",
+            "count": 16
+        }
+    ],
+    "adjacencies": [
+        {
+            "id": "slime_cave_entrance",
+            "weight": 1
+        },
+        {
+            "id": "slime_cave_upper",
+            "weight": 3
+        },
+        {
+            "id": "slime_cave_main",
+            "weight": 1
+        }
+    ]
+}

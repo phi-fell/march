@@ -15,11 +15,12 @@ const mobSchemas: { [id: string]: MobSchema; } = {};
 
 export function getMobFromSchema(schema_id: string) {
     const ret = new Entity(Entity.generateNewEntityID(), mobSchemas[schema_id].name, schema_id);
-    const sheet = CharacterSheet.validateAndCreateFromJSON(mobSchemas[schema_id]);
+    const sheet = CharacterSheet.fromMobSchemaJSON(mobSchemas[schema_id]);
     if (sheet) {
         ret.charSheet = sheet;
         return ret;
     }
+    console.log('Could not get mob "' + schema_id + '" from schema! Invalid Sheet');
     return null;
 }
 

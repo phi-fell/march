@@ -247,8 +247,8 @@ export class Instance {
         let attempts = 0;
         do {
             attempts++;
-            posX = Math.floor(Math.random() * this.attributes.width);
-            posY = Math.floor(Math.random() * this.attributes.height);
+            posX = Math.floor(Random.float() * this.attributes.width);
+            posY = Math.floor(Random.float() * this.attributes.height);
             if (this.isTilePassable(posX, posY)) {
                 validpos = true;
                 for (const mob of this.mobs) {

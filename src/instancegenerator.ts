@@ -1,5 +1,9 @@
 import { Instance } from './instance';
+import { generate_SLIME_ABYSS } from './instance_generation/slime_abyss';
+import { generate_SLIME_CAVE } from './instance_generation/slime_cave';
+import { getRandomAdjacency } from './instanceschema';
 import { Location } from './location';
+import { Random } from './math/random';
 import { Portal } from './portal';
 import { getTileFromName } from './tile';
 
@@ -10,7 +14,65 @@ export enum INSTANCE_GEN_TYPE {
     ROOMS,
     BASIC_DUNGEON,
     FOREST,
+    SLIME_CAVE,
+    SLIME_ABYSS,
     VOLCANIC,
+}
+
+export class InstanceGenerator {
+    public static runGeneration(inst: Instance) {
+        switch (inst.attributes.genType) {
+            case INSTANCE_GEN_TYPE.EMPTY:
+                for (let i = 0; i < inst.attributes.width; i++) {
+                    for (let j = 0; j < inst.attributes.height; j++) {
+                        inst.tiles[i][j] = getTileFromName('stone_floor');
+                    }
+                }
+                break;
+            case INSTANCE_GEN_TYPE.ONE_ROOM:
+                for (let i = 0; i < inst.attributes.width; i++) {
+                    for (let j = 0; j < inst.attributes.height; j++) {
+                        if (i === 0 || j === 0 || i === inst.attributes.width - 1 || j === inst.attributes.height - 1) {
+                            inst.tiles[i][j] = getTileFromName('stone_wall');
+                        } else {
+                            inst.tiles[i][j] = getTileFromName('stone_floor');
+                        }
+                    }
+                }
+                break;
+            case INSTANCE_GEN_TYPE.MAZE:
+                for (let i = 0; i < inst.attributes.width; i++) {
+                    for (let j = 0; j < inst.attributes.height; j++) {
+                        inst.tiles[i][j] = getTileFromName('stone_wall');
+                    }
+                }
+                const STRIDE = 2;
+                const x = Math.max((STRIDE * Math.floor(Random.float() * ((inst.attributes.width / STRIDE) - 1))) + 1, 1);
+                const y = Math.max((STRIDE * Math.floor(Random.float() * ((inst.attributes.height / STRIDE) - 1))) + 1, 1);
+                maze(inst, x, y);
+                break;
+            case INSTANCE_GEN_TYPE.ROOMS:
+                doROOMS(inst);
+                break;
+            case INSTANCE_GEN_TYPE.BASIC_DUNGEON:
+                doBASIC_DUNGEON(inst);
+                break;
+            case INSTANCE_GEN_TYPE.SLIME_CAVE:
+                generate_SLIME_CAVE(inst);
+                break;
+            case INSTANCE_GEN_TYPE.SLIME_ABYSS:
+                generate_SLIME_ABYSS(inst);
+            case INSTANCE_GEN_TYPE.FOREST:
+                doFOREST(inst);
+                break;
+            case INSTANCE_GEN_TYPE.VOLCANIC:
+                doVOLCANIC(inst);
+                break;
+            default:
+                console.log('INVALID INSTANCE GENERATION TYPE!');
+                break;
+        }
+    }
 }
 
 function maze(inst: Instance, x: number, y: number) {
@@ -25,7 +87,7 @@ function maze(inst: Instance, x: number, y: number) {
     inst.tiles[x][y] = getTileFromName('stone_floor');
     const dirsleft = [true, true, true, true];
     while (dirsleft[0] || dirsleft[1] || dirsleft[2] || dirsleft[3]) {
-        const dir = Math.floor(Math.random() * 4);
+        const dir = Math.floor(Random.float() * 4);
         if (dirsleft[dir]) {
             if (dir === 0) {
                 if (maze(inst, x + STRIDE, y)) {
@@ -58,62 +120,11 @@ function maze(inst: Instance, x: number, y: number) {
     return true;
 }
 
-export class InstanceGenerator {
-    public static runGeneration(inst: Instance) {
-        switch (inst.attributes.genType) {
-            case INSTANCE_GEN_TYPE.EMPTY:
-                for (let i = 0; i < inst.attributes.width; i++) {
-                    for (let j = 0; j < inst.attributes.height; j++) {
-                        inst.tiles[i][j] = getTileFromName('stone_floor');
-                    }
-                }
-                break;
-            case INSTANCE_GEN_TYPE.ONE_ROOM:
-                for (let i = 0; i < inst.attributes.width; i++) {
-                    for (let j = 0; j < inst.attributes.height; j++) {
-                        if (i === 0 || j === 0 || i === inst.attributes.width - 1 || j === inst.attributes.height - 1) {
-                            inst.tiles[i][j] = getTileFromName('stone_wall');
-                        } else {
-                            inst.tiles[i][j] = getTileFromName('stone_floor');
-                        }
-                    }
-                }
-                break;
-            case INSTANCE_GEN_TYPE.MAZE:
-                for (let i = 0; i < inst.attributes.width; i++) {
-                    for (let j = 0; j < inst.attributes.height; j++) {
-                        inst.tiles[i][j] = getTileFromName('stone_wall');
-                    }
-                }
-                const STRIDE = 2;
-                const x = Math.max((STRIDE * Math.floor(Math.random() * ((inst.attributes.width / STRIDE) - 1))) + 1, 1);
-                const y = Math.max((STRIDE * Math.floor(Math.random() * ((inst.attributes.height / STRIDE) - 1))) + 1, 1);
-                maze(inst, x, y);
-                break;
-            case INSTANCE_GEN_TYPE.ROOMS:
-                doROOMS(inst);
-                break;
-            case INSTANCE_GEN_TYPE.BASIC_DUNGEON:
-                doBASIC_DUNGEON(inst);
-                break;
-            case INSTANCE_GEN_TYPE.FOREST:
-                doFOREST(inst);
-                break;
-            case INSTANCE_GEN_TYPE.VOLCANIC:
-                doVOLCANIC(inst);
-                break;
-            default:
-                console.log('INVALID INSTANCE GENERATION TYPE!');
-                break;
-        }
-    }
-}
-
 function doSingleRoom(inst: Instance): boolean {
-    const w = (Math.floor(Math.random() * 4) * 2) + 5;
-    const h = (Math.floor(Math.random() * 4) * 2) + 5;
-    const x = (Math.floor((Math.random() * (inst.attributes.width - (w + 2))) / 2) * 2) + 1;
-    const y = (Math.floor((Math.random() * (inst.attributes.height - (h + 2))) / 2) * 2) + 1;
+    const w = (Math.floor(Random.float() * 4) * 2) + 5;
+    const h = (Math.floor(Random.float() * 4) * 2) + 5;
+    const x = (Math.floor((Random.float() * (inst.attributes.width - (w + 2))) / 2) * 2) + 1;
+    const y = (Math.floor((Random.float() * (inst.attributes.height - (h + 2))) / 2) * 2) + 1;
     for (let i = -1; i < w + 1; i++) {
         for (let j = -1; j < h + 1; j++) {
             if (inst.tiles[x + i][y + j] !== getTileFromName('stone_wall')) {
@@ -168,7 +179,7 @@ function connectRegion(inst: Instance, flood: number[][], id: number) {
     }
     const doCons = conCount * 0.05;
     for (let j = 0; j < doCons; j++) {
-        const i = Math.floor(Math.random() * conCount);
+        const i = Math.floor(Random.float() * conCount);
         inst.tiles[conX[i]][conY[i]] = getTileFromName('stone_floor');
         floodFill(inst, flood, id, conX[i], conY[i]);
         conX.splice(i, 1);
@@ -240,10 +251,10 @@ function doROOMS(inst: Instance) {
     }
     const count = (inst.attributes.width * inst.attributes.height) / 100;
     for (let _i = 0; _i < count; _i++) {
-        const w = Math.floor(Math.random() * 5) + 5;
-        const h = Math.floor(Math.random() * 5) + 5;
-        const x = Math.floor(Math.random() * (inst.attributes.width - (w + 2))) + 1;
-        const y = Math.floor(Math.random() * (inst.attributes.height - (h + 2))) + 1;
+        const w = Math.floor(Random.float() * 5) + 5;
+        const h = Math.floor(Random.float() * 5) + 5;
+        const x = Math.floor(Random.float() * (inst.attributes.width - (w + 2))) + 1;
+        const y = Math.floor(Random.float() * (inst.attributes.height - (h + 2))) + 1;
         for (let i = 0; i < w; i++) {
             for (let j = 0; j < h; j++) {
                 inst.tiles[x + i][y + j] = getTileFromName('stone_floor');
@@ -262,13 +273,22 @@ function doBASIC_DUNGEON(inst: Instance) {
     for (let _i = 0; _i < count; _i++) {
         doSingleRoom(inst);
     }
-    let stairNum = Math.floor(Math.random() * 3) + 1;
+    let stairNum = Math.floor(Random.float() * 3) + 1;
     while (stairNum > 0) {
-        const sx = Math.floor(Math.random() * inst.attributes.width);
-        const sy = Math.floor(Math.random() * inst.attributes.height);
+        const sx = Math.floor(Random.float() * inst.attributes.width);
+        const sy = Math.floor(Random.float() * inst.attributes.height);
         if (inst.tiles[sx][sy] === getTileFromName('stone_floor')) {
-            inst.portals.push(new Portal(new Location(sx, sy, inst.id), inst.attributes.schemaID));
-            stairNum--;
+            const loc = new Location(sx, sy, inst.id);
+            let overlap = false;
+            for (const portal of inst.portals) {
+                if (portal.location.equals(loc)) {
+                    overlap = true;
+                }
+            }
+            if (!overlap) {
+                inst.portals.push(new Portal(loc, inst.attributes.schemaID));
+                stairNum--;
+            }
         }
     }
     const STRIDE = 2;
@@ -287,7 +307,7 @@ function doBASIC_DUNGEON(inst: Instance) {
 function doFOREST(inst: Instance) {
     for (let i = 0; i < inst.attributes.width; i++) {
         for (let j = 0; j < inst.attributes.height; j++) {
-            const rand = Math.random();
+            const rand = Random.float();
             if (rand < 0.85) {
                 inst.tiles[i][j] = getTileFromName('grass');
             } else if (rand < 0.85) {
@@ -299,21 +319,33 @@ function doFOREST(inst: Instance) {
             }
         }
     }
-    let stairNum = Math.floor(Math.random() * 3) + 20;
+    let stairNum = Math.floor(Random.float() * 3) + 2;
     while (stairNum > 0) {
-        const sx = Math.floor(Math.random() * inst.attributes.width);
-        const sy = Math.floor(Math.random() * inst.attributes.height);
+        const sx = Math.floor(Random.float() * inst.attributes.width);
+        const sy = Math.floor(Random.float() * inst.attributes.height);
         if (inst.tiles[sx][sy] === getTileFromName('grass')) {
-            inst.tiles[sx][sy] = getTileFromName('stone_stairs');
-            stairNum--;
+            const loc = new Location(sx, sy, inst.id);
+            let overlap = false;
+            for (const portal of inst.portals) {
+                if (portal.location.equals(loc)) {
+                    overlap = true;
+                }
+            }
+            if (!overlap) {
+                inst.portals.push(new Portal(loc, getRandomAdjacency(inst.attributes.schemaID)));
+                stairNum--;
+            }
         }
+    }
+    for (const portal of inst.portals) {
+        inst.tiles[portal.location.x][portal.location.y] = getTileFromName('stone_stairs');
     }
 }
 
 function doVOLCANIC(inst: Instance) {
     for (let i = 0; i < inst.attributes.width; i++) {
         for (let j = 0; j < inst.attributes.height; j++) {
-            const rand = Math.random();
+            const rand = Random.float();
             if (rand < 0.6) {
                 inst.tiles[i][j] = getTileFromName('ash');
             } else if (rand < 0.8) {

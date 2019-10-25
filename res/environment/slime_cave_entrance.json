@@ -1,21 +1,25 @@
 {
-    "name": "Slime Cave",
-    "generation": "BASIC_DUNGEON",
+    "name": "Slime Cave Entrance",
+    "generation": "SLIME_CAVE",
     "width": 100,
     "height": 100,
     "mobs": [
         {
             "id": "slime_petty",
-            "count": 100
+            "count": 180
         },
         {
             "id": "slime_lesser",
-            "count": 10
+            "count": 20
         }
     ],
     "adjacencies": [
         {
-            "id": "slime_cave",
+            "id": "forest",
+            "weight": 1
+        },
+        {
+            "id": "slime_cave_upper",
             "weight": 1
         }
     ]

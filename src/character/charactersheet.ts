@@ -1,4 +1,5 @@
 import { Weapon } from '../item/weapon';
+import { Random } from '../math/random';
 import { ATTRIBUTE, CharacterAttributes } from './characterattributes';
 import { CharacterEquipment } from './characterequipment';
 import { CharacterFaith } from './characterfaith';
@@ -22,6 +23,15 @@ export class CharacterSheet {
         if (ret._essence < 0) {
             return null;
         }
+        ret.recalculateDerivedStats();
+        ret._status.restoreFully();
+        return ret;
+    }
+    public static fromMobSchemaJSON(json: any) {
+        const ret = new CharacterSheet();
+        ret._race = new CharacterRace(json.race);
+        ret._allocatedAttributes = CharacterAttributes.fromJSON(json.attributes);
+        ret._skills = CharacterSkills.fromJSON(json.skills);
         ret.recalculateDerivedStats();
         ret._status.restoreFully();
         return ret;
@@ -116,7 +126,7 @@ export class CharacterSheet {
         // e.g. critical could be a hit to head or vital region: +damage (maybe double dmg?)
         // e.g. direct is normal
         // e.g. glancing is almost dodge but not quite. (half? damage)
-        if (Math.random() >= dodgeChance) {
+        if (Random.float() >= dodgeChance) {
             let armor = 0; // TODO: calculate total armor
             let blunt = attacker.getNetAttributeValue(ATTRIBUTE.STRENGTH) + (weapon ? (weapon.force) : 0); // [str]D[force] ?
             if (blunt > armor) {

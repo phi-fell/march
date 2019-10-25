@@ -18,7 +18,8 @@ export type InstanceSchemaID = string;
 
 const instanceSchemas: { [id: string]: InstanceSchema; } = {};
 
-export function getInstanceFromSchema(schema_id: InstanceSchemaID, seed: string = Random.uuid()): Instance | null {
+export function getInstanceFromSchema(schema_id: InstanceSchemaID, seed: string): Instance | null {
+    Random.reSeed(seed);
     const schema = instanceSchemas[schema_id];
     const iattr = new InstanceAttributes(seed, schema.width, schema.height);
     iattr.schemaID = schema_id;
@@ -28,12 +29,28 @@ export function getInstanceFromSchema(schema_id: InstanceSchemaID, seed: string 
         for (let i = 0; i < mob.count; i++) {
             const ent = getMobFromSchema(mob.id);
             if (!ent) {
+                console.log('Coult not create instance from schema "' + schema_id + '"! Could not get Mob!');
                 return null;
             }
             inst.spawnEntityAnywhere(ent);
         }
     }
     return inst;
+}
+
+export function getRandomAdjacency(schema_id: InstanceSchemaID) {
+    const schema = instanceSchemas[schema_id];
+    let total = 0;
+    for (const adjacency of schema.adjacencies) {
+        total += adjacency.weight;
+    }
+    let rand = Random.float() * total;
+    for (const adjacency of schema.adjacencies) {
+        rand -= adjacency.weight;
+        if (rand <= 0) {
+            return adjacency.id;
+        }
+    }
 }
 
 fs.readdir('res/environment', (dir_err, filenames) => {

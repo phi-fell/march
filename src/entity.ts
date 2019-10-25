@@ -55,7 +55,7 @@ export class Entity {
                 { 'x': -1, 'y': 0 },
                 { 'x': 1, 'y': 0 },
             ];
-            const dir = dirs[Math.floor(Math.random() * 4)];
+            const dir = dirs[Math.floor(Random.float() * 4)];
             const newLoc = this.location.getMovedBy(dir.x, dir.y);
             this.move(newLoc); // TODO: ensure move succeeded
             this.charSheet.useAP(MOVE_AP);

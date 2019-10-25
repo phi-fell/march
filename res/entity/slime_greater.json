@@ -2,8 +2,9 @@
     "name": "Greater Slime",
     "race": "slime",
     "attributes": {
-        "VITALITY": 14,
-        "SPEED": 9
+        "STRENGTH": 15,
+        "VITALITY": 15,
+        "SPEED": 10
     },
     "skills": {}
 }

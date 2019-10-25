@@ -1,9 +1,11 @@
 import { readFileSync } from 'fs';
 
+import { Random } from './math/random';
+
 const probs: any = {};
 
 function randomChar(char) {
-    const rand = Math.random();
+    const rand = Random.float();
     let sum = 0;
     for (let i = 0; i < 26; i++) {
         const letter = String.fromCharCode(97 + i);

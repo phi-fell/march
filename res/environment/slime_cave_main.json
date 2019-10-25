@@ -1,0 +1,34 @@
+{
+    "name": "Slime Caves",
+    "generation": "SLIME_CAVE",
+    "width": 100,
+    "height": 100,
+    "mobs": [
+        {
+            "id": "slime_lesser",
+            "count": 37
+        },
+        {
+            "id": "slime_common",
+            "count": 72
+        },
+        {
+            "id": "slime_greater",
+            "count": 11
+        }
+    ],
+    "adjacencies": [
+        {
+            "id": "slime_cave_upper",
+            "weight": 1
+        },
+        {
+            "id": "slime_cave_main",
+            "weight": 3
+        },
+        {
+            "id": "slime_cave_deep",
+            "weight": 1
+        }
+    ]
+}
