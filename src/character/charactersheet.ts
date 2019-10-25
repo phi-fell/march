@@ -19,7 +19,7 @@ export class CharacterSheet {
         ret._race = new CharacterRace(json.race);
         ret._allocatedAttributes = CharacterAttributes.fromJSON(json.attributes);
         ret._skills = CharacterSkills.fromJSON(json.skills);
-        ret._essence = STARTING_ESSENCE - (ret._race.getEssenceCost() + ret._allocatedAttributes.getEssenceCost() + ret._skills.getEssenceCost());
+        ret._essence = STARTING_ESSENCE - ret.getEssenceWorth();
         if (ret._essence < 0) {
             return null;
         }
@@ -161,6 +161,9 @@ export class CharacterSheet {
             return this._status.pools[RESOURCE.BONE].quantity < 0;
         }
         return false; // TODO: more conditions? modify conditions?
+    }
+    public getEssenceWorth() {
+        return this._race.getEssenceCost() + this._allocatedAttributes.getEssenceCost() + this._skills.getEssenceCost();
     }
     public toJSON() {
         return {
