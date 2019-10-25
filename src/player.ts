@@ -16,12 +16,13 @@ export enum ACTION_TYPE {
     WAIT,
     UNWAIT,
     MOVE,
+    STRAFE,
     TURN,
     USE_PORTAL,
     ATTACK,
 }
 
-const ACTION_COST = [0, 0, 5, 2, 5, 10];
+const ACTION_COST = [0, 0, 5, 8, 5, 5, 10];
 
 export interface PlayerAction {
     type: ACTION_TYPE;
@@ -43,6 +44,23 @@ export class UnwaitAction implements PlayerAction {
 
 export class MoveAction implements PlayerAction {
     public type: ACTION_TYPE.MOVE = ACTION_TYPE.MOVE;
+    public directionVec: { 'x': number, 'y': number };
+    constructor(public direction: DIRECTION) {
+        this.directionVec = { 'x': 0, 'y': 0 };
+        const dirVec = directionVectors[direction];
+        this.directionVec.x = dirVec.x;
+        this.directionVec.y = dirVec.y;
+    }
+    public toJSON(): object {
+        return {
+            'type': ACTION_TYPE[this.type],
+            'direction': this.direction,
+        };
+    }
+}
+
+export class StrafeAction implements PlayerAction {
+    public type: ACTION_TYPE.STRAFE = ACTION_TYPE.STRAFE;
     public directionVec: { 'x': number, 'y': number };
     constructor(public direction: DIRECTION) {
         this.directionVec = { 'x': 0, 'y': 0 };
@@ -171,7 +189,14 @@ export class Player extends Entity {
                     this.queuedAction = null;
                     return ACTION_STATUS.ASYNC;
                     break;
-                case ACTION_TYPE.MOVE:
+                case ACTION_TYPE.MOVE: {
+                    if (this.direction !== (this.queuedAction as MoveAction).direction) {
+                        if (!this.charSheet.hasSufficientAP(ACTION_COST[ACTION_TYPE.TURN] + ACTION_COST[this.queuedAction.type])) {
+                            return ACTION_STATUS.WAITING; // not enough ap yet
+                        }
+                        this.direction = (this.queuedAction as MoveAction).direction;
+                        this.charSheet.useAP(ACTION_COST[this.queuedAction.type]);
+                    }
                     const success = this.move(this.location.getMovedBy(
                         (this.queuedAction as MoveAction).directionVec.x,
                         (this.queuedAction as MoveAction).directionVec.y),
@@ -181,14 +206,28 @@ export class Player extends Entity {
                     }
                     this.queuedAction = null;
                     break;
-                case ACTION_TYPE.TURN:
+                } case ACTION_TYPE.STRAFE: {
+                    const success = this.move(this.location.getMovedBy(
+                        (this.queuedAction as StrafeAction).directionVec.x,
+                        (this.queuedAction as StrafeAction).directionVec.y),
+                    );
+                    if (success) {
+                        if (this.direction === (this.queuedAction as StrafeAction).direction) {
+                            this.charSheet.useAP(ACTION_COST[ACTION_TYPE.MOVE]);
+                        } else {
+                            this.charSheet.useAP(ACTION_COST[this.queuedAction.type]);
+                        }
+                    }
+                    this.queuedAction = null;
+                    break;
+                } case ACTION_TYPE.TURN: {
                     if (this.direction !== (this.queuedAction as TurnAction).direction) {
                         this.direction = (this.queuedAction as TurnAction).direction;
                         this.charSheet.useAP(ACTION_COST[this.queuedAction.type]);
                     }
                     this.queuedAction = null;
                     break;
-                case ACTION_TYPE.USE_PORTAL: {
+                } case ACTION_TYPE.USE_PORTAL: {
                     const inst = Instance.getLoadedInstanceById(this.location.instance_id)!;
                     for (const portal of inst.portals) {
                         if (portal.location.equals(this._location)) {

@@ -13,7 +13,16 @@ import { ATTRIBUTE } from './character/characterattributes';
 import { execute } from './commands';
 import { DIRECTION } from './direction';
 import { Random } from './math/random';
-import { AttackAction, MoveAction, Player, TurnAction, UnwaitAction, UsePortalAction, WaitAction } from './player';
+import {
+    AttackAction,
+    MoveAction,
+    Player,
+    StrafeAction,
+    TurnAction,
+    UnwaitAction,
+    UsePortalAction,
+    WaitAction,
+} from './player';
 import { getTilePalette } from './tile';
 
 const users = {};
@@ -93,6 +102,18 @@ export class User {
                         break;
                     case 'move_right':
                         user.player.setAction(new MoveAction(DIRECTION.RIGHT));
+                        break;
+                    case 'strafe_up':
+                        user.player.setAction(new StrafeAction(DIRECTION.UP));
+                        break;
+                    case 'strafe_left':
+                        user.player.setAction(new StrafeAction(DIRECTION.LEFT));
+                        break;
+                    case 'strafe_down':
+                        user.player.setAction(new StrafeAction(DIRECTION.DOWN));
+                        break;
+                    case 'strafe_right':
+                        user.player.setAction(new StrafeAction(DIRECTION.RIGHT));
                         break;
                     case 'turn_up':
                         user.player.setAction(new TurnAction(DIRECTION.UP));
