@@ -100,7 +100,7 @@ export class Entity {
         // TODO: kill entity
         Instance.removeEntityFromWorld(this);
         if (this.lastHitSheet) {
-            this.lastHitSheet.addExperience(1); // TODO: make amount variable
+            this.lastHitSheet.addExperience(this.charSheet.getEssenceWorth());
         }
     }
 }

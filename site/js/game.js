@@ -129,23 +129,23 @@ class Game {
         var list = $("#sheet");
         list.empty();
         if (this._sheetdisplaymode === 'attributes' || this._sheetdisplaymode === 'attr') {
-            let lvlupavailable = sheet.exp >= 10;
+            let lvlupavailable = sheet.essence >= 10;
             list.append($('<li>').text('Body:'));
-            list.append($('<li>').html(' - Strength: ' + sheet.attributes.STRENGTH + ((sheet.exp >= sheet.attributeLevelupCosts.STRENGTH) ? ' <button onclick="levelUpAttr(\'STRENGTH\')">+</button> (' + sheet.attributeLevelupCosts.STRENGTH + 'exp)' : '')));
-            list.append($('<li>').html(' - Endurance: ' + sheet.attributes.ENDURANCE + ((sheet.exp >= sheet.attributeLevelupCosts.ENDURANCE) ? ' <button onclick="levelUpAttr(\'ENDURANCE\')">+</button> (' + sheet.attributeLevelupCosts.ENDURANCE + 'exp)' : '')));
-            list.append($('<li>').html(' - Vitality: ' + sheet.attributes.VITALITY + ((sheet.exp >= sheet.attributeLevelupCosts.VITALITY) ? ' <button onclick="levelUpAttr(\'VITALITY\')">+</button> (' + sheet.attributeLevelupCosts.VITALITY + 'exp)' : '')));
+            list.append($('<li>').html(' - Strength: ' + sheet.attributes.STRENGTH + ((sheet.essence >= sheet.attributeLevelupCosts.STRENGTH) ? ' <button onclick="levelUpAttr(\'STRENGTH\')">+</button> (' + sheet.attributeLevelupCosts.STRENGTH + 'essence)' : '')));
+            list.append($('<li>').html(' - Endurance: ' + sheet.attributes.ENDURANCE + ((sheet.essence >= sheet.attributeLevelupCosts.ENDURANCE) ? ' <button onclick="levelUpAttr(\'ENDURANCE\')">+</button> (' + sheet.attributeLevelupCosts.ENDURANCE + 'essence)' : '')));
+            list.append($('<li>').html(' - Vitality: ' + sheet.attributes.VITALITY + ((sheet.essence >= sheet.attributeLevelupCosts.VITALITY) ? ' <button onclick="levelUpAttr(\'VITALITY\')">+</button> (' + sheet.attributeLevelupCosts.VITALITY + 'essence)' : '')));
             list.append($('<li>').text('Movement:'));
-            list.append($('<li>').html(' - Agility: ' + sheet.attributes.AGILITY + ((sheet.exp >= sheet.attributeLevelupCosts.AGILITY) ? ' <button onclick="levelUpAttr(\'AGILITY\')">+</button> (' + sheet.attributeLevelupCosts.AGILITY + 'exp)' : '')));
-            list.append($('<li>').html(' - Dexterity: ' + sheet.attributes.DEXTERITY + ((sheet.exp >= sheet.attributeLevelupCosts.DEXTERITY) ? ' <button onclick="levelUpAttr(\'DEXTERITY\')">+</button> (' + sheet.attributeLevelupCosts.DEXTERITY + 'exp)' : '')));
-            list.append($('<li>').html(' - Speed: ' + sheet.attributes.SPEED + ((sheet.exp >= sheet.attributeLevelupCosts.SPEED) ? ' <button onclick="levelUpAttr(\'SPEED\')">+</button> (' + sheet.attributeLevelupCosts.SPEED + 'exp)' : '')));
+            list.append($('<li>').html(' - Agility: ' + sheet.attributes.AGILITY + ((sheet.essence >= sheet.attributeLevelupCosts.AGILITY) ? ' <button onclick="levelUpAttr(\'AGILITY\')">+</button> (' + sheet.attributeLevelupCosts.AGILITY + 'essence)' : '')));
+            list.append($('<li>').html(' - Dexterity: ' + sheet.attributes.DEXTERITY + ((sheet.essence >= sheet.attributeLevelupCosts.DEXTERITY) ? ' <button onclick="levelUpAttr(\'DEXTERITY\')">+</button> (' + sheet.attributeLevelupCosts.DEXTERITY + 'essence)' : '')));
+            list.append($('<li>').html(' - Speed: ' + sheet.attributes.SPEED + ((sheet.essence >= sheet.attributeLevelupCosts.SPEED) ? ' <button onclick="levelUpAttr(\'SPEED\')">+</button> (' + sheet.attributeLevelupCosts.SPEED + 'essence)' : '')));
             list.append($('<li>').text('Mental:'));
-            list.append($('<li>').html(' - Charisma: ' + sheet.attributes.CHARISMA + ((sheet.exp >= sheet.attributeLevelupCosts.CHARISMA) ? ' <button onclick="levelUpAttr(\'CHARISMA\')">+</button> (' + sheet.attributeLevelupCosts.CHARISMA + 'exp)' : '')));
-            list.append($('<li>').html(' - Logic: ' + sheet.attributes.LOGIC + ((sheet.exp >= sheet.attributeLevelupCosts.LOGIC) ? ' <button onclick="levelUpAttr(\'LOGIC\')">+</button> (' + sheet.attributeLevelupCosts.LOGIC + 'exp)' : '')));
-            list.append($('<li>').html(' - Intuition: ' + sheet.attributes.INTUITION + ((sheet.exp >= sheet.attributeLevelupCosts.INTUITION) ? ' <button onclick="levelUpAttr(\'INTUITION\')">+</button> (' + sheet.attributeLevelupCosts.INTUITION + 'exp)' : '')));
+            list.append($('<li>').html(' - Charisma: ' + sheet.attributes.CHARISMA + ((sheet.essence >= sheet.attributeLevelupCosts.CHARISMA) ? ' <button onclick="levelUpAttr(\'CHARISMA\')">+</button> (' + sheet.attributeLevelupCosts.CHARISMA + 'essence)' : '')));
+            list.append($('<li>').html(' - Logic: ' + sheet.attributes.LOGIC + ((sheet.essence >= sheet.attributeLevelupCosts.LOGIC) ? ' <button onclick="levelUpAttr(\'LOGIC\')">+</button> (' + sheet.attributeLevelupCosts.LOGIC + 'essence)' : '')));
+            list.append($('<li>').html(' - Intuition: ' + sheet.attributes.INTUITION + ((sheet.essence >= sheet.attributeLevelupCosts.INTUITION) ? ' <button onclick="levelUpAttr(\'INTUITION\')">+</button> (' + sheet.attributeLevelupCosts.INTUITION + 'essence)' : '')));
             list.append($('<li>').text('Other:'));
-            list.append($('<li>').html(' - Perception: ' + sheet.attributes.PERCEPTION + ((sheet.exp >= sheet.attributeLevelupCosts.PERCEPTION) ? ' <button onclick="levelUpAttr(\'PERCEPTION\')">+</button> (' + sheet.attributeLevelupCosts.PERCEPTION + 'exp)' : '')));
-            list.append($('<li>').html(' - Will: ' + sheet.attributes.WILL + ((sheet.exp >= sheet.attributeLevelupCosts.WILL) ? ' <button onclick="levelUpAttr(\'WILL\')">+</button> (' + sheet.attributeLevelupCosts.WILL + 'exp)' : '')));
-            list.append($('<li>').html(' - Luck: ' + sheet.attributes.LUCK + ((sheet.exp >= sheet.attributeLevelupCosts.LUCK) ? ' <button onclick="levelUpAttr(\'LUCK\')">+</button> (' + sheet.attributeLevelupCosts.LUCK + 'exp)' : '')));
+            list.append($('<li>').html(' - Perception: ' + sheet.attributes.PERCEPTION + ((sheet.essence >= sheet.attributeLevelupCosts.PERCEPTION) ? ' <button onclick="levelUpAttr(\'PERCEPTION\')">+</button> (' + sheet.attributeLevelupCosts.PERCEPTION + 'essence)' : '')));
+            list.append($('<li>').html(' - Will: ' + sheet.attributes.WILL + ((sheet.essence >= sheet.attributeLevelupCosts.WILL) ? ' <button onclick="levelUpAttr(\'WILL\')">+</button> (' + sheet.attributeLevelupCosts.WILL + 'essence)' : '')));
+            list.append($('<li>').html(' - Luck: ' + sheet.attributes.LUCK + ((sheet.essence >= sheet.attributeLevelupCosts.LUCK) ? ' <button onclick="levelUpAttr(\'LUCK\')">+</button> (' + sheet.attributeLevelupCosts.LUCK + 'essence)' : '')));
         } else if (this._sheetdisplaymode === 'race') {
             list.append($('<li>').text('Race: ' + sheet.race.name));
             list.append($('<li>').text(sheet.race.description));
@@ -185,7 +185,8 @@ class Game {
         list.empty();
         list.append($('<li>').text('Player: ' + this.player.name));
         list.append($('<li>').text('Race: ' + sheet.race.name));
-        list.append($('<li>').text('Essence: ' + sheet.exp));
+        list.append($('<li>').text('Essence: ' + sheet.essence));
+        list.append($('<li>').text('Exp: ' + sheet.exp + '/' + sheet.exp_cap));
         switch (this.player.action.type) {
             case 'NONE':
             case 'WAIT':

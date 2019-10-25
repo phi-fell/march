@@ -43,7 +43,8 @@ export class CharacterSheet {
         ret._allocatedAttributes = CharacterAttributes.fromJSON(json.allocatedAttributes);
         ret._skills = CharacterSkills.fromJSON(json.skills);
         ret._status = CharacterStatus.fromJSON(json.status);
-        ret._essence = json.exp;
+        ret._essence = json.essence;
+        ret._exp = json.exp;
         ret.recalculateDerivedStats();
         return ret;
     }
@@ -54,6 +55,7 @@ export class CharacterSheet {
     private _equipment: CharacterEquipment;
     private _status: CharacterStatus;
     private _essence: number;
+    private _exp: number;
     // cache
     private _cachedAttributes: CharacterAttributes = new CharacterAttributes();
     private _hasPool: boolean[] = [];
@@ -63,6 +65,7 @@ export class CharacterSheet {
         this._equipment = new CharacterEquipment();
         this._status = new CharacterStatus();
         this._essence = 0;
+        this._exp = 0;
         this.recalculateDerivedStats();
     }
     get race() {
@@ -85,7 +88,18 @@ export class CharacterSheet {
         return this._hasPool[resource];
     }
     public addExperience(amount: number) {
-        this._essence += amount;
+        while (amount > 0) {
+            let ratio = amount / this.getEssenceWorth();
+            ratio *= ratio;
+            if (this._exp + (ratio * amount) > this.getEssenceWorth()) {
+                amount -= (this.getEssenceWorth() - this._exp) / ratio;
+                this._exp = 0;
+                this._essence++;
+            } else {
+                this._exp += ratio * amount;
+                amount = 0;
+            }
+        }
     }
     public getNetAttributeValue(attr: ATTRIBUTE): number {
         return this._cachedAttributes.get(attr);
@@ -163,7 +177,7 @@ export class CharacterSheet {
         return false; // TODO: more conditions? modify conditions?
     }
     public getEssenceWorth() {
-        return this._race.getEssenceCost() + this._allocatedAttributes.getEssenceCost() + this._skills.getEssenceCost();
+        return this._race.getEssenceCost() + this._allocatedAttributes.getEssenceCost() + this._skills.getEssenceCost() + this._essence;
     }
     public toJSON() {
         return {
@@ -175,7 +189,9 @@ export class CharacterSheet {
             'race': this._race.toJSON(),
             'equipment': this._equipment.toJSON(),
             'status': this._status.toJSON(),
-            'exp': this._essence,
+            'essence': this._essence,
+            'exp_cap': this.getEssenceWorth(),
+            'exp': this._exp,
         };
     }
     protected takeBluntDamage(amount: number) {
