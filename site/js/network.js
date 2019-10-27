@@ -15,6 +15,15 @@ function setSheetDisplayMode(dropdown) {
     game.updateMenus();
 }
 
+function addMessage(msg) {
+    if (Math.ceil($('#chat_history').scrollTop() + $('#chat_history').innerHeight()) >= $('#chat_history')[0].scrollHeight) {
+        $('#messages').append($('<li>').text(msg));
+        $('#chat_history').scrollTop($('#chat_history')[0].scrollHeight);
+    } else {
+        $('#messages').append($('<li>').text(msg));
+    }
+}
+
 $(function () {
     creds = loadCredentials();
     if (creds.user && creds.auth) {
@@ -70,12 +79,7 @@ $(function () {
         return false;
     });
     socket.on('chat message', function (msg) {
-        if (Math.ceil($('#chat_history').scrollTop() + $('#chat_history').innerHeight()) >= $('#chat_history')[0].scrollHeight) {
-            $('#messages').append($('<li>').text(msg));
-            $('#chat_history').scrollTop($('#chat_history')[0].scrollHeight);
-        } else {
-            $('#messages').append($('<li>').text(msg));
-        }
+        addMessage(msg);
     });
     socket.on('pong_cmd', function (msg) {
         $('#messages').append($('<li>').text('pong! ' + (Date.now() - msg) + 'ms'));
@@ -96,6 +100,6 @@ $(function () {
     });
     socket.on('force_disconnect', function (msg) {
         socket.disconnect();
-        $('#messages').append($('<li>').text(msg));
+        addMessage(msg);
     });
 });
