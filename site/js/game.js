@@ -298,13 +298,13 @@ class Game {
                 } else {
                     tx = 4; ty = j//horizontal wall
                 }
-                this._ctx.drawImage(this._palette[id[1][1]].subtiles[tx][ty], x + (w * i), y + (w * j), w, h);
+                this._ctx.drawImage(this._palette[id[1][1]].subtiles[tx][ty], Math.floor(x + (w * i)), Math.floor(y + (w * j)), Math.ceil(w), Math.ceil(h));
             }
         }
     }
 
     _drawTile(id, x, y, w, h) {
-        this._ctx.drawImage(this._palette[id].image, x, y, w, h);
+        this._ctx.drawImage(this._palette[id].image, Math.floor(x), Math.floor(y), Math.ceil(w), Math.ceil(h));
     }
 
     _drawSprite(id, x, y, w, h, dir) {
