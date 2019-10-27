@@ -209,12 +209,7 @@ export class CharacterSheet {
             this._status.pools[RESOURCE.FLESH].quantity -= amount;
         }
         if (this.hasResource(RESOURCE.BONE) && this._status.pools[RESOURCE.BONE].quantity > 0) {
-            if (this._status.pools[RESOURCE.BONE].quantity > amount) {
-                this._status.pools[RESOURCE.BONE].quantity -= amount;
-                return;
-            }
-            amount -= this._status.pools[RESOURCE.FLESH].quantity;
-            this._status.pools[RESOURCE.FLESH].quantity = 0;
+            this._status.pools[RESOURCE.BONE].quantity -= amount;
         }
     }
     protected takeSharpDamage(amount) {
