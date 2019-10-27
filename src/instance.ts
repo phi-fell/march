@@ -99,6 +99,7 @@ export class Instance {
         const retPortals: any = [];
         const inst = Instance.instances[plr.location.instance_id];
         const MAX_RADIUS = 10;
+        const visible: boolean[][] = inst.getTileVisibility(plr, MAX_RADIUS);
         const x0 = plr.location.x - MAX_RADIUS;
         const y0 = plr.location.y - MAX_RADIUS;
         const x1 = plr.location.x + MAX_RADIUS;
@@ -106,7 +107,7 @@ export class Instance {
         for (let i = x0; i <= x1; i++) {
             retTiles[i - x0] = [];
             for (let j = y0; j <= y1; j++) {
-                if (i < 0 || j < 0 || i >= inst.attributes.width || j >= inst.attributes.height) {
+                if (i < 0 || j < 0 || i >= inst.attributes.width || j >= inst.attributes.height || !visible[i][j]) {
                     retTiles[i - x0][j - y0] = NO_TILE;
                 } else {
                     retTiles[i - x0][j - y0] = inst.tiles[i][j];
@@ -353,5 +354,104 @@ export class Instance {
         for (const mob of this.mobs) {
             mob.startNewTurn();
         }
+    }
+    private addShadow(shadows, start, end) {
+        for (let i = 0; i < shadows.length; i++) {
+            // check if entirely contained in existing shadow
+            if (start >= shadows[i].start && end <= shadows[i].end) {
+                return; // included in existing shadow
+            }
+            // check if is entirely to left of existing
+            if (end < shadows[i].start) {
+                shadows.splice(i, 0, {
+                    'start': start,
+                    'end': end,
+                });
+                return;
+            }
+            // check if merges from the left
+            if (start <= shadows[i].start) {
+                // extend to left
+                shadows[i].start = start;
+                return;
+            }
+            // check if overlaps on the left
+            if (start <= shadows[i].end) {
+                // overlaps shadow on left
+                if (end > shadows[i].end) {
+                    // extend
+                    shadows[i].end = end;
+                    // attempt merge
+                    if (i + 1 < shadows.length && end >= shadows[i + 1].start) {
+                        // overlaps on right
+                        if (shadows[i + 1].end > shadows[i].end) {
+                            shadows[i].end = shadows[i + 1].end;
+                        }
+                        shadows.splice(i + 1, 0);
+                    }
+                }
+                return;
+            }
+        }
+        // insert into array
+        shadows.push({
+            'start': start,
+            'end': end,
+        });
+    }
+    private shadowCast(visible: boolean[][], px: number, py: number, radius: number, sign: number, vertical: boolean) {
+        const pa = vertical ? px : py;
+        const pb = vertical ? py : px;
+        const shadows: any[] = [];
+        for (let r = 0; r <= radius; r++) {
+            const b = pb + (r * sign);
+            for (let a = pa - r; a <= pa + r; a++) {
+                const x = vertical ? a : b;
+                const y = vertical ? b : a;
+                if (x >= 0 && y >= 0 && x < this.attributes.width && y < this.attributes.height) {
+                    for (const s of shadows) {
+                        if (
+                            ((a - (pa - r)) / (r + r + 1)) >= s.start &&
+                            (((a + 1) - (pa - r)) / (r + r + 1)) <= s.end
+                        ) {
+                            visible[x][y] = false;
+                        }
+                    }
+                }
+            }
+            for (let a = pa - r; a <= pa + r; a++) {
+                const x = vertical ? a : b;
+                const y = vertical ? b : a;
+                if (x >= 0 && y >= 0 && x < this.attributes.width && y < this.attributes.height) {
+                    if (getTileProps(this.tiles[x][y]).obstruction) {
+                        const start = (a - (pa - r)) / (r + r + 1);
+                        const end = ((a + 1) - (pa - r)) / (r + r + 1);
+                        this.addShadow(shadows, start, end);
+                    }
+                }
+            }
+        }
+    }
+    private getTileVisibility(player: Player, RADIUS: number = 20): boolean[][] {
+        const visible: boolean[][] = [];
+        for (let i = 0; i < this.attributes.width; i++) {
+            visible[i] = [];
+            for (let j = 0; j < this.attributes.height; j++) {
+                if (i >= player.location.x - RADIUS &&
+                    i <= player.location.x + RADIUS &&
+                    j >= player.location.y - RADIUS &&
+                    j <= player.location.y + RADIUS
+                ) {
+                    visible[i][j] = true;
+                } else {
+                    visible[i][j] = false;
+                }
+            }
+        }
+        this.shadowCast(visible, player.location.x, player.location.y, RADIUS, 1, true);
+        this.shadowCast(visible, player.location.x, player.location.y, RADIUS, -1, true);
+        this.shadowCast(visible, player.location.x, player.location.y, RADIUS, 1, false);
+        this.shadowCast(visible, player.location.x, player.location.y, RADIUS, -1, false);
+        return visible;
     }
 }
