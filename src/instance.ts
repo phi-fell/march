@@ -134,19 +134,23 @@ export class Instance {
             }
         }
         for (const mob of inst.mobs) {
-            retMobs.push({
-                'name': mob.name,
-                'location': mob.location,
-                'direction': mob.direction,
-                'type': mob.schema_id,
-                'sheet': mob.charSheet.toJSON(), // TODO: limit what player can see
-            });
+            if (visible[mob.location.x][mob.location.y]) {
+                retMobs.push({
+                    'name': mob.name,
+                    'location': mob.location,
+                    'direction': mob.direction,
+                    'type': mob.schema_id,
+                    'sheet': mob.charSheet.toJSON(), // TODO: limit what player can see
+                });
+            }
         }
         for (const portal of inst.portals) {
             if (portal.location.x >= x0 && portal.location.x <= x1 && portal.location.y >= y0 && portal.location.y <= y1) {
-                retPortals.push({
-                    'location': portal.location,
-                });
+                if (visible[portal.location.x][portal.location.y]) {
+                    retPortals.push({
+                        'location': portal.location,
+                    });
+                }
             }
         }
         return {
