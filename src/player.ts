@@ -314,6 +314,8 @@ export class Player extends Entity {
             this.user!.socket.emit('update', {
                 'mobs': board.mobs,
                 'tiles': board.tiles,
+                'tileAdjacencies': board.tileAdjacencies,
+                'portals': board.portals,
                 'board_info': board.info,
                 'player': this.getDataAsViewer(),
             });

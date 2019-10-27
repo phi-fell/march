@@ -90,6 +90,7 @@ $(function () {
     socket.on('update', function (msg) {
         game.mobs = msg.mobs;
         game.tiles = msg.tiles;
+        game.tileAdjacencies = msg.tileAdjacencies;
         game.boardInfo = msg.board_info;
         game.player = msg.player;
         game.draw();

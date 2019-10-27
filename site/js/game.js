@@ -13,6 +13,7 @@ class Game {
         this._ctx.imageSmoothingEnabled = false;
         this.mobs = undefined;
         this.tiles = undefined;
+        this.tileAdjacencies = undefined;
         this.boardInfo = undefined;
         this.player = undefined;
         this._palette = [];
@@ -244,19 +245,22 @@ class Game {
                         tile = -2; // use error texture
                     }
                     if (this._palette[tile].sheet) {
-                        let ids = [
-                            [0, 0, 0],
-                            [0, tile, 0],
-                            [0, 0, 0],
+                        let adj = [
+                            [false, false, false],
+                            [false, true, false],
+                            [false, false, false],
                         ];
+                        let adjSum = this.tileAdjacencies[x][y];
                         for (let i = -1; i <= 1; i++) {
                             for (let j = -1; j <= 1; j++) {
-                                if (i != 0 || j != 0) {
-                                    ids[i + 1][j + 1] = this.tiles[x + i][y + j];
+                                if (adjSum % 2 === 1) {
+                                    adj[i + 1][j + 1] = true;
+                                    adjSum--;
                                 }
+                                adjSum /= 2;
                             }
                         }
-                        this._drawSubtiles(ids, ((x - 1) * scale) + offsetX, ((y - 1) * scale) + offsetY, scale, scale);
+                        this._drawSubtiles(tile, adj, ((x - 1) * scale) + offsetX, ((y - 1) * scale) + offsetY, scale, scale);
                     } else {
                         this._drawTile(tile, ((x - 1) * scale) + offsetX, ((y - 1) * scale) + offsetY, scale, scale);
                     }
@@ -278,7 +282,7 @@ class Game {
         }
     }
 
-    _drawSubtiles(id, x, y, w_2, h_2) {
+    _drawSubtiles(id, adj, x, y, w_2, h_2) {
         let w = w_2 / 2;
         let h = h_2 / 2;
         for (let i = 0; i < 2; i++) {
@@ -287,18 +291,18 @@ class Game {
                 let yi = j * 2;
                 let tx = 0;
                 let ty = 0
-                if (id[xi][yi] == id[1][1] && id[xi][1] == id[1][1] && id[1][yi] == id[1][1]) {
+                if (adj[xi][yi] && adj[xi][1] && adj[1][yi]) {
                     tx = 5; ty = 1;//surrounded
-                } else if (id[xi][1] != id[1][1] && id[1][yi] != id[1][1]) {
+                } else if (!adj[xi][1] && !adj[1][yi]) {
                     tx = 2 + i; ty = j;//convex corner
-                } else if (id[xi][1] == id[1][1] && id[1][yi] == id[1][1]) {
+                } else if (adj[xi][1] && adj[1][yi]) {
                     tx = i; ty = j;//concave corner
-                } else if (id[xi][1] != id[1][1]) {
+                } else if (!adj[xi][1]) {
                     tx = 5 + i;//vertical wall
                 } else {
                     tx = 4; ty = j//horizontal wall
                 }
-                this._ctx.drawImage(this._palette[id[1][1]].subtiles[tx][ty], Math.floor(x + (w * i)), Math.floor(y + (w * j)), Math.ceil(w), Math.ceil(h));
+                this._ctx.drawImage(this._palette[id].subtiles[tx][ty], Math.floor(x + (w * i)), Math.floor(y + (w * j)), Math.ceil(w), Math.ceil(h));
             }
         }
     }

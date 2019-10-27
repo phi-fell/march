@@ -95,6 +95,7 @@ export class Instance {
     public static getPlayerBoard(plr: Player) {
         // return section of level around player, with Entities and such limited by what they percieve
         const retTiles: Tile[][] = [];
+        const tileAdjacencies: number[][] = [];
         const retMobs: any = [];
         const retPortals: any = [];
         const inst = Instance.instances[plr.location.instance_id];
@@ -106,11 +107,29 @@ export class Instance {
         const y1 = plr.location.y + MAX_RADIUS;
         for (let i = x0; i <= x1; i++) {
             retTiles[i - x0] = [];
+            tileAdjacencies[i - x0] = [];
             for (let j = y0; j <= y1; j++) {
                 if (i < 0 || j < 0 || i >= inst.attributes.width || j >= inst.attributes.height || !visible[i][j]) {
                     retTiles[i - x0][j - y0] = NO_TILE;
+                    tileAdjacencies[i - x0][j - y0] = 0;
                 } else {
                     retTiles[i - x0][j - y0] = inst.tiles[i][j];
+                    let adjacencySum = 0;
+                    let multiplier = 1;
+                    for (let a = -1; a <= 1; a++) {
+                        for (let b = -1; b <= 1; b++) {
+                            if (i + a < 0 ||
+                                j + b < 0 ||
+                                i + a >= inst.attributes.width ||
+                                j + b >= inst.attributes.height ||
+                                (inst.tiles[i][j] === inst.tiles[i + a][j + b])
+                            ) {
+                                adjacencySum += multiplier;
+                            }
+                            multiplier *= 2;
+                        }
+                    }
+                    tileAdjacencies[i - x0][j - y0] = adjacencySum;
                 }
             }
         }
@@ -134,6 +153,7 @@ export class Instance {
             'mobs': retMobs,
             'portals': retPortals,
             'tiles': retTiles,
+            'tileAdjacencies': tileAdjacencies,
             'info': {
                 'x': x0, 'y': y0,
                 'w': (x1 - x0) + 1, 'h': (y1 - y0) + 1,
