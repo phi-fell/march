@@ -308,12 +308,15 @@ function doBASIC_DUNGEON(inst: Instance) {
 function doFOREST(inst: Instance) {
     for (let i = 0; i < inst.attributes.width; i++) {
         for (let j = 0; j < inst.attributes.height; j++) {
+            const xs = ((i / (inst.attributes.width - 1)) - 0.5) * 2;
+            const ys = ((j / (inst.attributes.height - 1)) - 0.5) * 2;
+            const scale = (xs * xs) + (ys * ys);
             const rand = Random.float();
-            if (rand < 0.85) {
+            if (rand > scale + 0.1) {
                 inst.tiles[i][j] = getTileFromName('grass');
-            } else if (rand < 0.85) {
+            } else if (rand > scale) {
                 inst.tiles[i][j] = getTileFromName('dirt');
-            } else if (rand < 0.95) {
+            } else if (rand > scale / 3) {
                 inst.tiles[i][j] = getTileFromName('bush');
             } else {
                 inst.tiles[i][j] = getTileFromName('tree');
