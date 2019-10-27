@@ -84,5 +84,8 @@ export class CharacterStatus {
         if (this.pools[RESOURCE.BLOOD].quantity < this.pools[RESOURCE.BLOOD].capacity) {
             this.pools[RESOURCE.BLOOD].quantity += Math.floor(Random.float() + flesh_ratio);
         }
+        if (this.pools[RESOURCE.BONE].quantity < this.pools[RESOURCE.BONE].capacity) {
+            this.pools[RESOURCE.BONE].quantity += Math.floor(Random.float() * blood_ratio * flesh_ratio * 1.05);
+        }
     }
 }
