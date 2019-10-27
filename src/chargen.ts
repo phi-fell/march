@@ -4,7 +4,10 @@ import { INSTANCE_GEN_TYPE } from './instancegenerator';
 import { getInstanceFromSchema } from './instanceschema';
 import { Location } from './location';
 import { Random } from './math/random';
+import { getMobFromSchema } from './mobschema';
 import { Player } from './player';
+import { Portal } from './portal';
+import { getTileFromName } from './tile';
 
 export const enum CharGenStage {
     Tutorial,
@@ -47,9 +50,20 @@ export class CharGen {
                 attr.genType = INSTANCE_GEN_TYPE.ONE_ROOM;
                 const inst = Instance.spinUpNewInstance(attr);
                 inst.spawnEntityAtCoords(new TextEntity(Entity.generateNewEntityID(), 'Use WASD to move', 'text'), 2, 1);
-                inst.spawnEntityAtCoords(new TextEntity(Entity.generateNewEntityID(), 'Move into an enemy to auto-attack', 'text'), 5, 2);
-                inst.spawnEntityAtCoords(new TextEntity(Entity.generateNewEntityID(), 'Destroy the enemy to Proceed', 'text'), 8, 3);
-                inst.spawnEntityAtCoords(new TutorialEnemy(player, new EnemyCount(1), Entity.generateNewEntityID(), 'Enemy'), 6, 6);
+                inst.spawnEntityAtCoords(new TextEntity(Entity.generateNewEntityID(), 'Press Spacebar to Attack', 'text'), 5, 2);
+                inst.spawnEntityAtCoords(new TextEntity(Entity.generateNewEntityID(), 'Use > to do down stairs', 'text'), 8, 3);
+                const slime = getMobFromSchema('slime_tutorial');
+                if (!slime) {
+                    console.log('could not get Tutorial Slime schema!');
+                } else {
+                    slime.doNextAction = () => {
+                        slime!.charSheet.status.action_points = 0;
+                        return ACTION_STATUS.WAITING;
+                    };
+                    inst.spawnEntityAtCoords(slime, 6, 6);
+                }
+                inst.tiles[6][6] = getTileFromName('stone_stairs');
+                inst.portals.push(new Portal(new Location(6, 6, inst.id), 'forest'));
                 inst.spawnEntityAtCoords(player, 3, 8);
                 break;
             }
@@ -58,14 +72,19 @@ export class CharGen {
                 let inst = Instance.getAvailableNonFullInstance(player);
                 if (!inst) {
                     inst = getInstanceFromSchema('forest', Random.uuid());
+                    if (inst) {
+                        if (!inst.spawnEntityNearCoords(player, Math.floor(inst.attributes.width / 2), Math.floor(inst.attributes.height / 2))) {
+                            console.log('COULD NOT SPAWN PLAYER INTO INSTANCE NEAR LOCATION!');
+                        }
+                    }
                 }
                 if (!inst) {
                     const attr = new InstanceAttributes('ERROR', 10, 10, true);
                     attr.genType = INSTANCE_GEN_TYPE.ONE_ROOM;
                     inst = Instance.spinUpNewInstance(attr);
-                }
-                if (!inst.spawnEntityAnywhere(player)) {
-                    console.log('COULD NOT SPAWN PLAYER INTO INSTANCE! ABORTING SPAWN.');
+                    if (!inst.spawnEntityAnywhere(player)) {
+                        console.log('COULD NOT SPAWN PLAYER INTO INSTANCE! ABORTING SPAWN.');
+                    }
                 }
                 break;
             }

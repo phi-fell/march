@@ -265,6 +265,41 @@ export class Instance {
         ent.location = new Location(x, y, this.id);
         return true;
     }
+    public spawnEntityNearCoords(ent: Entity, x: number, y: number): boolean {
+        const max_attempts = 50;
+        let xmod = 0;
+        let ymod = 0;
+        let dx = 1;
+        let dy = 0;
+        for (let i = 0; i < max_attempts; i++) {
+            if (this.isTilePassable(x + xmod, y + ymod)) {
+                let mobInWay = false;
+                for (const mob of this.mobs) {
+                    if (mob.location.x === x + xmod && mob.location.y === y + ymod) {
+                        mobInWay = true;
+                    }
+                }
+                if (!mobInWay) {
+                    ent.location = new Location(x, y, this.id);
+                    return true;
+                }
+            }
+            if (xmod === ymod && xmod >= 0) {
+                xmod++;
+                ymod++;
+            }
+            if (Math.abs(xmod) === Math.abs(ymod)) {
+                dx = dx + dy;
+                dy = dx - dy;
+                dx = dx - dy;
+                dy *= -1;
+            }
+            xmod += dx;
+            ymod += dy;
+        }
+        console.log('Error!  can\'t spawn entity near coord!');
+        return false;
+    }
     public spawnEntityAnywhere(ent: Entity): boolean {
         let posX: number;
         let posY: number;
