@@ -51,10 +51,10 @@ interface PartitionInfo {
 }
 
 function doRoom(inst: Instance, xmin: number, ymin: number, xmax: number, ymax: number): PartitionInfo {
-    const w = Math.floor(Random.float() * 5) + 5;
-    const h = Math.floor(Random.float() * 5) + 5;
-    const x = Math.floor(Random.float() * ((xmax - w) - xmin)) + xmin;
-    const y = Math.floor(Random.float() * ((ymax - w) - ymin)) + ymin;
+    const w = Random.int(5, 10);
+    const h = Random.int(5, 10);
+    const x = Random.int(xmin, xmax - w);
+    const y = Random.int(ymin, ymax - h);
     for (let i = x; i < x + w; i++) {
         for (let j = y; j < y + h; j++) {
             inst.tiles[i][j] = getTileFromName('stone_floor');
@@ -66,6 +66,31 @@ function doRoom(inst: Instance, xmin: number, ymin: number, xmax: number, ymax: 
         'xmax': x + w,
         'ymax': y + h,
     };
+}
+
+function connect(inst: Instance, roomA: PartitionInfo, roomB: PartitionInfo) {
+    let x0;
+    let y0;
+    do {
+        x0 = Random.int(roomA.xmin, roomA.xmax);
+        y0 = Random.int(roomA.ymin, roomA.ymax);
+    } while (inst.tiles[x0][y0] !== getTileFromName('stone_floor'));
+    let x1;
+    let y1;
+    do {
+        x1 = Random.int(roomB.xmin, roomB.xmax);
+        y1 = Random.int(roomB.ymin, roomB.ymax);
+    } while (inst.tiles[x1][y1] !== getTileFromName('stone_floor'));
+    const dx = (x0 < x1) ? 1 : (-1);
+    const dy = (y0 < y1) ? 1 : (-1);
+    let i = x0;
+    let j = y0;
+    for (i = x0; i !== x1; i += dx) {
+        inst.tiles[i][j] = getTileFromName('stone_floor');
+    }
+    for (j = y0; j !== y1; j += dy) {
+        inst.tiles[i][j] = getTileFromName('stone_floor');
+    }
 }
 
 function doPartition(inst: Instance, xmin: number, ymin: number, xmax: number, ymax: number): PartitionInfo {
@@ -88,88 +113,16 @@ function doPartition(inst: Instance, xmin: number, ymin: number, xmax: number, y
         const xdivide = Math.floor(Random.float() * ((xmax - xmin) - 20)) + xmin + 10;
         p1 = doPartition(inst, xmin, ymin, xdivide, ymax);
         p2 = doPartition(inst, xdivide, ymin, xmax, ymax);
-        const min = Math.max(p1.ymin, p2.ymin);
-        const max = Math.min(p1.ymax, p2.ymax);
-        if (min < max) {
-            const y = Random.int(min, max);
-
-            inst.tiles[xdivide][y] = getTileFromName('stone_floor');
-
-            let x1 = xdivide;
-            while (inst.tiles[x1 - 1][y] !== getTileFromName('stone_floor')) {
-                x1--;
-                inst.tiles[x1][y] = getTileFromName('stone_floor');
-            }
-
-            let x2 = xdivide;
-            while (inst.tiles[x2 + 1][y] !== getTileFromName('stone_floor')) {
-                x2++;
-                inst.tiles[x2][y] = getTileFromName('stone_floor');
-            }
-        } else {
-            const y1 = Random.int(p1.ymin, p1.ymax);
-            const y2 = Random.int(p2.ymin, p2.ymax);
-
-            for (let j = Math.min(y1, y2); j <= Math.max(y1, y2); j++) {
-                inst.tiles[xdivide][j] = getTileFromName('stone_floor');
-            }
-
-            let x1 = xdivide;
-            while (inst.tiles[x1 - 1][y1] !== getTileFromName('stone_floor')) {
-                x1--;
-                inst.tiles[x1][y1] = getTileFromName('stone_floor');
-            }
-
-            let x2 = xdivide;
-            while (inst.tiles[x2 + 1][y2] !== getTileFromName('stone_floor')) {
-                x2++;
-                inst.tiles[x2][y2] = getTileFromName('stone_floor');
-            }
-        }
     } else {
         // vertical
         const ydivide = Math.floor(Random.float() * ((ymax - ymin) - 20)) + ymin + 10;
         p1 = doPartition(inst, xmin, ymin, xmax, ydivide);
         p2 = doPartition(inst, xmin, ydivide, xmax, ymax);
-
-        const min = Math.max(p1.xmin, p2.xmin);
-        const max = Math.min(p1.xmax, p2.xmax);
-        if (min < max) {
-            const x = Random.int(min, max);
-
-            inst.tiles[x][ydivide] = getTileFromName('stone_floor');
-
-            let y1 = ydivide;
-            while (inst.tiles[x][y1 - 1] !== getTileFromName('stone_floor')) {
-                y1--;
-                inst.tiles[x][y1] = getTileFromName('stone_floor');
-            }
-
-            let y2 = ydivide;
-            while (inst.tiles[x][y2 + 1] !== getTileFromName('stone_floor')) {
-                y2++;
-                inst.tiles[x][y2] = getTileFromName('stone_floor');
-            }
-        } else {
-            const x1 = Random.int(p1.ymin, p1.ymax);
-            const x2 = Random.int(p2.ymin, p2.ymax);
-
-            for (let i = Math.min(x1, x2); i <= Math.max(x1, x2); i++) {
-                inst.tiles[i][ydivide] = getTileFromName('stone_floor');
-            }
-
-            let y1 = ydivide;
-            while (inst.tiles[x1][y1 - 1] !== getTileFromName('stone_floor')) {
-                y1--;
-                inst.tiles[x1][y1] = getTileFromName('stone_floor');
-            }
-
-            let y2 = ydivide;
-            while (inst.tiles[x2][y2 + 1] !== getTileFromName('stone_floor')) {
-                y2++;
-                inst.tiles[x2][y2] = getTileFromName('stone_floor');
-            }
-        }
+    }
+    if (Random.float() < 0.5) {
+        connect(inst, p1, p2);
+    } else {
+        connect(inst, p2, p1);
     }
     return {
         'xmin': Math.min(p1.xmin, p2.xmin),
