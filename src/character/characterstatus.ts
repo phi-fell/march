@@ -45,7 +45,7 @@ export class CharacterStatus {
             this.action_points = this.max_action_points;
         }
         if (this.pools[RESOURCE.FLESH].quantity < 0) {
-            this.pools[RESOURCE.BLOOD].quantity += this.pools[RESOURCE.FLESH].quantity;
+            this.pools[RESOURCE.BLOOD].quantity += Math.floor(this.pools[RESOURCE.FLESH].quantity / 10);
         }
     }
     public startRest() {
