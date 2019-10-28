@@ -35,8 +35,8 @@ export class Entity {
         return this._location;
     }
     set location(loc: Location) {
-        if (this.location.instance_id !== loc.instance_id) {
-            const fromInst = Instance.instances[this.location.instance_id];
+        if (this._location.instance_id !== loc.instance_id) {
+            const fromInst = Instance.instances[this._location.instance_id];
             const toInst = Instance.instances[loc.instance_id];
             if (fromInst) {
                 fromInst.removeMob(this);

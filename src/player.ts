@@ -151,8 +151,8 @@ export class Player extends Entity {
         return this._location;
     }
     set location(loc: Location) {
-        if (this.location.instance_id !== loc.instance_id) {
-            const fromInst = Instance.getLoadedInstanceById(this.location.instance_id);
+        if (this._location.instance_id !== loc.instance_id) {
+            const fromInst = Instance.getLoadedInstanceById(this._location.instance_id);
             const toInst = Instance.getLoadedInstanceById(loc.instance_id);
             if (fromInst) {
                 fromInst.removePlayer(this);

@@ -52,6 +52,7 @@
         "no-static-this": true,
         "no-unnecessary-else": true,
         "conditional-expression-parens": true,
-        "no-bitwise": false
+        "no-bitwise": false,
+        "no-accessor-recursion": true
     }
 }
