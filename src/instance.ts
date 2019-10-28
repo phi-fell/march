@@ -461,6 +461,7 @@ export class Instance {
         });
     }
     private shadowCast(visible: boolean[][], px: number, py: number, radius: number, sign: number, vertical: boolean) {
+        const COVERAGE_THRESHOLD = 0.99;
         const pa = vertical ? px : py;
         const pb = vertical ? py : px;
         const shadows: any[] = [];
@@ -470,13 +471,21 @@ export class Instance {
                 const x = vertical ? a : b;
                 const y = vertical ? b : a;
                 if (x >= 0 && y >= 0 && x < this.attributes.width && y < this.attributes.height) {
+                    let coverage: number = 0;
                     for (const s of shadows) {
-                        if (
-                            ((a - (pa - r)) / (r + r + 1)) >= s.start &&
-                            (((a + 1) - (pa - r)) / (r + r + 1)) <= s.end
-                        ) {
+                        const start = ((a - (pa - r)) / (r + r + 1));
+                        const end = (((a + 1) - (pa - r)) / (r + r + 1));
+                        if (start >= s.start && end <= s.end) {
+                            coverage += 1;
                             visible[x][y] = false;
+                        } else if (start < s.start && end > s.start) {
+                            coverage += end - s.start;
+                        } else if (start < s.end && end > s.end) {
+                            coverage += s.end - start;
                         }
+                    }
+                    if (coverage >= COVERAGE_THRESHOLD) {
+                        visible[x][y] = false;
                     }
                 }
             }
@@ -487,6 +496,19 @@ export class Instance {
                     const start = (a - (pa - r)) / (r + r + 1);
                     const end = ((a + 1) - (pa - r)) / (r + r + 1);
                     this.addShadow(shadows, start, end);
+                }
+            }
+            if (r > 0) {
+                const r_prev = r - 1;
+                const b_prev = pb + (r_prev * sign);
+                for (let a_prev = pa - r_prev; a_prev <= pa + r_prev; a_prev++) {
+                    const x = vertical ? a_prev : b_prev;
+                    const y = vertical ? b_prev : a_prev;
+                    if (x >= 0 && y >= 0 && x < this.attributes.width && y < this.attributes.height && getTileProps(this.tiles[x][y]).obstruction) {
+                        const start = (a_prev - (pa - r)) / (r + r + 1);
+                        const end = ((a_prev + 1) - (pa - r)) / (r + r + 1);
+                        this.addShadow(shadows, start, end);
+                    }
                 }
             }
         }
