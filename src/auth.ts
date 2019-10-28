@@ -42,10 +42,8 @@ export function setUserIdByName(id: string, name: string, callback?: any) {
             if (callback) {
                 return callback(err);
             }
-        } else {
-            if (callback) {
-                return callback(null);
-            }
+        } else if (callback) {
+            return callback(null);
         }
     });
 }

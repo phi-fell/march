@@ -256,6 +256,7 @@ function generateUserID() {
         id = Random.uuid();
     }
     */
+    // tslint:disable-next-line: no-var-before-return
     return id;
 }
 
@@ -315,10 +316,8 @@ export function validateCredentialsByPassAndGetAuthToken(username, pass, callbac
                 }
             });
         });
-    } else {
-        if (callback) {
-            callback('invalid params', false);
-        }
+    } else if (callback) {
+        callback('invalid params', false);
     }
 }
 export function loadUserByName(name, callback) {

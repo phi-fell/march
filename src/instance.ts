@@ -145,12 +145,16 @@ export class Instance {
             }
         }
         for (const portal of inst.portals) {
-            if (portal.location.x >= x0 && portal.location.x <= x1 && portal.location.y >= y0 && portal.location.y <= y1) {
-                if (visible[portal.location.x][portal.location.y]) {
-                    retPortals.push({
-                        'location': portal.location,
-                    });
-                }
+            if (
+                portal.location.x >= x0 &&
+                portal.location.x <= x1 &&
+                portal.location.y >= y0 &&
+                portal.location.y <= y1 &&
+                visible[portal.location.x][portal.location.y]
+            ) {
+                retPortals.push({
+                    'location': portal.location,
+                });
             }
         }
         return {
@@ -236,10 +240,8 @@ export class Instance {
         }
     }
     public isTilePassable(x: number, y: number) {
-        if (x >= 0 && x < this.attributes.width && y >= 0 && y < this.attributes.height) {
-            if (getTileProps(this.tiles[x][y]).passable) {
-                return true;
-            }
+        if (x >= 0 && x < this.attributes.width && y >= 0 && y < this.attributes.height && getTileProps(this.tiles[x][y]).passable) {
+            return true;
         }
         return false;
     }
@@ -481,12 +483,10 @@ export class Instance {
             for (let a = pa - r; a <= pa + r; a++) {
                 const x = vertical ? a : b;
                 const y = vertical ? b : a;
-                if (x >= 0 && y >= 0 && x < this.attributes.width && y < this.attributes.height) {
-                    if (getTileProps(this.tiles[x][y]).obstruction) {
-                        const start = (a - (pa - r)) / (r + r + 1);
-                        const end = ((a + 1) - (pa - r)) / (r + r + 1);
-                        this.addShadow(shadows, start, end);
-                    }
+                if (x >= 0 && y >= 0 && x < this.attributes.width && y < this.attributes.height && getTileProps(this.tiles[x][y]).obstruction) {
+                    const start = (a - (pa - r)) / (r + r + 1);
+                    const end = ((a + 1) - (pa - r)) / (r + r + 1);
+                    this.addShadow(shadows, start, end);
                 }
             }
         }

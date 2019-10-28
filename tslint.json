@@ -53,6 +53,12 @@
         "no-unnecessary-else": true,
         "conditional-expression-parens": true,
         "no-bitwise": false,
-        "no-accessor-recursion": true
+        "no-accessor-recursion": true,
+        "curly": true,
+        "no-collapsible-if": true,
+        "no-return-undefined": true,
+        "no-unused": false,
+        "no-var-before-return": true,
+        "prefer-while": true
     }
 }

@@ -60,28 +60,30 @@ function maze(inst: Instance, x: number, y: number) {
     while (dirsleft[0] || dirsleft[1] || dirsleft[2] || dirsleft[3]) {
         const dir = Math.floor(Random.float() * 4);
         if (dirsleft[dir]) {
-            if (dir === 0) {
-                if (maze(inst, x + STRIDE, y)) {
-                    for (let i = 0; i < STRIDE; i++) {
-                        inst.tiles[x + i][y] = getTileFromName('stone_floor');
+            switch (dir) {
+                case 0: {
+                    if (maze(inst, x + STRIDE, y)) {
+                        for (let i = 0; i < STRIDE; i++) {
+                            inst.tiles[x + i][y] = getTileFromName('stone_floor');
+                        }
                     }
-                }
-            } else if (dir === 1) {
-                if (maze(inst, x, y + STRIDE)) {
-                    for (let i = 0; i < STRIDE; i++) {
-                        inst.tiles[x][y + i] = getTileFromName('stone_floor');
+                } case 1: {
+                    if (maze(inst, x, y + STRIDE)) {
+                        for (let i = 0; i < STRIDE; i++) {
+                            inst.tiles[x][y + i] = getTileFromName('stone_floor');
+                        }
                     }
-                }
-            } else if (dir === 2) {
-                if (maze(inst, x - STRIDE, y)) {
-                    for (let i = 0; i < STRIDE; i++) {
-                        inst.tiles[x - i][y] = getTileFromName('stone_floor');
+                } case 2: {
+                    if (maze(inst, x - STRIDE, y)) {
+                        for (let i = 0; i < STRIDE; i++) {
+                            inst.tiles[x - i][y] = getTileFromName('stone_floor');
+                        }
                     }
-                }
-            } else if (dir === 3) {
-                if (maze(inst, x, y - STRIDE)) {
-                    for (let i = 0; i < STRIDE; i++) {
-                        inst.tiles[x][y - i] = getTileFromName('stone_floor');
+                } case 3: {
+                    if (maze(inst, x, y - STRIDE)) {
+                        for (let i = 0; i < STRIDE; i++) {
+                            inst.tiles[x][y - i] = getTileFromName('stone_floor');
+                        }
                     }
                 }
             }

@@ -72,10 +72,8 @@ export class CharGen {
                 let inst = Instance.getAvailableNonFullInstance(player);
                 if (!inst) {
                     inst = getInstanceFromSchema('forest', Random.uuid());
-                    if (inst) {
-                        if (!inst.spawnEntityNearCoords(player, Math.floor(inst.attributes.width / 2), Math.floor(inst.attributes.height / 2))) {
-                            console.log('COULD NOT SPAWN PLAYER INTO INSTANCE NEAR LOCATION!');
-                        }
+                    if (inst && !inst.spawnEntityNearCoords(player, Math.floor(inst.attributes.width / 2), Math.floor(inst.attributes.height / 2))) {
+                        console.log('COULD NOT SPAWN PLAYER INTO INSTANCE NEAR LOCATION!');
                     }
                 }
                 if (!inst) {
