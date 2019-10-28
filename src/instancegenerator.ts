@@ -304,15 +304,28 @@ function doBASIC_DUNGEON(inst: Instance) {
         inst.tiles[portal.location.x][portal.location.y] = getTileFromName('stone_stairs');
     }
 }
+function forestFlood(inst: Instance, vals: boolean[][], x: number, y: number) {
+    if (x < 0 || y < 0 || x >= vals.length || y >= vals[0].length || vals[x][y]) {
+        return;
+    }
+    if (inst.isTilePassable(x, y)) {
+        vals[x][y] = true;
+        forestFlood(inst, vals, x + 1, y);
+        forestFlood(inst, vals, x, y + 1);
+        forestFlood(inst, vals, x - 1, y);
+        forestFlood(inst, vals, x, y - 1);
+    }
+}
 
 function doFOREST(inst: Instance) {
     for (let i = 0; i < inst.attributes.width; i++) {
         for (let j = 0; j < inst.attributes.height; j++) {
             const xs = ((i / (inst.attributes.width - 1)) - 0.5) * 2;
             const ys = ((j / (inst.attributes.height - 1)) - 0.5) * 2;
-            const scale = (xs * xs) + (ys * ys);
+            let scale = (xs * xs) + (ys * ys);
+            scale = scale * scale;
             const rand = Random.float();
-            if (rand > scale + 0.1) {
+            if (rand > scale + 0.05) {
                 inst.tiles[i][j] = getTileFromName('grass');
             } else if (rand > scale) {
                 inst.tiles[i][j] = getTileFromName('dirt');
@@ -323,11 +336,21 @@ function doFOREST(inst: Instance) {
             }
         }
     }
+
+    const flood: boolean[][] = [];
+    for (let i = 0; i < inst.attributes.width; i++) {
+        flood[i] = [];
+        for (let j = 0; j < inst.attributes.height; j++) {
+            flood[i][j] = false;
+        }
+    }
+    forestFlood(inst, flood, Math.floor(inst.attributes.width / 2), Math.floor(inst.attributes.height / 2));
+
     let stairNum = Math.floor(Random.float() * 3) + 2;
     while (stairNum > 0) {
         const sx = Math.floor(Random.float() * inst.attributes.width);
         const sy = Math.floor(Random.float() * inst.attributes.height);
-        if (inst.tiles[sx][sy] === getTileFromName('grass')) {
+        if (flood[sx][sy]) {
             const loc = new Location(sx, sy, inst.id);
             let overlap = false;
             for (const portal of inst.portals) {
