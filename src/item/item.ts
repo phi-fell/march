@@ -8,6 +8,7 @@ export enum ITEM_TYPE {
 }
 
 export interface ItemSchema {
+    id: ItemSchemaID;
     name: string;
     item_type: ITEM_TYPE;
     stackable: boolean;
@@ -24,11 +25,17 @@ export class Item {
     constructor(schemaID: ItemSchemaID) {
         this._schema = Item.itemSchemas[schemaID];
     }
-    get item_type() {
+    get schema(): ItemSchemaID {
+        return this._schema.id;
+    }
+    get item_type(): ITEM_TYPE {
         return this._schema.item_type;
     }
-    get name() {
+    get name(): string {
         return this._schema.name;
+    }
+    get stackable(): boolean {
+        return this._schema.stackable;
     }
     public toJSON() {
         return {
@@ -45,6 +52,7 @@ function addItem(dir, filename) {
         const id = filename.split('.')[0];
         const schema = JSON.parse(content);
         schema.item_type = ITEM_TYPE[schema.item_type];
+        schema.id = id;
         Item.addSchema(id, schema);
     });
 }
