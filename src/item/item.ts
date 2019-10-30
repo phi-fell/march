@@ -22,8 +22,11 @@ export class Item {
     }
     protected static itemSchemas: { [id: string]: ItemSchema; } = {};
     protected _schema: ItemSchema;
-    constructor(schemaID: ItemSchemaID) {
+    protected constructor(schemaID: ItemSchemaID) {
         this._schema = Item.itemSchemas[schemaID];
+        if (!this._schema) {
+            console.log('Item schema does not exist: ' + schemaID);
+        }
     }
     get schema(): ItemSchemaID {
         return this._schema.id;

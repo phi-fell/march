@@ -12,7 +12,8 @@ export interface WeaponSchema extends ItemSchema {
 
 export class Weapon extends Item {
     protected _schema: WeaponSchema;
-    constructor(schemaID: ItemSchemaID) {
+    constructor(schemaID: ItemSchemaID, prefix: string = 'weapon/') {
+        schemaID = prefix + schemaID;
         super(schemaID);
         this._schema = Item.itemSchemas[schemaID] as WeaponSchema;
         if (this._schema.item_type !== ITEM_TYPE.WEAPON) {

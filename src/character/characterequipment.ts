@@ -1,3 +1,4 @@
+import { Inventory } from '../item/inventory';
 import { Weapon } from '../item/weapon';
 
 export enum APPAREL_SLOT {
@@ -34,13 +35,17 @@ export class CharacterEquipment {
     // public chest_armor: Apparel;
     // public leg_armor: Apparel;
     // public boots: Apparel;
-    public weapon: Weapon;
+    public weapon: Weapon | null;
+    public inventory: Inventory;
     constructor() {
-        this.weapon = new Weapon('weapon/sword');
+        this.weapon = new Weapon('sword');
+        this.inventory = new Inventory();
+        this.inventory.addItem(new Weapon('sword'));
     }
     public toJSON() {
         return {
-            'weapon': this.weapon.toJSON(),
+            'weapon': (this.weapon) ? this.weapon.toJSON() : (this.weapon),
+            'inventory': this.inventory.toJSON(),
         };
     }
 }

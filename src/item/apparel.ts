@@ -36,7 +36,8 @@ export interface ApparelSchema extends ItemSchema {
 
 export class Apparel extends Item {
     protected _schema: ApparelSchema;
-    constructor(schemaID: ItemSchemaID) {
+    constructor(schemaID: ItemSchemaID, prefix: string = 'apparel/') {
+        schemaID = prefix + schemaID;
         super(schemaID);
         this._schema = Item.itemSchemas[schemaID] as ApparelSchema;
         if (this._schema.item_type !== ITEM_TYPE.APPAREL) {
