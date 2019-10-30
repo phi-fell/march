@@ -1,6 +1,8 @@
 import fs = require('fs');
 import path = require('path');
 
+import { Location } from '../location';
+
 export enum ITEM_TYPE {
     APPAREL,
     WEAPON,
@@ -12,6 +14,12 @@ export interface ItemSchema {
     name: string;
     item_type: ITEM_TYPE;
     stackable: boolean;
+}
+
+export interface WorldItemStack {
+    item: Item;
+    count: number;
+    location: Location;
 }
 
 export type ItemSchemaID = string;
@@ -43,6 +51,8 @@ export class Item {
     public toJSON() {
         return {
             'name': this.name,
+            'type': ITEM_TYPE[this.item_type],
+            'stackable': this.stackable,
         };
     }
 }

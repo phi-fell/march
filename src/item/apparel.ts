@@ -55,7 +55,7 @@ export class Apparel extends Item {
     }
     public toJSON() {
         return {
-            'name': this.name,
+            ...super.toJSON(),
             'coverage': this.coverage,
             'resilience': this.resilience,
             'armor': this.armor,

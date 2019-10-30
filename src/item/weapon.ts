@@ -40,7 +40,7 @@ export class Weapon extends Item {
     }
     public toJSON() {
         return {
-            'name': this.name,
+            ...super.toJSON(),
             'one_handed': this.one_handed,
             'piercing': this.piercing,
             'sharpness': this.sharpness,

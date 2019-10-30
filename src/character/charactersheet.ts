@@ -32,6 +32,7 @@ export class CharacterSheet {
         ret._race = new CharacterRace(json.race);
         ret._allocatedAttributes = CharacterAttributes.fromJSON(json.attributes);
         ret._skills = CharacterSkills.fromJSON(json.skills);
+        ret._equipment = CharacterEquipment.fromJSON(json.equipment);
         ret.recalculateDerivedStats();
         ret._status.restoreFully();
         return ret;
@@ -77,6 +78,8 @@ export class CharacterSheet {
     }
     get status() {
         return this._status;
+    } get equipment() {
+        return this._equipment;
     }
     public hasSufficientAP(ap: number): boolean {
         return this._status.action_points >= ap;

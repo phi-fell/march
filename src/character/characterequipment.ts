@@ -29,7 +29,12 @@ export enum APPAREL_SLOT {
 
 export class CharacterEquipment {
     public static fromJSON(json) {
-        return new CharacterEquipment();
+        const ret = new CharacterEquipment();
+        if (!json) {
+            return ret;
+        }
+        ret.inventory = Inventory.fromJSON(json.inventory);
+        return ret;
     }
     // public helmet: Apparel;
     // public chest_armor: Apparel;

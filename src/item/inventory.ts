@@ -1,11 +1,18 @@
 import { Item } from './item';
 
-interface ItemStack {
+export interface ItemStack {
     item: Item;
     count: number;
 }
 
 export class Inventory {
+    public static fromJSON(json: any): Inventory {
+        const ret = new Inventory();
+        for (const stack of json) {
+            ret.addItem(stack.item, stack.count);
+        }
+        return ret;
+    }
     private _items: ItemStack[] = [];
     constructor() { /* nothing */ }
     public addItem(item: Item | null, count: number = 1) {
@@ -22,6 +29,21 @@ export class Inventory {
             'item': item,
             'count': count,
         });
+    }
+    public removeItem(slot: number, count: number | null = null) {
+        if (slot < 0 || slot >= this._items.length) {
+            return console.log('no such item index to remove');
+        }
+        if (!count || !this._items[slot].count || count >= this._items[slot].count) {
+            return this._items.splice(slot, 1);
+        }
+        this._items[slot].count -= count;
+    }
+    public getItemStack(slot: number): ItemStack {
+        return this._items[slot];
+    }
+    get stacks() {
+        return this._items.length;
     }
     public toJSON() {
         const ret: any[] = [];

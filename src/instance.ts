@@ -3,6 +3,8 @@ import fs = require('fs');
 import { ACTION_STATUS, Entity } from './entity';
 import { INSTANCE_GEN_TYPE, InstanceGenerator } from './instancegenerator';
 import { InstanceSchemaID } from './instanceschema';
+import { Inventory } from './item/inventory';
+import { WorldItemStack } from './item/item';
 import { Location } from './location';
 import { Random } from './math/random';
 import { Player } from './player';
@@ -97,6 +99,8 @@ export class Instance {
         const retTiles: Tile[][] = [];
         const tileAdjacencies: number[][] = [];
         const retMobs: any = [];
+        const retItems: any = [];
+        const itemsOnGround: any = [];
         const retPortals: any = [];
         const inst = Instance.instances[plr.location.instance_id];
         const MAX_RADIUS = 10;
@@ -144,6 +148,28 @@ export class Instance {
                 });
             }
         }
+        for (const stack of inst.items) {
+            if (
+                stack.location.x >= x0 &&
+                stack.location.x <= x1 &&
+                stack.location.y >= y0 &&
+                stack.location.y <= y1 &&
+                visible[stack.location.x][stack.location.y]
+            ) {
+                retItems.push({
+                    'item': stack.item.toJSON(),
+                    'location': stack.location,
+                    'count': stack.count,
+                });
+                if (stack.location.equals(plr.location)) {
+                    itemsOnGround.push({
+                        'item': stack.item.toJSON(),
+                        'location': stack.location,
+                        'count': stack.count,
+                    });
+                }
+            }
+        }
         for (const portal of inst.portals) {
             if (
                 portal.location.x >= x0 &&
@@ -160,6 +186,8 @@ export class Instance {
         return {
             'mobs': retMobs,
             'portals': retPortals,
+            'items': retItems,
+            itemsOnGround,
             'tiles': retTiles,
             'tileAdjacencies': tileAdjacencies,
             'info': {
@@ -177,6 +205,7 @@ export class Instance {
     public players: Player[];
     public tiles: Tile[][] = [];
     public mobs: Entity[] = [];
+    public items: WorldItemStack[] = [];
     public portals: Portal[] = [];
     private waitingForAsyncMove: string | null;
     private lastActiveTime: number;
@@ -327,6 +356,17 @@ export class Instance {
         ent.location = new Location(posX, posY, this.id);
         return true;
 
+    }
+    public dropItems(inventory: Inventory, location: Location) {
+        while (inventory.stacks) {
+            const i = inventory.getItemStack(0);
+            inventory.removeItem(0);
+            this.items.push({
+                'item': i.item,
+                'count': i.count,
+                location,
+            });
+        }
     }
     public unload() {
         delete Instance.instances[this.id];

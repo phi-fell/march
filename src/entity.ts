@@ -98,6 +98,7 @@ export class Entity {
     protected handleDeath() {
         // TODO: add ability to attach listeners to entities e.g. death listener, damage listener, etc.
         // TODO: kill entity
+        Instance.instances[this.location.instance_id].dropItems(this.charSheet.equipment.inventory, this.location);
         Instance.removeEntityFromWorld(this);
         if (this.lastHitSheet) {
             this.lastHitSheet.addExperience(this.charSheet.getEssenceWorth());

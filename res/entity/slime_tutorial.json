@@ -2,8 +2,5 @@
     "name": "Slime",
     "race": "slime",
     "attributes": {},
-    "skills": {},
-    "equipment": {
-        "inventory": []
-    }
+    "skills": {}
 }

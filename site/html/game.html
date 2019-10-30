@@ -30,6 +30,9 @@
       width: 100%;
       position: absolute;
       bottom: 0;
+
+      display: flex;
+      flex-flow: column;
     }
 
     .char_status {
@@ -116,6 +119,15 @@
       margin: 10px;
     }
 
+    #sheet_title {
+      flex: 0 1 auto;
+    }
+
+    #sheet_div {
+      flex: 1 1 auto;
+      overflow: auto;
+    }
+
     #messages li {
       padding: 5px 10px;
       word-wrap: break-word;
@@ -156,9 +168,14 @@
         <select onChange="setSheetDisplayMode(this)">
           <option value="attributes">Attributes</option>
           <option value="race">Race</option>
+          <option value="skills">Skills</option>
+          <option value="equipment">Equipment</option>
+          <option value="inventory">Inventory</option>
         </select>
       </div>
-      <ul id="sheet"></ul>
+      <div id="sheet_div">
+        <ul id="sheet"></ul>
+      </div>
     </div>
     <div class="char_status">
       <ul id="status"></ul>
@@ -169,6 +186,7 @@
   <script src="/js/util.js"></script>
   <script src="/js/auth.js"></script>
   <script src="/js/network.js"></script>
+  <script src="/js/ui.js"></script>
   <script src="/js/game.js"></script>
   <script src="/js/controls.js"></script>
   <script src="/js/page.js"></script>
