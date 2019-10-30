@@ -150,6 +150,16 @@ class Game {
         } else if (this._sheetdisplaymode === 'race') {
             list.append($('<li>').text('Race: ' + sheet.race.name));
             list.append($('<li>').text(sheet.race.description));
+        } else if (this._sheetdisplaymode === 'skills' || this._sheetdisplaymode === 'skill') {
+            Object.keys(sheet.skills).forEach(function (skill) {
+                list.append($('<li>').text(skill + ': ' + sheet.skills[skill]));
+            });
+        } else if (this._sheetdisplaymode === 'equipment' || this._sheetdisplaymode === 'equip') {
+            list.append($('<li>').text(sheet.equipment));
+        } else if (this._sheetdisplaymode === 'inventory' || this._sheetdisplaymode === 'inv') {
+            for (const stack of sheet.equipment.inventory) {
+                list.append($('<li>').html(getItemHTML(stack.item) + ' ' + stack.count));
+            }
         } else {
             list.append($('<li>').text('Mode \"' + this._sheetdisplaymode + '\" does not exist'));
             list.append($('<li>').text('available modes:'));
@@ -158,32 +168,9 @@ class Game {
 
         var list = $("#status");
         list.empty();
-        list.append($('<li>').text('-----Status-----'));
-        list.append($('<li>').text('Position: (' + this.player.location.x + ', ' + this.player.location.y + ")"));
-        if (sheet.status.FLESH) {
-            list.append($('<li>').text('Flesh: ' + sheet.status.FLESH.quantity + '/' + sheet.status.FLESH.capacity));
-        }
-        if (sheet.status.BLOOD) {
-            list.append($('<li>').text('Blood: ' + sheet.status.BLOOD.quantity + '/' + sheet.status.BLOOD.capacity));
-        }
-        if (sheet.status.BONE) {
-            list.append($('<li>').text('Bone: ' + sheet.status.BONE.quantity + '/' + sheet.status.BONE.capacity));
-        }
-        if (sheet.status.SOUL) {
-            list.append($('<li>').text('Soul: ' + sheet.status.SOUL.quantity + '/' + sheet.status.SOUL.capacity));
-        }
-        if (sheet.status.MANA) {
-            list.append($('<li>').text('Mana: ' + sheet.status.MANA.quantity + '/' + sheet.status.MANA.capacity));
-        }
-        if (sheet.status.STAMINA) {
-            list.append($('<li>').text('Stamina: ' + sheet.status.STAMINA.quantity + '/' + sheet.status.STAMINA.capacity));
-        }
-        list.append($('<li>').text('Action Points: ' + sheet.status.action_points + '/' + sheet.status.max_action_points + ' (+' + sheet.status.action_point_recovery + ' /turn)'));
-        let weapon_hover = (sheet.equipment.weapon.one_handed ? 'One Handed' : 'Two Handed') + '\n' + "piercing: " + sheet.equipment.weapon.piercing + "\n" + "sharpness: " + sheet.equipment.weapon.sharpness + "\n" + "force: " + sheet.equipment.weapon.force + "\n" + "precision: " + sheet.equipment.weapon.precision + "\n" + "speed: " + sheet.equipment.weapon.speed;
-        list.append($('<li>').html('Weapon: <span title="' + weapon_hover + '"><b>[' + sheet.equipment.weapon.name + ']</b></span>'));
-
-        var list = $("#info");
-        list.empty();
+        let hover = 'Controls\n - Turn with the arrow keys\n - Use WASD to move\nstrafing takes more AP than moving forward\n - Attack with spacebar';
+        hover += '\nbut only in the direction you\'re facing\n - press Z to wait, X to stop waiting\n - press . or > to use stairs';
+        list.append($('<li>').html('<span title="' + hover + '"><b>[Controls]</b></span> <- mouse over'));
         list.append($('<li>').text('Player: ' + this.player.name));
         list.append($('<li>').text('Race: ' + sheet.race.name));
         list.append($('<li>').text('Essence: ' + sheet.essence));
@@ -211,15 +198,33 @@ class Game {
                 break;
         }
         list.append($('<li>').text(this.boardInfo.your_turn ? 'It\'s your turn!' : 'Other characters are taking their turn...'));
+        list.append($('<li>').text('-----Status-----'));
+        list.append($('<li>').text('Position: (' + this.player.location.x + ', ' + this.player.location.y + ")"));
+        if (sheet.status.FLESH) {
+            list.append($('<li>').text('Flesh: ' + sheet.status.FLESH.quantity + '/' + sheet.status.FLESH.capacity));
+        }
+        if (sheet.status.BLOOD) {
+            list.append($('<li>').text('Blood: ' + sheet.status.BLOOD.quantity + '/' + sheet.status.BLOOD.capacity));
+        }
+        if (sheet.status.BONE) {
+            list.append($('<li>').text('Bone: ' + sheet.status.BONE.quantity + '/' + sheet.status.BONE.capacity));
+        }
+        if (sheet.status.SOUL) {
+            list.append($('<li>').text('Soul: ' + sheet.status.SOUL.quantity + '/' + sheet.status.SOUL.capacity));
+        }
+        if (sheet.status.MANA) {
+            list.append($('<li>').text('Mana: ' + sheet.status.MANA.quantity + '/' + sheet.status.MANA.capacity));
+        }
+        if (sheet.status.STAMINA) {
+            list.append($('<li>').text('Stamina: ' + sheet.status.STAMINA.quantity + '/' + sheet.status.STAMINA.capacity));
+        }
+        list.append($('<li>').text('Action Points: ' + sheet.status.action_points + '/' + sheet.status.max_action_points + ' (+' + sheet.status.action_point_recovery + ' /turn)'));
+        let weapon_hover = (sheet.equipment.weapon.one_handed ? 'One Handed' : 'Two Handed') + '\n' + "piercing: " + sheet.equipment.weapon.piercing + "\n" + "sharpness: " + sheet.equipment.weapon.sharpness + "\n" + "force: " + sheet.equipment.weapon.force + "\n" + "precision: " + sheet.equipment.weapon.precision + "\n" + "speed: " + sheet.equipment.weapon.speed;
+        list.append($('<li>').html('Weapon: <span title="' + weapon_hover + '"><b>[' + sheet.equipment.weapon.name + ']</b></span>'));
 
-        list.append($('<li>').text('----- Controls -----'));
-        list.append($('<li>').text(' - Turn with the arrow keys'));
-        list.append($('<li>').text(' - Use WASD to move'));
-        list.append($('<li>').text('strafing takes more AP than moving forward'));
-        list.append($('<li>').text(' - Attack with spacebar'));
-        list.append($('<li>').text('but only in the direction you\'re facing'));
-        list.append($('<li>').text(' - press Z to wait, X to stop waiting'));
-        list.append($('<li>').text(' - press . or > to use stairs'));
+        var list = $("#info");
+        list.empty();
+        list.append($('<li>').text('Ground: ' + 'stone_floor'));
     }
 
     _draw() {
