@@ -6,5 +6,13 @@
         "VITALITY": 10,
         "SPEED": 5
     },
-    "skills": {}
+    "skills": {},
+    "equipment": {
+        "inventory": [
+            {
+                "item": "gold",
+                "count": 5
+            }
+        ]
+    }
 }

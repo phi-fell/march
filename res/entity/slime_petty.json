@@ -2,5 +2,8 @@
     "name": "Petty Slime",
     "race": "slime",
     "attributes": {},
-    "skills": {}
+    "skills": {},
+    "equipment": {
+        "inventory": []
+    }
 }
