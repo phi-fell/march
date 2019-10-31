@@ -5,6 +5,9 @@ import { CharGen, CharGenStage } from './chargen';
 import { DIRECTION, directionVectors } from './direction';
 import { ACTION_STATUS, Entity } from './entity';
 import { Instance } from './instance';
+import { ItemSchemaID } from './item/item';
+import { getItemFromSchemaID } from './item/itemutil';
+import { WorldItemStack } from './item/worlditemstack';
 import { Location } from './location';
 import { Random } from './math/random';
 import { generateName } from './namegen';
@@ -20,9 +23,10 @@ export enum ACTION_TYPE {
     TURN,
     USE_PORTAL,
     ATTACK,
+    PICKUP,
 }
 
-const ACTION_COST = [0, 0, 5, 8, 5, 5, 10];
+const ACTION_COST = [0, 0, 5, 8, 5, 5, 10, 2];
 
 export interface PlayerAction {
     type: ACTION_TYPE;
@@ -95,8 +99,19 @@ export class UsePortalAction implements PlayerAction {
         };
     }
 }
+
 export class AttackAction implements PlayerAction {
     public type: ACTION_TYPE.ATTACK = ACTION_TYPE.ATTACK;
+    public toJSON(): object {
+        return {
+            'type': ACTION_TYPE[this.type],
+        };
+    }
+}
+
+export class PickupAction implements PlayerAction {
+    public type: ACTION_TYPE.PICKUP = ACTION_TYPE.PICKUP;
+    constructor(public schema: ItemSchemaID, public count: number) { }
     public toJSON(): object {
         return {
             'type': ACTION_TYPE[this.type],
@@ -249,6 +264,26 @@ export class Player extends Entity {
                     if (opponent) {
                         opponent.hit(this.charSheet);
                     }
+                    this.queuedAction = null;
+                    break;
+                } case ACTION_TYPE.PICKUP: {
+                    const inst = Instance.getLoadedInstanceById(this.location.instance_id)!;
+                    const pickup = this.queuedAction as PickupAction;
+                    const inv = this.charSheet.equipment.inventory;
+                    const loc = this.location;
+                    inst.items.forEach((stack: WorldItemStack, index: number) => {
+                        if (stack.location.equals(loc) && stack.item.schema === pickup.schema) {
+                            this.charSheet.useAP(ACTION_COST[pickup.type]);
+                            if (pickup.count === null || stack.count === null || pickup.count >= stack.count) {
+                                inv.addItem(stack.item, stack.count);
+                                inst.items.splice(index, 1);
+                            } else {
+                                inv.addItem(getItemFromSchemaID(pickup.schema), pickup.count);
+                                stack.count -= pickup.count;
+                            }
+                            return;
+                        }
+                    });
                     this.queuedAction = null;
                     break;
                 }

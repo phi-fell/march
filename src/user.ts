@@ -16,6 +16,7 @@ import { Random } from './math/random';
 import {
     AttackAction,
     MoveAction,
+    PickupAction,
     Player,
     StrafeAction,
     TurnAction,
@@ -90,7 +91,7 @@ export class User {
         });
         sock.on('player_action', (msg) => {
             if (user.player) {
-                switch (msg + '') {
+                switch (msg.action + '') {
                     case 'move_up':
                         user.player.setAction(new MoveAction(DIRECTION.UP));
                         break;
@@ -139,8 +140,11 @@ export class User {
                     case 'portal':
                         user.player.setAction(new UsePortalAction());
                         break;
+                    case 'pickup':
+                        user.player.setAction(new PickupAction(msg.schema, msg.count));
+                        break;
                     default:
-                        sock.emit('log', 'unknown action: ' + msg);
+                        sock.emit('log', 'unknown action: ' + msg.action);
                         break;
                 }
             } else {

@@ -54,7 +54,7 @@ class Controls {
         } else if (typeof KEY_MAP[e.keyCode] === 'undefined') {
             //console.log("unknown key pressed: " + e.keyCode)
         } else {
-            socket.emit('player_action', KEY_MAP[e.keyCode])
+            socket.emit('player_action', { 'action': KEY_MAP[e.keyCode] });
         }
     }
 }

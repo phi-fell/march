@@ -10,6 +10,14 @@ function levelUpAttr(val) {
     });
 }
 
+function pickupItem(schema, count) {
+    socket.emit('player_action', {
+        'action': 'pickup',
+        schema,
+        count,
+    });
+}
+
 function setSheetDisplayMode(dropdown) {
     game._sheetdisplaymode = dropdown.value;
     game.updateMenus();
@@ -62,7 +70,7 @@ $(function () {
         } else if ((msg + '').startsWith('/action')) {
             tok = msg.substring(1).split(' ');
             tok = tok.slice(1);
-            socket.emit('player_action', tok.join(' '));
+            socket.emit('player_action', { 'action': tok.join(' ') });
         } else if ((msg + '').startsWith('/')) {
             tok = msg.substring(1).split(' ');
             cmd = tok[0];

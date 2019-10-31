@@ -161,7 +161,13 @@ class Game {
             list.append($('<li>').text(sheet.equipment));
         } else if (this._sheetdisplaymode === 'inventory' || this._sheetdisplaymode === 'inv') {
             for (const stack of sheet.equipment.inventory) {
-                list.append($('<li>').html(getItemHTML(stack.item) + ' ' + stack.count));
+                let dropButtons = '';
+                if (stack.count && stack.count > 1) {
+                    dropButtons = '  <button style="padding: 2px;" onclick="dropItem(\'' + stack.item.schema + '\', 1)">Drop 1</button> <button style="padding: 2px;" onclick="dropItem(\'' + stack.item.schema + '\', null)">Drop All</button>';
+                } else {
+                    dropButtons = '  <button style="padding: 2px;" onclick="dropItem(\'' + stack.item.schema + '\', null)">Drop</button>';
+                }
+                list.append($('<li>').html(' - ' + getItemHTML(stack.item) + (stack.count ? (' x ' + stack.count) : '') + dropButtons));
             }
         } else {
             list.append($('<li>').text('Mode \"' + this._sheetdisplaymode + '\" does not exist'));
@@ -230,7 +236,13 @@ class Game {
         if (this.itemsOnGround.length > 0) {
             list.append($('<li>').text('There are items on the ground:'));
             for (const stack of this.itemsOnGround) {
-                list.append($('<li>').html(' - ' + getItemHTML(stack.item) + (stack.count ? (' x ' + stack.count) : '')));
+                let takeButtons = '';
+                if (stack.count && stack.count > 1) {
+                    takeButtons = '  <button style="padding: 2px;" onclick="pickupItem(\'' + stack.item.schema + '\', 1)">Take 1</button> <button style="padding: 2px;" onclick="pickupItem(\'' + stack.item.schema + '\', null)">Take All</button>';
+                } else {
+                    takeButtons = '  <button style="padding: 2px;" onclick="pickupItem(\'' + stack.item.schema + '\', null)">Take</button>';
+                }
+                list.append($('<li>').html(' - ' + getItemHTML(stack.item) + (stack.count ? (' x ' + stack.count) : '') + takeButtons));
             }
         }
     }
