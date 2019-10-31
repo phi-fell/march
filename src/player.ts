@@ -24,9 +24,10 @@ export enum ACTION_TYPE {
     USE_PORTAL,
     ATTACK,
     PICKUP,
+    DROP,
 }
 
-const ACTION_COST = [0, 0, 5, 8, 5, 5, 10, 2];
+const ACTION_COST = [0, 0, 5, 8, 5, 5, 10, 2, 2];
 
 export interface PlayerAction {
     type: ACTION_TYPE;
@@ -111,6 +112,16 @@ export class AttackAction implements PlayerAction {
 
 export class PickupAction implements PlayerAction {
     public type: ACTION_TYPE.PICKUP = ACTION_TYPE.PICKUP;
+    constructor(public schema: ItemSchemaID, public count: number) { }
+    public toJSON(): object {
+        return {
+            'type': ACTION_TYPE[this.type],
+        };
+    }
+}
+
+export class DropAction implements PlayerAction {
+    public type: ACTION_TYPE.DROP = ACTION_TYPE.DROP;
     constructor(public schema: ItemSchemaID, public count: number) { }
     public toJSON(): object {
         return {
@@ -284,6 +295,31 @@ export class Player extends Entity {
                             return;
                         }
                     });
+                    this.queuedAction = null;
+                    break;
+                } case ACTION_TYPE.DROP: {
+                    const inst = Instance.getLoadedInstanceById(this.location.instance_id)!;
+                    const drop = this.queuedAction as DropAction;
+                    const inv = this.charSheet.equipment.inventory;
+                    for (let i = 0; i < inv.stacks; i++) {
+                        const stack = inv.getItemStack(i);
+                        if (drop.schema === stack.item.schema) {
+                            if (drop.count === null || stack.count === null || drop.count >= stack.count) {
+                                inst.dropItem(stack.item, stack.count, this.location);
+                                inv.removeItem(i);
+                            } else {
+                                const dropItem = getItemFromSchemaID(drop.schema);
+                                if (dropItem === null) {
+                                    console.log('Cannot drop ' + drop.schema + '!  No such item schema!');
+                                    break;
+                                }
+                                stack.count -= drop.count;
+                                inst.dropItem(dropItem, drop.count, this.location);
+                            }
+                            this.charSheet.useAP(ACTION_COST[this.queuedAction.type]);
+                            break;
+                        }
+                    }
                     this.queuedAction = null;
                     break;
                 }

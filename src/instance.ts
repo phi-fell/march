@@ -4,6 +4,7 @@ import { ACTION_STATUS, Entity } from './entity';
 import { INSTANCE_GEN_TYPE, InstanceGenerator } from './instancegenerator';
 import { InstanceSchemaID } from './instanceschema';
 import { Inventory } from './item/inventory';
+import { Item } from './item/item';
 import { WorldItemStack } from './item/worlditemstack';
 import { Location } from './location';
 import { Random } from './math/random';
@@ -357,15 +358,24 @@ export class Instance {
         return true;
 
     }
-    public dropItems(inventory: Inventory, location: Location) {
+    public dropItem(item: Item, count: number, location: Location) {
+        for (const stack of this.items) {
+            if (stack.location.equals(location) && stack.item.schema === item.schema && stack.item.stackable) {
+                stack.count += count;
+                return;
+            }
+        }
+        this.items.push({
+            item,
+            count,
+            location,
+        });
+    }
+    public dropInventory(inventory: Inventory, location: Location) {
         while (inventory.stacks) {
             const i = inventory.getItemStack(0);
             inventory.removeItem(0);
-            this.items.push({
-                'item': i.item,
-                'count': i.count,
-                location,
-            });
+            this.dropItem(i.item, i.count, location);
         }
     }
     public unload() {

@@ -15,6 +15,7 @@ import { DIRECTION } from './direction';
 import { Random } from './math/random';
 import {
     AttackAction,
+    DropAction,
     MoveAction,
     PickupAction,
     Player,
@@ -142,6 +143,9 @@ export class User {
                         break;
                     case 'pickup':
                         user.player.setAction(new PickupAction(msg.schema, msg.count));
+                        break;
+                    case 'drop':
+                        user.player.setAction(new DropAction(msg.schema, msg.count));
                         break;
                     default:
                         sock.emit('log', 'unknown action: ' + msg.action);

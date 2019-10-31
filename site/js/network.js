@@ -18,6 +18,14 @@ function pickupItem(schema, count) {
     });
 }
 
+function dropItem(schema, count) {
+    socket.emit('player_action', {
+        'action': 'drop',
+        schema,
+        count,
+    });
+}
+
 function setSheetDisplayMode(dropdown) {
     game._sheetdisplaymode = dropdown.value;
     game.updateMenus();
