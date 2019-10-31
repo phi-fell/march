@@ -19,6 +19,7 @@ export class CharacterSheet {
         ret._race = new CharacterRace(json.race);
         ret._allocatedAttributes = CharacterAttributes.fromJSON(json.attributes);
         ret._skills = CharacterSkills.fromJSON(json.skills);
+        ret._equipment.weapon = new Weapon('sword');
         ret._essence = STARTING_ESSENCE - ret.getEssenceWorth();
         if (ret._essence < 0) {
             return null;
@@ -40,6 +41,7 @@ export class CharacterSheet {
     public static fromJSON(json: any) {
         const ret = new CharacterSheet();
         // TODO: load faiths
+        ret._equipment = CharacterEquipment.fromJSON(json.equipment);
         ret._race = CharacterRace.fromJSON(json.race);
         ret._allocatedAttributes = CharacterAttributes.fromJSON(json.allocatedAttributes);
         ret._skills = CharacterSkills.fromJSON(json.skills);

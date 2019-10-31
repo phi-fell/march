@@ -33,6 +33,9 @@ export class CharacterEquipment {
         if (!json) {
             return ret;
         }
+        if (json.weapon) {
+            ret.weapon = new Weapon(json.weapon.schema, '');
+        }
         ret.inventory = Inventory.fromJSON(json.inventory);
         return ret;
     }
@@ -43,9 +46,8 @@ export class CharacterEquipment {
     public weapon: Weapon | null;
     public inventory: Inventory;
     constructor() {
-        this.weapon = new Weapon('sword');
+        this.weapon = null;
         this.inventory = new Inventory();
-        this.inventory.addItem(new Weapon('sword'));
     }
     public toJSON() {
         return {
