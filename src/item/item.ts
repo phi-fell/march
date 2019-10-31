@@ -46,6 +46,7 @@ export class Item {
     public toJSON() {
         return {
             'name': this.name,
+            'schema': this._schema.id,
             'type': ITEM_TYPE[this.item_type],
             'stackable': this.stackable,
         };

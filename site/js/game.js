@@ -279,6 +279,12 @@ class Game {
                     }
                 }
             }
+            for (let i = 0; i < this.items.length; i++) {
+                let sprite = this.items[i].item.schema;
+                let x = this.items[i].location.x - this.boardInfo.x;
+                let y = this.items[i].location.y - this.boardInfo.y;
+                this._drawItem(sprite, ((x - 1) * scale) + offsetX, ((y - 1) * scale) + offsetY, scale, scale);
+            }
             for (let i = 0; i < this.mobs.length; i++) {
                 let sprite = this.mobs[i].type;
                 let x = this.mobs[i].location.x - this.boardInfo.x;
@@ -330,6 +336,10 @@ class Game {
         this._ctx.rotate(Math.PI * (dir / -2));
         this._ctx.drawImage(this._getSprite(id), -w / 2, -h / 2, w, h);
         this._ctx.restore();
+    }
+
+    _drawItem(id, x, y, w, h) {
+        this._ctx.drawImage(this._getSprite('item/' + id), x, y, w, h);
     }
 
     _drawSquare(x, y, w, h) {
