@@ -1,4 +1,5 @@
-import { Item, ITEM_TYPE, ItemSchema, ItemSchemaID } from './item';
+import { Item, ItemSchema, ItemSchemaID } from './item';
+import { ITEM_TYPE } from './itemtype';
 
 export interface WeaponSchema extends ItemSchema {
     item_type: ITEM_TYPE.WEAPON;

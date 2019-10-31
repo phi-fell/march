@@ -10,7 +10,7 @@
     "equipment": {
         "inventory": [
             {
-                "item": "gold",
+                "item": "misc/gold",
                 "count": 5
             }
         ]

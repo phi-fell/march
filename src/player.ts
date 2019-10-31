@@ -312,11 +312,7 @@ export class Player extends Entity {
         if (this.active) {
             const board = Instance.getPlayerBoard(this);
             this.user!.socket.emit('update', {
-                'mobs': board.mobs,
-                'tiles': board.tiles,
-                'tileAdjacencies': board.tileAdjacencies,
-                'portals': board.portals,
-                'board_info': board.info,
+                ...board,
                 'player': this.getDataAsViewer(),
             });
         } else {

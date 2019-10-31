@@ -1,13 +1,9 @@
 import fs = require('fs');
 import path = require('path');
 
-import { Location } from '../location';
+import { ITEM_TYPE } from './itemtype';
 
-export enum ITEM_TYPE {
-    APPAREL,
-    WEAPON,
-    MISC,
-}
+export type ItemSchemaID = string;
 
 export interface ItemSchema {
     id: ItemSchemaID;
@@ -16,21 +12,20 @@ export interface ItemSchema {
     stackable: boolean;
 }
 
-export interface WorldItemStack {
-    item: Item;
-    count: number;
-    location: Location;
-}
-
-export type ItemSchemaID = string;
-
 export class Item {
+    public static getItemType(schemaID: ItemSchemaID): ITEM_TYPE | null {
+        const schema = Item.itemSchemas[schemaID];
+        if (!schema) {
+            return null;
+        }
+        return schema.item_type;
+    }
     public static addSchema(id: ItemSchemaID, schema: ItemSchema) {
         Item.itemSchemas[id] = schema;
     }
     protected static itemSchemas: { [id: string]: ItemSchema; } = {};
     protected _schema: ItemSchema;
-    protected constructor(schemaID: ItemSchemaID) {
+    constructor(schemaID: ItemSchemaID) {
         this._schema = Item.itemSchemas[schemaID];
         if (!this._schema) {
             console.log('Item schema does not exist: ' + schemaID);

@@ -12,6 +12,9 @@ class Game {
         this._ctx.fillStyle = "#FFF";
         this._ctx.imageSmoothingEnabled = false;
         this.mobs = undefined;
+        this.items = [];
+        this.itemsOnGround = [];
+        this.portals = [];
         this.tiles = undefined;
         this.tileAdjacencies = undefined;
         this.boardInfo = undefined;
@@ -224,7 +227,12 @@ class Game {
 
         var list = $("#info");
         list.empty();
-        list.append($('<li>').text('Ground: ' + 'stone_floor'));
+        if (this.itemsOnGround.length > 0) {
+            list.append($('<li>').text('There are items on the ground:'));
+            for (const stack of this.itemsOnGround) {
+                list.append($('<li>').html(' - ' + getItemHTML(stack.item) + (stack.count ? (' x ' + stack.count) : '')));
+            }
+        }
     }
 
     _draw() {

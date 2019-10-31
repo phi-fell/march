@@ -91,7 +91,10 @@ $(function () {
         game.mobs = msg.mobs;
         game.tiles = msg.tiles;
         game.tileAdjacencies = msg.tileAdjacencies;
-        game.boardInfo = msg.board_info;
+        game.boardInfo = msg.info;
+        game.items = msg.items;
+        game.itemsOnGround = msg.itemsOnGround;
+        game.portals = msg.portals;
         game.player = msg.player;
         game.draw();
         game.updateMenus();

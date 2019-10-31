@@ -1,4 +1,5 @@
 import { Item } from './item';
+import { getItemFromSchemaID } from './itemutil';
 
 export interface ItemStack {
     item: Item;
@@ -9,7 +10,7 @@ export class Inventory {
     public static fromJSON(json: any): Inventory {
         const ret = new Inventory();
         for (const stack of json) {
-            ret.addItem(stack.item, stack.count);
+            ret.addItem(getItemFromSchemaID(stack.item), stack.count);
         }
         return ret;
     }

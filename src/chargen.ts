@@ -63,7 +63,7 @@ export class CharGen {
                     inst.spawnEntityAtCoords(slime, 6, 6);
                 }
                 inst.tiles[6][6] = getTileFromName('stone_stairs');
-                inst.portals.push(new Portal(new Location(6, 6, inst.id), 'forest'));
+                inst.portals.push(new Portal(new Location(6, 6, inst.id), 'slime_cave_upper'));
                 inst.spawnEntityAtCoords(player, 3, 8);
                 break;
             }
@@ -71,7 +71,7 @@ export class CharGen {
                 // TODO: spawn into main world?
                 let inst = Instance.getAvailableNonFullInstance(player);
                 if (!inst) {
-                    inst = getInstanceFromSchema('forest', Random.uuid());
+                    inst = getInstanceFromSchema('slime_cave_upper', Random.uuid());
                     if (inst && !inst.spawnEntityNearCoords(player, Math.floor(inst.attributes.width / 2), Math.floor(inst.attributes.height / 2))) {
                         console.log('COULD NOT SPAWN PLAYER INTO INSTANCE NEAR LOCATION!');
                     }
