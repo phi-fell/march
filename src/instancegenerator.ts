@@ -1,6 +1,7 @@
 import { Instance } from './instance';
 import { generate_SLIME_ABYSS } from './instance_generation/slime_abyss';
 import { generate_SLIME_CAVE } from './instance_generation/slime_cave';
+import { generate_SLIME_MAZE } from './instance_generation/slime_maze.';
 import { getRandomAdjacency } from './instanceschema';
 import { Location } from './location';
 import { Random } from './math/random';
@@ -15,6 +16,7 @@ export enum INSTANCE_GEN_TYPE {
     BASIC_DUNGEON,
     FOREST,
     SLIME_CAVE,
+    SLIME_MAZE,
     SLIME_ABYSS,
     VOLCANIC,
 }
@@ -61,6 +63,9 @@ export class InstanceGenerator {
                 break;
             case INSTANCE_GEN_TYPE.SLIME_CAVE:
                 generate_SLIME_CAVE(inst);
+                break;
+            case INSTANCE_GEN_TYPE.SLIME_MAZE:
+                generate_SLIME_MAZE(inst);
                 break;
             case INSTANCE_GEN_TYPE.SLIME_ABYSS:
                 generate_SLIME_ABYSS(inst);
