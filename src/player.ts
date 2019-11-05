@@ -372,11 +372,16 @@ export class Player extends Entity {
         // TODO: if player doesn't have location or if it's invalid, or depending on type of instance, or if it no longer exists...
         // ^ cont. then spawn in a new random location?
         if (this.chargen === CharGenStage.Done) {
-            // Instance.spawnEntityInLocation(this, data.location);
-            CharGen.spawnPlayerInFreshInstance(this);
-            // TODO: TEMP ^
+            if (!Instance.getLoadedInstanceById(this.location.instance_id)) {
+                /*const plr = this;
+                Instance.loadInstance(this.location.instance_id, () => {
+                    plr.location = plr.location;
+                });*/
+                CharGen.spawnPlayerInFreshInstance(this);
+            }
         } else {
             CharGen.spawnPlayerInFreshInstance(this);
+            this.chargen = CharGenStage.Done;
         }
         this.charSheet = CharacterSheet.fromJSON(data.sheet);
     }
