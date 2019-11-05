@@ -10,7 +10,11 @@ export class Inventory {
     public static fromJSON(json: any): Inventory {
         const ret = new Inventory();
         for (const stack of json) {
-            ret.addItem(getItemFromSchemaID(stack.item), stack.count);
+            if (stack.item.schema) {
+                ret.addItem(getItemFromSchemaID(stack.item.schema), stack.count);
+            } else {
+                ret.addItem(getItemFromSchemaID(stack.item), stack.count);
+            }
         }
         return ret;
     }
