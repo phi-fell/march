@@ -3,6 +3,9 @@ import uuid_rand = require('uuid/v4');
 import uuid_deterministic = require('uuid/v5');
 
 export class Random {
+    public static getSecureID() {
+        return randomBytes(16).toString('hex');
+    }
     public static float() {
         return Random.r.float();
     }
@@ -15,14 +18,8 @@ export class Random {
     public static uuid() {
         return uuid_rand();
     }
-    public static getDeterministicID() {
-        return uuid_deterministic(
-            '' + Random.float() + ', ' + Random.float() + ', ' + Random.float() + ', ' + Random.float(),
-            Random.r.seed,
-        );
-    }
-    public static getSecureID() {
-        return randomBytes(16).toString('hex');
+    public static getDeterministicID(): string {
+        return Random.r.getDeterministicID();
     }
     public static reSeed(seed: string) {
         Random.r.reSeed(seed);
@@ -33,6 +30,7 @@ export class Random {
         this.reSeed(seed);
     }
     public reSeed(seed: string) {
+        this.seed = seed;
         let hash = 1779033703 ^ seed.length;
         for (let i = 0; i < seed.length; i++) {
             hash = Math.imul(hash ^ seed.charCodeAt(i), 3432918353);
@@ -60,5 +58,11 @@ export class Random {
     }
     public int(min_inclusive, max_exclusive): number {
         return Math.floor(this.floatRange(min_inclusive, max_exclusive));
+    }
+    public getDeterministicID(): string {
+        return uuid_deterministic(
+            '' + this.float() + ', ' + this.float() + ', ' + this.float() + ', ' + this.float(),
+            uuid_deterministic.URL,
+        );
     }
 }
