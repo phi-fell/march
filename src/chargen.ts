@@ -6,8 +6,6 @@ import { Location } from './location';
 import { Random } from './math/random';
 import { getMobFromSchema } from './mobschema';
 import { Player } from './player';
-import { Portal } from './portal';
-import { getTileFromName } from './tile';
 
 export const enum CharGenStage {
     Tutorial,
@@ -46,7 +44,7 @@ export class CharGen {
     public static spawnPlayerInFreshInstance(player: Player) {
         switch (player.chargen) {
             case CharGenStage.Tutorial: {
-                const attr = new InstanceAttributes('', 10, 10, true);
+                const attr = new InstanceAttributes(Random.getDeterministicID(), 10, 10, true);
                 attr.genType = INSTANCE_GEN_TYPE.ONE_ROOM;
                 const inst = Instance.spinUpNewInstance(attr);
                 inst.spawnEntityAtCoords(new TextEntity(Entity.generateNewEntityID(), 'Use WASD to move', 'text'), 2, 1);
@@ -62,8 +60,6 @@ export class CharGen {
                     };
                     inst.spawnEntityAtCoords(slime, 6, 6);
                 }
-                inst.tiles[6][6] = getTileFromName('stone_stairs');
-                inst.portals.push(new Portal(new Location(6, 6, inst.id), 'slime_cave_upper'));
                 inst.spawnEntityAtCoords(player, 3, 8);
                 break;
             }
