@@ -35,13 +35,17 @@ export class InstanceAttributes {
             'width': this.width,
             'height': this.height,
             'personal': this.personal,
+            'genType': INSTANCE_GEN_TYPE[this.genType],
+            'schemaID': this.schemaID,
         };
     }
-    public loadFromJSON(data) {
-        this.seed = data.seed;
-        this.width = data.width;
-        this.height = data.height;
-        this.personal = data.personal;
+    public loadFromJSON(json: any) {
+        this.seed = json.seed;
+        this.width = json.width;
+        this.height = json.height;
+        this.personal = json.personal;
+        this.genType = INSTANCE_GEN_TYPE[json.genType as string];
+        this.schemaID = json.schemaID;
     }
 }
 
@@ -379,16 +383,28 @@ export class Instance {
         }
     }
     public unload() {
+        this.saveToDisk();
         delete Instance.instances[this.id];
     }
     public saveToDisk() {
-        const playerids: string[] = [];
-        for (const plr of this.players) {
-            playerids.push(plr.id);
-        }
         const data = {
             'attributes': this.attributes.getJSON(),
-            'players': playerids,
+            'players': this.players.map((player) => player.id),
+            'mobs': this.mobs.filter((ent) => !(ent instanceof Player)).map((mob) => {
+                return {
+                    'schema_id': mob.schema_id,
+                    'location': mob.location.toJSON(),
+                    'status': mob.charSheet.status.toJSON(),
+                };
+            }),
+            'portals': this.portals.map((portal) => portal.toJSON()),
+            'items': this.items.map((stack) => {
+                return {
+                    'location': stack.location.toJSON(),
+                    'item': stack.item.toJSON(),
+                    'count': stack.count,
+                };
+            }),
         };
         fs.writeFile('world/' + this.id + '.inst', JSON.stringify(data), (err) => {
             if (err) {
