@@ -80,7 +80,11 @@ export class CharacterSheet {
     }
     get status() {
         return this._status;
-    } get equipment() {
+    }
+    set status(s: CharacterStatus) {
+        this._status = s;
+    }
+    get equipment() {
         return this._equipment;
     }
     public hasSufficientAP(ap: number): boolean {

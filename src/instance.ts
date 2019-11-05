@@ -1,13 +1,16 @@
 import fs = require('fs');
 
+import { CharacterStatus } from './character/characterstatus';
 import { ACTION_STATUS, Entity } from './entity';
 import { INSTANCE_GEN_TYPE, InstanceGenerator } from './instancegenerator';
 import { InstanceSchemaID } from './instanceschema';
 import { Inventory } from './item/inventory';
 import { Item } from './item/item';
+import { getItemFromSchemaID } from './item/itemutil';
 import { WorldItemStack } from './item/worlditemstack';
 import { Location } from './location';
 import { Random } from './math/random';
+import { getMobFromSchema } from './mobschema';
 import { Player } from './player';
 import { Portal } from './portal';
 import { getTileProps, NO_TILE, Tile } from './tile';
@@ -15,6 +18,12 @@ import { getTileProps, NO_TILE, Tile } from './tile';
 const MAX_INACTIVE_TIME = 1000 * 60 * 10; // 10 minutes (as milliseconds)
 
 export class InstanceAttributes {
+    public static fromJSON(json: any): InstanceAttributes {
+        const ret = new InstanceAttributes(json.seed, json.width, json.height, json.personal);
+        ret.genType = INSTANCE_GEN_TYPE[json.genType as string];
+        ret.schemaID = json.schemaID;
+        return ret;
+    }
     public genType: INSTANCE_GEN_TYPE = INSTANCE_GEN_TYPE.EMPTY;
     public schemaID: InstanceSchemaID = '';
     constructor(
@@ -29,7 +38,7 @@ export class InstanceAttributes {
         ret.schemaID = this.schemaID;
         return ret;
     }
-    public getJSON() {
+    public toJSON() {
         return {
             'seed': this.seed,
             'width': this.width,
@@ -38,14 +47,6 @@ export class InstanceAttributes {
             'genType': INSTANCE_GEN_TYPE[this.genType],
             'schemaID': this.schemaID,
         };
-    }
-    public loadFromJSON(json: any) {
-        this.seed = json.seed;
-        this.width = json.width;
-        this.height = json.height;
-        this.personal = json.personal;
-        this.genType = INSTANCE_GEN_TYPE[json.genType as string];
-        this.schemaID = json.schemaID;
     }
 }
 
@@ -80,8 +81,7 @@ export class Instance {
                 return callback(err);
             }
             const instdat = JSON.parse('' + data);
-            const ret = new Instance(id, new InstanceAttributes(Random.uuid(), 0, 0));
-            ret.loadFromJSON(instdat);
+            const ret = Instance.fromJSON(instdat);
             Instance.instances[ret.id] = ret;
             callback(null, ret);
         });
@@ -108,6 +108,15 @@ export class Instance {
         const itemsOnGround: any = [];
         const retPortals: any = [];
         const inst = Instance.instances[plr.location.instance_id];
+        if (!inst) {
+            return {
+                'info': {
+                    'x': 0, 'y': 0,
+                    'w': 0, 'h': 0,
+                    'your_turn': false,
+                },
+            };
+        }
         const MAX_RADIUS = 10;
         const visible: boolean[][] = inst.getTileVisibility(plr, MAX_RADIUS);
         const x0 = plr.location.x - MAX_RADIUS;
@@ -206,6 +215,28 @@ export class Instance {
         for (const inst of Object.values(Instance.instances)) { // TODO: use map? instead of object
             inst.update();
         }
+    }
+    public static fromJSON(json: any): Instance {
+        const ret = new Instance(json.id, InstanceAttributes.fromJSON(json.attributes));
+        // TODO: load players?
+        ret.mobs = [];
+        json.mobs.map((mob) => {
+            const e = getMobFromSchema(mob.schema_id);
+            if (e) {
+                e.charSheet.status = CharacterStatus.fromJSON(mob.status);
+                e.location = Location.fromJSON(mob.location);
+            }
+            return e;
+        });
+        ret.portals = json.portals.map(Portal.fromJSON);
+        ret.items = json.items.map((stack) => {
+            return {
+                'location': Location.fromJSON(stack.location),
+                'item': getItemFromSchemaID(stack.item_schema),
+                'count': stack.count,
+            };
+        });
+        return ret;
     }
     public players: Player[];
     public tiles: Tile[][] = [];
@@ -388,7 +419,8 @@ export class Instance {
     }
     public saveToDisk() {
         const data = {
-            'attributes': this.attributes.getJSON(),
+            'id': this.id,
+            'attributes': this.attributes.toJSON(),
             'players': this.players.map((player) => player.id),
             'mobs': this.mobs.filter((ent) => !(ent instanceof Player)).map((mob) => {
                 return {
@@ -401,7 +433,7 @@ export class Instance {
             'items': this.items.map((stack) => {
                 return {
                     'location': stack.location.toJSON(),
-                    'item': stack.item.toJSON(),
+                    'item_schema': stack.item.schema,
                     'count': stack.count,
                 };
             }),
@@ -411,19 +443,6 @@ export class Instance {
                 console.log(err);
             }
         });
-    }
-    public loadFromJSON(data) {
-        this.attributes.loadFromJSON(data.attributes);
-        this.players = [];
-        const instance = this;
-        for (const plrid of data.players) {
-            Player.loadPlayer(plrid, (err: any, plr: Player) => {
-                if (err) {
-                    return console.log(err);
-                }
-                instance.players.push(plr);
-            });
-        }
     }
     public emit(event: string) {
         // TODO: give events a type, location, etc.  and only emit to some players

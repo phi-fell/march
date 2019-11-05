@@ -156,7 +156,7 @@ export class Player extends Entity {
                 return callback(err);
             }
             const plrdat = JSON.parse('' + data);
-            const ret = new Player(id, plrdat.name, Location.fromJSON(plrdat.location));
+            const ret = new Player(id, plrdat.name, Location.fromJSON(plrdat.location), DIRECTION[plrdat.direction as string]);
             ret.loadFromData(plrdat);
             players[ret.id] = ret;
             callback(null, ret);
@@ -166,8 +166,8 @@ export class Player extends Entity {
     public active: boolean;
     public chargen: CharGenStage;
     protected queuedAction: PlayerAction | null;
-    constructor(id: string, name: string, loc: Location = new Location(0, 0, '')) {
-        super(id, name, 'player', loc);
+    constructor(id: string, name: string, loc: Location = new Location(0, 0, ''), dir: DIRECTION = DIRECTION.UP) {
+        super(id, name, 'player', loc, dir);
         this.chargen = CharGenStage.Tutorial;
         this.user = null;
         this.queuedAction = null;
@@ -357,6 +357,7 @@ export class Player extends Entity {
             'name': this.name,
             'chargen': this.chargen,
             'location': this.location.toJSON(),
+            'direction': DIRECTION[this.direction],
             'sheet': this.charSheet.toJSON(),
         };
         fs.writeFile('players/' + this.id + '.plr', JSON.stringify(data), (err) => {
