@@ -1,6 +1,8 @@
 {
     "name": "Slime",
     "race": "slime",
-    "attributes": {},
+    "attributes": {
+        "SPEED": -10
+    },
     "skills": {}
 }
