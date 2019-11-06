@@ -6,8 +6,11 @@
   "scripts": {
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "build": "tsc",
-    "predev": "npm run lint && npm run build",
+    "predev": "npm run lint && npm run build && npm run test",
     "dev": "node build/index.js -NO_HTTPS -PUBLISH_DIAGNOSTIC_DATA -UNLOCK_DIAGNOSTIC",
+    "dev_no_build": "node build/index.js -NO_HTTPS -PUBLISH_DIAGNOSTIC_DATA -UNLOCK_DIAGNOSTIC",
+    "preunstable": "npm run build",
+    "unstable": "node build/index.js -NO_HTTPS -PUBLISH_DIAGNOSTIC_DATA -UNLOCK_DIAGNOSTIC",
     "predebug": "npm run predev",
     "debug": "node --inspect build/index.js -NO_HTTPS -PUBLISH_DIAGNOSTIC_DATA -UNLOCK_DIAGNOSTIC",
     "preprod": "npm run build",
