@@ -22,26 +22,31 @@ export class Entity {
     constructor(
         public id: string,
         public name: string,
-        public schema_id = '',
-        loc = new Location(0, 0, ''),
+        public schema_id: string,
+        loc: Location,
         public direction: DIRECTION = DIRECTION.UP,
     ) {
         this.charSheet = new CharacterSheet();
-        this._location = new Location(0, 0, '');
+        this._location = loc;
         this.lastHitSheet = undefined;
-        this.location = loc;
+        const inst = Instance.getLoadedInstanceById(loc.instance_id);
+        if (inst) {
+            inst.addMob(this);
+        } else {
+            console.log('MOB CONSTRUCTED IN INVALID LOCATION STATE! INSTANCE DOES NOT EXIST: ' + loc.instance_id);
+        }
     }
     get location(): Location {
         return this._location;
     }
     set location(loc: Location) {
         if (this._location.instance_id !== loc.instance_id) {
-            const fromInst = Instance.instances[this._location.instance_id];
-            const toInst = Instance.instances[loc.instance_id];
+            const fromInst = Instance.getLoadedInstanceById(this._location.instance_id);
+            const toInst = Instance.getLoadedInstanceById(loc.instance_id);
             if (fromInst) {
                 fromInst.removeMob(this);
             } else {
-                console.log('Mob moving from nonexistant instance: ' + this._location.instance_id)
+                console.log('Mob moving from nonexistant instance: ' + this._location.instance_id);
             }
             if (toInst) {
                 toInst.addMob(this);
@@ -84,8 +89,11 @@ export class Entity {
         this.charSheet.startNewTurn();
     }
     protected move(to: Location) {
-        const fromInst = Instance.instances[this.location.instance_id];
-        const toInst = Instance.instances[to.instance_id];
+        const fromInst = Instance.getLoadedInstanceById(this.location.instance_id);
+        const toInst = Instance.getLoadedInstanceById(to.instance_id);
+        if (!toInst) {
+            return console.log('CANNOT MOVE() MOB TO NONEXISTENT LOCATION!');
+        }
         if (toInst.isTilePassable(to.x, to.y)) {
             const mobInWay = toInst.getMobInLocation(to.x, to.y);
             if (mobInWay) {
@@ -93,7 +101,7 @@ export class Entity {
             } else {
                 this.location = to.clone();
             }
-            if (fromInst.id !== toInst.id) {
+            if (!fromInst || fromInst.id !== toInst.id) {
                 // TODO: instead of sending whole board, send action info so that we can update exactly when necessary
                 toInst.updateAllPlayers(); // TODO: is this necessary?  reasoning: players in fromInst WILL be updated at end of update cycle,  toInst could hypothetically not be updated until next update cycle.  (but update cycles should be multiple time per second, so is this necessary?)
             }
@@ -102,7 +110,12 @@ export class Entity {
     protected handleDeath() {
         // TODO: add ability to attach listeners to entities e.g. death listener, damage listener, etc.
         // TODO: kill entity
-        Instance.instances[this.location.instance_id].dropInventory(this.charSheet.equipment.inventory, this.location);
+        const inst = Instance.getLoadedInstanceById(this.location.instance_id);
+        if (inst) {
+            inst.dropInventory(this.charSheet.equipment.inventory, this.location);
+        } else {
+            console.log('Cannot drop items from mob killed in nonexistent location!');
+        }
         Instance.removeEntityFromWorld(this);
         if (this.lastHitSheet) {
             this.lastHitSheet.addExperience(this.charSheet.getEssenceWorth());

@@ -183,7 +183,7 @@ export class Player extends Entity {
             if (fromInst) {
                 fromInst.removePlayer(this);
             } else {
-                console.log('Player moving from nonexistant instance: ' + this._location.instance_id)
+                console.log('Player moving from nonexistant instance: ' + this._location.instance_id);
             }
             if (toInst) {
                 toInst.addPlayer(this);
@@ -263,8 +263,13 @@ export class Player extends Entity {
                         if (portal.location.equals(this._location)) {
                             this.charSheet.useAP(ACTION_COST[this.queuedAction.type]);
                             this.queuedAction = null;
-                            portal.reify();
-                            this.location = portal.getReifiedDestination();
+                            const plr = this;
+                            portal.reify((err, dest) => {
+                                if (err || !dest) {
+                                    return console.log('Error: ' + err);
+                                }
+                                plr.location = dest;
+                            });
                             break;
                         }
                     }

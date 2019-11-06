@@ -12,26 +12,29 @@ export class Portal {
     public destination: Location | null = null;
     constructor(public location: Location, public destination_schema: InstanceSchemaID, public seed = Random.getDeterministicID()) {
     }
-    public getReifiedDestination(): Location {
-        this.reify();
-        return this.destination!;
-    }
-    public reify() {
+    public reify(callback: (err: any, des: Location | null) => any) {
         if (this.destination && Instance.getLoadedInstanceById(this.destination.instance_id)) {
-            return true;
+            return callback(null, this.destination);
+        }
+        if (this.destination) {
+            return Instance.loadInstance(this.destination.instance_id, (err) => {
+                return callback(err, this.destination);
+            });
         }
         const inst: Instance | null = getInstanceFromSchema(this.destination_schema, this.seed);
         if (!inst) {
-            console.log('Destination could not be reified.  Failed to construct instance of "' + this.destination_schema + '"');
-            return false;
+            const err = 'Destination could not be reified.  Failed to construct instance of "' + this.destination_schema + '"';
+            console.log(err);
+            return callback(err, null);
         }
         if (inst.portals.length) {
             this.destination = inst.portals[0].location;
             inst.portals[0].destination = this.location;
-            return true;
+            return callback(null, this.destination);
         }
-        console.log('Portal could not be reified, no portals exist in destination.');
-        return false;
+        const err = 'Portal could not be reified, no portals exist in destination.';
+        console.log(err);
+        return callback(err, null);
     }
     public toJSON() {
         return {

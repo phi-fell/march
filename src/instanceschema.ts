@@ -3,7 +3,7 @@ import fs = require('fs');
 import { Instance, InstanceAttributes } from './instance';
 import { INSTANCE_GEN_TYPE } from './instancegenerator';
 import { Random } from './math/random';
-import { getMobFromSchema } from './mobschema';
+import { spawnMobFromSchema } from './mobschema';
 
 interface InstanceSchema {
     name: string;
@@ -23,15 +23,14 @@ export function getInstanceFromSchema(schema_id: InstanceSchemaID, seed: string)
     const iattr = new InstanceAttributes(seed, schema.width, schema.height);
     iattr.schemaID = schema_id;
     iattr.genType = INSTANCE_GEN_TYPE[schema.generation];
-    const inst = Instance.spinUpNewInstance(iattr);
+    const inst = new Instance(iattr);
     for (const mob of schema.mobs) {
         for (let i = 0; i < mob.count; i++) {
-            const ent = getMobFromSchema(mob.id);
+            const ent = spawnMobFromSchema(mob.id, inst.getAvailableSpawningLocation());
             if (!ent) {
                 console.log('Coult not create instance from schema "' + schema_id + '"! Could not get Mob!');
                 return null;
             }
-            inst.spawnEntityAnywhere(ent);
         }
     }
     return inst;

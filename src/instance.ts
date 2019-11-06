@@ -10,7 +10,7 @@ import { getItemFromSchemaID } from './item/itemutil';
 import { WorldItemStack } from './item/worlditemstack';
 import { Location } from './location';
 import { Random } from './math/random';
-import { getMobFromSchema } from './mobschema';
+import { spawnMobFromSchema } from './mobschema';
 import { Player } from './player';
 import { Portal } from './portal';
 import { getTileProps, NO_TILE, Tile } from './tile';
@@ -51,9 +51,8 @@ export class InstanceAttributes {
 }
 
 export class Instance {
-    public static instances: { [key: string]: Instance; } = {};
     public static spawnEntityInLocation(ent: Entity, loc: Location) {
-        const inst = Instance.instances[loc.instance_id];
+        const inst = Instance.getLoadedInstanceById(loc.instance_id);
         if (inst) {
             inst.spawnEntityAtCoords(ent, loc.x, loc.y);
         } else {
@@ -67,6 +66,9 @@ export class Instance {
     }
     public static getLoadedInstanceById(id: string): Instance | null {
         return Instance.instances[id] || null;
+    }
+    public static accessAllInstances() {
+        return Instance.instances;
     }
     public static generateNewInstanceID() {
         return Random.uuid();
@@ -82,14 +84,8 @@ export class Instance {
             }
             const instdat = JSON.parse('' + data);
             const ret = Instance.fromJSON(instdat);
-            Instance.instances[ret.id] = ret;
             callback(null, ret);
         });
-    }
-    public static spinUpNewInstance(attr: InstanceAttributes) {
-        const inst: Instance = new Instance(Instance.generateNewInstanceID(), attr);
-        Instance.instances[inst.id] = inst;
-        return inst;
     }
     public static getAvailableNonFullInstance(plr: Player): Instance | null {
         for (const inst of Object.values(Instance.instances)) {
@@ -107,7 +103,7 @@ export class Instance {
         const retItems: any = [];
         const itemsOnGround: any = [];
         const retPortals: any = [];
-        const inst = Instance.instances[plr.location.instance_id];
+        const inst = Instance.getLoadedInstanceById(plr.location.instance_id);
         if (!inst) {
             return {
                 'info': {
@@ -217,14 +213,13 @@ export class Instance {
         }
     }
     public static fromJSON(json: any): Instance {
-        const ret = new Instance(json.id, InstanceAttributes.fromJSON(json.attributes));
+        const ret = new Instance(InstanceAttributes.fromJSON(json.attributes), json.id);
         // TODO: load players?
         ret.mobs = [];
         json.mobs.map((mob) => {
-            const e = getMobFromSchema(mob.schema_id);
+            const e = spawnMobFromSchema(mob.schema_id, Location.fromJSON(mob.location));
             if (e) {
                 e.charSheet.status = CharacterStatus.fromJSON(mob.status);
-                e.location = Location.fromJSON(mob.location);
             }
             return e;
         });
@@ -238,6 +233,7 @@ export class Instance {
         });
         return ret;
     }
+    private static instances: { [key: string]: Instance; } = {};
     public players: Player[];
     public tiles: Tile[][] = [];
     public mobs: Entity[] = [];
@@ -245,7 +241,8 @@ export class Instance {
     public portals: Portal[] = [];
     private waitingForAsyncMove: string | null;
     private lastActiveTime: number;
-    constructor(public id: string, public attributes: InstanceAttributes) {
+    constructor(public attributes: InstanceAttributes, public id: string = Instance.generateNewInstanceID()) {
+        Instance.instances[this.id] = this;
         this.waitingForAsyncMove = null;
         this.lastActiveTime = Date.now();
         this.players = [];
@@ -367,7 +364,7 @@ export class Instance {
         console.log('Error!  can\'t spawn entity near coord!');
         return false;
     }
-    public spawnEntityAnywhere(ent: Entity): boolean {
+    public getAvailableSpawningLocation(): Location {
         let posX: number;
         let posY: number;
         let validpos = false;
@@ -385,13 +382,30 @@ export class Instance {
                 }
             }
             if (attempts > 1000) {
-                console.log('Could not spawn mob after 1000 attempts!');
-                return false;
+                console.log('Could not find available Location after 1000 attempts! checking all locations...');
+                for (let i = 0; i < this.attributes.width; i++) {
+                    for (let j = 0; j < this.attributes.height; j++) {
+                        posX = i;
+                        posY = j;
+                        if (this.isTilePassable(posX, posY)) {
+                            validpos = true;
+                            for (const mob of this.mobs) {
+                                if (mob.location.x === posX && mob.location.y === posY) {
+                                    validpos = false;
+                                }
+                            }
+                            if (validpos) {
+                                console.log('Location found! Instance must be quite crowded.  Generation settings should be tweaked.');
+                                return new Location(posX, posY, this.id);
+                            }
+                        }
+                    }
+                }
+                console.log('Instance is full! This is likely a bug. Spawning at (0, 0)');
+                return new Location(0, 0, this.id);
             }
         } while (!validpos);
-        ent.location = new Location(posX, posY, this.id);
-        return true;
-
+        return new Location(posX, posY, this.id);
     }
     public dropItem(item: Item, count: number, location: Location) {
         for (const stack of this.items) {

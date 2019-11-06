@@ -4,7 +4,7 @@ import { INSTANCE_GEN_TYPE } from './instancegenerator';
 import { getInstanceFromSchema } from './instanceschema';
 import { Location } from './location';
 import { Random } from './math/random';
-import { getMobFromSchema } from './mobschema';
+import { spawnMobFromSchema } from './mobschema';
 import { Player } from './player';
 
 export const enum CharGenStage {
@@ -21,24 +21,6 @@ class TextEntity extends Entity {
         return ACTION_STATUS.WAITING;
     }
 }
-class TutorialEnemy extends Entity {
-    constructor(private player: Player, private count: EnemyCount, id: string, name: string, location: Location = new Location(0, 0, '')) {
-        super(id, name, 'slime', location);
-    }
-    public doNextAction(): ACTION_STATUS {
-        this.charSheet.status.action_points = 0;
-        return ACTION_STATUS.WAITING;
-    }
-    protected handleDeath() {
-        super.handleDeath();
-        this.count.count--;
-        if (this.count.count <= 0) {
-            this.player.chargen++;
-            Instance.removeEntityFromWorld(this.player);
-            CharGen.spawnPlayerInFreshInstance(this.player);
-        }
-    }
-}
 
 export class CharGen {
     public static spawnPlayerInFreshInstance(player: Player) {
@@ -46,39 +28,25 @@ export class CharGen {
             case CharGenStage.Tutorial: {
                 const attr = new InstanceAttributes(Random.getDeterministicID(), 10, 10, true);
                 attr.genType = INSTANCE_GEN_TYPE.ONE_ROOM;
-                const inst = Instance.spinUpNewInstance(attr);
-                inst.spawnEntityAtCoords(new TextEntity(Entity.generateNewEntityID(), 'Use WASD to move', 'text'), 2, 1);
-                inst.spawnEntityAtCoords(new TextEntity(Entity.generateNewEntityID(), 'Press Spacebar to Attack', 'text'), 5, 2);
-                inst.spawnEntityAtCoords(new TextEntity(Entity.generateNewEntityID(), 'Use > to do down stairs', 'text'), 8, 3);
-                const slime = getMobFromSchema('slime_tutorial');
+                const inst = new Instance(attr);
+                const t1 = new TextEntity(Entity.generateNewEntityID(), 'Use WASD to move', 'text', new Location(2, 1, inst.id));
+                const t2 = new TextEntity(Entity.generateNewEntityID(), 'Press Spacebar to Attack', 'text', new Location(5, 2, inst.id));
+                const t3 = new TextEntity(Entity.generateNewEntityID(), 'Use > to do down stairs', 'text', new Location(8, 3, inst.id));
+                const slime = spawnMobFromSchema('slime_tutorial', new Location(6, 6, inst.id));
                 if (!slime) {
                     console.log('could not get Tutorial Slime schema!');
-                } else {
-                    slime.doNextAction = () => {
-                        slime!.charSheet.status.action_points = 0;
-                        return ACTION_STATUS.WAITING;
-                    };
-                    inst.spawnEntityAtCoords(slime, 6, 6);
                 }
                 inst.spawnEntityAtCoords(player, 3, 8);
                 break;
             }
             case CharGenStage.Done: {
                 // TODO: spawn into main world?
-                let inst = Instance.getAvailableNonFullInstance(player);
-                if (!inst) {
-                    inst = getInstanceFromSchema('slime_cave_upper', Random.uuid());
-                    if (inst && !inst.spawnEntityNearCoords(player, Math.floor(inst.attributes.width / 2), Math.floor(inst.attributes.height / 2))) {
-                        console.log('COULD NOT SPAWN PLAYER INTO INSTANCE NEAR LOCATION!');
-                    }
+                const inst = getInstanceFromSchema('forest', Random.uuid());
+                if (inst && !inst.spawnEntityNearCoords(player, Math.floor(inst.attributes.width / 2), Math.floor(inst.attributes.height / 2))) {
+                    console.log('COULD NOT SPAWN PLAYER INTO INSTANCE NEAR LOCATION!');
                 }
                 if (!inst) {
-                    const attr = new InstanceAttributes('ERROR', 10, 10, true);
-                    attr.genType = INSTANCE_GEN_TYPE.ONE_ROOM;
-                    inst = Instance.spinUpNewInstance(attr);
-                    if (!inst.spawnEntityAnywhere(player)) {
-                        console.log('COULD NOT SPAWN PLAYER INTO INSTANCE! ABORTING SPAWN.');
-                    }
+                    console.log('COULD NOT GENRATE INSTANCE! ABORTING SPAWN.');
                 }
                 break;
             }

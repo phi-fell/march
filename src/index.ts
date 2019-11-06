@@ -161,13 +161,13 @@ if (PUBLISH_DIAGNOSTIC_DATA) {
     /*const diagnostic_page = pug.compileFile(path.resolve(__dirname + '/../site/pug/diagnostic.pug'));
     app.get('/diagnostic', (req: any, res: any) => {
       res.send(diagnostic_page({
-        'instances': Instance.instances,
+        'instances': Instance.accessAllInstances(),
       }));
     });*/
     app.get('/diagnostic', (req: any, res: any, next: any) => {
         if (validateAdminToken(req.cookies.admin_token)) {
             res.send(pug.renderFile(path.resolve(__dirname + '/../site/pug/diagnostic/main.pug'), {
-                'instances': Instance.instances,
+                'instances': Instance.accessAllInstances(),
                 'versions': versions,
                 'current': version_hash,
             }));
@@ -189,7 +189,7 @@ if (PUBLISH_DIAGNOSTIC_DATA) {
 
             } else {
                 res.send(pug.renderFile(path.resolve(__dirname + '/../site/pug/diagnostic/instances.pug'), {
-                    'instances': Instance.instances,
+                    'instances': Instance.accessAllInstances(),
                 }));
             }
         } else {
