@@ -19,7 +19,6 @@ export type InstanceSchemaID = string;
 const instanceSchemas: { [id: string]: InstanceSchema; } = {};
 
 export function getInstanceFromSchema(schema_id: InstanceSchemaID, seed: string): Instance | null {
-    Random.reSeed(seed);
     const schema = instanceSchemas[schema_id];
     const iattr = new InstanceAttributes(seed, schema.width, schema.height);
     iattr.schemaID = schema_id;

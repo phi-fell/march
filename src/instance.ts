@@ -27,7 +27,7 @@ export class InstanceAttributes {
     public genType: INSTANCE_GEN_TYPE = INSTANCE_GEN_TYPE.EMPTY;
     public schemaID: InstanceSchemaID = '';
     constructor(
-        public seed: string = Random.uuid(),
+        public seed: string = Random.getDeterministicID(),
         public width: number,
         public height: number,
         public personal: boolean = false,

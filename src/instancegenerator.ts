@@ -23,6 +23,7 @@ export enum INSTANCE_GEN_TYPE {
 
 export class InstanceGenerator {
     public static runGeneration(inst: Instance) {
+        Random.reSeed(inst.attributes.seed);
         switch (inst.attributes.genType) {
             case INSTANCE_GEN_TYPE.EMPTY:
                 for (let i = 0; i < inst.attributes.width; i++) {
