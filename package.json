@@ -10,6 +10,7 @@
     "dev": "node build/index.js -NO_HTTPS -PUBLISH_DIAGNOSTIC_DATA -UNLOCK_DIAGNOSTIC",
     "dev_no_build": "node build/index.js -NO_HTTPS -PUBLISH_DIAGNOSTIC_DATA -UNLOCK_DIAGNOSTIC",
     "validate": "npm run lint && npm run build && npm run test",
+    "devv": "npm run validate && npm run dev_no_build",
     "push": "npm run validate && git push",
     "predebug": "npm run predev",
     "debug": "node --inspect build/index.js -NO_HTTPS -PUBLISH_DIAGNOSTIC_DATA -UNLOCK_DIAGNOSTIC",
