@@ -40,9 +40,13 @@ export class Entity {
             const toInst = Instance.instances[loc.instance_id];
             if (fromInst) {
                 fromInst.removeMob(this);
+            } else {
+                console.log('Mob moving from nonexistant instance: ' + this._location.instance_id)
             }
             if (toInst) {
                 toInst.addMob(this);
+            } else {
+                console.log('MOB IN INVALID LOCATION STATE! INSTANCE DOES NOT EXIST: ' + loc.instance_id);
             }
         }
         this._location = loc;
