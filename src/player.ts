@@ -182,9 +182,13 @@ export class Player extends Entity {
             const toInst = Instance.getLoadedInstanceById(loc.instance_id);
             if (fromInst) {
                 fromInst.removePlayer(this);
+            } else {
+                console.log('Player moving from nonexistant instance: ' + this._location.instance_id)
             }
             if (toInst) {
                 toInst.addPlayer(this);
+            } else {
+                console.log('PLAYER IN INVALID LOCATION STATE! INSTANCE DOES NOT EXIST: ' + loc.instance_id);
             }
         }
         this._location = loc;
@@ -373,11 +377,13 @@ export class Player extends Entity {
         // ^ cont. then spawn in a new random location?
         if (this.chargen === CharGenStage.Done) {
             if (!Instance.getLoadedInstanceById(this.location.instance_id)) {
-                /*const plr = this;
-                Instance.loadInstance(this.location.instance_id, () => {
-                    plr.location = plr.location;
-                });*/
-                CharGen.spawnPlayerInFreshInstance(this);
+                const plr = this;
+                Instance.loadInstance(this.location.instance_id, (err, inst) => {
+                    if (err) {
+                        return console.log(err);
+                    }
+                    inst.addPlayer(plr);
+                });
             }
         } else {
             CharGen.spawnPlayerInFreshInstance(this);
