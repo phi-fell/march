@@ -266,10 +266,8 @@ app.post('/character_creation', (req: any, res: any) => {
                 });
                 return;
             }
-            u.player = new Player(Player.generateNewPlayerID(), req.body.name || generateName());
-            u.player.charSheet = sheet;
+            u.player = Player.createPlayer(req.body.name || generateName(), sheet);
             u.playerid = u.player.id;
-            u.player.saveToDisk();
             u.player.unload();
             u.saveToDisk();
             res.send({
@@ -297,10 +295,8 @@ app.post('/character_creation', (req: any, res: any) => {
                 user.unload();
                 return;
             }
-            user.player = new Player(Player.generateNewPlayerID(), req.body.name || generateName());
-            user.player.charSheet = sheet;
+            user.player = Player.createPlayer(req.body.name || generateName(), sheet);
             user.playerid = user.player.id;
-            user.player.saveToDisk();
             user.saveToDisk();
             res.send({
                 'status': 'success',

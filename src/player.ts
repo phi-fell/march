@@ -1,7 +1,7 @@
 import fs = require('fs');
 
 import { CharacterSheet } from './character/charactersheet';
-import { CharGen, CharGenStage } from './chargen';
+import { CharGen } from './chargen';
 import { DIRECTION, directionVectors } from './direction';
 import { ACTION_STATUS, Entity } from './entity';
 import { Instance } from './instance';
@@ -10,7 +10,6 @@ import { getItemFromSchemaID } from './item/itemutil';
 import { WorldItemStack } from './item/worlditemstack';
 import { Location } from './location';
 import { Random } from './math/random';
-import { generateName } from './namegen';
 import { User } from './user';
 
 const players = {};
@@ -137,11 +136,9 @@ export class Player extends Entity {
     public static accessPlayer(id) {
         return players[id];
     }
-    public static createPlayer() {
-        const name = generateName();
-        const plr = new Player(Player.generateNewPlayerID(), name);
-        players[plr.id] = plr;
-        CharGen.spawnPlayerInFreshInstance(plr);
+    public static createPlayer(name: string, sheet: CharacterSheet): Player {
+        const plr = new Player(Player.generateNewPlayerID(), name, CharGen.getTutorialLocation());
+        plr.charSheet = sheet;
         plr.saveToDisk();
         return plr;
     }
@@ -151,27 +148,38 @@ export class Player extends Entity {
                 callback(null, players[id]);
             });
         }
-        fs.readFile('players/' + id + '.plr', (err, data) => {
-            if (err) {
-                return callback(err);
+        fs.readFile('players/' + id + '.plr', (file_err, data) => {
+            if (file_err) {
+                return callback(file_err);
             }
             const plrdat = JSON.parse('' + data);
-            const ret = new Player(id, plrdat.name, Location.fromJSON(plrdat.location), DIRECTION[plrdat.direction as string]);
-            ret.loadFromData(plrdat);
-            players[ret.id] = ret;
-            callback(null, ret);
+            const loc: Location = Location.fromJSON(plrdat.location);
+            Instance.loadInstance(loc.instance_id, (inst_err, inst) => {
+                if (inst_err) {
+                    console.log(inst_err);
+                    return callback(inst_err);
+                }
+                const ret = new Player(id, plrdat.name, loc, DIRECTION[plrdat.direction as string]);
+                ret.charSheet = CharacterSheet.fromJSON(plrdat.sheet);
+                callback(null, ret);
+            });
         });
     }
     public user: User | null;
     public active: boolean;
-    public chargen: CharGenStage;
     protected queuedAction: PlayerAction | null;
-    constructor(id: string, name: string, loc: Location = new Location(0, 0, ''), dir: DIRECTION = DIRECTION.UP) {
+    private constructor(id: string, name: string, loc: Location, dir: DIRECTION = DIRECTION.UP) {
         super(id, name, 'player', loc, dir);
-        this.chargen = CharGenStage.Tutorial;
         this.user = null;
         this.queuedAction = null;
         this.active = false;
+        const inst = Instance.getLoadedInstanceById(loc.instance_id);
+        if (inst) {
+            inst.addPlayer(this);
+        } else {
+            console.log('PLAYER CONSTRUCTED IN INVALID LOCATION STATE! INSTANCE DOES NOT EXIST: ' + loc.instance_id);
+        }
+        players[id] = this;
     }
     get location(): Location { // Since we override set, we must override get
         return this._location;
@@ -355,16 +363,16 @@ export class Player extends Entity {
     }
     public unload() {
         this.saveToDisk();
-        if (Instance.getLoadedInstanceById(this.location.instance_id)) {
+        const inst = Instance.getLoadedInstanceById(this.location.instance_id);
+        if (inst) {
             Instance.removeEntityFromWorld(this);
-            Instance.getLoadedInstanceById(this.location.instance_id)!.removePlayer(this);
+            inst.removePlayer(this);
         }
         delete players[this.id];
     }
     public saveToDisk() {
         const data = {
             'name': this.name,
-            'chargen': this.chargen,
             'location': this.location.toJSON(),
             'direction': DIRECTION[this.direction],
             'sheet': this.charSheet.toJSON(),
@@ -374,27 +382,6 @@ export class Player extends Entity {
                 console.log(err);
             }
         });
-    }
-    public loadFromData(data) {
-        this.name = data.name;
-        this.chargen = data.chargen;
-        // TODO: if player doesn't have location or if it's invalid, or depending on type of instance, or if it no longer exists...
-        // ^ cont. then spawn in a new random location?
-        if (this.chargen === CharGenStage.Done) {
-            if (!Instance.getLoadedInstanceById(this.location.instance_id)) {
-                const plr = this;
-                Instance.loadInstance(this.location.instance_id, (err, inst) => {
-                    if (err) {
-                        return console.log(err);
-                    }
-                    inst.addPlayer(plr);
-                });
-            }
-        } else {
-            CharGen.spawnPlayerInFreshInstance(this);
-            this.chargen = CharGenStage.Done;
-        }
-        this.charSheet = CharacterSheet.fromJSON(data.sheet);
     }
     public pushUpdate() {
         if (this.active) {
