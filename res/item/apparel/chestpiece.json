@@ -1,7 +1,9 @@
 {
     "item_type": "APPAREL",
     "name": "Steel Cuirass",
-    "coverage": 2,
-    "resilience": 3,
-    "armor": 3
+    "armor_data": {
+        "coverage": 2,
+        "resilience": 3,
+        "armor": 3
+    }
 }

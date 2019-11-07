@@ -6,7 +6,6 @@ import { INSTANCE_GEN_TYPE, InstanceGenerator } from './instancegenerator';
 import { InstanceSchemaID } from './instanceschema';
 import { Inventory } from './item/inventory';
 import { Item } from './item/item';
-import { getItemFromSchemaID } from './item/itemutil';
 import { WorldItemStack } from './item/worlditemstack';
 import { Location } from './location';
 import { Random } from './math/random';
@@ -227,7 +226,7 @@ export class Instance {
         ret.items = json.items.map((stack) => {
             return {
                 'location': Location.fromJSON(stack.location),
-                'item': getItemFromSchemaID(stack.item_schema),
+                'item': Item.getItemFromSchemaID(stack.item_schema),
                 'count': stack.count,
             };
         });
@@ -424,7 +423,7 @@ export class Instance {
     public dropInventory(inventory: Inventory, location: Location) {
         while (inventory.stacks) {
             const i = inventory.getItemStack(0);
-            inventory.removeItem(0);
+            inventory.removeItemFromSlot(0);
             this.dropItem(i.item, i.count, location);
         }
     }

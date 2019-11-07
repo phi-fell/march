@@ -52,10 +52,8 @@ export class CharacterEquipment {
         if (!json) {
             return ret;
         }
-        if (json.weapon) {
-            ret.weapon = new Weapon(json.weapon.schema, '');
-        }
         ret.inventory = Inventory.fromJSON(json.inventory);
+        // TODO: load equipment
         return ret;
     }
     // public shield: Shield | null;

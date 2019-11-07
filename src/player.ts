@@ -5,8 +5,6 @@ import { CharGen } from './chargen';
 import { DIRECTION, directionVectors } from './direction';
 import { ACTION_STATUS, Entity } from './entity';
 import { Instance } from './instance';
-import { ItemSchemaID } from './item/item';
-import { getItemFromSchemaID } from './item/itemutil';
 import { WorldItemStack } from './item/worlditemstack';
 import { Location } from './location';
 import { Random } from './math/random';
@@ -111,7 +109,7 @@ export class AttackAction implements PlayerAction {
 
 export class PickupAction implements PlayerAction {
     public type: ACTION_TYPE.PICKUP = ACTION_TYPE.PICKUP;
-    constructor(public schema: ItemSchemaID, public count: number) { }
+    constructor(public item_id: string, public count: number) { }
     public toJSON(): object {
         return {
             'type': ACTION_TYPE[this.type],
@@ -121,7 +119,7 @@ export class PickupAction implements PlayerAction {
 
 export class DropAction implements PlayerAction {
     public type: ACTION_TYPE.DROP = ACTION_TYPE.DROP;
-    constructor(public schema: ItemSchemaID, public count: number) { }
+    constructor(public item_id: string, public count: number) { }
     public toJSON(): object {
         return {
             'type': ACTION_TYPE[this.type],
@@ -299,43 +297,51 @@ export class Player extends Entity {
                     const pickup = this.queuedAction as PickupAction;
                     const inv = this.charSheet.equipment.inventory;
                     const loc = this.location;
+                    let picked_up: boolean = false;
                     inst.items.forEach((stack: WorldItemStack, index: number) => {
-                        if (stack.location.equals(loc) && stack.item.schema === pickup.schema) {
+                        if (stack.location.equals(loc) && stack.item.id === pickup.item_id) {
                             this.charSheet.useAP(ACTION_COST[pickup.type]);
                             if (pickup.count === null || stack.count === null || pickup.count >= stack.count) {
                                 inv.addItem(stack.item, stack.count);
                                 inst.items.splice(index, 1);
                             } else {
-                                inv.addItem(getItemFromSchemaID(pickup.schema), pickup.count);
+                                inv.addItem(stack.item.clone(), pickup.count);
                                 stack.count -= pickup.count;
                             }
+                            picked_up = true;
                             return;
                         }
                     });
+                    if (!picked_up) {
+                        console.log('Cannot pick up nonexistent item!');
+                        break;
+                    }
                     this.queuedAction = null;
                     break;
                 } case ACTION_TYPE.DROP: {
                     const inst = Instance.getLoadedInstanceById(this.location.instance_id)!;
                     const drop = this.queuedAction as DropAction;
                     const inv = this.charSheet.equipment.inventory;
+                    let dropped: boolean = false;
                     for (let i = 0; i < inv.stacks; i++) {
                         const stack = inv.getItemStack(i);
-                        if (drop.schema === stack.item.schema) {
+                        if (drop.item_id === stack.item.id) {
                             if (drop.count === null || stack.count === null || drop.count >= stack.count) {
                                 inst.dropItem(stack.item, stack.count, this.location);
-                                inv.removeItem(i);
+                                inv.removeItemFromSlot(i);
                             } else {
-                                const dropItem = getItemFromSchemaID(drop.schema);
-                                if (dropItem === null) {
-                                    console.log('Cannot drop ' + drop.schema + '!  No such item schema!');
-                                    break;
-                                }
+                                const dropItem = stack.item.clone();
                                 stack.count -= drop.count;
                                 inst.dropItem(dropItem, drop.count, this.location);
                             }
+                            dropped = true;
                             this.charSheet.useAP(ACTION_COST[this.queuedAction.type]);
                             break;
                         }
+                    }
+                    if (!dropped) {
+                        console.log('Cannot drop nonexistent item!');
+                        break;
                     }
                     this.queuedAction = null;
                     break;

@@ -163,9 +163,9 @@ class Game {
             for (const stack of sheet.equipment.inventory) {
                 let dropButtons = '';
                 if (stack.count && stack.count > 1) {
-                    dropButtons = '  <button style="padding: 2px;" onclick="dropItem(\'' + stack.item.schema + '\', 1)">Drop 1</button> <button style="padding: 2px;" onclick="dropItem(\'' + stack.item.schema + '\', null)">Drop All</button>';
+                    dropButtons = '  <button style="padding: 2px;" onclick="dropItem(\'' + stack.item.id + '\', 1)">Drop 1</button> <button style="padding: 2px;" onclick="dropItem(\'' + stack.item.id + '\', null)">Drop All</button>';
                 } else {
-                    dropButtons = '  <button style="padding: 2px;" onclick="dropItem(\'' + stack.item.schema + '\', null)">Drop</button>';
+                    dropButtons = '  <button style="padding: 2px;" onclick="dropItem(\'' + stack.item.id + '\', null)">Drop</button>';
                 }
                 list.append($('<li>').html(' - ' + getItemHTML(stack.item) + (stack.count ? (' x ' + stack.count) : '') + dropButtons));
             }
@@ -228,8 +228,6 @@ class Game {
             list.append($('<li>').text('Stamina: ' + sheet.status.STAMINA.quantity + '/' + sheet.status.STAMINA.capacity));
         }
         list.append($('<li>').text('Action Points: ' + sheet.status.action_points + '/' + sheet.status.max_action_points + ' (+' + sheet.status.action_point_recovery + ' /turn)'));
-        let weapon_hover = (sheet.equipment.weapon.one_handed ? 'One Handed' : 'Two Handed') + '\n' + "piercing: " + sheet.equipment.weapon.piercing + "\n" + "sharpness: " + sheet.equipment.weapon.sharpness + "\n" + "force: " + sheet.equipment.weapon.force + "\n" + "precision: " + sheet.equipment.weapon.precision + "\n" + "speed: " + sheet.equipment.weapon.speed;
-        list.append($('<li>').html('Weapon: <span title="' + weapon_hover + '"><b>[' + sheet.equipment.weapon.name + ']</b></span>'));
 
         var list = $("#info");
         list.empty();
@@ -238,9 +236,9 @@ class Game {
             for (const stack of this.itemsOnGround) {
                 let takeButtons = '';
                 if (stack.count && stack.count > 1) {
-                    takeButtons = '  <button style="padding: 2px;" onclick="pickupItem(\'' + stack.item.schema + '\', 1)">Take 1</button> <button style="padding: 2px;" onclick="pickupItem(\'' + stack.item.schema + '\', null)">Take All</button>';
+                    takeButtons = '  <button style="padding: 2px;" onclick="pickupItem(\'' + stack.item.id + '\', 1)">Take 1</button> <button style="padding: 2px;" onclick="pickupItem(\'' + stack.item.id + '\', null)">Take All</button>';
                 } else {
-                    takeButtons = '  <button style="padding: 2px;" onclick="pickupItem(\'' + stack.item.schema + '\', null)">Take</button>';
+                    takeButtons = '  <button style="padding: 2px;" onclick="pickupItem(\'' + stack.item.id + '\', null)">Take</button>';
                 }
                 list.append($('<li>').html(' - ' + getItemHTML(stack.item) + (stack.count ? (' x ' + stack.count) : '') + takeButtons));
             }

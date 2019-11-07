@@ -1,5 +1,4 @@
 import { Item } from './item';
-import { getItemFromSchemaID } from './itemutil';
 
 export interface ItemStack {
     item: Item;
@@ -11,9 +10,9 @@ export class Inventory {
         const ret = new Inventory();
         for (const stack of json) {
             if (stack.item.schema) {
-                ret.addItem(getItemFromSchemaID(stack.item.schema), stack.count);
+                ret.addItem(Item.fromJSON(stack.item), stack.count);
             } else {
-                ret.addItem(getItemFromSchemaID(stack.item), stack.count);
+                ret.addItem(Item.getItemFromSchemaID(stack.item), stack.count);
             }
         }
         return ret;
@@ -35,7 +34,7 @@ export class Inventory {
             'count': count,
         });
     }
-    public removeItem(slot: number, count: number | null = null) {
+    public removeItemFromSlot(slot: number, count: number | null = null) {
         if (slot < 0 || slot >= this._items.length) {
             return console.log('no such item index to remove');
         }

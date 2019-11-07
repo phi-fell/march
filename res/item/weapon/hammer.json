@@ -1,10 +1,12 @@
 {
     "item_type": "WEAPON",
     "name": "Steel Hammer",
-    "piercing": 2,
-    "one_handed": true,
-    "sharpness": 0,
-    "force": 2,
-    "precision": 0,
-    "speed": 12
+    "weapon_data": {
+        "piercing": 2,
+        "one_handed": true,
+        "sharpness": 0,
+        "force": 2,
+        "precision": 0,
+        "speed": 12
+    }
 }

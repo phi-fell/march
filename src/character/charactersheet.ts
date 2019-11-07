@@ -19,7 +19,6 @@ export class CharacterSheet {
         ret._race = new CharacterRace(json.race);
         ret._allocatedAttributes = CharacterAttributes.fromJSON(json.attributes);
         ret._skills = CharacterSkills.fromJSON(json.skills);
-        ret._equipment.weapon = new Weapon('sword');
         ret._essence = STARTING_ESSENCE - ret.getEssenceWorth();
         if (ret._essence < 0) {
             return null;
@@ -151,7 +150,7 @@ export class CharacterSheet {
         // e.g. glancing is almost dodge but not quite. (half? damage)
         if (Random.float() >= dodgeChance) {
             let armor = 0; // TODO: calculate total armor
-            let blunt = attacker.getNetAttributeValue(ATTRIBUTE.STRENGTH) + (weapon ? (weapon.force) : 0); // [str]D[force] ?
+            let blunt = attacker.getNetAttributeValue(ATTRIBUTE.STRENGTH) + (weapon ? (weapon.weapon_data.force) : 0); // [str]D[force] ?
             if (blunt > armor) {
                 blunt -= armor;
                 armor = 0;
@@ -161,9 +160,9 @@ export class CharacterSheet {
                 blunt = 0;
             }
             const resilience = 0; // TODO: calculate resilience from natural armor, or equipment
-            const piercing = weapon ? (weapon.piercing) : 0;
+            const piercing = weapon ? (weapon.weapon_data.piercing) : 0;
             if (piercing > resilience) {
-                const sharp = (piercing - resilience) * (weapon ? (weapon.sharpness) : 0); // [pierce-res]D[sharp] ?
+                const sharp = (piercing - resilience) * (weapon ? (weapon.weapon_data.sharpness) : 0); // [pierce-res]D[sharp] ?
                 if (sharp > armor) {
                     this.takeSharpDamage(sharp - armor);
                 }

@@ -4,5 +4,13 @@
     "attributes": {
         "SPEED": -10
     },
-    "skills": {}
+    "skills": {},
+    "equipment": {
+        "inventory": [
+            {
+                "item": "weapon/sword",
+                "count": 1
+            }
+        ]
+    }
 }

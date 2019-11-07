@@ -1,10 +1,12 @@
 {
     "item_type": "WEAPON",
     "name": "Steel Dagger",
-    "piercing": 2,
-    "one_handed": true,
-    "sharpness": 2,
-    "force": 0,
-    "precision": 2,
-    "speed": 5
+    "weapon_data": {
+        "piercing": 2,
+        "one_handed": true,
+        "sharpness": 2,
+        "force": 0,
+        "precision": 2,
+        "speed": 5
+    }
 }

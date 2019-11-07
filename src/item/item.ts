@@ -1,55 +1,79 @@
 import fs = require('fs');
 import path = require('path');
 
-import { ITEM_TYPE } from './itemtype';
+import { Random } from '../math/random';
+import { Armor } from './armor';
+import { ArmorData } from './armordata';
+import { Weapon } from './weapon';
+import { WeaponData } from './weapondata';
 
 export type ItemSchemaID = string;
 
-export interface ItemSchema {
-    id: ItemSchemaID;
-    name: string;
-    item_type: ITEM_TYPE;
-    stackable: boolean;
-}
-
 export class Item {
-    public static getItemType(schemaID: ItemSchemaID): ITEM_TYPE | null {
-        const schema = Item.itemSchemas[schemaID];
-        if (!schema) {
-            return null;
-        }
-        return schema.item_type;
+    public static generateNewItemID() {
+        return Random.uuid();
     }
-    public static addSchema(id: ItemSchemaID, schema: ItemSchema) {
+    public static getItemFromSchemaID(schemaID: ItemSchemaID): Item | null {
+        const schema = Item.itemSchemas[schemaID];
+        if (schema) {
+            return schema.clone();
+        }
+        console.log('Item schema does not exist: ' + schemaID);
+        return null;
+    }
+    public static addSchema(id: ItemSchemaID, schema: Item) {
         Item.itemSchemas[id] = schema;
     }
-    protected static itemSchemas: { [id: string]: ItemSchema; } = {};
-    protected _schema: ItemSchema;
-    constructor(schemaID: ItemSchemaID) {
-        this._schema = Item.itemSchemas[schemaID];
-        if (!this._schema) {
-            console.log('Item schema does not exist: ' + schemaID);
-        }
+    public static fromJSON(json: any) {
+        return new Item(
+            json.schema,
+            json.name,
+            json.stackable,
+            (json.weapon_data) ? WeaponData.fromJSON(json.weapon_data) : (null),
+            (json.armor_data) ? ArmorData.fromJSON(json.armor_data) : (null),
+        );
     }
-    get schema(): ItemSchemaID {
-        return this._schema.id;
+    private static itemSchemas: { [id: string]: Item; } = {};
+    private _id: string;
+    private constructor(
+        public schema: ItemSchemaID,
+        public name: string,
+        public stackable: boolean,
+        public weapon_data: WeaponData | null,
+        public armor_data: ArmorData | null,
+    ) {
+        this._id = Item.generateNewItemID();
     }
-    get item_type(): ITEM_TYPE {
-        return this._schema.item_type;
+    public get asWeapon(): Weapon | null {
+        return (this.weapon_data === null) ? (null) : (this as Weapon);
     }
-    get name(): string {
-        return this._schema.name;
+    public get asArmor(): Armor | null {
+        return (this.armor_data === null) ? (null) : (this as Armor);
     }
-    get stackable(): boolean {
-        return this._schema.stackable;
+    public get id(): string {
+        return this._id;
+    }
+    public equals(other: Item) {
+        return this._id === other._id;
     }
     public toJSON() {
         return {
+            'id': this._id,
+            'schema': this.schema,
             'name': this.name,
-            'schema': this._schema.id,
-            'type': ITEM_TYPE[this.item_type],
             'stackable': this.stackable,
+            'weapon_data': (this.weapon_data) ? this.weapon_data.toJSON() : (null),
+            'armor_data': (this.armor_data) ? this.armor_data.toJSON() : (null),
         };
+    }
+    public clone(): Item {
+        return new Item(
+            this.schema,
+            this.name,
+            this.stackable,
+            (this.weapon_data) ? this.weapon_data.clone() : (null),
+            (this.armor_data) ? this.armor_data.clone() : (null),
+        );
     }
 }
 
@@ -58,11 +82,10 @@ function addItem(dir, filename) {
         if (err) {
             return console.log(err);
         }
-        const id = filename.split('.')[0];
+        const schema_id = filename.split('.')[0];
         const schema = JSON.parse(content);
-        schema.item_type = ITEM_TYPE[schema.item_type];
-        schema.id = id;
-        Item.addSchema(id, schema);
+        schema.schema = schema_id;
+        Item.addSchema(schema_id, Item.fromJSON(schema));
     });
 }
 function addItemDirectory(root, subdirectory: string | null = null) {
