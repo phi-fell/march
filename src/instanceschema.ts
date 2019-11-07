@@ -33,6 +33,7 @@ export function getInstanceFromSchema(schema_id: InstanceSchemaID, seed: string)
             }
         }
     }
+    inst.saveToDisk();
     return inst;
 }
 

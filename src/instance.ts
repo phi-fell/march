@@ -231,6 +231,7 @@ export class Instance {
                 'count': stack.count,
             };
         });
+        ret.saveToDisk();
         return ret;
     }
     private static instances: { [key: string]: Instance; } = {};
@@ -253,6 +254,7 @@ export class Instance {
             }
         }
         InstanceGenerator.runGeneration(this);
+        this.saveToDisk();
     }
     public getMillisUntilUnload(): number {
         return MAX_INACTIVE_TIME - (Date.now() - this.lastActiveTime);

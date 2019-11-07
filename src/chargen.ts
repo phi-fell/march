@@ -24,6 +24,7 @@ export class CharGen {
         if (!slime) {
             console.log('could not get Tutorial Slime schema!');
         }
+        inst.saveToDisk();
         return new Location(3, 8, inst.id);
     }
 }
