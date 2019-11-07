@@ -254,7 +254,6 @@ export class Instance {
             }
         }
         InstanceGenerator.runGeneration(this);
-        this.saveToDisk();
     }
     public getMillisUntilUnload(): number {
         return MAX_INACTIVE_TIME - (Date.now() - this.lastActiveTime);
