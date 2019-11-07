@@ -1,7 +1,12 @@
 import { Inventory } from '../item/inventory';
+import { Item } from '../item/item';
 import { Weapon } from '../item/weapon';
 
-export enum APPAREL_SLOT {
+/*
+export enum EQUIPMENT_SLOT {
+    // weapons/ held
+    LEFT_HAND, RIGHT_HAND,
+    // armor/clothes
     HEAD,
     LEFT_EAR, RIGHT_EAR,
     NECKLACE,
@@ -14,7 +19,7 @@ export enum APPAREL_SLOT {
     LEFT_UPPER_ARM_ARMOR, RIGHT_UPPER_ARM_ARMOR,
     LEFT_ELBOW_ARMOR, RIGHT_ELBOW_ARMOR,
     LEFT_FOREARM_ARMOR, RIGHT_FOREARM_ARMOR,
-    LEFT_HAND, RIGHT_HAND,
+    LEFT_HAND_ARMOR, RIGHT_HAND_ARMOR,
     LEFT_RING_POINTERFINGER, RIGHT_RING_POINTERFINGER,
     LEFT_RING_MIDDLEFINGER, RIGHT_RING_MIDDLEFINGER,
     LEFT_RING_RINGFINGER, RIGHT_RING_RINGFINGER,
@@ -25,6 +30,20 @@ export enum APPAREL_SLOT {
     LEFT_KNEE_ARMOR, RIGHT_KNEE_ARMOR,
     LEFT_SHIN_ARMOR, RIGHT_SHIN_ARMOR,
     LEFT_FOOT, RIGHT_FOOT,
+}*/
+
+export enum EQUIPMENT_SLOT {
+    WEAPON = 0,
+    SHIELD = 1,
+    HELMET = 2,
+    CHEST_ARMOR = 3,
+    LEG_ARMOR = 4,
+    BOOTS = 5,
+    GLOVES = 6,
+    BELT = 7,
+    NECKLACE = 8,
+    RING = 9,
+    RING_ALT = 10,
 }
 
 export class CharacterEquipment {
@@ -39,15 +58,19 @@ export class CharacterEquipment {
         ret.inventory = Inventory.fromJSON(json.inventory);
         return ret;
     }
-    // public helmet: Apparel;
-    // public chest_armor: Apparel;
-    // public leg_armor: Apparel;
-    // public boots: Apparel;
-    public weapon: Weapon | null;
+    // public shield: Shield | null;
     public inventory: Inventory;
+    private equipment: { [id: number]: Item | null; } = {};
     constructor() {
-        this.weapon = null;
         this.inventory = new Inventory();
+    }
+    public get weapon(): Weapon | null {
+        const ret = this.equipment[EQUIPMENT_SLOT.WEAPON];
+        return ret ? (ret as Weapon) : (null);
+    }
+    public set weapon(weapon: Weapon | null) {
+        this.inventory.addItem(this.equipment[EQUIPMENT_SLOT.WEAPON]);
+        this.equipment[EQUIPMENT_SLOT.WEAPON] = weapon;
     }
     public toJSON() {
         return {

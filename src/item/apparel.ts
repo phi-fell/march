@@ -1,7 +1,7 @@
 import { Item, ItemSchema, ItemSchemaID } from './item';
 import { ITEM_TYPE } from './itemtype';
 
-export enum APPAREL_TYPE {
+/*export enum APPAREL_TYPE {
     // jewelry
     NECKLACE,
     BRACELET,
@@ -26,7 +26,7 @@ export enum APPAREL_TYPE {
     GREAVES,
     LEG,
     FEET,
-}
+}*/
 
 export interface ApparelSchema extends ItemSchema {
     item_type: ITEM_TYPE.APPAREL;
