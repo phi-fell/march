@@ -44,8 +44,10 @@ $(function () {
     creds = loadCredentials();
     if (creds.user && creds.auth) {
         socket = io();
-        console.log('logging in as ' + creds.user);
-        socket.emit('login', creds);
+        socket.on('connect', () => {
+            console.log('logging in as ' + creds.user);
+            socket.emit('login', creds);
+        });
         socket.on('success', function (msg) {
             console.log('valid credentials, logged in!');
         });
