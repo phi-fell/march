@@ -53,8 +53,8 @@ export class Item {
     public get id(): string {
         return this._id;
     }
-    public equals(other: Item) {
-        return this._id === other._id;
+    public equals(other: Item | null) {
+        return other && this._id === other._id;
     }
     public toJSON() {
         return {

@@ -1,3 +1,5 @@
+import { Armor } from '../item/armor';
+import { EQUIPMENT_SLOT } from '../item/equipment_slot';
 import { Inventory } from '../item/inventory';
 import { Item } from '../item/item';
 import { Weapon } from '../item/weapon';
@@ -32,20 +34,6 @@ export enum EQUIPMENT_SLOT {
     LEFT_FOOT, RIGHT_FOOT,
 }*/
 
-export enum EQUIPMENT_SLOT {
-    WEAPON = 0,
-    SHIELD = 1,
-    HELMET = 2,
-    CHEST_ARMOR = 3,
-    LEG_ARMOR = 4,
-    BOOTS = 5,
-    GLOVES = 6,
-    BELT = 7,
-    NECKLACE = 8,
-    RING = 9,
-    RING_ALT = 10,
-}
-
 export class CharacterEquipment {
     public static fromJSON(json) {
         const ret = new CharacterEquipment();
@@ -58,7 +46,7 @@ export class CharacterEquipment {
     }
     // public shield: Shield | null;
     public inventory: Inventory;
-    private equipment: { [id: number]: Item | null; } = {};
+    private equipment: { [slot: number]: Item | null; } = {};
     constructor() {
         this.inventory = new Inventory();
     }
@@ -70,9 +58,23 @@ export class CharacterEquipment {
         this.inventory.addItem(this.equipment[EQUIPMENT_SLOT.WEAPON]);
         this.equipment[EQUIPMENT_SLOT.WEAPON] = weapon;
     }
+    public getEquipment(slot: EQUIPMENT_SLOT): Item | null {
+        return this.equipment[slot] || null;
+    }
+    public equipArmor(armor: Armor) {
+        if (!armor) {
+            return;
+        }
+        this.unequip(armor.armor_data.slot);
+        this.equipment[armor.armor_data.slot] = armor;
+    }
+    public unequip(slot: EQUIPMENT_SLOT) {
+        this.inventory.addItem(this.equipment[slot]);
+        this.equipment[slot] = null;
+    }
     public toJSON() {
         return {
-            'weapon': (this.weapon) ? this.weapon.toJSON() : (this.weapon),
+            'weapon': this.weapon && this.weapon.toJSON(),
             'inventory': this.inventory.toJSON(),
         };
     }
