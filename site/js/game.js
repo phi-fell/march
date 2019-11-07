@@ -158,7 +158,7 @@ class Game {
                 list.append($('<li>').text(skill + ': ' + sheet.skills[skill]));
             });
         } else if (this._sheetdisplaymode === 'equipment' || this._sheetdisplaymode === 'equip') {
-            list.append($('<li>').text(sheet.equipment));
+            list.append($('<li>').html('Weapon: ' + getItemHTML(sheet.equipment.weapon)));
         } else if (this._sheetdisplaymode === 'inventory' || this._sheetdisplaymode === 'inv') {
             for (const stack of sheet.equipment.inventory) {
                 let dropButtons = '';
