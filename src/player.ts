@@ -5,6 +5,7 @@ import { CharGen } from './chargen';
 import { DIRECTION, directionVectors } from './direction';
 import { ACTION_STATUS, Entity } from './entity';
 import { Instance } from './instance';
+import { EQUIPMENT_SLOT } from './item/equipment_slot';
 import { WorldItemStack } from './item/worlditemstack';
 import { Location } from './location';
 import { Random } from './math/random';
@@ -22,9 +23,11 @@ export enum ACTION_TYPE {
     ATTACK,
     PICKUP,
     DROP,
+    EQUIP,
+    UNEQUIP,
 }
 
-const ACTION_COST = [0, 0, 5, 8, 5, 5, 10, 2, 2];
+const ACTION_COST = [0, 0, 5, 8, 5, 5, 10, 2, 2, 12, 8];
 
 export interface PlayerAction {
     type: ACTION_TYPE;
@@ -120,6 +123,26 @@ export class PickupAction implements PlayerAction {
 export class DropAction implements PlayerAction {
     public type: ACTION_TYPE.DROP = ACTION_TYPE.DROP;
     constructor(public item_id: string, public count: number) { }
+    public toJSON(): object {
+        return {
+            'type': ACTION_TYPE[this.type],
+        };
+    }
+}
+
+export class EquipAction implements PlayerAction {
+    public type: ACTION_TYPE.EQUIP = ACTION_TYPE.EQUIP;
+    constructor(public item_id: string) { }
+    public toJSON(): object {
+        return {
+            'type': ACTION_TYPE[this.type],
+        };
+    }
+}
+
+export class UnequipAction implements PlayerAction {
+    public type: ACTION_TYPE.UNEQUIP = ACTION_TYPE.UNEQUIP;
+    constructor(public slot: EQUIPMENT_SLOT) { }
     public toJSON(): object {
         return {
             'type': ACTION_TYPE[this.type],
@@ -343,6 +366,28 @@ export class Player extends Entity {
                         console.log('Cannot drop nonexistent item!');
                         break;
                     }
+                    this.queuedAction = null;
+                    break;
+                } case ACTION_TYPE.EQUIP: {
+                    const equip = this.queuedAction as EquipAction;
+                    const stack = this.charSheet.equipment.inventory.getItemStackById(equip.item_id);
+                    if (!stack) {
+                        console.log('Cannot equip nonexistent item!');
+                        break;
+                    }
+                    const item = stack.item;
+                    if (item.asWeapon) {
+                        this.charSheet.equipment.equipWeapon(this.charSheet.equipment.inventory.removeItemById(equip.item_id)!.asWeapon);
+                    } else if (item.asArmor) {
+                        this.charSheet.equipment.equipArmor(this.charSheet.equipment.inventory.removeItemById(equip.item_id)!.asArmor);
+                    } else {
+                        console.log('Cannot equip that item type!');
+                    }
+                    this.queuedAction = null;
+                    break;
+                } case ACTION_TYPE.UNEQUIP: {
+                    const unequip = this.queuedAction as UnequipAction;
+                    this.charSheet.equipment.unequip(unequip.slot);
                     this.queuedAction = null;
                     break;
                 }
