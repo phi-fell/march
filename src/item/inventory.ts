@@ -64,6 +64,9 @@ export class Inventory {
         }
         return null;
     }
+    public getItemStackById(id: string): ItemStack | null {
+        return this._items.find((stack) => stack.item.id === id) || null;
+    }
     public getItemStack(slot: number): ItemStack {
         return this._items[slot];
     }
