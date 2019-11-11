@@ -172,7 +172,9 @@ class Game {
                 'RING_ALT': 'Ring',
             };
             for (const slot in sheet.equipment.equipped) {
-                list.append($('<li>').html('' + (slot_names[slot] || 'UNKNOWN SLOT') + ': ' + getItemHTML(sheet.equipment.equipped[slot])));
+                if (sheet.equipment.equipped[slot]) {
+                    list.append($('<li>').html('' + (slot_names[slot] || 'UNKNOWN SLOT') + ': ' + getItemHTML(sheet.equipment.equipped[slot]) + '  <button style="padding: 2px;" onclick="unequipItem(\'' + slot + '\')">Unequip</button>'));
+                }
             }
         } else if (this._sheetdisplaymode === 'inventory' || this._sheetdisplaymode === 'inv') {
             for (const stack of sheet.equipment.inventory) {
