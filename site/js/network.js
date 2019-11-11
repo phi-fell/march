@@ -45,6 +45,43 @@ function setSheetDisplayMode(dropdown) {
     game.updateMenus();
 }
 
+function printEvent(event) {
+    if (!event) {
+        return console.log('null event: ' + event);
+    }
+    switch (event.type) {
+        case 'NEW_ROUND':
+            addMessage('A new round has begun!');
+            break;
+        case 'MOVE':
+            addMessage('MOVE');
+            break;
+        case 'ATTACK':
+            addMessage('ATTACK');
+            break;
+        case 'WAIT':
+            addMessage('WAIT');
+            break;
+        case 'BLEED':
+            addMessage('BLEED');
+            break;
+        case 'HEAL':
+            addMessage('HEAL');
+            break;
+        case 'PICKUP':
+            addMessage('PICKUP');
+            break;
+        case 'DROP':
+            addMessage('DROP');
+            break;
+        case 'DEATH':
+            addMessage('DEATH');
+            break;
+        default:
+            return console.log('unknown or invalid event type: ' + event.type)
+    }
+}
+
 function addMessage(msg) {
     if (Math.ceil($('#chat_history').scrollTop() + $('#chat_history').innerHeight()) >= $('#chat_history')[0].scrollHeight) {
         $('#messages').append($('<li>').text(msg));
@@ -112,6 +149,9 @@ $(function () {
     });
     socket.on('chat message', function (msg) {
         addMessage(msg);
+    });
+    socket.on('event', function (msg) {
+        printEvent(msg);
     });
     socket.on('pong_cmd', function (msg) {
         $('#messages').append($('<li>').text('pong! ' + (Date.now() - msg) + 'ms'));

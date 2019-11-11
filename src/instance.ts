@@ -1,6 +1,7 @@
 import fs = require('fs');
 
 import { CharacterStatus } from './character/characterstatus';
+import { ClientEvent, NewRoundEvent } from './clientevent';
 import { ACTION_STATUS, Entity } from './entity';
 import { INSTANCE_GEN_TYPE, InstanceGenerator } from './instancegenerator';
 import { InstanceSchemaID } from './instanceschema';
@@ -458,10 +459,15 @@ export class Instance {
             }
         });
     }
-    public emit(event: string) {
-        // TODO: give events a type, location, etc.  and only emit to some players
+    public emitGlobal(event: ClientEvent) {
         for (const plr of this.players) {
-            plr.user!.socket.emit('chat message', event);
+            plr.user!.socket.emit('event', event);
+        }
+    }
+    public emit(event: ClientEvent, location: Location) {
+        for (const plr of this.players) {
+            // TODO: check if plr can see location
+            plr.user!.socket.emit('event', event.toJSON());
         }
     }
     public notifyOfPlayerAction(pID: string) {
@@ -510,7 +516,7 @@ export class Instance {
         return true;
     }
     private startNewTurn() {
-        this.emit('A new round has begun!');
+        this.emitGlobal(new NewRoundEvent());
         for (const mob of this.mobs) {
             mob.startNewTurn();
         }
