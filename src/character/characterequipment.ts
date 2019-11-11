@@ -41,7 +41,11 @@ export class CharacterEquipment {
             return ret;
         }
         ret.inventory = Inventory.fromJSON(json.inventory);
-        // TODO: load equipment
+        if (json.equpped) {
+            for (const slot of json.equipped) {
+                ret.equipment[EQUIPMENT_SLOT[slot as string]] = Item.fromJSON(json.equipped[slot]);
+            }
+        }
         return ret;
     }
     // public shield: Shield | null;
@@ -61,7 +65,14 @@ export class CharacterEquipment {
     public getEquipment(slot: EQUIPMENT_SLOT): Item | null {
         return this.equipment[slot] || null;
     }
-    public equipArmor(armor: Armor) {
+    public equipWeapon(weapon: Weapon | null) {
+        if (!weapon) {
+            return;
+        }
+        this.inventory.addItem(this.equipment[EQUIPMENT_SLOT.WEAPON]);
+        this.equipment[EQUIPMENT_SLOT.WEAPON] = weapon;
+    }
+    public equipArmor(armor: Armor | null) {
         if (!armor) {
             return;
         }
@@ -73,8 +84,15 @@ export class CharacterEquipment {
         this.equipment[slot] = null;
     }
     public toJSON() {
+        const equipped = {};
+        for (const slot_name in EQUIPMENT_SLOT) {
+            if (isNaN(Number(slot_name))) {
+                const item = this.equipment[EQUIPMENT_SLOT[slot_name]];
+                equipped[slot_name] = item && item.toJSON();
+            }
+        }
         return {
-            'weapon': this.weapon && this.weapon.toJSON(),
+            equipped,
             'inventory': this.inventory.toJSON(),
         };
     }

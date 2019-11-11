@@ -26,6 +26,20 @@ function dropItem(schema, count) {
     });
 }
 
+function equipItem(item_id) {
+    socket.emit('player_action', {
+        'action': 'equip',
+        item_id,
+    });
+}
+
+function unequipItem(slot) {
+    socket.emit('player_action', {
+        'action': 'unequip',
+        slot,
+    });
+}
+
 function setSheetDisplayMode(dropdown) {
     game._sheetdisplaymode = dropdown.value;
     game.updateMenus();

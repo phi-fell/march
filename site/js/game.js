@@ -158,14 +158,31 @@ class Game {
                 list.append($('<li>').text(skill + ': ' + sheet.skills[skill]));
             });
         } else if (this._sheetdisplaymode === 'equipment' || this._sheetdisplaymode === 'equip') {
-            //list.append($('<li>').html('Weapon: ' + getItemHTML(sheet.equipment.weapon)));
+            const slot_names = {
+                'WEAPON': 'Weapon',
+                'SHIELD': 'Shield',
+                'HELMET': 'Head',
+                'CHEST_ARMOR': 'Chest',
+                'LEG_ARMOR': 'Legs',
+                'BOOTS': 'Feet',
+                'GLOVES': 'Hands',
+                'BELT': 'Belt',
+                'NECKLACE': 'Neck',
+                'RING': 'Ring',
+                'RING_ALT': 'Ring',
+            };
+            for (const slot in sheet.equipment.equipped) {
+                list.append($('<li>').html('' + (slot_names[slot] || 'UNKNOWN SLOT') + ': ' + getItemHTML(sheet.equipment.equipped[slot])));
+            }
         } else if (this._sheetdisplaymode === 'inventory' || this._sheetdisplaymode === 'inv') {
             for (const stack of sheet.equipment.inventory) {
-                let dropButtons = '';
+                let dropButtons = (stack.item.weapon_data || stack.item.armor_data)
+                    ? '  <button style="padding: 2px;" onclick="equipItem(\'' + stack.item.id + '\')">Equip</button>'
+                    : '';
                 if (stack.count && stack.count > 1) {
-                    dropButtons = '  <button style="padding: 2px;" onclick="dropItem(\'' + stack.item.id + '\', 1)">Drop 1</button> <button style="padding: 2px;" onclick="dropItem(\'' + stack.item.id + '\', null)">Drop All</button>';
+                    dropButtons += '  <button style="padding: 2px;" onclick="dropItem(\'' + stack.item.id + '\', 1)">Drop 1</button> <button style="padding: 2px;" onclick="dropItem(\'' + stack.item.id + '\', null)">Drop All</button>';
                 } else {
-                    dropButtons = '  <button style="padding: 2px;" onclick="dropItem(\'' + stack.item.id + '\', null)">Drop</button>';
+                    dropButtons += '  <button style="padding: 2px;" onclick="dropItem(\'' + stack.item.id + '\', null)">Drop</button>';
                 }
                 list.append($('<li>').html(' - ' + getItemHTML(stack.item) + (stack.count ? (' x ' + stack.count) : '') + dropButtons));
             }

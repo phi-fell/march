@@ -12,15 +12,18 @@ import {
 import { ATTRIBUTE } from './character/characterattributes';
 import { execute } from './commands';
 import { DIRECTION } from './direction';
+import { EQUIPMENT_SLOT } from './item/equipment_slot';
 import { Random } from './math/random';
 import {
     AttackAction,
     DropAction,
+    EquipAction,
     MoveAction,
     PickupAction,
     Player,
     StrafeAction,
     TurnAction,
+    UnequipAction,
     UnwaitAction,
     UsePortalAction,
     WaitAction,
@@ -146,6 +149,12 @@ export class User {
                         break;
                     case 'drop':
                         user.player.setAction(new DropAction(msg.schema, msg.count));
+                        break;
+                    case 'equip':
+                        user.player.setAction(new EquipAction(msg.item_id));
+                        break;
+                    case 'unequip':
+                        user.player.setAction(new UnequipAction(EQUIPMENT_SLOT[msg.slot as string]));
                         break;
                     default:
                         sock.emit('log', 'unknown action: ' + msg.action);
