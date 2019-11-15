@@ -31,17 +31,20 @@ const ACTION_COST = [0, 0, 5, 8, 5, 5, 10, 2, 2, 12, 8];
 
 export interface PlayerAction {
     type: ACTION_TYPE;
+    cost: number;
     toJSON(): object;
 }
 
 export class WaitAction implements PlayerAction {
     public type: ACTION_TYPE.WAIT = ACTION_TYPE.WAIT;
+    public readonly cost: number = 0;
     public toJSON(): object {
         return { 'type': ACTION_TYPE[this.type] };
     }
 }
 export class UnwaitAction implements PlayerAction {
     public type: ACTION_TYPE.UNWAIT = ACTION_TYPE.UNWAIT;
+    public readonly cost: number = 0;
     public toJSON(): object {
         return { 'type': ACTION_TYPE[this.type] };
     }
@@ -49,6 +52,7 @@ export class UnwaitAction implements PlayerAction {
 
 export class MoveAction implements PlayerAction {
     public type: ACTION_TYPE.MOVE = ACTION_TYPE.MOVE;
+    public readonly cost: number = 5;
     public directionVec: { 'x': number, 'y': number };
     constructor(public direction: DIRECTION) {
         this.directionVec = { 'x': 0, 'y': 0 };
@@ -66,6 +70,7 @@ export class MoveAction implements PlayerAction {
 
 export class StrafeAction implements PlayerAction {
     public type: ACTION_TYPE.STRAFE = ACTION_TYPE.STRAFE;
+    public readonly cost: number = 8;
     public directionVec: { 'x': number, 'y': number };
     constructor(public direction: DIRECTION) {
         this.directionVec = { 'x': 0, 'y': 0 };
@@ -83,6 +88,7 @@ export class StrafeAction implements PlayerAction {
 
 export class TurnAction implements PlayerAction {
     public type: ACTION_TYPE.TURN = ACTION_TYPE.TURN;
+    public readonly cost: number = 5;
     constructor(public direction: DIRECTION) { }
     public toJSON(): object {
         return {
@@ -94,6 +100,7 @@ export class TurnAction implements PlayerAction {
 
 export class UsePortalAction implements PlayerAction {
     public type: ACTION_TYPE.USE_PORTAL = ACTION_TYPE.USE_PORTAL;
+    public readonly cost: number = 5;
     public toJSON(): object {
         return {
             'type': ACTION_TYPE[this.type],
@@ -103,6 +110,7 @@ export class UsePortalAction implements PlayerAction {
 
 export class AttackAction implements PlayerAction {
     public type: ACTION_TYPE.ATTACK = ACTION_TYPE.ATTACK;
+    public readonly cost: number = 10;
     public toJSON(): object {
         return {
             'type': ACTION_TYPE[this.type],
@@ -112,6 +120,7 @@ export class AttackAction implements PlayerAction {
 
 export class PickupAction implements PlayerAction {
     public type: ACTION_TYPE.PICKUP = ACTION_TYPE.PICKUP;
+    public readonly cost: number = 2;
     constructor(public item_id: string, public count: number) { }
     public toJSON(): object {
         return {
@@ -122,6 +131,7 @@ export class PickupAction implements PlayerAction {
 
 export class DropAction implements PlayerAction {
     public type: ACTION_TYPE.DROP = ACTION_TYPE.DROP;
+    public readonly cost: number = 2;
     constructor(public item_id: string, public count: number) { }
     public toJSON(): object {
         return {
@@ -132,6 +142,7 @@ export class DropAction implements PlayerAction {
 
 export class EquipAction implements PlayerAction {
     public type: ACTION_TYPE.EQUIP = ACTION_TYPE.EQUIP;
+    public readonly cost: number = 12;
     constructor(public item_id: string) { }
     public toJSON(): object {
         return {
@@ -142,6 +153,7 @@ export class EquipAction implements PlayerAction {
 
 export class UnequipAction implements PlayerAction {
     public type: ACTION_TYPE.UNEQUIP = ACTION_TYPE.UNEQUIP;
+    public readonly cost: number = 8;
     constructor(public slot: EQUIPMENT_SLOT) { }
     public toJSON(): object {
         return {
