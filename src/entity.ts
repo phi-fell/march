@@ -4,7 +4,7 @@ import { Instance } from './instance';
 import { Location } from './location';
 import { Random } from './math/random';
 
-export const MOVE_AP = 6;
+export const MOVE_AP = 5;
 
 export enum ACTION_STATUS {
     PERFORMED,
