@@ -5,6 +5,7 @@ import { Location } from './location';
 import { Random } from './math/random';
 
 export const MOVE_AP = 5;
+export const MAX_VISIBILITY_RADIUS = 22;
 
 export enum ACTION_STATUS {
     PERFORMED,
@@ -19,6 +20,7 @@ export class Entity {
     public charSheet: CharacterSheet;
     protected _location: Location;
     private lastHitSheet: CharacterSheet | undefined;
+    private visibility: boolean[][];
     constructor(
         public id: string,
         public name: string,
@@ -29,6 +31,13 @@ export class Entity {
         this.charSheet = new CharacterSheet();
         this._location = loc;
         this.lastHitSheet = undefined;
+        this.visibility = [];
+        for (let i = -MAX_VISIBILITY_RADIUS; i <= MAX_VISIBILITY_RADIUS; i++) {
+            this.visibility[i] = [];
+            for (let j = -MAX_VISIBILITY_RADIUS; j <= MAX_VISIBILITY_RADIUS; j++) {
+                this.visibility[i][j] = false;
+            }
+        }
         const inst = Instance.getLoadedInstanceById(loc.instance_id);
         if (inst) {
             inst.addMob(this);
