@@ -1,4 +1,5 @@
 import { CharacterSheet } from './character/charactersheet';
+import { AttackEvent } from './clientevent';
 import { DIRECTION } from './direction';
 import { Instance } from './instance';
 import { Location } from './location';
@@ -81,11 +82,14 @@ export class Entity {
         }
         return ACTION_STATUS.WAITING;
     }
-    public hit(charsheet: CharacterSheet) {
-        if (charsheet) {
-            this.lastHitSheet = charsheet;
+    public hit(attacker: Entity) {
+        this.lastHitSheet = attacker.charSheet;
+        const inst = Instance.getLoadedInstanceById(this.location.instance_id);
+        const event = new AttackEvent(false, attacker, this);
+        this.charSheet.takeHit(event);
+        if (inst) {
+            inst.emit(event, this.location);
         }
-        this.charSheet.takeHit(charsheet, null);
         if (this.charSheet.isDead()) {
             this.handleDeath();
         }
@@ -106,7 +110,7 @@ export class Entity {
         if (toInst.isTilePassable(to.x, to.y)) {
             const mobInWay = toInst.getMobInLocation(to.x, to.y);
             if (mobInWay) {
-                mobInWay.hit(this.charSheet); // TODO: give all mobs a charsheet??? or a placeholder for EXP calculations?
+                mobInWay.hit(this);
             } else {
                 this.location = to.clone();
             }

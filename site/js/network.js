@@ -45,6 +45,10 @@ function setSheetDisplayMode(dropdown) {
     game.updateMenus();
 }
 
+function getDamageString(damage) {
+    return 'DMG';
+}
+
 function printEvent(event) {
     if (!event) {
         return console.log('null event: ' + event);
@@ -57,7 +61,7 @@ function printEvent(event) {
             addMessage('MOVE');
             break;
         case 'ATTACK':
-            addMessage('ATTACK');
+            addMessage(event.attacker.name + ' attacks ' + event.defender.name + (event.success ? ' dealing ' + ((event.damage && event.damage.length) ? event.damage.map(getDamageString).reduce((s, d) => s + ', ' + d) : 'no damage') : ' and misses.'));
             break;
         case 'WAIT':
             addMessage('WAIT');

@@ -1,4 +1,4 @@
-import { Weapon } from '../item/weapon';
+import { AttackEvent } from '../clientevent';
 import { Random } from '../math/random';
 import { ATTRIBUTE, CharacterAttributes } from './characterattributes';
 import { CharacterEquipment } from './characterequipment';
@@ -132,14 +132,15 @@ export class CharacterSheet {
     public endRest() {
         this._status.endRest();
     }
-    public takeHit(attacker: CharacterSheet, weapon: Weapon | null) {
+    public takeHit(event: AttackEvent) {
+        const weapon = event.attacker.charSheet.equipment.weapon;
         // TODO: combat calculations (not complete)
         /*
             chance to dodge: along the lines of hit_success=(1D20 + attacker.DEX) >= (1D20 + defender.AGI) or something
             if dodged do nothing (return);
             if hit, do armor coverage
-            roll (attacker dex + weapon [precision) against (defender agi + total armor coverage)
-            if attacker wins, do damage as if defendor has no armor
+            roll (attacker.dex + weapon [precision) against (defender agi + total armor coverage)
+            if attacker.wins, do damage as if defendor has no armor
             else: see below code
         */
         // take a hit, first applying chance to dodge, etc.
@@ -149,8 +150,9 @@ export class CharacterSheet {
         // e.g. direct is normal
         // e.g. glancing is almost dodge but not quite. (half? damage)
         if (Random.float() >= dodgeChance) {
+            event.success = true;
             let armor = 0; // TODO: calculate total armor
-            let blunt = attacker.getNetAttributeValue(ATTRIBUTE.STRENGTH) + (weapon ? (weapon.weapon_data.force) : 0); // [str]D[force] ?
+            let blunt = event.attacker.charSheet.getNetAttributeValue(ATTRIBUTE.STRENGTH) + (weapon ? (weapon.weapon_data.force) : 0); // [str]D[force] ?
             if (blunt > armor) {
                 blunt -= armor;
                 armor = 0;
@@ -167,6 +169,8 @@ export class CharacterSheet {
                     this.takeSharpDamage(sharp - armor);
                 }
             }
+        } else {
+            event.success = false;
         }
     }
     public isDead(): boolean {

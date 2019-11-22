@@ -323,7 +323,7 @@ export class Player extends Entity {
                     const opponent = inst.getMobInLocation(attackPos.x, attackPos.y);
                     this.charSheet.useAP(ACTION_COST[this.queuedAction.type]);
                     if (opponent) {
-                        opponent.hit(this.charSheet);
+                        opponent.hit(this);
                     }
                     this.queuedAction = null;
                     break;
