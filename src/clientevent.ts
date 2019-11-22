@@ -1,3 +1,5 @@
+import { Damage } from './damage';
+
 export enum EVENT_TYPE {
     NEW_ROUND,
     MOVE,
@@ -31,8 +33,12 @@ export class MoveEvent implements ClientEvent {
 
 export class AttackEvent implements ClientEvent {
     public type: EVENT_TYPE.ATTACK = EVENT_TYPE.ATTACK;
+    constructor(public success: boolean, public damage: Damage[] = []) { }
     public toJSON(): object {
-        return { 'type': EVENT_TYPE[this.type] };
+        return {
+            'type': EVENT_TYPE[this.type],
+            'damage': this.damage.map((d) => d.toJSON()),
+        };
     }
 }
 
