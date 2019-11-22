@@ -1,4 +1,5 @@
 import { AttackEvent } from '../clientevent';
+import { Damage, DAMAGE_TYPE, DamageMetaData } from '../damage';
 import { Random } from '../math/random';
 import { ATTRIBUTE, CharacterAttributes } from './characterattributes';
 import { CharacterEquipment } from './characterequipment';
@@ -153,6 +154,7 @@ export class CharacterSheet {
             event.success = true;
             let armor = 0; // TODO: calculate total armor
             let blunt = event.attacker.charSheet.getNetAttributeValue(ATTRIBUTE.STRENGTH) + (weapon ? (weapon.weapon_data.force) : 0); // [str]D[force] ?
+            event.damage.push(new Damage(DAMAGE_TYPE.BLUNT, blunt, new DamageMetaData(blunt, blunt, blunt, armor, 0)));
             if (blunt > armor) {
                 blunt -= armor;
                 armor = 0;
@@ -165,6 +167,7 @@ export class CharacterSheet {
             const piercing = weapon ? (weapon.weapon_data.piercing) : 0;
             if (piercing > resilience) {
                 const sharp = (piercing - resilience) * (weapon ? (weapon.weapon_data.sharpness) : 0); // [pierce-res]D[sharp] ?
+                event.damage.push(new Damage(DAMAGE_TYPE.BLUNT, blunt, new DamageMetaData(sharp, sharp, sharp, armor, 0)));
                 if (sharp > armor) {
                     this.takeSharpDamage(sharp - armor);
                 }
