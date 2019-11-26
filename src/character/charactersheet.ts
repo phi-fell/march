@@ -167,7 +167,7 @@ export class CharacterSheet {
             const piercing = weapon ? (weapon.weapon_data.piercing) : 0;
             if (piercing > resilience) {
                 const sharp = (piercing - resilience) * (weapon ? (weapon.weapon_data.sharpness) : 0); // [pierce-res]D[sharp] ?
-                event.damage.push(new Damage(DAMAGE_TYPE.BLUNT, blunt, new DamageMetaData(sharp, sharp, sharp, armor, 0)));
+                event.damage.push(new Damage(DAMAGE_TYPE.SHARP, sharp, new DamageMetaData(sharp, sharp, sharp, armor, 0)));
                 if (sharp > armor) {
                     this.takeSharpDamage(sharp - armor);
                 }

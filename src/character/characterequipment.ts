@@ -41,9 +41,11 @@ export class CharacterEquipment {
             return ret;
         }
         ret.inventory = Inventory.fromJSON(json.inventory);
-        if (json.equpped) {
-            for (const slot of json.equipped) {
-                ret.equipment[EQUIPMENT_SLOT[slot as string]] = Item.fromJSON(json.equipped[slot]);
+        if (json.equipped) {
+            for (const slot in json.equipped) {
+                if (json.equipped.hasOwnProperty(slot)) {
+                    ret.equipment[EQUIPMENT_SLOT[slot as string]] = Item.fromJSON(json.equipped[slot]);
+                }
             }
         }
         return ret;
