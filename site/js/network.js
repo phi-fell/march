@@ -46,7 +46,7 @@ function setSheetDisplayMode(dropdown) {
 }
 
 function getDamageString(damage) {
-    return 'DMG';
+    return damage.amount + ' ' + damage.type.toLowerCase();
 }
 
 function printEvent(event) {
@@ -61,7 +61,7 @@ function printEvent(event) {
             addMessage('MOVE');
             break;
         case 'ATTACK':
-            addMessage(event.attacker.name + ' attacks ' + event.defender.name + (event.success ? ' dealing ' + ((event.damage && event.damage.length) ? event.damage.map(getDamageString).reduce((s, d) => s + ', ' + d) : 'no damage') : ' and misses.'));
+            addMessage(event.attacker.name + ' attacks ' + event.defender.name + (event.success ? ' dealing ' + ((event.damage && event.damage.length) ? event.damage.map(getDamageString).reduce((s, d) => s + ', ' + d) : 'no') + ' damage' : ' and misses.'));
             break;
         case 'WAIT':
             addMessage('WAIT');
