@@ -4,7 +4,7 @@ import { Random } from './math/random';
 
 const probs: any = {};
 
-function randomChar(char) {
+function randomChar(char: string) {
     const rand = Random.float();
     let sum = 0;
     for (let i = 0; i < 26; i++) {

@@ -20,7 +20,7 @@ const MAX_INACTIVE_TIME = 1000 * 60 * 10; // 10 minutes (as milliseconds)
 export class InstanceAttributes {
     public static fromJSON(json: any): InstanceAttributes {
         const ret = new InstanceAttributes(json.seed, json.width, json.height, json.personal);
-        ret.genType = INSTANCE_GEN_TYPE[json.genType as string];
+        ret.genType = INSTANCE_GEN_TYPE[json.genType as keyof typeof INSTANCE_GEN_TYPE];
         ret.schemaID = json.schemaID;
         return ret;
     }
@@ -73,7 +73,7 @@ export class Instance {
     public static generateNewInstanceID() {
         return Random.uuid();
     }
-    public static loadInstance(id: string, callback) {
+    public static loadInstance(id: string, callback: any) {
         const loaded = Instance.getLoadedInstanceById(id);
         if (loaded) {
             return callback(null, loaded);
@@ -216,7 +216,7 @@ export class Instance {
         const ret = new Instance(InstanceAttributes.fromJSON(json.attributes), json.id);
         // TODO: load players?
         ret.mobs = [];
-        json.mobs.map((mob) => {
+        json.mobs.map((mob: any) => {
             const e = spawnMobFromSchema(mob.schema_id, Location.fromJSON(mob.location));
             if (e) {
                 e.charSheet.status = CharacterStatus.fromJSON(mob.status);
@@ -224,7 +224,7 @@ export class Instance {
             return e;
         });
         ret.portals = json.portals.map(Portal.fromJSON);
-        ret.items = json.items.map((stack) => {
+        ret.items = json.items.map((stack: any) => {
             return {
                 'location': Location.fromJSON(stack.location),
                 'item': Item.getItemFromSchemaID(stack.item_schema),
@@ -521,7 +521,7 @@ export class Instance {
             mob.startNewTurn();
         }
     }
-    private addShadow(shadows, start, end) {
+    private addShadow(shadows: any, start: number, end: number) {
         for (let i = 0; i < shadows.length; i++) {
             // check if entirely contained in existing shadow
             if (start >= shadows[i].start && end <= shadows[i].end) {

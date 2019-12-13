@@ -11,7 +11,7 @@ export class CharacterTrait {
     public static getTraitsJSONString() {
         return JSON.stringify(CharacterTrait.getTraitList());
     }
-    public static traitExists(id) {
+    public static traitExists(id: string) {
         return characterTraits.hasOwnProperty(id);
     }
     public static get(id: CharacterTraitID) {
@@ -54,7 +54,7 @@ fs.readdir('res/trait', (dir_err, filenames) => {
             }
             const id = filename.split('.')[0];
             const json = JSON.parse(content);
-            characterTraits[id] = new CharacterTrait(id, json.buyable, json.cost, json.name, json.description, json.effects.map((effect) => /*CharacterEffect.get(*/effect/*)*/)); // TODO: uncomment block comments once effects are a class rather than a raw string
+            characterTraits[id] = new CharacterTrait(id, json.buyable, json.cost, json.name, json.description, json.effects.map((effect: string) => /*CharacterEffect.get(*/effect/*)*/)); // TODO: uncomment block comments once effects are a class rather than a raw string
         });
     });
 });

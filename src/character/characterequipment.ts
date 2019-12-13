@@ -35,7 +35,7 @@ export enum EQUIPMENT_SLOT {
 }*/
 
 export class CharacterEquipment {
-    public static fromJSON(json) {
+    public static fromJSON(json: any) {
         const ret = new CharacterEquipment();
         if (!json) {
             return ret;
@@ -43,7 +43,7 @@ export class CharacterEquipment {
         ret.inventory = Inventory.fromJSON(json.inventory);
         if (json.equipped) {
             for (const slot of Object.keys(json.equipped)) {
-                ret.equipment[EQUIPMENT_SLOT[slot as string]] = Item.fromJSON(json.equipped[slot]);
+                ret.equipment[EQUIPMENT_SLOT[slot as keyof typeof EQUIPMENT_SLOT]] = Item.fromJSON(json.equipped[slot]);
             }
         }
         return ret;
@@ -84,11 +84,11 @@ export class CharacterEquipment {
         this.equipment[slot] = null;
     }
     public toJSON() {
-        const equipped = {};
+        const equipped: { [id: string]: any; } = {};
         for (const slot_name in EQUIPMENT_SLOT) {
             if (isNaN(Number(slot_name))) {
-                const item = this.equipment[EQUIPMENT_SLOT[slot_name]];
-                equipped[slot_name] = item && item.toJSON();
+                const item = this.equipment[EQUIPMENT_SLOT[slot_name as keyof typeof EQUIPMENT_SLOT]];
+                equipped[slot_name as keyof typeof EQUIPMENT_SLOT] = item && item.toJSON();
             }
         }
         return {

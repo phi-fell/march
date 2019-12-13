@@ -11,7 +11,7 @@ import { Location } from './location';
 import { Random } from './math/random';
 import { User } from './user';
 
-const players = {};
+const players: { [id: string]: Player; } = {};
 
 export enum ACTION_TYPE {
     WAIT,
@@ -166,7 +166,7 @@ export class Player extends Entity {
     public static generateNewPlayerID() {
         return Random.uuid();
     }
-    public static accessPlayer(id) {
+    public static accessPlayer(id: string) {
         return players[id];
     }
     public static createPlayer(name: string, sheet: CharacterSheet): Player {
@@ -175,7 +175,12 @@ export class Player extends Entity {
         plr.saveToDisk();
         return plr;
     }
-    public static loadPlayer(id, callback) {
+    public static loadPlayer(id: string | null, callback: any) {
+        if (id === null) {
+            return process.nextTick(() => {
+                callback('Cannot load player id null!', null);
+            });
+        }
         if (id in players) {
             return process.nextTick(() => {
                 callback(null, players[id]);
@@ -187,12 +192,12 @@ export class Player extends Entity {
             }
             const plrdat = JSON.parse('' + data);
             const loc: Location = Location.fromJSON(plrdat.location);
-            Instance.loadInstance(loc.instance_id, (inst_err, inst) => {
+            Instance.loadInstance(loc.instance_id, (inst_err: any, _inst: any) => {
                 if (inst_err) {
                     console.log(inst_err);
                     return callback(inst_err);
                 }
-                const ret = new Player(id, plrdat.name, loc, DIRECTION[plrdat.direction as string]);
+                const ret = new Player(id, plrdat.name, loc, DIRECTION[plrdat.direction as keyof typeof DIRECTION]);
                 ret.charSheet = CharacterSheet.fromJSON(plrdat.sheet);
                 callback(null, ret);
             });

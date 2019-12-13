@@ -1,4 +1,5 @@
 import { createContext, runInContext } from 'vm';
+
 import { Entity } from './entity';
 import { Instance } from './instance';
 import { Player } from './player';
@@ -9,7 +10,7 @@ class Logger {
     constructor() {
         //
     }
-    public log(s) {
+    public log(s: string) {
         this._buf += s + '\n';
     }
     public getLog() {
@@ -30,7 +31,7 @@ const sandbox = {
 };
 const context = createContext(sandbox);
 
-export function executeCmd(cmd) {
+export function executeCmd(cmd: string) {
     try {
         log.clear();
         const ret = runInContext(cmd, context);

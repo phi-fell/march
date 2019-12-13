@@ -17,7 +17,7 @@ export class Portal {
             return callback(null, this.destination);
         }
         if (this.destination) {
-            return Instance.loadInstance(this.destination.instance_id, (err) => {
+            return Instance.loadInstance(this.destination.instance_id, (err: any) => {
                 return callback(err, this.destination);
             });
         }

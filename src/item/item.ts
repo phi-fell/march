@@ -77,7 +77,7 @@ export class Item {
     }
 }
 
-function addItem(dir, filename) {
+function addItem(dir: string, filename: string) {
     fs.readFile(dir + '/' + filename, 'utf-8', (err, content) => {
         if (err) {
             return console.log(err);
@@ -88,7 +88,7 @@ function addItem(dir, filename) {
         Item.addSchema(schema_id, Item.fromJSON(schema));
     });
 }
-function addItemDirectory(root, subdirectory: string | null = null) {
+function addItemDirectory(root: string, subdirectory: string | null = null) {
     const directory = root + (subdirectory ? ('/' + subdirectory) : '');
     fs.readdir(directory, (dir_err, filenames) => {
         if (dir_err) {

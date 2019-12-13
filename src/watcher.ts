@@ -1,11 +1,11 @@
 import { exec, execSync, spawn } from 'child_process';
 import { readFileSync, writeFileSync } from 'fs';
 
-function execute(command, callback) {
+function execute(command: string, callback: any) {
     exec(command, (error, stdout, stderr) => { callback(stdout); });
 }
 
-function executeSync(command) {
+function executeSync(command: string) {
     execSync(command, { 'stdio': 'inherit' });
 }
 
@@ -28,7 +28,7 @@ class Watcher {
     }
     public start() {
         execute('git checkout master && git pull', () => {
-            execute('git log', (output) => {
+            execute('git log', (output: string) => {
                 const regex = /(?:commit )([a-z0-9]+)(?:[\n]*Author[^\n]*)(?:[\n]Date[^\n]*[\s]*)([^\n]*)/g;
                 let match = regex.exec(output);
                 const versions: any[] = [];
@@ -60,7 +60,7 @@ class Watcher {
                         'stdio': [0, 1, 2, 'ipc'],
                     },
                 );
-                this.watched_process.on('exit', (code, signal) => {
+                this.watched_process.on('exit', (code: number, signal: string) => {
                     if (signal) {
                         console.log('child crashed with code ' + code + ' and signal ' + signal);
                     } else {

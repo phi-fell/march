@@ -1,4 +1,5 @@
 import fs = require('fs');
+import { Socket } from 'socket.io';
 
 import { DIRECTION } from './direction';
 import { Random } from './math/random';
@@ -6,13 +7,13 @@ import { MoveAction } from './player';
 import { User } from './user';
 import { launch_id, version } from './version';
 
-function getHelp(socket) {
+function getHelp(socket: Socket) {
     socket.emit('chat message', 'GotG V' + version + ' Launch_ID[' + launch_id + ']');
     Object.keys(commands).forEach((cmd) => {
         socket.emit('chat message', '/' + cmd + ': ' + commands[cmd].description);
     });
 }
-function reportBug(socket, description) {
+function reportBug(socket: Socket, description: string) {
     fs.writeFile('bugs/' + Random.uuid() + '.bug', description, (err) => {
         if (err) {
             console.log('Error in writing reported bug!!!');
@@ -24,19 +25,19 @@ function reportBug(socket, description) {
 const commands: any = {
     '?': {
         'description': 'display help dialog',
-        'exec': (user: User, tok) => {
+        'exec': (user: User, _tok: any) => {
             getHelp(user.socket);
         },
     },
     'help': {
         'description': 'display help dialog',
-        'exec': (user: User, tok) => {
+        'exec': (user: User, _tok: any) => {
             getHelp(user.socket);
         },
     },
     'bug': {
         'description': 'report a bug with the game <3',
-        'exec': (user: User, tok) => {
+        'exec': (user: User, tok: any) => {
             if (tok.length > 0) {
                 reportBug(user.socket,
                     (new Date()).toDateString() + '\n' + (new Date()).toTimeString()
@@ -50,7 +51,7 @@ const commands: any = {
     },
     'admin': {
         'description': '',
-        'exec': (user: User, tok) => {
+        'exec': (user: User, tok: any) => {
             /*
             if (tok.length >= 2) {
                 fs.readFile("admin/" + tok[0], function (err, data) {
@@ -66,7 +67,7 @@ const commands: any = {
     },
     'kick': {
         'description': '',
-        'exec': (user: User, tok) => {
+        'exec': (user: User, tok: any) => {
             /*
             if (clientData[socket.id].user.privilege == "admin") {
                 if (tok.length < 1) {
@@ -87,7 +88,7 @@ const commands: any = {
     },
     'name': {
         'description': 'Change player\'s name',
-        'exec': (user: User, tok) => {
+        'exec': (user: User, tok: any) => {
             if (user.player) {
                 const newName: string = tok.join(' ');
                 if (newName.length > 16) {
@@ -105,7 +106,7 @@ const commands: any = {
     },
     'email': {
         'description': 'Set email',
-        'exec': (user: User, tok) => {
+        'exec': (user: User, tok: any) => {
             if (tok.length > 0) {
                 user.email = tok.join(' ');
                 user.socket.emit('chat message', 'Your email has been set to "' + user.email + '"');
@@ -118,7 +119,7 @@ const commands: any = {
     },
     'whisper': {
         'description': '',
-        'exec': (user: User, tok) => {
+        'exec': (user: User, tok: any) => {
             /*
             if (tok.length < 1) {
                 socket.emit('chat message', "Please enter a user to whisper to")
@@ -137,10 +138,10 @@ const commands: any = {
     },
     'move': {
         'description': 'Move in a direction',
-        'exec': (user: User, tok) => {
+        'exec': (user: User, tok: any) => {
             if (user.player) {
                 if (tok[0] in DIRECTION && isNaN(Number(tok[0]))) {
-                    user.player.setAction(new MoveAction(DIRECTION[tok[0] as string]));
+                    user.player.setAction(new MoveAction(DIRECTION[tok[0] as keyof typeof DIRECTION]));
                 } else {
                     user.socket.emit('chat message', 'Invalid move direction: ' + tok[0]);
                 }
@@ -151,7 +152,7 @@ const commands: any = {
     },
 };
 
-export function execute(user: User, cmd, tok) {
+export function execute(user: User, cmd: string, tok: any) {
     if (commands[cmd]) {
         commands[cmd].exec(user, tok);
     } else {

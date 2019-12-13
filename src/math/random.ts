@@ -12,7 +12,7 @@ export class Random {
     public static floatRange(min_inclusive: number, max_exclusive: number): number {
         return Random.r.floatRange(min_inclusive, max_exclusive);
     }
-    public static int(min_inclusive, max_exclusive): number {
+    public static int(min_inclusive: number, max_exclusive: number): number {
         return Random.r.int(min_inclusive, max_exclusive);
     }
     public static uuid() {
@@ -56,7 +56,7 @@ export class Random {
     public floatRange(min_inclusive: number, max_exclusive: number): number {
         return (this.float() * (max_exclusive - min_inclusive)) + min_inclusive;
     }
-    public int(min_inclusive, max_exclusive): number {
+    public int(min_inclusive: number, max_exclusive: number): number {
         return Math.floor(this.floatRange(min_inclusive, max_exclusive));
     }
     public getDeterministicID(): string {

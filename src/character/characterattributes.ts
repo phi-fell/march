@@ -84,7 +84,7 @@ export class CharacterAttributes {
         return ret;
     }
     public toJSON() {
-        const ret = {};
+        const ret: { [id: string]: any; } = {};
         for (let i = 0; i < ATTRIBUTE_COUNT; i++) {
             ret[ATTRIBUTE[i]] = this.values[i];
         }

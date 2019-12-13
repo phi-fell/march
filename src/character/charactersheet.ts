@@ -227,7 +227,7 @@ export class CharacterSheet {
             this._status.pools[RESOURCE.BONE].quantity -= amount;
         }
     }
-    protected takeSharpDamage(amount) {
+    protected takeSharpDamage(amount: number) {
         if (this.hasResource(RESOURCE.FLESH)) {
             this._status.pools[RESOURCE.FLESH].quantity -= amount;
             amount = 0;
@@ -242,7 +242,7 @@ export class CharacterSheet {
     private recalculateDerivedStats() {
         for (const type in RESOURCE) {
             if (isNaN(Number(type))) {
-                this._hasPool[RESOURCE[type]] = true;
+                this._hasPool[RESOURCE[type as keyof typeof RESOURCE]] = true;
             }
         }
         if (this._race.traits.includes('bloodless')) {

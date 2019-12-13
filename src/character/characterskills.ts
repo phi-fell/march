@@ -89,7 +89,7 @@ export class CharacterSkills {
         return ret;
     }
     public toJSON() {
-        const ret = {};
+        const ret: { [id: string]: any; } = {};
         for (let i = 0; i < SKILL_COUNT; i++) {
             ret[SKILL[i]] = this.values[i];
         }

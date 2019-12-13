@@ -8,7 +8,7 @@ import { spawnMobFromSchema } from './mobschema';
 
 interface InstanceSchema {
     name: string;
-    generation: string;
+    generation: keyof typeof INSTANCE_GEN_TYPE;
     width: number;
     height: number;
     mobs: any[];

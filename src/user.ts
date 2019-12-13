@@ -30,7 +30,7 @@ import {
 } from './player';
 import { getTilePalette } from './tile';
 
-const users = {};
+const users: { [id: string]: User; } = {};
 
 export class User {
     public id: string;
@@ -40,7 +40,7 @@ export class User {
     public playerid: string | null;
     public player: Player | null;
     private _email: string | null;
-    constructor(id, name) {
+    constructor(id: string, name: string) {
         this.id = id;
         this.name = name;
         this.online = false;
@@ -154,7 +154,7 @@ export class User {
                         user.player.setAction(new EquipAction(msg.item_id));
                         break;
                     case 'unequip':
-                        user.player.setAction(new UnequipAction(EQUIPMENT_SLOT[msg.slot as string]));
+                        user.player.setAction(new UnequipAction(EQUIPMENT_SLOT[msg.slot as keyof typeof EQUIPMENT_SLOT]));
                         break;
                     default:
                         sock.emit('log', 'unknown action: ' + msg.action);
@@ -167,7 +167,7 @@ export class User {
         sock.on('levelup', (msg) => {
             if (user.player) {
                 if (msg.type === 'attribute') {
-                    user.player.charSheet.levelUpAttribute(ATTRIBUTE[msg.attr as string]);
+                    user.player.charSheet.levelUpAttribute(ATTRIBUTE[msg.attr as keyof typeof ATTRIBUTE]);
                     user.player.pushUpdate();
                 } else {
                     console.log('unknown level up type requested: ' + msg.type);
@@ -207,13 +207,13 @@ export class User {
         this.online = false;
         this.unload();
     }
-    public loadFromData(data) {
+    public loadFromData(data: any) {
         this.id = data.id;
         this.name = data.name;
         if (data.playerid) {
             this.playerid = data.playerid;
             const user: User = this;
-            Player.loadPlayer(this.playerid, (err, plr) => {
+            Player.loadPlayer(this.playerid, (err: any, plr: Player | null) => {
                 if (err) {
                     console.log(err);
                 } else {
@@ -247,18 +247,18 @@ export class User {
             }
         });
     }
-    public getFreshAuthToken(callback) {
+    public getFreshAuthToken(callback: any) {
         generateAndGetFreshAuthTokenForId(this.id, callback);
     }
 }
 
-export function getLoadedUserByID(id) {
+export function getLoadedUserByID(id: string) {
     if (id in users) {
         return users[id];
     }
     return null;
 }
-export function getLoadedUserByName(name): User | null {
+export function getLoadedUserByName(name: string): User | null {
     const ret = Object.values(users).find((u: any) => u.name === name);
     if (ret) {
         return ret as User;
@@ -277,8 +277,8 @@ function generateUserID() {
     return id;
 }
 
-export function createNewUser(name, pass, callback) {
-    getIfUsernameExists(name, (err, exists) => {
+export function createNewUser(name: string, pass: string, callback: any) {
+    getIfUsernameExists(name, (_err: any, exists: any) => {
         if (exists) {
             return callback('Username in use', null);
         }
@@ -291,13 +291,13 @@ export function createNewUser(name, pass, callback) {
         return callback(null, ret);
     });
 }
-export function validateCredentialsByAuthToken(username, token, callback) {
+export function validateCredentialsByAuthToken(username: string, token: string, callback: any) {
     if (username && token && callback) {
-        getUserIdFromName(username, (err, id) => {
+        getUserIdFromName(username, (err: any, id: string) => {
             if (err) {
                 return callback(err, false);
             }
-            return validateUserByIdAndAuthToken(id, token, (val_err, res) => {
+            return validateUserByIdAndAuthToken(id, token, (val_err: any, res: boolean) => {
                 if (val_err) {
                     return callback(val_err, false);
                 }
@@ -314,18 +314,18 @@ export function validateCredentialsByAuthToken(username, token, callback) {
         } catch (e) { /* nothing */ }
     }
 }
-export function validateCredentialsByPassAndGetAuthToken(username, pass, callback) {
+export function validateCredentialsByPassAndGetAuthToken(username: string, pass: string, callback: any) {
     if (username && pass && callback) {
-        getUserIdFromName(username, (get_err, id) => {
+        getUserIdFromName(username, (get_err: any, id: string) => {
             if (get_err) {
                 return callback(get_err, false);
             }
-            return validateUserByIdAndPass(id, pass, (val_err, res) => {
+            return validateUserByIdAndPass(id, pass, (val_err: any, res: boolean) => {
                 if (val_err) {
                     return callback(val_err, false);
                 }
                 if (res) {
-                    generateAndGetFreshAuthTokenForId(id, (_err, token) => {
+                    generateAndGetFreshAuthTokenForId(id, (_err: any, token: any) => {
                         callback(null, true, token);
                     });
                 } else {
@@ -337,15 +337,15 @@ export function validateCredentialsByPassAndGetAuthToken(username, pass, callbac
         callback('invalid params', false);
     }
 }
-export function loadUserByName(name, callback) {
+export function loadUserByName(name: string, callback: any) {
     if (!callback) {
-        callback = (err) => {
+        callback = (err: any) => {
             if (err) {
                 console.log(err);
             }
         };
     }
-    getUserIdFromName(name, (auth_err, id) => {
+    getUserIdFromName(name, (auth_err: any, id: string) => {
         if (auth_err) {
             callback(auth_err);
         } else {

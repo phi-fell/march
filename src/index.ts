@@ -48,7 +48,7 @@ if (!UNLOCK_DIAGNOSTIC) {
     admin_token = String(readFileSync('admin/token'));
 }
 
-function validateAdminToken(token) {
+function validateAdminToken(token: string) {
     if (UNLOCK_DIAGNOSTIC) {
         return true;
     }
@@ -200,14 +200,14 @@ if (PUBLISH_DIAGNOSTIC_DATA) {
 
 app.get('/character_creation', (req: any, res: any) => {
     if (req.cookies.user && req.cookies.auth) {
-        validateCredentialsByAuthToken(req.cookies.user, req.cookies.auth, (validate_err, valid) => {
+        validateCredentialsByAuthToken(req.cookies.user, req.cookies.auth, (validate_err: any, valid: boolean) => {
             if (validate_err || !valid) {
                 return res.redirect('/login');
             }
             if (getLoadedUserByName(req.cookies.user)) {
                 return res.send('You are already logged in on a different window or device.');
             }
-            loadUserByName(req.cookies.user, (load_err, user) => {
+            loadUserByName(req.cookies.user, (load_err: any, user: User) => {
                 if (load_err) {
                     console.log(load_err);
                     return res.send('Error: Could not load user!\n'
@@ -238,7 +238,7 @@ app.post('/character_creation', (req: any, res: any) => {
         });
         return;
     }
-    validateCredentialsByAuthToken(req.cookies.user, req.cookies.auth, (validate_err, valid) => {
+    validateCredentialsByAuthToken(req.cookies.user, req.cookies.auth, (validate_err: any, valid: boolean) => {
         if (validate_err || !valid) {
             res.send({
                 'status': 'fail',
@@ -276,7 +276,7 @@ app.post('/character_creation', (req: any, res: any) => {
             });
             return;
         }
-        loadUserByName(req.cookies.user, (load_err, user) => {
+        loadUserByName(req.cookies.user, (load_err: any, user: User) => {
             if (load_err) {
                 console.log(load_err);
                 res.send({

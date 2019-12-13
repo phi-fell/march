@@ -92,10 +92,10 @@ export class CharacterRace {
     public static getPlayableRacesJSONString() {
         return JSON.stringify(CharacterRace.getPlayableRaces());
     }
-    public static raceExists(id) {
+    public static raceExists(id: string) {
         return characterRaceProps.hasOwnProperty(id);
     }
-    public static fromJSON(json) {
+    public static fromJSON(json: any) {
         return new CharacterRace(json.raceID);
     }
     constructor(private raceID: CharacterRaceID = NO_RACE) {

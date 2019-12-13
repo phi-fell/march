@@ -21,7 +21,7 @@ export class CharacterStatus {
     constructor() {
         for (const type in RESOURCE) {
             if (isNaN(Number(type))) {
-                this.pools[RESOURCE[type]] = new CharacterResource(RESOURCE[type as string]);
+                this.pools[RESOURCE[type as keyof typeof RESOURCE]] = new CharacterResource(RESOURCE[type as keyof typeof RESOURCE]);
             }
         }
     }
@@ -29,7 +29,7 @@ export class CharacterStatus {
         this.action_points = this.max_action_points;
         for (const type in RESOURCE) {
             if (isNaN(Number(type))) {
-                (this.pools[RESOURCE[type]] as CharacterResource).refillToCapacity();
+                (this.pools[RESOURCE[type as keyof typeof RESOURCE]] as CharacterResource).refillToCapacity();
             }
         }
     }
@@ -57,7 +57,7 @@ export class CharacterStatus {
         this._rest = -1;
     }
     public toJSON() {
-        const ret = {
+        const ret: { [id: string]: any; } = {
             'action_points': this.action_points,
             'max_action_points': this.max_action_points,
             'action_point_recovery': this.action_point_recovery,

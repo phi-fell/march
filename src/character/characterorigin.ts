@@ -7,8 +7,8 @@ export enum ORIGIN {
 }
 
 export class CharacterOrigin {
-    public static fromJSON(json) {
-        return new CharacterOrigin(ORIGIN[json.type as string]);
+    public static fromJSON(json: any) {
+        return new CharacterOrigin(ORIGIN[json.type as keyof typeof ORIGIN]);
     }
     constructor(private _type: ORIGIN) { }
     get type(): ORIGIN {
