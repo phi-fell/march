@@ -1,4 +1,5 @@
 import fs = require('fs');
+import { resolve } from 'path';
 
 import { Instance, InstanceAttributes } from './instance';
 import { INSTANCE_GEN_TYPE } from './instancegenerator';
@@ -52,18 +53,34 @@ export function getRandomAdjacency(schema_id: InstanceSchemaID) {
     }
 }
 
-fs.readdir('res/environment', (dir_err, filenames) => {
-    if (dir_err) {
-        return console.log(dir_err);
-    }
-    filenames.forEach((filename) => {
-        fs.readFile('res/environment/' + filename, 'utf-8', (read_err, content) => {
-            if (read_err) {
-                return console.log(read_err);
-            }
-            const name = filename.split('.')[0];
-            const props = JSON.parse(content);
-            instanceSchemas[name] = props as InstanceSchema;
+function addSchema(dir: string, filename: string) {
+    fs.readFile(dir + '/' + filename, 'utf-8', (err, content) => {
+        if (err) {
+            return console.log(err);
+        }
+        const name = filename.split('.')[0];
+        const props = JSON.parse(content);
+        instanceSchemas[name] = props as InstanceSchema;
+    });
+}
+
+function addSchemaDirectory(root: string, subdirectory: string | null = null) {
+    const directory = root + (subdirectory ? ('/' + subdirectory) : '');
+    fs.readdir(directory, (dir_err, filenames) => {
+        if (dir_err) {
+            return console.log(dir_err);
+        }
+        filenames.forEach((filename) => {
+            const file = resolve(directory, filename);
+            fs.stat(file, (stat_err, stat) => {
+                if (stat && stat.isDirectory()) {
+                    addSchemaDirectory(root, (subdirectory ? (subdirectory + '/') : '') + filename);
+                } else {
+                    addSchema(root, (subdirectory ? (subdirectory + '/') : '') + filename);
+                }
+            });
         });
     });
-});
+}
+
+addSchemaDirectory('res/environment');

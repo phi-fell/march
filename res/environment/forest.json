@@ -11,7 +11,7 @@
     ],
     "adjacencies": [
         {
-            "id": "slime_cave_entrance",
+            "id": "slime_cave/entrance",
             "weight": 1
         }
     ]

@@ -43,7 +43,7 @@ export class InstanceGenerator {
                     }
                 }
                 inst.tiles[6][6] = getTileFromName('stone_stairs');
-                inst.portals.push(new Portal(new Location(6, 6, inst.id), 'slime_cave_upper'));
+                inst.portals.push(new Portal(new Location(6, 6, inst.id), 'slime_cave/upper'));
                 break;
             case INSTANCE_GEN_TYPE.MAZE:
                 for (let i = 0; i < inst.attributes.width; i++) {
