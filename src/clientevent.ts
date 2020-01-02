@@ -1,4 +1,5 @@
 import { Damage } from './damage';
+import { DIRECTION } from './direction';
 import { Entity } from './entity';
 
 export enum EVENT_TYPE {
@@ -27,8 +28,13 @@ export class NewRoundEvent implements ClientEvent {
 
 export class MoveEvent implements ClientEvent {
     public type: EVENT_TYPE.MOVE = EVENT_TYPE.MOVE;
+    constructor(public entity: Entity, public direction: DIRECTION) { }
     public toJSON(): object {
-        return { 'type': EVENT_TYPE[this.type] };
+        return {
+            'type': EVENT_TYPE[this.type],
+            'entity': this.entity.id,
+            'direction': DIRECTION[this.direction],
+        };
     }
 }
 
