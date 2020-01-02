@@ -9,9 +9,11 @@ var currentCache = "";
 
 var events = [];
 
-function handleNextEvent() {
+async function handleNextEvent() {
     if (events.length) {
-        doEvent(events.shift());
+        let event = events.shift();
+        printEvent(event);
+        await doEvent(event);
     }
 }
 
@@ -71,7 +73,37 @@ async function doEvent(event) {
             break;
         case 'MOVE':
             addMessage('SLEEPING...');
-            await sleep(1000);
+            let dx = 0;
+            let dy = 0;
+            switch (event.direction) {
+                case 'LEFT':
+                    dx = -1;
+                    break;
+                case 'RIGHT':
+                    dx = 1;
+                    break;
+                case 'UP':
+                    dy = -1;
+                    break;
+                case 'DOWN':
+                    dy = 1;
+                    break;
+            }
+            let sx = game.game_data.mobs[event.entity].location.x;
+            let sy = game.game_data.mobs[event.entity].location.y;
+            let fx = sx + dx;
+            let fy = sy + dy;
+            const steps = 10;
+            const total_time = 500;
+            for (let i = 0; i < steps; i++) {
+                game.game_data.mobs[event.entity].location.x = sx + (i * dx / steps);
+                game.game_data.mobs[event.entity].location.y = sy + (i * dy / steps);
+                game.draw();
+                await sleep(total_time / steps);
+            }
+            game.game_data.mobs[event.entity].location.x = fx;
+            game.game_data.mobs[event.entity].location.y = fy;
+            game.draw();
             addMessage('DONE');
             break;
         case 'ATTACK':
@@ -212,10 +244,9 @@ $(function () {
             addMessage('DESYNCHRONIZED FROM SERVER! please reconnect!');
             socket.disconnect();
         } else {
+            events.push(msg);
             game.game_data_version++;
         }
-        printEvent(msg);
-        doEvent(msg);
     });
     socket.on('pong_cmd', function (msg) {
         $('#messages').append($('<li>').text('pong! ' + (Date.now() - msg) + 'ms'));
@@ -224,7 +255,18 @@ $(function () {
         game.loadPalette(msg);
     });
     socket.on('update', function (msg) {
-        game.game_data.mobs = msg.mobs;
+        //add missing mobs
+        for (let id in msg.mobs) {
+            if (!game.game_data.mobs[id]) {
+                game.game_data.mobs[id] = msg.mobs[id];
+            }
+        }
+        //remove mobs that are gone
+        for (let id in game.game_data.mobs) {
+            if (!msg.mobs[id]) {
+                delete game.game_data.mobs[id];
+            }
+        }
         game.tiles = msg.tiles;
         game.tileAdjacencies = msg.tileAdjacencies;
         game.boardInfo = msg.info;
@@ -245,8 +287,8 @@ $(function () {
 });
 
 
-let handleEvents = () => {
-    handleNextEvent();
+let handleEvents = async () => {
+    await handleNextEvent();
     setTimeout(handleEvents, 0);
 };
 handleEvents();
