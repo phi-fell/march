@@ -261,12 +261,6 @@ $(function () {
         game.loadPalette(msg);
     });
     socket.on('update', function (msg) {
-        //add missing mobs
-        for (let id in msg.mobs) {
-            if (!game.game_data.mobs[id]) {
-                game.game_data.mobs[id] = msg.mobs[id];
-            }
-        }
         game.tiles = msg.tiles;
         game.tileAdjacencies = msg.tileAdjacencies;
         game.boardInfo = msg.info;

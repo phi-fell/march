@@ -2,7 +2,7 @@ import fs = require('fs');
 
 import { CharacterStatus } from './character/characterstatus';
 import { ClientEvent, NewRoundEvent } from './clientevent';
-import { ACTION_STATUS, Entity, MAX_VISIBILITY_RADIUS } from './entity';
+import { ACTION_STATUS, Entity } from './entity';
 import { INSTANCE_GEN_TYPE, InstanceGenerator } from './instancegenerator';
 import { InstanceSchemaID } from './instanceschema';
 import { Inventory } from './item/inventory';
@@ -114,7 +114,6 @@ export class Instance {
             };
         }
         const MAX_RADIUS = 10;
-        const visible: boolean[][] = inst.getTileVisibility(plr, MAX_RADIUS);
         const x0 = plr.location.x - MAX_RADIUS;
         const y0 = plr.location.y - MAX_RADIUS;
         const x1 = plr.location.x + MAX_RADIUS;
@@ -123,7 +122,7 @@ export class Instance {
             retTiles[i - x0] = [];
             tileAdjacencies[i - x0] = [];
             for (let j = y0; j <= y1; j++) {
-                if (i < 0 || j < 0 || i >= inst.attributes.width || j >= inst.attributes.height || !visible[i][j]) {
+                if (i < 0 || j < 0 || i >= inst.attributes.width || j >= inst.attributes.height || !plr.canSee(i, j)) {
                     retTiles[i - x0][j - y0] = NO_TILE;
                     tileAdjacencies[i - x0][j - y0] = 0;
                 } else {
@@ -148,7 +147,7 @@ export class Instance {
             }
         }
         for (const mob of inst.mobs) {
-            if (visible[mob.location.x][mob.location.y]) {
+            if (plr.canSee(mob.location.x, mob.location.y)) {
                 retMobs[mob.id] = {
                     'name': mob.name,
                     'location': mob.location,
@@ -164,7 +163,7 @@ export class Instance {
                 stack.location.x <= x1 &&
                 stack.location.y >= y0 &&
                 stack.location.y <= y1 &&
-                visible[stack.location.x][stack.location.y]
+                plr.canSee(stack.location.x, stack.location.y)
             ) {
                 retItems.push({
                     'item': stack.item.toJSON(),
@@ -186,7 +185,7 @@ export class Instance {
                 portal.location.x <= x1 &&
                 portal.location.y >= y0 &&
                 portal.location.y <= y1 &&
-                visible[portal.location.x][portal.location.y]
+                plr.canSee(portal.location.x, portal.location.y)
             ) {
                 retPortals.push({
                     'location': portal.location,
@@ -466,10 +465,9 @@ export class Instance {
     }
     public emit(event: ClientEvent, ...locations: Location[]) {
         for (const plr of this.players) {
-            const visible: boolean[][] = this.getTileVisibility(plr, MAX_VISIBILITY_RADIUS);
             let v = false;
             for (const loc of locations) {
-                if (visible[loc.x][loc.y]) {
+                if (plr.canSeeLoc(loc)) {
                     v = true;
                     break;
                 }
@@ -484,16 +482,15 @@ export class Instance {
         // if whitelist is empty, emit to all who can see NONE of the blacklist
         // if blacklist is empty this is the same as: emit(event, ...whitelist)
         for (const plr of this.players) {
-            const visible: boolean[][] = this.getTileVisibility(plr, MAX_VISIBILITY_RADIUS);
             let v = false;
             for (const loc of whitelist) {
-                if (visible[loc.x][loc.y]) {
+                if (plr.canSeeLoc(loc)) {
                     v = true;
                     break;
                 }
             }
             for (const loc of blacklist) {
-                if (visible[loc.x][loc.y]) {
+                if (plr.canSeeLoc(loc)) {
                     v = false;
                     break;
                 }

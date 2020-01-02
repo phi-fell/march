@@ -1,7 +1,6 @@
 import { Damage } from './damage';
 import { DIRECTION } from './direction';
 import { Entity } from './entity';
-import { Location } from './location';
 
 export enum EVENT_TYPE {
     NEW_ROUND,
@@ -43,7 +42,7 @@ export class MoveEvent implements ClientEvent {
 
 export class AddMobEvent implements ClientEvent {
     public type: EVENT_TYPE.ADD_MOB = EVENT_TYPE.ADD_MOB;
-    constructor(public entity: Entity, public location: Location) { }
+    constructor(public entity: Entity) { }
     public toJSON(): object {
         return {
             'type': EVENT_TYPE[this.type],
@@ -55,19 +54,17 @@ export class AddMobEvent implements ClientEvent {
                 'type': this.entity.schema_id,
                 'sheet': this.entity.charSheet.toJSON(), // TODO: limit what player can see
             },
-            'location': this.location,
         };
     }
 }
 
 export class RemoveMobEvent implements ClientEvent {
     public type: EVENT_TYPE.REMOVE_MOB = EVENT_TYPE.REMOVE_MOB;
-    constructor(public entity: Entity, public location: Location) { }
+    constructor(public entity: Entity) { }
     public toJSON(): object {
         return {
             'type': EVENT_TYPE[this.type],
             'mob': this.entity.id,
-            'location': this.location,
         };
     }
 }

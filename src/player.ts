@@ -195,7 +195,7 @@ export class Player extends Entity {
     public user: User | null;
     public active: boolean;
     protected queuedAction: PlayerAction | null;
-    private visibleMobs: string[] = [];
+    private visibleMobs: Entity[] = [];
     private constructor(id: string, name: string, loc: Location, dir: DIRECTION = DIRECTION.UP) {
         super(id, name, 'player', loc, dir);
         this.user = null;
@@ -232,6 +232,7 @@ export class Player extends Entity {
         if (inst) {
             this.visibility = inst.getTileVisibility(this, MAX_VISIBILITY_RADIUS);
         }
+        this.recalculateVisibleMobs();
     }
     public setAction(action: PlayerAction) {
         this.queuedAction = action;
@@ -473,11 +474,36 @@ export class Player extends Entity {
         if (inst.getMobInLocation(to.x, to.y)) {
             return false;
         }
-        inst.emitWB(new AddMobEvent(this, this.location), [to], [this.location]);
+        inst.emitWB(new AddMobEvent(this), [to], [this.location]);
         inst.emit(new MoveEvent(this, dir), this.location, to);
-        inst.emitWB(new RemoveMobEvent(this, this.location), [this.location], [to]);
+        inst.emitWB(new RemoveMobEvent(this), [this.location], [to]);
         this.location = to;
         return true;
+    }
+    protected recalculateVisibleMobs() {
+        const vis = [];
+        const inst = Instance.getLoadedInstanceById(this.location.instance_id);
+        if (inst) {
+            for (const mob of inst.mobs) {
+                if (this.canSeeLoc(mob.location)) {
+                    vis.push(mob);
+                }
+            }
+        }
+        for (const mob of this.visibleMobs) {
+            if (vis.find((e) => e.id === mob.id)) {
+                //no need to remove
+            } else {
+                this.user!.sendEvent(new RemoveMobEvent(mob));
+            }
+        }
+        for (const mob of vis) {
+            if (this.visibleMobs.find((e) => e.id === mob.id)) {
+                //no need to add
+            } else {
+                this.user!.sendEvent(new AddMobEvent(mob));
+            }
+        }
     }
     protected handleDeath() {
         super.handleDeath();

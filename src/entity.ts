@@ -32,13 +32,7 @@ export class Entity {
         this.charSheet = new CharacterSheet();
         this._location = loc;
         this.lastHitSheet = undefined;
-        this.visibility = [];
-        for (let i = -MAX_VISIBILITY_RADIUS; i <= MAX_VISIBILITY_RADIUS; i++) {
-            this.visibility[i] = [];
-            for (let j = -MAX_VISIBILITY_RADIUS; j <= MAX_VISIBILITY_RADIUS; j++) {
-                this.visibility[i][j] = false;
-            }
-        }
+        this.visibility = [[]];
         const inst = Instance.getLoadedInstanceById(loc.instance_id);
         if (inst) {
             inst.addMob(this);
@@ -69,6 +63,12 @@ export class Entity {
         if (inst) {
             this.visibility = inst.getTileVisibility(this, MAX_VISIBILITY_RADIUS);
         }
+    }
+    public canSee(x: number, y: number) {
+        return this.visibility[x] && this.visibility[x][y];
+    }
+    public canSeeLoc(location: Location) {
+        return this.location.instance_id === location.instance_id && this.canSee(location.x, location.y);
     }
     public doNextAction(): ACTION_STATUS {
         if (this.charSheet.hasSufficientAP(MOVE_AP)) {
@@ -110,9 +110,9 @@ export class Entity {
                 mobInWay.hit(this);
                 // TODO: send hit event
             } else {
-                inst.emitWB(new AddMobEvent(this, this.location), [to], [this.location]);
+                inst.emitWB(new AddMobEvent(this), [to], [this.location]);
                 inst.emit(new MoveEvent(this, dir), this.location, to);
-                inst.emitWB(new RemoveMobEvent(this, this.location), [this.location], [to]);
+                inst.emitWB(new RemoveMobEvent(this), [this.location], [to]);
                 this.location = to;
             }
         }
@@ -123,6 +123,8 @@ export class Entity {
         const inst = Instance.getLoadedInstanceById(this.location.instance_id);
         if (inst) {
             inst.dropInventory(this.charSheet.equipment.inventory, this.location);
+            // TODO: emit death event before or instead?
+            inst!.emit(new RemoveMobEvent(this), this.location);
         } else {
             console.log('Cannot drop items from mob killed in nonexistent location!');
         }
