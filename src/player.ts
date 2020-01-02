@@ -4,7 +4,7 @@ import { CharacterSheet } from './character/charactersheet';
 import { CharGen } from './chargen';
 import { AddMobEvent, MoveEvent, RemoveMobEvent } from './clientevent';
 import { DIRECTION, directionVectors } from './direction';
-import { ACTION_STATUS, Entity } from './entity';
+import { ACTION_STATUS, Entity, MAX_VISIBILITY_RADIUS } from './entity';
 import { Instance } from './instance';
 import { EQUIPMENT_SLOT } from './item/equipment_slot';
 import { WorldItemStack } from './item/worlditemstack';
@@ -228,6 +228,10 @@ export class Player extends Entity {
             }
         }
         this._location = loc;
+        const inst = Instance.getLoadedInstanceById(loc.instance_id);
+        if (inst) {
+            this.visibility = inst.getTileVisibility(this, MAX_VISIBILITY_RADIUS);
+        }
     }
     public setAction(action: PlayerAction) {
         this.queuedAction = action;
@@ -476,7 +480,7 @@ export class Player extends Entity {
         return true;
     }
     protected handleDeath() {
-        Instance.removeEntityFromWorld(this);
+        super.handleDeath();
         if (this.user) {
             this.user.player = null;
             this.user.playerid = null;

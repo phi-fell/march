@@ -20,8 +20,8 @@ export class Entity {
     }
     public charSheet: CharacterSheet;
     protected _location: Location;
-    private lastHitSheet: CharacterSheet | undefined;
-    private visibility: boolean[][];
+    protected lastHitSheet: CharacterSheet | undefined;
+    protected visibility: boolean[][];
     constructor(
         public id: string,
         public name: string,
