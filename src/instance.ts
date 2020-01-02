@@ -99,7 +99,7 @@ export class Instance {
         // return section of level around player, with Entities and such limited by what they percieve
         const retTiles: Tile[][] = [];
         const tileAdjacencies: number[][] = [];
-        const retMobs: any = [];
+        const retMobs: any = {};
         const retItems: any = [];
         const itemsOnGround: any = [];
         const retPortals: any = [];
@@ -149,13 +149,13 @@ export class Instance {
         }
         for (const mob of inst.mobs) {
             if (visible[mob.location.x][mob.location.y]) {
-                retMobs.push({
+                retMobs[mob.id] = {
                     'name': mob.name,
                     'location': mob.location,
                     'direction': mob.direction,
                     'type': mob.schema_id,
                     'sheet': mob.charSheet.toJSON(), // TODO: limit what player can see
-                });
+                };
             }
         }
         for (const stack of inst.items) {

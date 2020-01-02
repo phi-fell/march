@@ -15,8 +15,8 @@ class Game {
         //game data
         this.game_data_version = -1;
         this.game_data = {};
+        this.game_data.mobs = {}
         //old game data [DEPRECATED]
-        this.mobs = undefined;
         this.items = [];
         this.itemsOnGround = [];
         this.portals = [];
@@ -323,17 +323,17 @@ class Game {
                 let y = this.items[i].location.y - this.boardInfo.y;
                 this._drawItem(sprite, ((x - 1) * scale) + offsetX, ((y - 1) * scale) + offsetY, scale, scale);
             }
-            for (let i = 0; i < this.mobs.length; i++) {
-                let sprite = this.mobs[i].type;
-                let x = this.mobs[i].location.x - this.boardInfo.x;
-                let y = this.mobs[i].location.y - this.boardInfo.y;
+            for (let id in this.game_data.mobs) {
+                let sprite = this.game_data.mobs[id].type;
+                let x = this.game_data.mobs[id].location.x - this.boardInfo.x;
+                let y = this.game_data.mobs[id].location.y - this.boardInfo.y;
                 if (sprite === 'text') {
                     //this._drawSquare(((x - 1) * scale) + offsetX, ((y - 1) * scale) + offsetY, scale, scale);
-                    this._ctx.fillText(this.mobs[i].name, ((x - 0.5) * scale) + offsetX, ((y - 0.5) * scale) + offsetY);
+                    this._ctx.fillText(this.game_data.mobs[id].name, ((x - 0.5) * scale) + offsetX, ((y - 0.5) * scale) + offsetY);
                 } else {
-                    this._drawSprite(sprite, ((x - 1) * scale) + offsetX, ((y - 1) * scale) + offsetY, scale, scale, this.mobs[i].direction);
+                    this._drawSprite(sprite, ((x - 1) * scale) + offsetX, ((y - 1) * scale) + offsetY, scale, scale, this.game_data.mobs[id].direction);
                     //V displays action points on mobs
-                    //this._ctx.fillText(this.mobs[i].sheet.status.action_points + '/' + this.mobs[i].sheet.status.max_action_points + ' (+' + this.mobs[i].sheet.status.action_point_recovery + ')', ((x - 0.5) * scale) + offsetX, ((y - 0.5) * scale) + offsetY);
+                    //this._ctx.fillText(this.game_data.mobs[id].sheet.status.action_points + '/' + this.game_data.mobs[id].sheet.status.max_action_points + ' (+' + this.game_data.mobs[id].sheet.status.action_point_recovery + ')', ((x - 0.5) * scale) + offsetX, ((y - 0.5) * scale) + offsetY);
                 }
             }
         }
