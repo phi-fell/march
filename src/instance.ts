@@ -2,7 +2,7 @@ import fs = require('fs');
 
 import { CharacterStatus } from './character/characterstatus';
 import { ClientEvent, NewRoundEvent } from './clientevent';
-import { ACTION_STATUS, Entity } from './entity';
+import { ACTION_STATUS, Entity, MAX_VISIBILITY_RADIUS } from './entity';
 import { INSTANCE_GEN_TYPE, InstanceGenerator } from './instancegenerator';
 import { InstanceSchemaID } from './instanceschema';
 import { Inventory } from './item/inventory';
@@ -466,8 +466,41 @@ export class Instance {
     }
     public emit(event: ClientEvent, ...locations: Location[]) {
         for (const plr of this.players) {
-            // TODO: check if plr can see location
-            plr.user!.sendEvent(event);
+            const visible: boolean[][] = this.getTileVisibility(plr, MAX_VISIBILITY_RADIUS);
+            let v = false;
+            for (const loc of locations) {
+                if (visible[loc.x][loc.y]) {
+                    v = true;
+                    break;
+                }
+            }
+            if (v) {
+                plr.user!.sendEvent(event);
+            }
+        }
+    }
+    public emitWB(event: ClientEvent, whitelist: Location[], blacklist: Location[]) {
+        // emit only to players that can see at least one of the whitelist and NONE of the blacklist
+        // if whitelist is empty, emit to all who can see NONE of the blacklist
+        // if blacklist is empty this is the same as: emit(event, ...whitelist)
+        for (const plr of this.players) {
+            const visible: boolean[][] = this.getTileVisibility(plr, MAX_VISIBILITY_RADIUS);
+            let v = false;
+            for (const loc of whitelist) {
+                if (visible[loc.x][loc.y]) {
+                    v = true;
+                    break;
+                }
+            }
+            for (const loc of blacklist) {
+                if (visible[loc.x][loc.y]) {
+                    v = false;
+                    break;
+                }
+            }
+            if (v) {
+                plr.user!.sendEvent(event);
+            }
         }
     }
     public notifyOfPlayerAction(pID: string) {
@@ -493,6 +526,28 @@ export class Instance {
             }
         }
         this.updateAllPlayers();
+    }
+    public getTileVisibility(entity: Entity, RADIUS: number): boolean[][] {
+        const visible: boolean[][] = [];
+        for (let i = 0; i < this.attributes.width; i++) {
+            visible[i] = [];
+            for (let j = 0; j < this.attributes.height; j++) {
+                if (i >= entity.location.x - RADIUS &&
+                    i <= entity.location.x + RADIUS &&
+                    j >= entity.location.y - RADIUS &&
+                    j <= entity.location.y + RADIUS
+                ) {
+                    visible[i][j] = true;
+                } else {
+                    visible[i][j] = false;
+                }
+            }
+        }
+        this.shadowCast(visible, entity.location.x, entity.location.y, RADIUS, 1, true);
+        this.shadowCast(visible, entity.location.x, entity.location.y, RADIUS, -1, true);
+        this.shadowCast(visible, entity.location.x, entity.location.y, RADIUS, 1, false);
+        this.shadowCast(visible, entity.location.x, entity.location.y, RADIUS, -1, false);
+        return visible;
     }
     private performNextEntityAction() {
         if (this.mobs.length <= 0) {
@@ -617,27 +672,5 @@ export class Instance {
                 }
             }
         }
-    }
-    private getTileVisibility(player: Player, RADIUS: number = 20): boolean[][] {
-        const visible: boolean[][] = [];
-        for (let i = 0; i < this.attributes.width; i++) {
-            visible[i] = [];
-            for (let j = 0; j < this.attributes.height; j++) {
-                if (i >= player.location.x - RADIUS &&
-                    i <= player.location.x + RADIUS &&
-                    j >= player.location.y - RADIUS &&
-                    j <= player.location.y + RADIUS
-                ) {
-                    visible[i][j] = true;
-                } else {
-                    visible[i][j] = false;
-                }
-            }
-        }
-        this.shadowCast(visible, player.location.x, player.location.y, RADIUS, 1, true);
-        this.shadowCast(visible, player.location.x, player.location.y, RADIUS, -1, true);
-        this.shadowCast(visible, player.location.x, player.location.y, RADIUS, 1, false);
-        this.shadowCast(visible, player.location.x, player.location.y, RADIUS, -1, false);
-        return visible;
     }
 }

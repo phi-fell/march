@@ -71,8 +71,13 @@ async function doEvent(event) {
         case 'NEW_ROUND':
             //increment round count?
             break;
+        case 'ADD_MOB':
+            game.game_data.mobs[event.mob.id] = event.mob;
+            break;
+        case 'REMOVE_MOB':
+            delete game.game_data.mobs[event.mob]
+            break;
         case 'MOVE':
-            addMessage('SLEEPING...');
             let dx = 0;
             let dy = 0;
             switch (event.direction) {
@@ -93,8 +98,8 @@ async function doEvent(event) {
             let sy = game.game_data.mobs[event.entity].location.y;
             let fx = sx + dx;
             let fy = sy + dy;
-            const steps = 10;
-            const total_time = 500;
+            const steps = 20;
+            const total_time = 250;
             for (let i = 0; i < steps; i++) {
                 game.game_data.mobs[event.entity].location.x = sx + (i * dx / steps);
                 game.game_data.mobs[event.entity].location.y = sy + (i * dy / steps);
@@ -104,7 +109,6 @@ async function doEvent(event) {
             game.game_data.mobs[event.entity].location.x = fx;
             game.game_data.mobs[event.entity].location.y = fy;
             game.draw();
-            addMessage('DONE');
             break;
         case 'ATTACK':
             //TODO
@@ -140,6 +144,8 @@ function printEvent(event) {
         case 'NEW_ROUND':
             addMessage('A new round has begun!');
             break;
+        case 'ADD_MOB': break;
+        case 'REMOVE_MOB': break;
         case 'MOVE':
             addMessage('MOVE');
             break;
@@ -259,12 +265,6 @@ $(function () {
         for (let id in msg.mobs) {
             if (!game.game_data.mobs[id]) {
                 game.game_data.mobs[id] = msg.mobs[id];
-            }
-        }
-        //remove mobs that are gone
-        for (let id in game.game_data.mobs) {
-            if (!msg.mobs[id]) {
-                delete game.game_data.mobs[id];
             }
         }
         game.tiles = msg.tiles;

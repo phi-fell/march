@@ -1,5 +1,5 @@
 import { CharacterSheet } from './character/charactersheet';
-import { AttackEvent, MoveEvent } from './clientevent';
+import { AddMobEvent, AttackEvent, MoveEvent, RemoveMobEvent } from './clientevent';
 import { DIRECTION, directionVectors } from './direction';
 import { Instance } from './instance';
 import { Location } from './location';
@@ -65,6 +65,10 @@ export class Entity {
             }
         }
         this._location = loc;
+        const inst = Instance.getLoadedInstanceById(loc.instance_id);
+        if (inst) {
+            this.visibility = inst.getTileVisibility(this, MAX_VISIBILITY_RADIUS);
+        }
     }
     public doNextAction(): ACTION_STATUS {
         if (this.charSheet.hasSufficientAP(MOVE_AP)) {
@@ -106,7 +110,9 @@ export class Entity {
                 mobInWay.hit(this);
                 // TODO: send hit event
             } else {
+                inst.emitWB(new AddMobEvent(this, this.location), [to], [this.location]);
                 inst.emit(new MoveEvent(this, dir), this.location, to);
+                inst.emitWB(new RemoveMobEvent(this, this.location), [this.location], [to]);
                 this.location = to;
             }
         }

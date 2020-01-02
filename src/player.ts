@@ -2,7 +2,7 @@ import fs = require('fs');
 
 import { CharacterSheet } from './character/charactersheet';
 import { CharGen } from './chargen';
-import { MoveEvent } from './clientevent';
+import { AddMobEvent, MoveEvent, RemoveMobEvent } from './clientevent';
 import { DIRECTION, directionVectors } from './direction';
 import { ACTION_STATUS, Entity } from './entity';
 import { Instance } from './instance';
@@ -195,6 +195,7 @@ export class Player extends Entity {
     public user: User | null;
     public active: boolean;
     protected queuedAction: PlayerAction | null;
+    private visibleMobs: string[] = [];
     private constructor(id: string, name: string, loc: Location, dir: DIRECTION = DIRECTION.UP) {
         super(id, name, 'player', loc, dir);
         this.user = null;
@@ -468,7 +469,9 @@ export class Player extends Entity {
         if (inst.getMobInLocation(to.x, to.y)) {
             return false;
         }
+        inst.emitWB(new AddMobEvent(this, this.location), [to], [this.location]);
         inst.emit(new MoveEvent(this, dir), this.location, to);
+        inst.emitWB(new RemoveMobEvent(this, this.location), [this.location], [to]);
         this.location = to;
         return true;
     }
