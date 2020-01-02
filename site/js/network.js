@@ -1,7 +1,19 @@
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 var socket = undefined;
 var messageHistory = [];
 var historyPos = 0;
 var currentCache = "";
+
+var events = [];
+
+function handleNextEvent() {
+    if (events.length) {
+        doEvent(events.shift());
+    }
+}
 
 function levelUpAttr(val) {
     socket.emit('levelup', {
@@ -47,6 +59,45 @@ function setSheetDisplayMode(dropdown) {
 
 function getDamageString(damage) {
     return damage.amount + ' ' + damage.type.toLowerCase();
+}
+
+async function doEvent(event) {
+    if (!event) {
+        return console.log('null event: ' + event);
+    }
+    switch (event.type) {
+        case 'NEW_ROUND':
+            //increment round count?
+            break;
+        case 'MOVE':
+            addMessage('SLEEPING...');
+            await sleep(1000);
+            addMessage('DONE');
+            break;
+        case 'ATTACK':
+            //TODO
+            break;
+        case 'WAIT':
+            //TODO
+            break;
+        case 'BLEED':
+            //TODO
+            break;
+        case 'HEAL':
+            //TODO
+            break;
+        case 'PICKUP':
+            //TODO
+            break;
+        case 'DROP':
+            //TODO
+            break;
+        case 'DEATH':
+            //TODO
+            break;
+        default:
+            return console.log('cannot exec unknown or invalid event type: ' + event.type)
+    }
 }
 
 function printEvent(event) {
@@ -164,6 +215,7 @@ $(function () {
             game.game_data_version++;
         }
         printEvent(msg);
+        doEvent(msg);
     });
     socket.on('pong_cmd', function (msg) {
         $('#messages').append($('<li>').text('pong! ' + (Date.now() - msg) + 'ms'));
@@ -172,7 +224,7 @@ $(function () {
         game.loadPalette(msg);
     });
     socket.on('update', function (msg) {
-        game.mobs = msg.mobs;
+        game.game_data.mobs = msg.mobs;
         game.tiles = msg.tiles;
         game.tileAdjacencies = msg.tileAdjacencies;
         game.boardInfo = msg.info;
@@ -191,3 +243,10 @@ $(function () {
         addMessage(msg);
     });
 });
+
+
+let handleEvents = () => {
+    handleNextEvent();
+    setTimeout(handleEvents, 0);
+};
+handleEvents();

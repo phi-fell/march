@@ -27,8 +27,6 @@ class Game {
         //resources
         this._palette = [];
         this._sprites = {};
-        //draw flag
-        this._drawQueued = false;
         //UI data
         this._sheetdisplaymode = 'attributes';
         //load resources
@@ -66,6 +64,20 @@ class Game {
             console.log('default sprite could not be loaded!')
         }
         this._sprites['error'].src = "tex/sprites/error.png";
+    }
+
+    getData(id) {
+        let ids = id.split(".");
+        let obj = this.game_data;
+        while (ids.length && (obj = obj[ids.shift()]));
+        return obj;
+    }
+
+    setData(id, value) {
+        let ids = id.split(".");
+        let obj = this.game_data;
+        while ((ids.length - 1) && (obj = obj[ids.shift()]));
+        obj[ids[0]] = value;
     }
 
 
@@ -126,15 +138,7 @@ class Game {
     }
 
     draw() {
-        if (this._drawQueued) {
-            return;//draw will happen anyway
-        } else {
-            this._drawQueued = true;
-            setTimeout(() => {
-                this._drawQueued = false;
-                this._draw();
-            }, 50);
-        }
+        this._draw();
     }
 
     updateMenus() {
