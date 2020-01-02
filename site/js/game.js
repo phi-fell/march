@@ -2,6 +2,7 @@ const TILE_SIZE = 32; // width and height in pixels
 
 class Game {
     constructor(canvas) {
+        //setup canvas
         this._width = canvas.clientWidth;
         this._height = canvas.clientHeight;
         canvas.width = this._width;
@@ -11,6 +12,7 @@ class Game {
         this._ctx.strokeStyle = "#FFF";
         this._ctx.fillStyle = "#FFF";
         this._ctx.imageSmoothingEnabled = false;
+        //game data
         this.mobs = undefined;
         this.items = [];
         this.itemsOnGround = [];
@@ -19,10 +21,14 @@ class Game {
         this.tileAdjacencies = undefined;
         this.boardInfo = undefined;
         this.player = undefined;
+        //resources
         this._palette = [];
         this._sprites = {};
+        //draw flag
         this._drawQueued = false;
+        //UI data
         this._sheetdisplaymode = 'attributes';
+        //load resources
         this._loadImages();
     }
 
