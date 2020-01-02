@@ -53,13 +53,7 @@ export class UnwaitAction implements PlayerAction {
 export class MoveAction implements PlayerAction {
     public type: ACTION_TYPE.MOVE = ACTION_TYPE.MOVE;
     public readonly cost: number = 5;
-    public directionVec: { 'x': number, 'y': number };
-    constructor(public direction: DIRECTION) {
-        this.directionVec = { 'x': 0, 'y': 0 };
-        const dirVec = directionVectors[direction];
-        this.directionVec.x = dirVec.x;
-        this.directionVec.y = dirVec.y;
-    }
+    constructor(public direction: DIRECTION) { }
     public toJSON(): object {
         return {
             'type': ACTION_TYPE[this.type],
@@ -71,13 +65,7 @@ export class MoveAction implements PlayerAction {
 export class StrafeAction implements PlayerAction {
     public type: ACTION_TYPE.STRAFE = ACTION_TYPE.STRAFE;
     public readonly cost: number = 8;
-    public directionVec: { 'x': number, 'y': number };
-    constructor(public direction: DIRECTION) {
-        this.directionVec = { 'x': 0, 'y': 0 };
-        const dirVec = directionVectors[direction];
-        this.directionVec.x = dirVec.x;
-        this.directionVec.y = dirVec.y;
-    }
+    constructor(public direction: DIRECTION) { }
     public toJSON(): object {
         return {
             'type': ACTION_TYPE[this.type],
@@ -273,20 +261,14 @@ export class Player extends Entity {
                         this.direction = (this.queuedAction as MoveAction).direction;
                         this.charSheet.useAP(ACTION_COST[this.queuedAction.type]);
                     }
-                    const success = this.move(this.location.getMovedBy(
-                        (this.queuedAction as MoveAction).directionVec.x,
-                        (this.queuedAction as MoveAction).directionVec.y),
-                    );
+                    const success = this.move((this.queuedAction as MoveAction).direction);
                     if (success) {
                         this.charSheet.useAP(ACTION_COST[this.queuedAction.type]);
                     }
                     this.queuedAction = null;
                     break;
                 } case ACTION_TYPE.STRAFE: {
-                    const success = this.move(this.location.getMovedBy(
-                        (this.queuedAction as StrafeAction).directionVec.x,
-                        (this.queuedAction as StrafeAction).directionVec.y),
-                    );
+                    const success = this.move((this.queuedAction as StrafeAction).direction);
                     if (success) {
                         if (this.direction === (this.queuedAction as StrafeAction).direction) {
                             this.charSheet.useAP(ACTION_COST[ACTION_TYPE.MOVE]);
@@ -473,11 +455,12 @@ export class Player extends Entity {
             'action': (this.queuedAction) ? this.queuedAction.toJSON() : { 'type': 'NONE' },
         };
     }
-    protected move(to: Location) {
-        if (this.location.instance_id !== to.instance_id) {
-            return false; // .move() should only be used within an instance
+    protected move(dir: DIRECTION) {
+        const to = this.location.getMovedBy(directionVectors[dir].x, directionVectors[dir].y);
+        const inst = Instance.getLoadedInstanceById(this.location.instance_id);
+        if (!inst) {
+            return console.log('CANNOT MOVE() PLAYER IN NONEXISTENT LOCATION!');
         }
-        const inst = Instance.getLoadedInstanceById(this.location.instance_id)!;
         if (!inst.isTilePassable(to.x, to.y)) {
             return false;
         }

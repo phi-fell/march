@@ -1,6 +1,6 @@
 import { CharacterSheet } from './character/charactersheet';
 import { AttackEvent } from './clientevent';
-import { DIRECTION } from './direction';
+import { DIRECTION, directionVectors } from './direction';
 import { Instance } from './instance';
 import { Location } from './location';
 import { Random } from './math/random';
@@ -68,15 +68,8 @@ export class Entity {
     }
     public doNextAction(): ACTION_STATUS {
         if (this.charSheet.hasSufficientAP(MOVE_AP)) {
-            const dirs = [
-                { 'x': 0, 'y': -1 },
-                { 'x': 0, 'y': 1 },
-                { 'x': -1, 'y': 0 },
-                { 'x': 1, 'y': 0 },
-            ];
-            const dir = dirs[Math.floor(Random.float() * 4)];
-            const newLoc = this.location.getMovedBy(dir.x, dir.y);
-            this.move(newLoc); // TODO: ensure move succeeded
+            const dir = Math.floor(Random.float() * 4) as DIRECTION;
+            this.move(dir); // TODO: ensure move succeeded
             this.charSheet.useAP(MOVE_AP);
             return ACTION_STATUS.PERFORMED;
         }
@@ -101,22 +94,18 @@ export class Entity {
         }
         this.charSheet.startNewTurn();
     }
-    protected move(to: Location) {
-        const fromInst = Instance.getLoadedInstanceById(this.location.instance_id);
-        const toInst = Instance.getLoadedInstanceById(to.instance_id);
-        if (!toInst) {
-            return console.log('CANNOT MOVE() MOB TO NONEXISTENT LOCATION!');
+    protected move(dir: DIRECTION) {
+        const to = this.location.getMovedBy(directionVectors[dir].x, directionVectors[dir].y);
+        const inst = Instance.getLoadedInstanceById(this.location.instance_id);
+        if (!inst) {
+            return console.log('CANNOT MOVE() MOB IN NONEXISTENT LOCATION!');
         }
-        if (toInst.isTilePassable(to.x, to.y)) {
-            const mobInWay = toInst.getMobInLocation(to.x, to.y);
+        if (inst.isTilePassable(to.x, to.y)) {
+            const mobInWay = inst.getMobInLocation(to.x, to.y);
             if (mobInWay) {
                 mobInWay.hit(this);
             } else {
-                this.location = to.clone();
-            }
-            if (!fromInst || fromInst.id !== toInst.id) {
-                // TODO: instead of sending whole board, send action info so that we can update exactly when necessary
-                toInst.updateAllPlayers(); // TODO: is this necessary?  reasoning: players in fromInst WILL be updated at end of update cycle,  toInst could hypothetically not be updated until next update cycle.  (but update cycles should be multiple time per second, so is this necessary?)
+                this.location = to;
             }
         }
     }
