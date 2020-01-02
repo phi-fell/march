@@ -408,6 +408,7 @@ export class Player extends Entity {
         }
         this.active = true;
         this.user = usr;
+        this.recalculateVisibleMobs();
         this.pushUpdate();
     }
     public setInactive() {

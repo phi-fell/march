@@ -29,13 +29,14 @@ export class Entity {
         loc: Location,
         public direction: DIRECTION = DIRECTION.UP,
     ) {
+        this.visibility = [[]];
         this.charSheet = new CharacterSheet();
         this._location = loc;
         this.lastHitSheet = undefined;
-        this.visibility = [[]];
         const inst = Instance.getLoadedInstanceById(loc.instance_id);
         if (inst) {
             inst.addMob(this);
+            this.visibility = inst.getTileVisibility(this, MAX_VISIBILITY_RADIUS);
         } else {
             console.log('MOB CONSTRUCTED IN INVALID LOCATION STATE! INSTANCE DOES NOT EXIST: ' + loc.instance_id);
         }

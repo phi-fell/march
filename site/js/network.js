@@ -73,9 +73,11 @@ async function doEvent(event) {
             break;
         case 'ADD_MOB':
             game.game_data.mobs[event.mob.id] = event.mob;
+            game.draw();
             break;
         case 'REMOVE_MOB':
             delete game.game_data.mobs[event.mob]
+            game.draw();
             break;
         case 'MOVE':
             let dx = 0;
@@ -280,9 +282,12 @@ $(function () {
     });
 });
 
-
 let handleEvents = async () => {
+    try {
     await handleNextEvent();
+    } catch {
+
+    }
     setTimeout(handleEvents, 0);
 };
 handleEvents();

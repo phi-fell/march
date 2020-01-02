@@ -1,7 +1,7 @@
 import fs = require('fs');
 
 import { CharacterStatus } from './character/characterstatus';
-import { ClientEvent, NewRoundEvent } from './clientevent';
+import { AddMobEvent, ClientEvent, NewRoundEvent, RemoveMobEvent } from './clientevent';
 import { ACTION_STATUS, Entity } from './entity';
 import { INSTANCE_GEN_TYPE, InstanceGenerator } from './instancegenerator';
 import { InstanceSchemaID } from './instanceschema';
@@ -286,8 +286,10 @@ export class Instance {
             }
         }
         this.mobs.push(mob);
+        this.emit(new AddMobEvent(mob), mob.location);
     }
     public removeMob(mob: Entity) {
+        this.emit(new RemoveMobEvent(mob), mob.location);
         for (let i = 0; i < this.mobs.length; i++) {
             if (this.mobs[i].id === mob.id) {
                 this.mobs.splice(i, 1);
@@ -460,20 +462,24 @@ export class Instance {
     }
     public emitGlobal(event: ClientEvent) {
         for (const plr of this.players) {
-            plr.user!.sendEvent(event);
+            if (plr.user) {
+                plr.user!.sendEvent(event);
+            }
         }
     }
     public emit(event: ClientEvent, ...locations: Location[]) {
         for (const plr of this.players) {
-            let v = false;
-            for (const loc of locations) {
-                if (plr.canSeeLoc(loc)) {
-                    v = true;
-                    break;
+            if (plr.user) {
+                let v = false;
+                for (const loc of locations) {
+                    if (plr.canSeeLoc(loc)) {
+                        v = true;
+                        break;
+                    }
                 }
-            }
-            if (v) {
-                plr.user!.sendEvent(event);
+                if (v) {
+                    plr.user!.sendEvent(event);
+                }
             }
         }
     }
@@ -482,21 +488,23 @@ export class Instance {
         // if whitelist is empty, emit to all who can see NONE of the blacklist
         // if blacklist is empty this is the same as: emit(event, ...whitelist)
         for (const plr of this.players) {
-            let v = false;
-            for (const loc of whitelist) {
-                if (plr.canSeeLoc(loc)) {
-                    v = true;
-                    break;
+            if (plr.user) {
+                let v = false;
+                for (const loc of whitelist) {
+                    if (plr.canSeeLoc(loc)) {
+                        v = true;
+                        break;
+                    }
                 }
-            }
-            for (const loc of blacklist) {
-                if (plr.canSeeLoc(loc)) {
-                    v = false;
-                    break;
+                for (const loc of blacklist) {
+                    if (plr.canSeeLoc(loc)) {
+                        v = false;
+                        break;
+                    }
                 }
-            }
-            if (v) {
-                plr.user!.sendEvent(event);
+                if (v) {
+                    plr.user!.sendEvent(event);
+                }
             }
         }
     }
