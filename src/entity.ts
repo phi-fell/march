@@ -1,5 +1,5 @@
 import { CharacterSheet } from './character/charactersheet';
-import { AttackEvent } from './clientevent';
+import { AttackEvent, MoveEvent } from './clientevent';
 import { DIRECTION, directionVectors } from './direction';
 import { Instance } from './instance';
 import { Location } from './location';
@@ -104,7 +104,9 @@ export class Entity {
             const mobInWay = inst.getMobInLocation(to.x, to.y);
             if (mobInWay) {
                 mobInWay.hit(this);
+                // TODO: send hit event
             } else {
+                inst.emit(new MoveEvent(this, dir), this.location, to);
                 this.location = to;
             }
         }

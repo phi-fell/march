@@ -464,7 +464,7 @@ export class Instance {
             plr.user!.sendEvent(event);
         }
     }
-    public emit(event: ClientEvent, location: Location) {
+    public emit(event: ClientEvent, ...locations: Location[]) {
         for (const plr of this.players) {
             // TODO: check if plr can see location
             plr.user!.sendEvent(event);
