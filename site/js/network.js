@@ -155,6 +155,14 @@ $(function () {
         addMessage(msg);
     });
     socket.on('event', function (msg) {
+        if (msg.version !== game.game_data_version + 1) {
+            console.log('Desynchronization detected!');
+            console.log('Event ' + msg.version + ' received at state ' + game.game_data_version);
+            addMessage('DESYNCHRONIZED FROM SERVER! please reconnect!');
+            socket.disconnect();
+        } else {
+            game.game_data_version++;
+        }
         printEvent(msg);
     });
     socket.on('pong_cmd', function (msg) {

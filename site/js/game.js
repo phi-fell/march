@@ -13,6 +13,9 @@ class Game {
         this._ctx.fillStyle = "#FFF";
         this._ctx.imageSmoothingEnabled = false;
         //game data
+        this.game_data_version = -1;
+        this.game_data = {};
+        //old game data [DEPRECATED]
         this.mobs = undefined;
         this.items = [];
         this.itemsOnGround = [];

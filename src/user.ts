@@ -10,6 +10,7 @@ import {
     validateUserByIdAndPass,
 } from './auth';
 import { ATTRIBUTE } from './character/characterattributes';
+import { ClientEvent } from './clientevent';
 import { execute } from './commands';
 import { DIRECTION } from './direction';
 import { EQUIPMENT_SLOT } from './item/equipment_slot';
@@ -39,6 +40,7 @@ export class User {
     public socket: any;
     public playerid: string | null;
     public player: Player | null;
+    public event_version: number = -1;
     private _email: string | null;
     constructor(id: string, name: string) {
         this.id = id;
@@ -55,6 +57,12 @@ export class User {
     set email(value: string | null) {
         this._email = value;
         this.saveToDisk();
+    }
+    public sendEvent(event: ClientEvent) {
+        this.socket.emit('event', {
+            ...event.toJSON(),
+            'version': ++this.event_version,
+        });
     }
     public login(sock: SocketIO.Socket) {
         if (this.online) {

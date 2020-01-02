@@ -461,13 +461,13 @@ export class Instance {
     }
     public emitGlobal(event: ClientEvent) {
         for (const plr of this.players) {
-            plr.user!.socket.emit('event', event);
+            plr.user!.sendEvent(event);
         }
     }
     public emit(event: ClientEvent, location: Location) {
         for (const plr of this.players) {
             // TODO: check if plr can see location
-            plr.user!.socket.emit('event', event.toJSON());
+            plr.user!.sendEvent(event);
         }
     }
     public notifyOfPlayerAction(pID: string) {
