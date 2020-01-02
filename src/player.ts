@@ -2,6 +2,7 @@ import fs = require('fs');
 
 import { CharacterSheet } from './character/charactersheet';
 import { CharGen } from './chargen';
+import { MoveEvent } from './clientevent';
 import { DIRECTION, directionVectors } from './direction';
 import { ACTION_STATUS, Entity } from './entity';
 import { Instance } from './instance';
@@ -467,6 +468,7 @@ export class Player extends Entity {
         if (inst.getMobInLocation(to.x, to.y)) {
             return false;
         }
+        inst.emit(new MoveEvent(this, dir), this.location, to);
         this.location = to;
         return true;
     }
