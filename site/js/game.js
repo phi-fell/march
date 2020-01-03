@@ -369,7 +369,9 @@ class Game {
     }
 
     _drawTile(id, x, y, w, h) {
-        this._ctx.drawImage(this._palette[id].image, Math.floor(x), Math.floor(y), Math.ceil(w), Math.ceil(h));
+        if (this._palette[id] && this._palette[id].image) {
+            this._ctx.drawImage(this._palette[id].image, Math.floor(x), Math.floor(y), Math.ceil(w), Math.ceil(h));
+        }
     }
 
     _drawSprite(id, x, y, w, h, dir) {
