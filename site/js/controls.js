@@ -1,23 +1,23 @@
 var KEY_MAP = {
-    13: 'chat',
-    191: 'command',
-    27: 'escape',
-    37: 'turn_left',
-    38: 'turn_up',
-    39: 'turn_right',
-    40: 'turn_down',
-    73: 'strafe_up',
-    74: 'strafe_left',
-    75: 'strafe_down',
-    76: 'strafe_right',
-    87: 'move_up',
-    65: 'move_left',
-    83: 'move_down',
-    68: 'move_right',
-    32: 'attack',
-    88: 'unwait',
-    90: 'wait',
-    190: 'portal',
+    13: ['chat'],
+    191: ['command'],
+    27: ['escape'],
+    37: ['turn_left'],
+    38: ['turn_up'],
+    39: ['turn_right'],
+    40: ['turn_down'],
+    73: ['strafe_up'],
+    74: ['strafe_left'],
+    75: ['strafe_down'],
+    76: ['strafe_right'],
+    87: ['turn_up', 'move_up'],
+    65: ['turn_left', 'move_left'],
+    83: ['turn_down', 'move_down'],
+    68: ['turn_right', 'move_right'],
+    32: ['attack'],
+    88: ['unwait'],
+    90: ['wait'],
+    190: ['portal'],
 };
 class Controls {
     constructor() {
@@ -26,7 +26,7 @@ class Controls {
     keydown(e) {
         if (document.activeElement === document.getElementById('m')) {
             //make sure user isn't chatting
-            if (KEY_MAP[e.keyCode] == 'escape') {
+            if (KEY_MAP[e.keyCode][0] == 'escape') {
                 document.getElementById('m').blur();
             } else if (e.keyCode == 38) {
                 if (historyPos > 0) {
@@ -46,15 +46,21 @@ class Controls {
                     }
                 }
             }
-        } else if (KEY_MAP[e.keyCode] == 'chat') {
-            document.getElementById('m').focus();
-            e.preventDefault();
-        } else if (KEY_MAP[e.keyCode] == 'command') {
-            document.getElementById('m').focus();
-        } else if (typeof KEY_MAP[e.keyCode] === 'undefined') {
-            //console.log("unknown key pressed: " + e.keyCode)
         } else {
-            socket.emit('player_action', { 'action': KEY_MAP[e.keyCode] });
+            if (typeof KEY_MAP[e.keyCode] === 'undefined') {
+                //console.log("unknown key pressed: " + e.keyCode)
+            } else {
+                for (const action of KEY_MAP[e.keyCode]) {
+                    if (action === 'chat') {
+                        document.getElementById('m').focus();
+                        e.preventDefault();
+                    } else if (action === 'command') {
+                        document.getElementById('m').focus();
+                    } else {
+                        socket.emit('player_action', { action });
+                    }
+                }
+            }
         }
     }
 }
