@@ -10,8 +10,9 @@ var currentCache = "";
 var events = [];
 
 async function handleNextEvent() {
-    if (events.length) {
+    if (events.length && events[0].version === game.game_data_version + 1) {
         let event = events.shift();
+        game.game_data_version++;
         printEvent(event);
         await doEvent(event);
     }
@@ -261,15 +262,9 @@ $(function () {
         addMessage(msg);
     });
     socket.on('event', function (msg) {
-        if (msg.version !== game.game_data_version + 1) {
-            console.log('Desynchronization detected!');
-            console.log('Event ' + msg.version + ' received at state ' + game.game_data_version);
-            addMessage('DESYNCHRONIZED FROM SERVER! please reconnect!');
-            socket.disconnect();
-        } else {
-            events.push(msg);
-            game.game_data_version++;
-        }
+        console.log('Event ' + msg.version + ' received at state ' + game.game_data_version);
+        events.push(msg);
+        events.sort((a, b) => a.version - b.version);
     });
     socket.on('pong_cmd', function (msg) {
         $('#messages').append($('<li>').text('pong! ' + (Date.now() - msg) + 'ms'));
