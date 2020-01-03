@@ -113,7 +113,13 @@ async function doEvent(event) {
             game.draw();
             break;
         case 'TURN':
-            //TODO
+            let dirs = [
+                'UP',
+                'LEFT',
+                'DOWN',
+                'RIGHT',
+            ];
+            game.game_data.mobs[event.entity].direction = dirs.indexOf(event.direction);
             break;
         case 'ATTACK':
             //TODO
@@ -157,7 +163,7 @@ function printEvent(event) {
             break;
         } case 'TURN': {
             const mob = game.game_data.mobs[event.entity];
-            addMessage(mob.name + 'turns ' + event.direction.toLowerCase());
+            addMessage(mob.name + ' turns ' + event.direction.toLowerCase());
             break;
         } case 'ATTACK':
             addMessage(event.attacker.name + ' attacks ' + event.defender.name + (event.success ? ' dealing ' + ((event.damage && event.damage.length) ? event.damage.map(getDamageString).reduce((s, d) => s + ', ' + d) : 'no') + ' damage' : ' and misses.'));
