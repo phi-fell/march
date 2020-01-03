@@ -98,8 +98,28 @@ export class MoveAction implements PlayerAction {
 export class StrafeAction implements PlayerAction {
     public type: ACTION_TYPE.STRAFE = ACTION_TYPE.STRAFE;
     public readonly cost: number = 8;
-    constructor(public direction: DIRECTION) { }
-    public perform(player: Player) { return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost }; }
+    constructor(public direction: DIRECTION) { } public perform(player: Player) {
+        const to = player.location.getMovedBy(directionVectors[this.direction].x, directionVectors[this.direction].y);
+        const inst = Instance.getLoadedInstanceById(player.location.instance_id);
+        if (!inst) {
+            console.log('CANNOT STRAFE() PLAYER IN NONEXISTENT LOCATION!');
+            return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
+        }
+        if (!inst.isTilePassable(to.x, to.y)) {
+            return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
+        }
+        if (inst.getMobInLocation(to.x, to.y)) {
+            return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
+        }
+        if (player.charSheet.hasSufficientAP(this.cost)) {
+            inst.emitWB(new AddMobEvent(player), [to], [player.location]);
+            inst.emit(new MoveEvent(player, this.direction), player.location, to);
+            inst.emitWB(new RemoveMobEvent(player), [player.location], [to]);
+            player.location = to;
+            return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };;
+        }
+        return { 'result': ACTION_RESULT.INSUFFICIENT_AP, 'cost': 0 };
+    }
     public toJSON(): object {
         return {
             'type': ACTION_TYPE[this.type],
