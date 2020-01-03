@@ -299,25 +299,27 @@ class Game {
                     if (tile >= this._palette.length) {
                         tile = -2; // use error texture
                     }
-                    if (this._palette[tile].sheet) {
-                        let adj = [
-                            [false, false, false],
-                            [false, true, false],
-                            [false, false, false],
-                        ];
-                        let adjSum = this.tileAdjacencies[x][y];
-                        for (let i = -1; i <= 1; i++) {
-                            for (let j = -1; j <= 1; j++) {
-                                if (adjSum % 2 === 1) {
-                                    adj[i + 1][j + 1] = true;
-                                    adjSum--;
+                    if (this._palette[id]) {
+                        if (this._palette[tile].sheet) {
+                            let adj = [
+                                [false, false, false],
+                                [false, true, false],
+                                [false, false, false],
+                            ];
+                            let adjSum = this.tileAdjacencies[x][y];
+                            for (let i = -1; i <= 1; i++) {
+                                for (let j = -1; j <= 1; j++) {
+                                    if (adjSum % 2 === 1) {
+                                        adj[i + 1][j + 1] = true;
+                                        adjSum--;
+                                    }
+                                    adjSum /= 2;
                                 }
-                                adjSum /= 2;
                             }
+                            this._drawSubtiles(tile, adj, ((x - 1) * scale) + offsetX, ((y - 1) * scale) + offsetY, scale, scale);
+                        } else {
+                            this._drawTile(tile, ((x - 1) * scale) + offsetX, ((y - 1) * scale) + offsetY, scale, scale);
                         }
-                        this._drawSubtiles(tile, adj, ((x - 1) * scale) + offsetX, ((y - 1) * scale) + offsetY, scale, scale);
-                    } else {
-                        this._drawTile(tile, ((x - 1) * scale) + offsetX, ((y - 1) * scale) + offsetY, scale, scale);
                     }
                 }
             }
@@ -369,9 +371,7 @@ class Game {
     }
 
     _drawTile(id, x, y, w, h) {
-        if (this._palette[id] && this._palette[id].image) {
-            this._ctx.drawImage(this._palette[id].image, Math.floor(x), Math.floor(y), Math.ceil(w), Math.ceil(h));
-        }
+        this._ctx.drawImage(this._palette[id].image, Math.floor(x), Math.floor(y), Math.ceil(w), Math.ceil(h));
     }
 
     _drawSprite(id, x, y, w, h, dir) {
