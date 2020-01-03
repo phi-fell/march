@@ -299,7 +299,7 @@ class Game {
                     if (tile >= this._palette.length) {
                         tile = -2; // use error texture
                     }
-                    if (this._palette[id]) {
+                    if (this._palette[tile]) {
                         if (this._palette[tile].sheet) {
                             let adj = [
                                 [false, false, false],

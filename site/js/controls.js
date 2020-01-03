@@ -26,7 +26,7 @@ class Controls {
     keydown(e) {
         if (document.activeElement === document.getElementById('m')) {
             //make sure user isn't chatting
-            if (KEY_MAP[e.keyCode][0] == 'escape') {
+            if (KEY_MAP[e.keyCode] && KEY_MAP[e.keyCode][0] === 'escape') {
                 document.getElementById('m').blur();
             } else if (e.keyCode == 38) {
                 if (historyPos > 0) {
@@ -57,7 +57,9 @@ class Controls {
                     } else if (action === 'command') {
                         document.getElementById('m').focus();
                     } else {
-                        socket.emit('player_action', { action });
+                        if (events.length === 0 || action === 'unwait') {
+                            socket.emit('player_action', { action });
+                        }
                     }
                 }
             }
