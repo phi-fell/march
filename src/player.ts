@@ -98,7 +98,8 @@ export class MoveAction implements PlayerAction {
 export class StrafeAction implements PlayerAction {
     public type: ACTION_TYPE.STRAFE = ACTION_TYPE.STRAFE;
     public readonly cost: number = 8;
-    constructor(public direction: DIRECTION) { } public perform(player: Player) {
+    constructor(public direction: DIRECTION) { }
+    public perform(player: Player) {
         const to = player.location.getMovedBy(directionVectors[this.direction].x, directionVectors[this.direction].y);
         const inst = Instance.getLoadedInstanceById(player.location.instance_id);
         if (!inst) {
