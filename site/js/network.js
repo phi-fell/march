@@ -10,11 +10,15 @@ var currentCache = "";
 var events = [];
 
 async function handleNextEvent() {
-    if (events.length && events[0].version === game.game_data_version + 1) {
-        let event = events.shift();
-        game.game_data_version++;
-        printEvent(event);
-        await doEvent(event);
+    if (events.length) {
+        if (events[0].version <= game.game_data_version) {
+            events.shift();
+        } else if (events[0].version === game.game_data_version + 1) {
+            let event = events.shift();
+            game.game_data_version++;
+            printEvent(event);
+            await doEvent(event);
+        }
     }
 }
 
