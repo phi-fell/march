@@ -2,7 +2,7 @@ import fs = require('fs');
 
 import { CharacterSheet } from './character/charactersheet';
 import { CharGen } from './chargen';
-import { AddMobEvent, MoveEvent, RemoveMobEvent } from './clientevent';
+import { AddMobEvent, MoveEvent, RemoveMobEvent, TurnEvent } from './clientevent';
 import { DIRECTION, directionVectors } from './direction';
 import { ACTION_STATUS, Entity, MAX_VISIBILITY_RADIUS } from './entity';
 import { Instance } from './instance';
@@ -33,12 +33,14 @@ const ACTION_COST = [0, 0, 5, 8, 5, 5, 10, 2, 2, 12, 8];
 export interface PlayerAction {
     type: ACTION_TYPE;
     cost: number;
+    perform(player: Player): boolean;
     toJSON(): object;
 }
 
 export class WaitAction implements PlayerAction {
     public type: ACTION_TYPE.WAIT = ACTION_TYPE.WAIT;
     public readonly cost: number = 0;
+    public perform(player: Player) { return true; }
     public toJSON(): object {
         return { 'type': ACTION_TYPE[this.type] };
     }
@@ -46,6 +48,7 @@ export class WaitAction implements PlayerAction {
 export class UnwaitAction implements PlayerAction {
     public type: ACTION_TYPE.UNWAIT = ACTION_TYPE.UNWAIT;
     public readonly cost: number = 0;
+    public perform(player: Player) { return true; }
     public toJSON(): object {
         return { 'type': ACTION_TYPE[this.type] };
     }
@@ -55,6 +58,28 @@ export class MoveAction implements PlayerAction {
     public type: ACTION_TYPE.MOVE = ACTION_TYPE.MOVE;
     public readonly cost: number = 5;
     constructor(public direction: DIRECTION) { }
+    public perform(player: Player): boolean {
+        if (player.direction !== this.direction) {
+            return false;
+        }
+        const to = player.location.getMovedBy(directionVectors[this.direction].x, directionVectors[this.direction].y);
+        const inst = Instance.getLoadedInstanceById(player.location.instance_id);
+        if (!inst) {
+            console.log('CANNOT MOVE() PLAYER IN NONEXISTENT LOCATION!');
+            return false;
+        }
+        if (!inst.isTilePassable(to.x, to.y)) {
+            return false;
+        }
+        if (inst.getMobInLocation(to.x, to.y)) {
+            return false;
+        }
+        inst.emitWB(new AddMobEvent(player), [to], [player.location]);
+        inst.emit(new MoveEvent(player, this.direction), player.location, to);
+        inst.emitWB(new RemoveMobEvent(player), [player.location], [to]);
+        player.location = to;
+        return true;
+    }
     public toJSON(): object {
         return {
             'type': ACTION_TYPE[this.type],
@@ -67,6 +92,7 @@ export class StrafeAction implements PlayerAction {
     public type: ACTION_TYPE.STRAFE = ACTION_TYPE.STRAFE;
     public readonly cost: number = 8;
     constructor(public direction: DIRECTION) { }
+    public perform(player: Player) { return true; }
     public toJSON(): object {
         return {
             'type': ACTION_TYPE[this.type],
@@ -79,6 +105,14 @@ export class TurnAction implements PlayerAction {
     public type: ACTION_TYPE.TURN = ACTION_TYPE.TURN;
     public readonly cost: number = 5;
     constructor(public direction: DIRECTION) { }
+    public perform(player: Player) {
+        const inst = Instance.getLoadedInstanceById(player.location.instance_id);
+        if (inst) {
+            inst.emit(new TurnEvent(player, this.direction), player.location);
+        }
+        player.direction = this.direction;
+        return true;
+    }
     public toJSON(): object {
         return {
             'type': ACTION_TYPE[this.type],
@@ -90,6 +124,7 @@ export class TurnAction implements PlayerAction {
 export class UsePortalAction implements PlayerAction {
     public type: ACTION_TYPE.USE_PORTAL = ACTION_TYPE.USE_PORTAL;
     public readonly cost: number = 5;
+    public perform(player: Player) { return true; }
     public toJSON(): object {
         return {
             'type': ACTION_TYPE[this.type],
@@ -100,6 +135,7 @@ export class UsePortalAction implements PlayerAction {
 export class AttackAction implements PlayerAction {
     public type: ACTION_TYPE.ATTACK = ACTION_TYPE.ATTACK;
     public readonly cost: number = 10;
+    public perform(player: Player) { return true; }
     public toJSON(): object {
         return {
             'type': ACTION_TYPE[this.type],
@@ -111,6 +147,7 @@ export class PickupAction implements PlayerAction {
     public type: ACTION_TYPE.PICKUP = ACTION_TYPE.PICKUP;
     public readonly cost: number = 2;
     constructor(public item_id: string, public count: number) { }
+    public perform(player: Player) { return true; }
     public toJSON(): object {
         return {
             'type': ACTION_TYPE[this.type],
@@ -122,6 +159,7 @@ export class DropAction implements PlayerAction {
     public type: ACTION_TYPE.DROP = ACTION_TYPE.DROP;
     public readonly cost: number = 2;
     constructor(public item_id: string, public count: number) { }
+    public perform(player: Player) { return true; }
     public toJSON(): object {
         return {
             'type': ACTION_TYPE[this.type],
@@ -133,6 +171,7 @@ export class EquipAction implements PlayerAction {
     public type: ACTION_TYPE.EQUIP = ACTION_TYPE.EQUIP;
     public readonly cost: number = 12;
     constructor(public item_id: string) { }
+    public perform(player: Player) { return true; }
     public toJSON(): object {
         return {
             'type': ACTION_TYPE[this.type],
@@ -144,6 +183,7 @@ export class UnequipAction implements PlayerAction {
     public type: ACTION_TYPE.UNEQUIP = ACTION_TYPE.UNEQUIP;
     public readonly cost: number = 8;
     constructor(public slot: EQUIPMENT_SLOT) { }
+    public perform(player: Player) { return true; }
     public toJSON(): object {
         return {
             'type': ACTION_TYPE[this.type],
@@ -262,26 +302,27 @@ export class Player extends Entity {
                     break;
                 case ACTION_TYPE.MOVE: {
                     if (this.direction !== (this.queuedAction as MoveAction).direction) {
-                        if (!this.charSheet.hasSufficientAP(ACTION_COST[ACTION_TYPE.TURN] + ACTION_COST[this.queuedAction.type])) {
+                        const t = new TurnAction((this.queuedAction as MoveAction).direction);
+                        if (!this.charSheet.hasSufficientAP(t.cost)) {
                             return ACTION_STATUS.WAITING; // not enough ap yet
                         }
-                        this.direction = (this.queuedAction as MoveAction).direction;
-                        this.charSheet.useAP(ACTION_COST[this.queuedAction.type]);
+                        t.perform(this);
+                        this.charSheet.useAP(t.cost);
                     }
-                    const success = this.move((this.queuedAction as MoveAction).direction);
-                    if (success) {
-                        this.charSheet.useAP(ACTION_COST[this.queuedAction.type]);
+                    if (!this.charSheet.hasSufficientAP(this.queuedAction.cost)) {
+                        return ACTION_STATUS.WAITING; // not enough ap yet
+                    }
+                    if (this.queuedAction.perform(this)) {
+                        this.charSheet.useAP(this.queuedAction.cost);
                     }
                     this.queuedAction = null;
                     break;
                 } case ACTION_TYPE.STRAFE: {
-                    const success = this.move((this.queuedAction as StrafeAction).direction);
-                    if (success) {
-                        if (this.direction === (this.queuedAction as StrafeAction).direction) {
-                            this.charSheet.useAP(ACTION_COST[ACTION_TYPE.MOVE]);
-                        } else {
-                            this.charSheet.useAP(ACTION_COST[this.queuedAction.type]);
-                        }
+                    if (!this.charSheet.hasSufficientAP(this.queuedAction.cost)) {
+                        return ACTION_STATUS.WAITING; // not enough ap yet
+                    }
+                    if (this.queuedAction.perform(this)) {
+                        this.charSheet.useAP(this.queuedAction.cost);
                     }
                     this.queuedAction = null;
                     break;
@@ -462,24 +503,6 @@ export class Player extends Entity {
             'location': this.location.toJSON(),
             'action': (this.queuedAction) ? this.queuedAction.toJSON() : { 'type': 'NONE' },
         };
-    }
-    protected move(dir: DIRECTION) {
-        const to = this.location.getMovedBy(directionVectors[dir].x, directionVectors[dir].y);
-        const inst = Instance.getLoadedInstanceById(this.location.instance_id);
-        if (!inst) {
-            return console.log('CANNOT MOVE() PLAYER IN NONEXISTENT LOCATION!');
-        }
-        if (!inst.isTilePassable(to.x, to.y)) {
-            return false;
-        }
-        if (inst.getMobInLocation(to.x, to.y)) {
-            return false;
-        }
-        inst.emitWB(new AddMobEvent(this), [to], [this.location]);
-        inst.emit(new MoveEvent(this, dir), this.location, to);
-        inst.emitWB(new RemoveMobEvent(this), [this.location], [to]);
-        this.location = to;
-        return true;
     }
     protected recalculateVisibleMobs() {
         const vis = [];

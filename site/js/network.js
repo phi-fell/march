@@ -112,6 +112,9 @@ async function doEvent(event) {
             game.game_data.mobs[event.entity].location.y = fy;
             game.draw();
             break;
+        case 'TURN':
+            //TODO
+            break;
         case 'ATTACK':
             //TODO
             break;
@@ -148,10 +151,15 @@ function printEvent(event) {
             break;
         case 'ADD_MOB': break;
         case 'REMOVE_MOB': break;
-        case 'MOVE':
-            addMessage('MOVE');
+        case 'MOVE': {
+            const mob = game.game_data.mobs[event.entity];
+            addMessage(mob.name + ' moves ' + event.direction.toLowerCase());
             break;
-        case 'ATTACK':
+        } case 'TURN': {
+            const mob = game.game_data.mobs[event.entity];
+            addMessage(mob.name + 'turns ' + event.direction.toLowerCase());
+            break;
+        } case 'ATTACK':
             addMessage(event.attacker.name + ' attacks ' + event.defender.name + (event.success ? ' dealing ' + ((event.damage && event.damage.length) ? event.damage.map(getDamageString).reduce((s, d) => s + ', ' + d) : 'no') + ' damage' : ' and misses.'));
             break;
         case 'WAIT':
@@ -284,7 +292,7 @@ $(function () {
 
 let handleEvents = async () => {
     try {
-    await handleNextEvent();
+        await handleNextEvent();
     } catch {
 
     }
