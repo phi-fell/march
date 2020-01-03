@@ -28,19 +28,23 @@ export enum ACTION_TYPE {
     UNEQUIP,
 }
 
-const ACTION_COST = [0, 0, 5, 8, 5, 5, 10, 2, 2, 12, 8];
+enum ACTION_RESULT {
+    SUCCESS,
+    INSUFFICIENT_AP,
+    REDUNDANT,
+    FAILURE,
+}
 
 export interface PlayerAction {
     type: ACTION_TYPE;
-    cost: number;
-    perform(player: Player): boolean;
+    perform(player: Player): { result: ACTION_RESULT, cost: number };
     toJSON(): object;
 }
 
 export class WaitAction implements PlayerAction {
     public type: ACTION_TYPE.WAIT = ACTION_TYPE.WAIT;
     public readonly cost: number = 0;
-    public perform(player: Player) { return true; }
+    public perform(player: Player) { return { 'result': ACTION_RESULT.INSUFFICIENT_AP, 'cost': 0 }; }
     public toJSON(): object {
         return { 'type': ACTION_TYPE[this.type] };
     }
@@ -48,7 +52,7 @@ export class WaitAction implements PlayerAction {
 export class UnwaitAction implements PlayerAction {
     public type: ACTION_TYPE.UNWAIT = ACTION_TYPE.UNWAIT;
     public readonly cost: number = 0;
-    public perform(player: Player) { return true; }
+    public perform(player: Player) { return { 'result': ACTION_RESULT.SUCCESS, 'cost': 0 }; }
     public toJSON(): object {
         return { 'type': ACTION_TYPE[this.type] };
     }
@@ -58,27 +62,30 @@ export class MoveAction implements PlayerAction {
     public type: ACTION_TYPE.MOVE = ACTION_TYPE.MOVE;
     public readonly cost: number = 5;
     constructor(public direction: DIRECTION) { }
-    public perform(player: Player): boolean {
+    public perform(player: Player) {
         if (player.direction !== this.direction) {
-            return false;
+            return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
         }
         const to = player.location.getMovedBy(directionVectors[this.direction].x, directionVectors[this.direction].y);
         const inst = Instance.getLoadedInstanceById(player.location.instance_id);
         if (!inst) {
             console.log('CANNOT MOVE() PLAYER IN NONEXISTENT LOCATION!');
-            return false;
+            return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
         }
         if (!inst.isTilePassable(to.x, to.y)) {
-            return false;
+            return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
         }
         if (inst.getMobInLocation(to.x, to.y)) {
-            return false;
+            return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
         }
-        inst.emitWB(new AddMobEvent(player), [to], [player.location]);
-        inst.emit(new MoveEvent(player, this.direction), player.location, to);
-        inst.emitWB(new RemoveMobEvent(player), [player.location], [to]);
-        player.location = to;
-        return true;
+        if (player.charSheet.hasSufficientAP(this.cost)) {
+            inst.emitWB(new AddMobEvent(player), [to], [player.location]);
+            inst.emit(new MoveEvent(player, this.direction), player.location, to);
+            inst.emitWB(new RemoveMobEvent(player), [player.location], [to]);
+            player.location = to;
+            return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };;
+        }
+        return { 'result': ACTION_RESULT.INSUFFICIENT_AP, 'cost': 0 };
     }
     public toJSON(): object {
         return {
@@ -92,7 +99,7 @@ export class StrafeAction implements PlayerAction {
     public type: ACTION_TYPE.STRAFE = ACTION_TYPE.STRAFE;
     public readonly cost: number = 8;
     constructor(public direction: DIRECTION) { }
-    public perform(player: Player) { return true; }
+    public perform(player: Player) { return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost }; }
     public toJSON(): object {
         return {
             'type': ACTION_TYPE[this.type],
@@ -106,12 +113,15 @@ export class TurnAction implements PlayerAction {
     public readonly cost: number = 5;
     constructor(public direction: DIRECTION) { }
     public perform(player: Player) {
+        if (player.direction === this.direction) {
+            return { 'result': ACTION_RESULT.REDUNDANT, 'cost': 0 };
+        }
         const inst = Instance.getLoadedInstanceById(player.location.instance_id);
         if (inst) {
             inst.emit(new TurnEvent(player, this.direction), player.location);
         }
         player.direction = this.direction;
-        return true;
+        return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
     }
     public toJSON(): object {
         return {
@@ -124,7 +134,21 @@ export class TurnAction implements PlayerAction {
 export class UsePortalAction implements PlayerAction {
     public type: ACTION_TYPE.USE_PORTAL = ACTION_TYPE.USE_PORTAL;
     public readonly cost: number = 5;
-    public perform(player: Player) { return true; }
+    public perform(player: Player) {
+        const inst = Instance.getLoadedInstanceById(player.location.instance_id)!;
+        for (const portal of inst.portals) {
+            if (portal.location.equals(player.location)) {
+                portal.reify((err, dest) => {
+                    if (err || !dest) {
+                        return console.log('Error: ' + err);
+                    }
+                    player.location = dest;
+                });
+                return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
+            }
+        }
+        return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
+    }
     public toJSON(): object {
         return {
             'type': ACTION_TYPE[this.type],
@@ -135,7 +159,16 @@ export class UsePortalAction implements PlayerAction {
 export class AttackAction implements PlayerAction {
     public type: ACTION_TYPE.ATTACK = ACTION_TYPE.ATTACK;
     public readonly cost: number = 10;
-    public perform(player: Player) { return true; }
+    public perform(player: Player) {
+        const inst = Instance.getLoadedInstanceById(player.location.instance_id)!;
+        const vec = directionVectors[player.direction];
+        const attackPos = player.location.getMovedBy(vec.x, vec.y);
+        const opponent = inst.getMobInLocation(attackPos.x, attackPos.y);
+        if (opponent) {
+            opponent.hit(player);
+        }
+        return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
+    }
     public toJSON(): object {
         return {
             'type': ACTION_TYPE[this.type],
@@ -147,7 +180,30 @@ export class PickupAction implements PlayerAction {
     public type: ACTION_TYPE.PICKUP = ACTION_TYPE.PICKUP;
     public readonly cost: number = 2;
     constructor(public item_id: string, public count: number) { }
-    public perform(player: Player) { return true; }
+    public perform(player: Player) {
+        const inst = Instance.getLoadedInstanceById(player.location.instance_id)!;
+        const pickup = this;
+        const inv = player.charSheet.equipment.inventory;
+        const loc = player.location;
+        let picked_up: boolean = false;
+        inst.items.forEach((stack: WorldItemStack, index: number) => {
+            if (!picked_up && stack.location.equals(loc) && stack.item.id === pickup.item_id) {
+                if (pickup.count === null || stack.count === null || pickup.count >= stack.count) {
+                    inv.addItem(stack.item, stack.count);
+                    inst.items.splice(index, 1);
+                } else {
+                    inv.addItem(stack.item.clone(), pickup.count);
+                    stack.count -= pickup.count;
+                }
+                picked_up = true;
+            }
+        });
+        if (!picked_up) {
+            console.log('Cannot pick up nonexistent item!');
+            return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
+        }
+        return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
+    }
     public toJSON(): object {
         return {
             'type': ACTION_TYPE[this.type],
@@ -159,7 +215,26 @@ export class DropAction implements PlayerAction {
     public type: ACTION_TYPE.DROP = ACTION_TYPE.DROP;
     public readonly cost: number = 2;
     constructor(public item_id: string, public count: number) { }
-    public perform(player: Player) { return true; }
+    public perform(player: Player) {
+        const inst = Instance.getLoadedInstanceById(player.location.instance_id)!;
+        const inv = player.charSheet.equipment.inventory;
+        for (let i = 0; i < inv.stacks; i++) {
+            const stack = inv.getItemStack(i);
+            if (this.item_id === stack.item.id) {
+                if (this.count === null || stack.count === null || this.count >= stack.count) {
+                    inst.dropItem(stack.item, stack.count, player.location);
+                    inv.removeItemFromSlot(i);
+                } else {
+                    const dropItem = stack.item.clone();
+                    stack.count -= this.count;
+                    inst.dropItem(dropItem, this.count, player.location);
+                }
+                return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
+            }
+        }
+        console.log('Cannot drop nonexistent item!');
+        return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
+    }
     public toJSON(): object {
         return {
             'type': ACTION_TYPE[this.type],
@@ -171,7 +246,22 @@ export class EquipAction implements PlayerAction {
     public type: ACTION_TYPE.EQUIP = ACTION_TYPE.EQUIP;
     public readonly cost: number = 12;
     constructor(public item_id: string) { }
-    public perform(player: Player) { return true; }
+    public perform(player: Player) {
+        const stack = player.charSheet.equipment.inventory.getItemStackById(this.item_id);
+        if (!stack) {
+            console.log('Cannot equip nonexistent item!');
+            return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
+        }
+        if (stack.item.asWeapon) {
+            player.charSheet.equipment.equipWeapon(player.charSheet.equipment.inventory.removeItemById(this.item_id)!.asWeapon);
+        } else if (stack.item.asArmor) {
+            player.charSheet.equipment.equipArmor(player.charSheet.equipment.inventory.removeItemById(this.item_id)!.asArmor);
+        } else {
+            console.log('Cannot equip that item type!');
+            return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
+        }
+        return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
+    }
     public toJSON(): object {
         return {
             'type': ACTION_TYPE[this.type],
@@ -183,7 +273,12 @@ export class UnequipAction implements PlayerAction {
     public type: ACTION_TYPE.UNEQUIP = ACTION_TYPE.UNEQUIP;
     public readonly cost: number = 8;
     constructor(public slot: EQUIPMENT_SLOT) { }
-    public perform(player: Player) { return true; }
+    public perform(player: Player) {
+        if (player.charSheet.equipment.unequip(this.slot)) {
+            return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
+        }
+        return { 'result': ACTION_RESULT.REDUNDANT, 'cost': 0 };
+    }
     public toJSON(): object {
         return {
             'type': ACTION_TYPE[this.type],
@@ -288,160 +383,32 @@ export class Player extends Entity {
         if (this.charSheet.status.action_points <= 0) {
             return ACTION_STATUS.WAITING; // can't do anything else
         }
-        if (this.queuedAction) {
-            if (!this.charSheet.hasSufficientAP(ACTION_COST[this.queuedAction.type])) {
-                return ACTION_STATUS.WAITING; // not enough ap yet
-            }
-            switch (this.queuedAction.type) {
-                case ACTION_TYPE.WAIT:
-                    return ACTION_STATUS.WAITING;
-                    break;
-                case ACTION_TYPE.UNWAIT:
-                    this.queuedAction = null;
-                    return ACTION_STATUS.ASYNC;
-                    break;
-                case ACTION_TYPE.MOVE: {
-                    if (this.direction !== (this.queuedAction as MoveAction).direction) {
-                        const t = new TurnAction((this.queuedAction as MoveAction).direction);
-                        if (!this.charSheet.hasSufficientAP(t.cost)) {
-                            return ACTION_STATUS.WAITING; // not enough ap yet
-                        }
-                        t.perform(this);
-                        this.charSheet.useAP(t.cost);
-                    }
-                    if (!this.charSheet.hasSufficientAP(this.queuedAction.cost)) {
-                        return ACTION_STATUS.WAITING; // not enough ap yet
-                    }
-                    if (this.queuedAction.perform(this)) {
-                        this.charSheet.useAP(this.queuedAction.cost);
-                    }
-                    this.queuedAction = null;
-                    break;
-                } case ACTION_TYPE.STRAFE: {
-                    if (!this.charSheet.hasSufficientAP(this.queuedAction.cost)) {
-                        return ACTION_STATUS.WAITING; // not enough ap yet
-                    }
-                    if (this.queuedAction.perform(this)) {
-                        this.charSheet.useAP(this.queuedAction.cost);
-                    }
-                    this.queuedAction = null;
-                    break;
-                } case ACTION_TYPE.TURN: {
-                    if (this.direction !== (this.queuedAction as TurnAction).direction) {
-                        this.direction = (this.queuedAction as TurnAction).direction;
-                        this.charSheet.useAP(ACTION_COST[this.queuedAction.type]);
-                    }
-                    this.queuedAction = null;
-                    break;
-                } case ACTION_TYPE.USE_PORTAL: {
-                    const inst = Instance.getLoadedInstanceById(this.location.instance_id)!;
-                    for (const portal of inst.portals) {
-                        if (portal.location.equals(this._location)) {
-                            this.charSheet.useAP(ACTION_COST[this.queuedAction.type]);
-                            this.queuedAction = null;
-                            const plr = this;
-                            portal.reify((err, dest) => {
-                                if (err || !dest) {
-                                    return console.log('Error: ' + err);
-                                }
-                                plr.location = dest;
-                            });
-                            break;
-                        }
-                    }
-                    this.queuedAction = null;
-                    break;
-                } case ACTION_TYPE.ATTACK: {
-                    const inst = Instance.getLoadedInstanceById(this.location.instance_id)!;
-                    const vec = directionVectors[this.direction];
-                    const attackPos = this.location.getMovedBy(vec.x, vec.y);
-                    const opponent = inst.getMobInLocation(attackPos.x, attackPos.y);
-                    this.charSheet.useAP(ACTION_COST[this.queuedAction.type]);
-                    if (opponent) {
-                        opponent.hit(this);
-                    }
-                    this.queuedAction = null;
-                    break;
-                } case ACTION_TYPE.PICKUP: {
-                    const inst = Instance.getLoadedInstanceById(this.location.instance_id)!;
-                    const pickup = this.queuedAction as PickupAction;
-                    const inv = this.charSheet.equipment.inventory;
-                    const loc = this.location;
-                    let picked_up: boolean = false;
-                    inst.items.forEach((stack: WorldItemStack, index: number) => {
-                        if (stack.location.equals(loc) && stack.item.id === pickup.item_id) {
-                            this.charSheet.useAP(ACTION_COST[pickup.type]);
-                            if (pickup.count === null || stack.count === null || pickup.count >= stack.count) {
-                                inv.addItem(stack.item, stack.count);
-                                inst.items.splice(index, 1);
-                            } else {
-                                inv.addItem(stack.item.clone(), pickup.count);
-                                stack.count -= pickup.count;
-                            }
-                            picked_up = true;
-                            return;
-                        }
-                    });
-                    if (!picked_up) {
-                        console.log('Cannot pick up nonexistent item!');
-                        break;
-                    }
-                    this.queuedAction = null;
-                    break;
-                } case ACTION_TYPE.DROP: {
-                    const inst = Instance.getLoadedInstanceById(this.location.instance_id)!;
-                    const drop = this.queuedAction as DropAction;
-                    const inv = this.charSheet.equipment.inventory;
-                    let dropped: boolean = false;
-                    for (let i = 0; i < inv.stacks; i++) {
-                        const stack = inv.getItemStack(i);
-                        if (drop.item_id === stack.item.id) {
-                            if (drop.count === null || stack.count === null || drop.count >= stack.count) {
-                                inst.dropItem(stack.item, stack.count, this.location);
-                                inv.removeItemFromSlot(i);
-                            } else {
-                                const dropItem = stack.item.clone();
-                                stack.count -= drop.count;
-                                inst.dropItem(dropItem, drop.count, this.location);
-                            }
-                            dropped = true;
-                            this.charSheet.useAP(ACTION_COST[this.queuedAction.type]);
-                            break;
-                        }
-                    }
-                    if (!dropped) {
-                        console.log('Cannot drop nonexistent item!');
-                        break;
-                    }
-                    this.queuedAction = null;
-                    break;
-                } case ACTION_TYPE.EQUIP: {
-                    const equip = this.queuedAction as EquipAction;
-                    const stack = this.charSheet.equipment.inventory.getItemStackById(equip.item_id);
-                    if (!stack) {
-                        console.log('Cannot equip nonexistent item!');
-                        break;
-                    }
-                    const item = stack.item;
-                    if (item.asWeapon) {
-                        this.charSheet.equipment.equipWeapon(this.charSheet.equipment.inventory.removeItemById(equip.item_id)!.asWeapon);
-                    } else if (item.asArmor) {
-                        this.charSheet.equipment.equipArmor(this.charSheet.equipment.inventory.removeItemById(equip.item_id)!.asArmor);
-                    } else {
-                        console.log('Cannot equip that item type!');
-                    }
-                    this.queuedAction = null;
-                    break;
-                } case ACTION_TYPE.UNEQUIP: {
-                    const unequip = this.queuedAction as UnequipAction;
-                    this.charSheet.equipment.unequip(unequip.slot);
-                    this.queuedAction = null;
-                    break;
-                }
-            }
-            return ACTION_STATUS.PERFORMED;
+        if (!this.queuedAction) {
+            return ACTION_STATUS.ASYNC; // needs to decide
         }
-        return ACTION_STATUS.ASYNC; // needs to decide
+        const { result, cost } = this.queuedAction.perform(this);
+        switch (result) {
+            case ACTION_RESULT.SUCCESS:
+                this.charSheet.useAP(cost);
+                this.queuedAction = null;
+                return ACTION_STATUS.PERFORMED;
+                break;
+            case ACTION_RESULT.INSUFFICIENT_AP:
+                return ACTION_STATUS.WAITING;
+                break;
+            case ACTION_RESULT.REDUNDANT:
+                this.queuedAction = null;
+                return ACTION_STATUS.ASYNC;
+                break;
+            case ACTION_RESULT.FAILURE:
+                this.queuedAction = null;
+                return ACTION_STATUS.ASYNC;
+                break;
+            default:
+                console.log('INVALID ACTION RESULT!');
+                return ACTION_STATUS.PERFORMED;
+                break;
+        }
     }
     public setActive(usr: User) {
         if (this.active) {
