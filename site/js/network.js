@@ -120,6 +120,7 @@ async function doEvent(event) {
                 'RIGHT',
             ];
             game.game_data.mobs[event.entity].direction = dirs.indexOf(event.direction);
+            game.draw();
             break;
         case 'ATTACK':
             //TODO
@@ -277,6 +278,8 @@ $(function () {
         game.loadPalette(msg);
     });
     socket.on('update', function (msg) {
+        // DEPRECATED
+        // TODO: handle any changes via events
         game.tiles = msg.tiles;
         game.tileAdjacencies = msg.tileAdjacencies;
         game.boardInfo = msg.info;
