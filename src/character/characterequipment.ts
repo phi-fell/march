@@ -79,9 +79,14 @@ export class CharacterEquipment {
         this.unequip(armor.armor_data.slot);
         this.equipment[armor.armor_data.slot] = armor;
     }
-    public unequip(slot: EQUIPMENT_SLOT) {
+    public unequip(slot: EQUIPMENT_SLOT): boolean {
+        let ret = false;
+        if (this.equipment[slot]) {
+            ret = true;
+        }
         this.inventory.addItem(this.equipment[slot]);
         this.equipment[slot] = null;
+        return ret;
     }
     public toJSON() {
         const equipped: { [id: string]: any; } = {};
