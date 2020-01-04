@@ -83,7 +83,7 @@ export class MoveAction implements PlayerAction {
             inst.emit(new MoveEvent(player, this.direction), player.location, to);
             inst.emitWB(new RemoveMobEvent(player), [player.location], [to]);
             player.location = to;
-            return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };;
+            return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
         }
         return { 'result': ACTION_RESULT.INSUFFICIENT_AP, 'cost': 0 };
     }
@@ -117,7 +117,7 @@ export class StrafeAction implements PlayerAction {
             inst.emit(new MoveEvent(player, this.direction), player.location, to);
             inst.emitWB(new RemoveMobEvent(player), [player.location], [to]);
             player.location = to;
-            return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };;
+            return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
         }
         return { 'result': ACTION_RESULT.INSUFFICIENT_AP, 'cost': 0 };
     }
@@ -504,14 +504,14 @@ export class Player extends Entity {
         }
         for (const mob of this.visibleMobs) {
             if (vis.find((e) => e.id === mob.id)) {
-                //no need to remove
+                // no need to remove
             } else {
                 this.user!.sendEvent(new RemoveMobEvent(mob));
             }
         }
         for (const mob of vis) {
             if (this.visibleMobs.find((e) => e.id === mob.id)) {
-                //no need to add
+                // no need to add
             } else {
                 this.user!.sendEvent(new AddMobEvent(mob));
             }
