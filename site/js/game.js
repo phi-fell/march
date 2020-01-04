@@ -16,6 +16,7 @@ class Game {
         this.game_data_version = -1;
         this.game_data = {};
         this.game_data.mobs = {}
+        this.game_data.player_id = '';
         //old game data [DEPRECATED]
         this.items = [];
         this.itemsOnGround = [];
@@ -283,16 +284,27 @@ class Game {
         if (this.tiles !== undefined) {
             this._ctx.textBaseline = 'middle';
             this._ctx.textAlign = "center";
-            var scaleX = this._width / (this.tiles.length - 2);
-            var scaleY = this._height / (this.tiles[0].length - 2);
+            var scaleX = this._width / (this.tiles.length - 4);
+            var scaleY = this._height / (this.tiles[0].length - 4);
             var scale = Math.max(scaleX, scaleY);
-            var offsetX = 0;
-            var offsetY = 0;
+            var offsetX = -scale;
+            var offsetY = -scale;
             if (this._width < this._height) {
-                offsetX = (this._width - this._height) / 2;
+                offsetX += (this._width - this._height) / 2;
             } else if (this._height < this._width) {
-                offsetY = (this._height - this._width) / 2;
+                offsetY += (this._height - this._width) / 2;
             }
+            const cameraLoc = this.game_data.mobs[this.game_data.player_id].location;
+            const cameraX = cameraLoc.x;
+            const cameraY = cameraLoc.y;
+            const radX = (this.boardInfo.w - 1) / 2;
+            const radY = (this.boardInfo.h - 1) / 2;
+            const centerX = this.boardInfo.x + radX;
+            const centerY = this.boardInfo.y + radY;
+            const camOffX = cameraX - centerX;
+            const camOffY = cameraY - centerY;
+            offsetX -= camOffX * scale;
+            offsetY -= camOffY * scale;
             for (var x = 1; x < this.tiles.length - 1; x++) {
                 for (var y = 1; y < this.tiles[0].length - 1; y++) {
                     let tile = this.tiles[x][y];

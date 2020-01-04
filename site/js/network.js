@@ -286,6 +286,7 @@ $(function () {
         game.itemsOnGround = msg.itemsOnGround;
         game.portals = msg.portals;
         game.player = msg.player;
+        game.game_data.player_id = msg.player_id;
         game.draw();
         game.updateMenus();
     });

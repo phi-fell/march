@@ -476,6 +476,7 @@ export class Player extends Entity {
             this.user!.socket.emit('update', {
                 ...board,
                 'player': this.getDataAsViewer(),
+                'player_id': this.id,
             });
         } else {
             console.log('Can\'t push update to inactive player');
