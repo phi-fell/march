@@ -365,7 +365,7 @@ class Game {
                 } else {
                     tx = 4; ty = j//horizontal wall
                 }
-                if (this._palette[tile] && this._palette[tile].subtiles) {
+                if (this._palette[id] && this._palette[id].subtiles) {
                     this._ctx.drawImage(this._palette[id].subtiles[tx][ty], Math.floor(x + (w * i)), Math.floor(y + (w * j)), Math.ceil(w), Math.ceil(h));
                 }
             }
@@ -373,7 +373,7 @@ class Game {
     }
 
     _drawTile(id, x, y, w, h) {
-        if (this._palette[tile] && this._palette[tile].image) {
+        if (this._palette[id] && this._palette[id].image) {
             this._ctx.drawImage(this._palette[id].image, Math.floor(x), Math.floor(y), Math.ceil(w), Math.ceil(h));
         }
     }
