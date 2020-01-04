@@ -365,13 +365,17 @@ class Game {
                 } else {
                     tx = 4; ty = j//horizontal wall
                 }
-                this._ctx.drawImage(this._palette[id].subtiles[tx][ty], Math.floor(x + (w * i)), Math.floor(y + (w * j)), Math.ceil(w), Math.ceil(h));
+                if (this._palette[tile] && this._palette[tile].subtiles) {
+                    this._ctx.drawImage(this._palette[id].subtiles[tx][ty], Math.floor(x + (w * i)), Math.floor(y + (w * j)), Math.ceil(w), Math.ceil(h));
+                }
             }
         }
     }
 
     _drawTile(id, x, y, w, h) {
-        this._ctx.drawImage(this._palette[id].image, Math.floor(x), Math.floor(y), Math.ceil(w), Math.ceil(h));
+        if (this._palette[tile] && this._palette[tile].image) {
+            this._ctx.drawImage(this._palette[id].image, Math.floor(x), Math.floor(y), Math.ceil(w), Math.ceil(h));
+        }
     }
 
     _drawSprite(id, x, y, w, h, dir) {
