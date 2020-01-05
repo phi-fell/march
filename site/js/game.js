@@ -294,6 +294,9 @@ class Game {
             } else if (this._height < this._width) {
                 offsetY += (this._height - this._width) / 2;
             }
+            if (!this.game_data.player_id || !this.game_data.mobs[this.game_data.player_id]) {
+                return;
+            }
             const cameraLoc = this.game_data.mobs[this.game_data.player_id].location;
             const cameraX = cameraLoc.x;
             const cameraY = cameraLoc.y;
