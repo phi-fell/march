@@ -188,9 +188,9 @@ function printEvent(event) {
             let attacker = game.game_data.mobs[event.attacker];
             let defender = event.defender && game.game_data.mobs[event.defender];
             if (defender) {
-                addMessage(attacker.name + ' attacks ' + defender.name + (event.success ? ' dealing ' + ((event.damage && event.damage.length) ? event.damage.map(getDamageString).reduce((s, d) => s + ', ' + d) : 'no') + ' damage' : ' and misses.'));
+                addMessage((attacker ? attacker.name : 'An unknown entity') + ' attacks ' + (defender ? defender.name : 'An unknown entity') + (event.success ? ' dealing ' + ((event.damage && event.damage.length) ? event.damage.map(getDamageString).reduce((s, d) => s + ', ' + d) : 'no') + ' damage' : ' and misses.'));
             } else {
-                addMessage(attacker.name + ' swings their weapon at nothing.');
+                addMessage((attacker ? attacker.name : 'An unknown entity') + ' swings their weapon at nothing.');
             }
             break;
         } case 'WAIT':
