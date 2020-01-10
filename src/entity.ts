@@ -86,7 +86,7 @@ export class Entity {
         const event = new AttackEvent(false, attacker, this);
         this.charSheet.takeHit(event);
         if (inst) {
-            inst.emit(event, this.location);
+            inst.emit(event, this.location, attacker.location);
         }
         if (this.charSheet.isDead()) {
             this.handleDeath();

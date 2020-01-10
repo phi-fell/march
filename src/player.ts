@@ -188,7 +188,7 @@ export class AttackAction implements PlayerAction {
         if (opponent) {
             opponent.hit(player);
         } else {
-            inst.emit(new AttackEvent(false, player, null));
+            inst.emit(new AttackEvent(false, player, null), player.location);
         }
         return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
     }
