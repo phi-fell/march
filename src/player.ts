@@ -2,7 +2,7 @@ import fs = require('fs');
 
 import { CharacterSheet } from './character/charactersheet';
 import { CharGen } from './chargen';
-import { AddMobEvent, MoveEvent, RemoveMobEvent, TurnEvent } from './clientevent';
+import { AddMobEvent, AttackEvent, MoveEvent, RemoveMobEvent, TurnEvent } from './clientevent';
 import { DIRECTION, directionVectors } from './direction';
 import { ACTION_STATUS, Entity, MAX_VISIBILITY_RADIUS } from './entity';
 import { Instance } from './instance';
@@ -187,6 +187,8 @@ export class AttackAction implements PlayerAction {
         const opponent = inst.getMobInLocation(attackPos.x, attackPos.y);
         if (opponent) {
             opponent.hit(player);
+        } else {
+            inst.emit(new AttackEvent(false, player, null));
         }
         return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
     }
