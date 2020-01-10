@@ -9,7 +9,7 @@
         "x": 1.5,
         "y": 1.5
     },
-    "delay": 100,
+    "delay": 50,
     "frame_width": 62,
     "frame_height": 62,
     "frames": 5
