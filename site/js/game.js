@@ -28,10 +28,44 @@ class Game {
         //resources
         this._palette = [];
         this._sprites = {};
+        this._animations = {};
         //UI data
         this._sheetdisplaymode = 'attributes';
         //load resources
-        this._loadImages();
+        this._loadDefaultResources();
+    }
+
+    _getAnimation(id) {
+        if (this._animations[id]) {
+            return this._animations[id];
+        } else {
+            this._loadAnimation(id);
+            return this._animations['error'];
+        }
+    }
+
+    _loadAnimation(id) {
+        this._animations[id] = this._animations['error'];
+        let g = this;
+        $.getJSON("tex/animation/" + id + ".json", (json) => {
+            let img = new Image();
+            img.onload = function () {
+                g._animations[id] = {};
+                g._animations[id].frame_count = json.frames;
+                g._animations[id].frame_width = json.frame_width;
+                g._animations[id].frame_height = json.frame_height;
+                g._animations[id].delay = json.delay;
+                g._animations[id].frames = [];
+                for (let i = 0; i < json.frames; i++) {
+                    g._animations[id].frames[i] = document.createElement('canvas');
+                    let context = g._animations[id].frames[i].getContext('2d');
+                    g._animations[id].frames[i].width = json.frame_width;
+                    g._animations[id].frames[i].height = json.frame_height;
+                    context.drawImage(img, i * json.frame_width, 0, json.frame_width, json.frame_height, 0, 0, json.frame_width, json.frame_height);
+                }
+            }
+            img.src = "tex/animation/" + json.image;
+        });
     }
 
     _getSprite(id) {
@@ -52,11 +86,11 @@ class Game {
             g.draw();
         }
         img.src = "tex/sprites/" + id + ".png";
-
     }
 
-    _loadImages() {
+    _loadDefaultResources() {
         let g = this;
+        //sprites
         this._sprites['error'] = new Image();
         this._sprites['error'].onload = function () {
             //do nothing for now.
@@ -65,6 +99,20 @@ class Game {
             console.log('default sprite could not be loaded!')
         }
         this._sprites['error'].src = "tex/sprites/error.png";
+        //animations
+        this._animations['error'] = {};
+        this._animations['error'].frame_count = 1;
+        this._animations['error'].delay = 500;
+        this._animations['error'].frames = [];
+        this._animations['error'].frames[0] = new Image();
+        this._animations['error'].onload = function () {
+            this._animations['error'].frame_width = this._animations['error'].frame[0].width;
+            this._animations['error'].frame_height = this._animations['error'].frame[0].height
+        }
+        this._animations['error'].onerror = function () {
+            console.log('default animation could not be loaded!')
+        }
+        this._animations['error'].src = "tex/animations/error.png";
     }
 
     getData(id) {
