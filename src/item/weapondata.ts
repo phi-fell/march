@@ -7,6 +7,7 @@ export class WeaponData {
             json.force,
             json.precision,
             json.speed,
+            json.attack_animation,
         );
     }
     constructor(
@@ -16,6 +17,7 @@ export class WeaponData {
         public force: number,
         public precision: number,
         public speed: number,
+        public attack_animation: string,
     ) { }
     public toJSON() {
         return {
@@ -25,6 +27,7 @@ export class WeaponData {
             'force': this.force,
             'precision': this.precision,
             'speed': this.speed,
+            'attack_animation': this.attack_animation,
         };
     }
     public clone() {
@@ -35,6 +38,7 @@ export class WeaponData {
             this.force,
             this.precision,
             this.speed,
+            this.attack_animation,
         );
     }
 }

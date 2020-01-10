@@ -6,6 +6,7 @@
         "sharpness": 0,
         "force": 2,
         "precision": 0,
-        "speed": 12
+        "speed": 12,
+        "attack_animation": "weapon/hammer"
     }
 }

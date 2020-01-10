@@ -6,6 +6,7 @@
         "sharpness": 2,
         "force": 0,
         "precision": 2,
-        "speed": 5
+        "speed": 5,
+        "attack_animation": "weapon/dagger"
     }
 }
