@@ -106,7 +106,7 @@ async function doEvent(event) {
             let fx = sx + dx;
             let fy = sy + dy;
             const steps = 20;
-            const total_time = 250;
+            const total_time = 100;
             for (let i = 0; i < steps; i++) {
                 game.game_data.mobs[event.entity].location.x = sx + (i * dx / steps);
                 game.game_data.mobs[event.entity].location.y = sy + (i * dy / steps);
