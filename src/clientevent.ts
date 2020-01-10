@@ -84,23 +84,13 @@ export class TurnEvent implements ClientEvent {
 
 export class AttackEvent implements ClientEvent {
     public type: EVENT_TYPE.ATTACK = EVENT_TYPE.ATTACK;
-    constructor(public success: boolean, public attacker: Entity, public defender: Entity, public damage: Damage[] = []) { }
+    constructor(public success: boolean, public attacker: Entity, public defender: Entity | null, public damage: Damage[] = []) { }
     public toJSON(): object {
         return {
             'type': EVENT_TYPE[this.type],
             'success': this.success,
-            'attacker': {
-                'name': this.attacker.name,
-                'id': this.attacker.id,
-                'sheet': this.attacker.charSheet.toJSON(),
-                'location': this.attacker.location.toJSON(),
-            },
-            'defender': {
-                'name': this.defender.name,
-                'id': this.defender.id,
-                'sheet': this.defender.charSheet.toJSON(),
-                'location': this.defender.location.toJSON(),
-            },
+            'attacker': this.attacker.id,
+            'defender': this.defender && this.defender.id,
             'damage': this.damage.map((d) => d.toJSON()),
         };
     }
