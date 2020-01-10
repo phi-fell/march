@@ -117,7 +117,7 @@ async function doEvent(event) {
             game.game_data.mobs[event.entity].location.y = fy;
             game.draw();
             break;
-        case 'TURN':
+        case 'TURN': {
             let dirs = [
                 'UP',
                 'LEFT',
@@ -127,10 +127,23 @@ async function doEvent(event) {
             game.game_data.mobs[event.entity].direction = dirs.indexOf(event.direction);
             game.draw();
             break;
-        case 'ATTACK':
-            //TODO
+        } case 'ATTACK': {
+            let animation = game._getAnimation(game.game_data.mobs[event.attacker].sheet.equipment.equipped.WEAPON.weapon_data.attack_animation);
+            for (let i = 0; i < animation.frame_count; i++) {
+                game.game_data.active_animation = {
+                    'animation': game.game_data.mobs[event.attacker].sheet.equipment.equipped.WEAPON.weapon_data.attack_animation,
+                    'frame': i,
+                    'direction': game.game_data.mobs[event.attacker].direction,
+                    'x': game.game_data.mobs[event.attacker].location.x,
+                    'y': game.game_data.mobs[event.attacker].location.y,
+                }
+                game.draw();
+                await sleep(animation.delay);
+            }
+            game.game_data.active_animation = null;
+            game.draw();
             break;
-        case 'WAIT':
+        } case 'WAIT':
             //TODO
             break;
         case 'BLEED':
@@ -171,10 +184,16 @@ function printEvent(event) {
             const mob = game.game_data.mobs[event.entity];
             addMessage(mob.name + ' turns ' + event.direction.toLowerCase());
             break;
-        } case 'ATTACK':
-            addMessage(event.attacker.name + ' attacks ' + event.defender.name + (event.success ? ' dealing ' + ((event.damage && event.damage.length) ? event.damage.map(getDamageString).reduce((s, d) => s + ', ' + d) : 'no') + ' damage' : ' and misses.'));
+        } case 'ATTACK': {
+            let attacker = game.game_data.mobs[event.attacker];
+            let defender = event.defender && game.game_data.mobs[event.defender];
+            if (defender) {
+                addMessage(attacker.name + ' attacks ' + defender.name + (event.success ? ' dealing ' + ((event.damage && event.damage.length) ? event.damage.map(getDamageString).reduce((s, d) => s + ', ' + d) : 'no') + ' damage' : ' and misses.'));
+            } else {
+                addMessage(attacker.name + ' swings their weapon at nothing.');
+            }
             break;
-        case 'WAIT':
+        } case 'WAIT':
             addMessage('WAIT');
             break;
         case 'BLEED':

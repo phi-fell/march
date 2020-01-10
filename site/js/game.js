@@ -17,6 +17,7 @@ class Game {
         this.game_data = {};
         this.game_data.mobs = {}
         this.game_data.player_id = '';
+        this.game_data.active_animation = null;
         //old game data [DEPRECATED]
         this.items = [];
         this.itemsOnGround = [];
@@ -55,6 +56,8 @@ class Game {
                 g._animations[id].frame_width = json.frame_width;
                 g._animations[id].frame_height = json.frame_height;
                 g._animations[id].delay = json.delay;
+                g._animations[id].offset = json.offset;
+                g._animations[id].scale = json.scale;
                 g._animations[id].frames = [];
                 for (let i = 0; i < json.frames; i++) {
                     g._animations[id].frames[i] = document.createElement('canvas');
@@ -100,19 +103,7 @@ class Game {
         }
         this._sprites['error'].src = "tex/sprites/error.png";
         //animations
-        this._animations['error'] = {};
-        this._animations['error'].frame_count = 1;
-        this._animations['error'].delay = 500;
-        this._animations['error'].frames = [];
-        this._animations['error'].frames[0] = new Image();
-        this._animations['error'].onload = function () {
-            this._animations['error'].frame_width = this._animations['error'].frame[0].width;
-            this._animations['error'].frame_height = this._animations['error'].frame[0].height
-        }
-        this._animations['error'].onerror = function () {
-            console.log('default animation could not be loaded!')
-        }
-        this._animations['error'].src = "tex/animations/error.png";
+        this._loadAnimation('error');
     }
 
     getData(id) {
@@ -405,6 +396,11 @@ class Game {
                     //this._ctx.fillText(this.game_data.mobs[id].sheet.status.action_points + '/' + this.game_data.mobs[id].sheet.status.max_action_points + ' (+' + this.game_data.mobs[id].sheet.status.action_point_recovery + ')', ((x - 0.5) * scale) + offsetX, ((y - 0.5) * scale) + offsetY);
                 }
             }
+            if (this.game_data.active_animation) {
+                let x = this.game_data.active_animation.x - this.boardInfo.x;
+                let y = this.game_data.active_animation.y - this.boardInfo.y;
+                this._drawAnimation(this.game_data.active_animation.animation, this.game_data.active_animation.frame, ((x - 1) * scale) + offsetX, ((y - 1) * scale) + offsetY, scale, scale, scale, this.game_data.active_animation.direction);
+            }
         }
     }
 
@@ -447,6 +443,20 @@ class Game {
         this._ctx.rotate(Math.PI * (dir / -2));
         this._ctx.drawImage(this._getSprite(id), -w / 2, -h / 2, w, h);
         this._ctx.restore();
+    }
+
+    _drawAnimation(id, frame, x, y, w, h, scale, dir) {
+        let anim = this._getAnimation(id);
+        this._ctx.save();
+        try {
+            this._ctx.translate(x + w / 2, y + h / 2);
+            this._ctx.rotate(Math.PI * (dir / -2));
+            this._ctx.translate(anim.offset.x * scale, anim.offset.y * scale);
+            this._ctx.scale(anim.scale.x, anim.scale.y);
+            this._ctx.drawImage(anim.frames[frame], -w / 2, -h / 2, w, h);
+        } finally {
+            this._ctx.restore();
+        }
     }
 
     _drawItem(id, x, y, w, h) {
