@@ -8,7 +8,7 @@
     "equipment": {
         "inventory": [
             {
-                "item": "weapon/sword",
+                "item": "weapon/dagger",
                 "count": 1
             }
         ]
