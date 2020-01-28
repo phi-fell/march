@@ -59,6 +59,9 @@
         "no-return-undefined": true,
         "no-unused": false,
         "no-var-before-return": true,
-        "prefer-while": true
+        "prefer-while": true,
+        "await-promise": true,
+        "no-return-await": true,
+        "promise-function-async": true
     }
 }

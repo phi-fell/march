@@ -1,0 +1,16 @@
+doctype html
+
+html
+    head
+        title GotG
+        script(src="/socket.io/socket.io.js")
+        script(src="/jquery.min.js")
+        script(src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js")
+        script(type="module" src="/js/index.js")
+    body
+    p Communicating with server and redirecting...
+    br
+    p 
+        | (if you wait more than a few seconds, check your javascript console for errors, or visit the 
+        a(href='/login') /login
+        |  page manually

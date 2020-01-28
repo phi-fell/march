@@ -1,0 +1,85 @@
+doctype html
+html
+    head
+        title GotG
+        script(src="/socket.io/socket.io.js")
+        script(src="/jquery.min.js")
+        script(src="/js/login.js")
+        style.
+            .outer {
+                display: flex;
+                flex-direction: column;
+
+                position: absolute;
+                height: 90%;
+                width: 90%;
+
+                text-align: right;
+            }
+
+            .mid {
+                display: flex;
+                flex-direction: row;
+
+                flex: 0 1 auto;
+            }
+
+            .inner {
+                flex: 0 1 auto;
+            }
+
+            .pad {
+                flex: 1 1 auto;
+            }
+
+            .formbox {
+                display: flex;
+                flex-direction: row;
+            }
+
+            .inputcol {
+                flex: 1 1 auto;
+
+                display: flex;
+                flex-direction: column;
+            }
+
+            .labelcol {
+                flex: 1 1 auto;
+
+                display: flex;
+                flex-direction: column;
+            }
+
+            .formitem {
+                flex: 1 1 auto;
+                margin: 5px;
+            }
+
+            .nav {
+                position: absolute;
+                left: 10px;
+                top: 10px;
+                z-index: 1;
+            }
+
+body
+    .nav
+        <a href="/create">New User</a>
+    .outer
+        .pad
+        .mid
+            .pad
+            .inner
+                form(action="")
+                    .formbox
+                        .labelcol
+                            label.formitem(for="user") Userame:
+                            label.formitem(for="pass") Passphrase:
+                        .inputcol
+                            input.formitem(type="text" id="user" name="username")
+                            input.formitem(type="password" id="pass" name="password")
+                    button Login
+                </form>
+            .pad
+        .pad
