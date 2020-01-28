@@ -1,5 +1,6 @@
 node_modules/*
 build/*
+site/js/*
 package-lock.json
 bugs/*
 users/*
