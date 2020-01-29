@@ -1,22 +1,24 @@
-$(function () {
-    $('form').submit(function (e) {
+import { cacheCredentials, Credentials } from './auth';
+
+$(() => {
+    $('form').submit((e) => {
         e.preventDefault(); // prevents page reloading
-        var pass1 = $('#pass1').val();
-        var pass2 = $('#pass2').val();
+        const pass1 = $('#pass1').val();
+        const pass2 = $('#pass2').val();
         if (pass1 === pass2) {
-            creds = {
-                user: $('#user').val(),
-                pass: pass1,
+            const creds = {
+                'user': $('#user').val(),
+                'pass': pass1,
             };
             console.log('Creating user...');
-            var socket = io();
+            const socket = io();
             socket.emit('create_user', creds);
-            socket.on('success', function (msg) {
+            socket.on('success', (msg: Credentials) => {
                 console.log('success! redirecting to /character_creation');
-                cacheCredentials(msg)
+                cacheCredentials(msg);
                 window.location.href = '/character_creation';
             });
-            socket.on('fail', function (msg) {
+            socket.on('fail', (msg: any) => {
                 console.log('something went wrong');
                 if (msg.reason) {
                     alert(msg.reason);
@@ -24,7 +26,7 @@ $(function () {
                 window.location.href = '/create';
             });
         } else {
-            alert("Password fields do not match!");
+            alert('Password fields do not match!');
         }
         return false;
     });

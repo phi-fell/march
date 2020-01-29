@@ -1,0 +1,53 @@
+flex-col()
+    display: flex
+    flex-direction: column
+
+flex-row()
+    display: flex
+    flex-direction: row
+
+flex-full()
+    flex 1 1 auto
+
+flex-shrink()
+    flex 0 1 auto
+
+.outer 
+    flex-col()
+
+    position: absolute
+    height: 90%
+    width: 90%
+
+    text-align: right
+
+.mid 
+    flex-row()
+    flex-shrink()
+
+.inner 
+    flex-shrink()
+
+.pad 
+    flex-full()
+
+.formbox 
+    flex-row()
+
+.inputcol 
+    flex-full()
+    flex-col()
+
+.labelcol 
+    flex-full()
+    flex-col()
+
+.formitem 
+    flex-full()
+    margin: 5px
+
+.nav 
+    position: absolute
+    left: 10px
+    top: 10px
+    z-index: 1

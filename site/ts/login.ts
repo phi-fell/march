@@ -1,19 +1,21 @@
-$(function () {
-    $('form').submit(function (e) {
+import { cacheCredentials, Credentials } from './auth';
+
+$(() => {
+    $('form').submit((e) => {
         e.preventDefault(); // prevents page reloading
-        creds = {
-            user: $('#user').val(),
-            pass: $('#pass').val(),
+        const creds = {
+            'user': $('#user').val(),
+            'pass': $('#pass').val(),
         };
         console.log('validating credentials...');
-        var socket = io();
+        const socket = io();
         socket.emit('authorize', creds);
-        socket.on('success', function (msg) {
+        socket.on('success', (msg: Credentials) => {
             console.log('valid credentials, redirecting to /game');
-            cacheCredentials(msg)
+            cacheCredentials(msg);
             window.location.href = '/game';
         });
-        socket.on('fail', function (msg) {
+        socket.on('fail', () => {
             console.log('invalid credentials, redirecting to /login');
             window.location.href = '/login';
         });
