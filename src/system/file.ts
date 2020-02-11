@@ -153,6 +153,10 @@ class OwnedFileImpl implements OwnedFile {
             console.log(error);
         });
         this.modified = false;
-        return this.savePromise;
+        const p = this.savePromise;
+        await p;
+        if (p === this.savePromise) {
+            this.savePromise = undefined;
+        }
     }
 }
