@@ -4,11 +4,23 @@ import { Client, CLIENT_CONNECTION_STATE } from './client';
 import { User } from './user';
 
 export class Server {
+    private running: boolean = true;
     private clients: { [id: string]: Client; } = {};
     private users: { [id: string]: User; } = {};
-    constructor(private server: SocketIO.Server) {
-        server.on('connection', (socket: Socket) => {
-            this.clients[socket.id] = new Client(this, socket.id, socket);
+    constructor(private _server: SocketIO.Server) {
+        _server.on('connection', (socket: Socket) => {
+            if (this.running) {
+                this.clients[socket.id] = new Client(this, socket.id, socket);
+            }
+        });
+    }
+    public get server() {
+        return this._server;
+    }
+    public async shutdown() {
+        this.running = false;
+        Object.values(this.clients).forEach((client: Client) => {
+            client.disconnect();
         });
     }
     public removeClient(id: string) {

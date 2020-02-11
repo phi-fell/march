@@ -31,8 +31,8 @@ export class WebServer {
     private options: WebServerOptions;
     private express_app: any;
     private redirect_app: any | null = null;
-    private http_server: any;
-    private https_server: any | null = null;
+    private http_server: http.Server;
+    private https_server: https.Server | null = null;
     private socketIO: SocketIO.Server;
     constructor(opts: WebServerOptions) {
         this.options = opts.clone();
@@ -60,9 +60,17 @@ export class WebServer {
         }
         attachWebRoutes(this.express_app);
     }
+    public shutdown() {
+        if (this.options.use_https) {
+            this.https_server?.close();
+            this.http_server.close();
+        } else {
+            this.http_server.close();
+        }
+    }
     public listen() {
         if (this.options.use_https) {
-            this.https_server.listen(this.options.https_port, () => {
+            this.https_server?.listen(this.options.https_port, () => {
                 console.log('GotG V' + version + ' Launch_ID[' + launch_id + ']');
                 console.log('listening on *:' + this.options.https_port);
             });

@@ -1,88 +1,171 @@
+import bcrypt = require('bcrypt');
+import crypto = require('crypto');
+import { promises as fs } from 'fs';
+import * as t from 'io-ts';
+
+import { Random } from '../math/random';
+import { Player } from '../player';
+import { File, OwnedFile } from '../system/file';
+import { FileBackedData } from '../system/file_backed_data';
 import { Client } from './client';
 
-export enum USER_LOAD_STATE {
-    LOADING,
-    LOADED,
-    UNLOADING,
-    UNLOADED,
+const TOKEN_LIFESPAN = 1000 * 60 * 60 * 24 * 3; // 3 days in milliseconds
+
+function generateAuthToken() {
+    return Random.uuid();
 }
 
-export enum USER_CONNECTION_STATE {
-    LOGGING_IN,
-    LOGGED_IN,
-    LOGGING_OUT,
-    LOGGED_OUT,
+async function getHash(pass: string) {
+    return bcrypt.hash(pass, 10);
 }
 
-export class User {
-    private load_refs: string[] = [];
-    private load_state: USER_LOAD_STATE = USER_LOAD_STATE.UNLOADED;
-    private connection_state: USER_CONNECTION_STATE = USER_CONNECTION_STATE.LOGGED_OUT;
-    private client: Client | null = null;
-    constructor() {
-        this.loadFromDisk();
+async function testPass(pass: string, hash: string) {
+    try {
+        return bcrypt.compare(pass, hash);
+    } catch (err) {
+        return false;
     }
-    public log_in(client: Client) {
-        if (this.connection_state !== USER_CONNECTION_STATE.LOGGED_OUT) {
-            console.log('Error: cannot log in user that is already logged in!');
-            return;
+}
+async function setUsername(id: string, name: string) {
+    return fs.writeFile('users/' + name.toLowerCase() + '.id', id + '\n' + name);
+}
+
+async function isUsernameUnavailable(username: string): Promise<boolean> {
+    return File.exists('users/' + username.toLowerCase() + '.id');
+}
+
+interface UserCreationResult {
+    success: boolean;
+    error?: string;
+    token?: string;
+}
+
+const UserDataType = t.type({
+    'id': t.string,
+    'name': t.string,
+    'auth': t.type({
+        'hash': t.string,
+        'token': t.string,
+        'token_creation_time': t.number,
+    }),
+});
+
+export class User extends FileBackedData {
+    public static async createUser(client: Client, username: string, passphrase: string): Promise<UserCreationResult> {
+        if (await isUsernameUnavailable(username)) {
+            const success = false;
+            const error = 'Username not available.';
+            return { success, error };
         }
-        this.connection_state = USER_CONNECTION_STATE.LOGGING_IN;
-        this.connect(client);
-        this.client = client;
-        // load player, etc?
-        this.connection_state = USER_CONNECTION_STATE.LOGGED_IN;
+        let id = Random.uuid();
+        let path = 'users/' + id + '.json';
+        while (await File.exists(path)) {
+            console.log('Duplicate ID while creating User! UUID collisions should not occur!');
+            id = Random.uuid();
+            path = 'users/' + id + '.json';
+        }
+        const hash = getHash(passphrase);
+        const file = await File.acquireFile(path);
+        const user = new User(file, id);
+        setUsername(id, username);
+        user._name = username;
+        User.users[id] = user;
+        const token = user.getFreshAuthToken();
+        user.auth.hash = await hash;
+        user.save();
+        client.attachUser(user);
+        await user.unload();
+        const success = true;
+        return { success, token };
     }
-    public async log_out(client: Client) {
-        if (this.connection_state !== USER_CONNECTION_STATE.LOGGED_IN) {
-            console.log('Error: cannot log out user that is not logged in!');
-            return;
-        }
-        if (this.client === null || this.client.id !== client.id) {
-            console.log('Error: client cannot logout from a user it is not logged in as!');
-            return;
-        }
-        this.connection_state = USER_CONNECTION_STATE.LOGGING_OUT;
-        // ^ start logout process (in case of async)
-        // TODO: disconnect player and save player to disk, etc.
-        // end log out process
-        this.client = null;
-        this.connection_state = USER_CONNECTION_STATE.LOGGED_OUT;
-        this.disconnect(client);
+    public static getLoadedUser(id: string): User | undefined {
+        return User.users[id];
     }
-    public connect(client: Client) {
-        if (this.load_refs.includes(client.id)) {
-            console.log('Error: client cannot connect to a user twice!');
-            return;
+    /** Remember to unload() loaded users! */
+    public static async loadUser(id: string): Promise<User> {
+        if (!User.users[id]) {
+            const path = 'users/' + id + '.json';
+            const file = await File.acquireFile(path);
+            User.users[id] = new User(file, id);
         }
-        this.load_refs.push(client.id);
+        return User.users[id];
     }
-    public disconnect(client: Client) {
-        if (!this.load_refs.includes(client.id)) {
-            console.log('Error: client cannot disconnect from a user it is not connected to!');
+    public static async getUserIdFromName(name: string): Promise<string | undefined> {
+        try {
+            const data = (await File.getReadOnlyFile('users/' + name.toLowerCase() + '.id')).getString();
+            const lines = (data + '').split('\n');
+            if (name === lines[1]) {// for now we don't allow usernames that only differ by case
+                return lines[0];
+            }
             return;
-        }
-        this.load_refs.splice(this.load_refs.indexOf(client.id), 1);
-        if (this.client && this.client.id === client.id) {
-            this.log_out(client);
+        } catch (err) {
+            return;
         }
     }
-    private async loadFromDisk() {
-        if (this.load_state !== USER_LOAD_STATE.LOADED) {
-            console.log('Error: cannot load user that is already loaded!');
-            return;
-        }
-        this.load_state = USER_LOAD_STATE.LOADING;
-        // TODO: load from disk
-        this.load_state = USER_LOAD_STATE.LOADED;
+    private static users: { [id: string]: User } = {};
+
+    private client?: Client;
+    private _name: string = '';
+    private auth: { hash: string; token: string; token_creation_time: number; } = { 'hash': '', 'token': '', 'token_creation_time': 0 };
+    private players: Player[] = [];
+    private constructor(file: OwnedFile, private id: string) {
+        super(file);
     }
-    private async unload() {
-        if (this.load_state !== USER_LOAD_STATE.LOADED) {
-            console.log('Error: cannot unload user that is not loaded!');
-            return;
+    public get name() { return this._name; }
+    public async validateCredentials(username: string, pass: string): Promise<string | undefined> {
+        if (username === this.name && await testPass(pass, this.auth.hash)) {
+            return this.getFreshAuthToken();
         }
-        this.load_state = USER_LOAD_STATE.UNLOADING;
-        // TODO: save to disk
-        this.load_state = USER_LOAD_STATE.UNLOADED;
+    }
+    public validateToken(token: string): boolean {
+        const expired = Date.now() - this.auth.token_creation_time > TOKEN_LIFESPAN;
+        const equal = crypto.timingSafeEqual(Buffer.from(token), Buffer.from(this.auth.token));
+        return equal && !expired;
+    }
+    public isLoggedIn(): boolean {
+        return this.client !== undefined;
+    }
+    public login(client: Client, token: string): boolean {
+        if (client.has_attached_user) {
+            return false;
+        }
+        if (this.validateToken(token)) {
+            this.client = client;
+            client.attachUser(this);
+            return true;
+        }
+        return false;
+    }
+    public logout() {
+        this.client = undefined;
+        this.unload();
+    }
+    public toJSON() {
+        return {
+            'id': this.id,
+            'name': this.name,
+            'auth': {
+                'hash': this.auth.hash,
+                'token': this.auth.token,
+                'token_creation_time': this.auth.token_creation_time,
+            },
+        };
+    }
+    protected async cleanup() {
+        delete User.users[this.id];
+    }
+    protected fromJSON(json: any): void {
+        if (UserDataType.is(json)) {
+            this.id = json.id;
+            this._name = json.name;
+            this.auth = json.auth;
+        } else {
+            console.log('Invalid User JSON!');
+        }
+    }
+    private getFreshAuthToken() {
+        this.auth.token_creation_time = Date.now();
+        this.auth.token = generateAuthToken();
+        return this.auth.token;
     }
 }
