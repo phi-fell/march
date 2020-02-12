@@ -119,7 +119,9 @@ export class User extends FileBackedData {
     }
     public validateToken(token: string): boolean {
         const expired = Date.now() - this.auth.token_creation_time > TOKEN_LIFESPAN;
-        const equal = crypto.timingSafeEqual(Buffer.from(token), Buffer.from(this.auth.token));
+        const buf1 = Buffer.from(token);
+        const buf2 = Buffer.from(this.auth.token);
+        const equal = (buf1.length === buf2.length) && crypto.timingSafeEqual(buf1, buf2);
         return equal && !expired;
     }
     public isLoggedIn(): boolean {
