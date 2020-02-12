@@ -1,3 +1,4 @@
+import bent from 'bent';
 import cookieParser from 'cookie-parser';
 import express, { NextFunction, Request, Response } from 'express';
 import http = require('http');
@@ -7,6 +8,12 @@ import pug from 'pug';
 import socketIO = require('socket.io');
 
 import { launch_id, version } from '../version';
+
+const DEBUG_MODE = false;
+
+const jqueryjs = DEBUG_MODE
+    ? bent('https://code.jquery.com', 'buffer')('/jquery-3.4.1.js')
+    : bent('https://code.jquery.com', 'buffer')('/jquery-3.4.1.min.js');
 
 export class WebServerOptions {
     public http_port: number = 80;
@@ -90,6 +97,10 @@ export class WebServer {
 function attachWebRoutes(app: any) {
     app.get('/', (req: Request, res: Response) => {
         res.send(pug.renderFile(path.resolve(__dirname + '/../../site/pug/index.pug')));
+    });
+
+    app.get('/dependencies/jquery.js', async (req: Request, res: Response) => {
+        res.send((await jqueryjs));
     });
 
     app.get('/favicon.ico', (req: Request, res: Response) => {
