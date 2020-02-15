@@ -215,24 +215,21 @@ export class User {
         this.online = false;
         this.unload();
     }
-    public loadFromData(data: any) {
+    public async loadFromData(data: any) {
         this.id = data.id;
         this.name = data.name;
+        this.email = data.email;
         if (data.playerid) {
             this.playerid = data.playerid;
             const user: User = this;
-            Player.loadPlayer(this.playerid, (err: any, plr: Player | null) => {
-                if (err) {
-                    console.log(err);
-                } else {
-                    user.player = plr;
-                    if (user.online) {
-                        user.player!.setActive(user);
-                    }
+            if (this.playerid) {
+                this.player = await Player.loadPlayer(this.playerid) || null;
+                if (this.online) {
+                    this.player?.setActive(user);
                 }
-            });
+            }
         }
-        this.email = data.email;
+
         // TODO: keep info on if player exists? on guest status? etc.
     }
     public unload() {

@@ -322,38 +322,21 @@ export class Player extends Entity {
         plr.saveToDisk();
         return plr;
     }
-    public static async loadPlayer(id: string | null, callback: any): Promise<Player | undefined> {
-        if (id === null) {
-            process.nextTick(() => {
-                callback('Cannot load player id null!', null);
-            });
-            return;
-        }
+    public static async loadPlayer(id: string): Promise<Player | undefined> {
         if (id in players) {
-            process.nextTick(() => {
-                callback(null, players[id]);
-            });
             return players[id];
         }
-        fs.readFile('players/' + id + '.plr', (file_err, data) => {
-            if (file_err) {
-                callback(file_err);
-                return;
-            }
+        try {
+            const data = await fs.promises.readFile('players/' + id + '.plr');
             const plrdat = JSON.parse('' + data);
             const loc: Location = Location.fromJSON(plrdat.location);
-            Instance.loadInstance(loc.instance_id, (inst_err: any, _inst: any) => {
-                if (inst_err) {
-                    console.log(inst_err);
-                    callback(inst_err);
-                    return;
-                }
-                const ret = new Player(id, plrdat.name, loc, DIRECTION[plrdat.direction as keyof typeof DIRECTION]);
-                ret.charSheet = CharacterSheet.fromJSON(plrdat.sheet);
-                callback(null, ret);
-                return ret;
-            });
-        });
+            await Instance.loadInstance(loc.instance_id);
+            const ret = new Player(id, plrdat.name, loc, DIRECTION[plrdat.direction as keyof typeof DIRECTION]);
+            ret.charSheet = CharacterSheet.fromJSON(plrdat.sheet);
+            return ret;
+        } catch (err) {
+            console.log(err);
+        }
     }
     public user: User | null;
     public active: boolean;

@@ -73,19 +73,19 @@ export class Instance {
     public static generateNewInstanceID() {
         return Random.uuid();
     }
-    public static loadInstance(id: string, callback: any) {
+    public static async loadInstance(id: string): Promise<Instance | undefined> {
         const loaded = Instance.getLoadedInstanceById(id);
         if (loaded) {
-            return callback(null, loaded);
+            return loaded;
         }
-        fs.readFile('world/' + id + '.inst', (err, data) => {
-            if (err) {
-                return callback(err);
-            }
+        try {
+            const data = await fs.promises.readFile('world/' + id + '.inst');
             const instdat = JSON.parse('' + data);
-            const ret = Instance.fromJSON(instdat);
-            callback(null, ret);
-        });
+            return Instance.fromJSON(instdat);
+        } catch (err) {
+            console.log(err);
+        }
+
     }
     public static getAvailableNonFullInstance(plr: Player): Instance | null {
         for (const inst of Object.values(Instance.instances)) {

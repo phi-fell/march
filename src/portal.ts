@@ -17,9 +17,12 @@ export class Portal {
             return callback(null, this.destination);
         }
         if (this.destination) {
-            return Instance.loadInstance(this.destination.instance_id, (err: any) => {
-                return callback(err, this.destination);
-            });
+            const dest = this.destination;
+            (async () => {
+                const inst = await Instance.loadInstance(dest.instance_id);
+                return callback(inst ? (null) : 'Error: undefined instance', this.destination);
+            })();
+            return;
         }
         const inst: Instance | null = getInstanceFromSchema(this.destination_schema, this.seed);
         if (!inst) {
