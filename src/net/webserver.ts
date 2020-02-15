@@ -9,11 +9,17 @@ import socketIO = require('socket.io');
 
 import { launch_id, version } from '../version';
 
-const DEBUG_MODE = false;
+const DEBUG_MODE = true;
 
+const loadJQuery = bent('https://code.jquery.com', 'string');
 const jqueryjs = DEBUG_MODE
-    ? bent('https://code.jquery.com', 'buffer')('/jquery-3.4.1.js')
-    : bent('https://code.jquery.com', 'buffer')('/jquery-3.4.1.min.js');
+    ? loadJQuery('/jquery-3.4.1.js')
+    : loadJQuery('/jquery-3.4.1.min.js');
+
+const loadVue = bent('https://cdn.jsdelivr.net', 'string');
+const vuejs = DEBUG_MODE
+    ? loadVue('/npm/vue/dist/vue.js')
+    : loadVue('/npm/vue');
 
 export class WebServerOptions {
     public http_port: number = 80;
@@ -96,33 +102,34 @@ export class WebServer {
 
 function attachWebRoutes(app: any) {
     app.get('/', (req: Request, res: Response) => {
-        res.send(pug.renderFile(path.resolve(__dirname + '/../../site/pug/index.pug')));
+        res.send(pug.renderFile(path.resolve('site/pug/index.pug')));
     });
 
-    app.get('/dependencies/jquery.js', async (req: Request, res: Response) => {
-        res.send((await jqueryjs));
-    });
+    app.get('/dependencies/jquery.js', async (req: Request, res: Response) => { res.send((await jqueryjs)); });
+    app.get('/dependencies/vue(.js)?', async (req: Request, res: Response) => { res.type('application/javascript').send((await vuejs)); });
 
     app.get('/favicon.ico', (req: Request, res: Response) => {
-        res.sendFile(path.resolve(__dirname + '/../../site/logo/favicon.ico'));
+        res.sendFile(path.resolve('site/logo/favicon.ico'));
     });
 
     app.get('/game', (req: Request, res: Response) => {
-        res.sendFile(path.resolve(__dirname + '/../../site/html/game.html'));
+        res.sendFile(path.resolve('site/html/game.html'));
     });
-
     app.get('/login', (req: Request, res: Response) => {
-        res.send(pug.renderFile(path.resolve(__dirname + '/../../site/pug/login.pug')));
+        res.send(pug.renderFile(path.resolve('site/pug/login.pug')));
     });
-
+    app.get('/home', (req: Request, res: Response) => {
+        res.send(pug.renderFile(path.resolve('site/pug/home.pug')));
+    });
     app.get('/create', (req: Request, res: Response) => {
-        res.send(pug.renderFile(path.resolve(__dirname + '/../../site/pug/new.pug')));
+        res.send(pug.renderFile(path.resolve('site/pug/new.pug')));
     });
 
     app.use('/js', (req: Request, res: Response, next: NextFunction) => {
-        res.sendFile(path.resolve(__dirname + '/../../site/js' + req.path + (req.path.endsWith('.js') ? '' : '.js')));
+        res.sendFile(path.resolve('site/js' + req.path + (req.path.endsWith('.js') ? '' : '.js')));
     });
 
-    app.use('/tex', express.static(path.resolve(__dirname + '/../../site/tex')));
-    app.use(express.static(path.resolve(__dirname + '/../../public')));
+    app.use('/vue', express.static(path.resolve('site/vue')));
+    app.use('/tex', express.static(path.resolve('site/tex')));
+    app.use(express.static(path.resolve('public')));
 }
