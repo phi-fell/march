@@ -50,7 +50,7 @@ export class File {
     public static async getReadOnlyFile(filepath: string): Promise<ReadOnlyFile> {
         filepath = path.resolve(filepath);
         if (File.owned_files[filepath]) {
-            throw Error('cannot access already owned file!');
+            throw Error('cannot read owned file!');
         }
         const f = new ReadOnlyFileImpl(filepath);
         await f.ready();

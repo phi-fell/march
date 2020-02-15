@@ -2,7 +2,7 @@ import { OwnedFile } from './file';
 
 export abstract class FileBackedData {
     protected constructor(private file: OwnedFile) {
-        this.fromJSON(file.getJSON);
+        this.fromJSON(file.getJSON());
     }
     public save() {
         this.file.setJSON(this.toJSON());
