@@ -322,31 +322,36 @@ export class Player extends Entity {
         plr.saveToDisk();
         return plr;
     }
-    public static loadPlayer(id: string | null, callback: any) {
+    public static async loadPlayer(id: string | null, callback: any): Promise<Player | undefined> {
         if (id === null) {
-            return process.nextTick(() => {
+            process.nextTick(() => {
                 callback('Cannot load player id null!', null);
             });
+            return;
         }
         if (id in players) {
-            return process.nextTick(() => {
+            process.nextTick(() => {
                 callback(null, players[id]);
             });
+            return players[id];
         }
         fs.readFile('players/' + id + '.plr', (file_err, data) => {
             if (file_err) {
-                return callback(file_err);
+                callback(file_err);
+                return;
             }
             const plrdat = JSON.parse('' + data);
             const loc: Location = Location.fromJSON(plrdat.location);
             Instance.loadInstance(loc.instance_id, (inst_err: any, _inst: any) => {
                 if (inst_err) {
                     console.log(inst_err);
-                    return callback(inst_err);
+                    callback(inst_err);
+                    return;
                 }
                 const ret = new Player(id, plrdat.name, loc, DIRECTION[plrdat.direction as keyof typeof DIRECTION]);
                 ret.charSheet = CharacterSheet.fromJSON(plrdat.sheet);
                 callback(null, ret);
+                return ret;
             });
         });
     }
