@@ -3,7 +3,8 @@ import { OwnedFile } from './file';
 export abstract class FileBackedData {
     private constructionPromise?: Promise<any>;
     protected constructor(private file: OwnedFile) {
-        this.constructionPromise = this.fromJSON(file.getJSON());
+        const fbdata = this;
+        this.constructionPromise = Promise.resolve().then(() => { fbdata.fromJSON(file.getJSON()); });
     }
     public async ready() {
         if (this.constructionPromise) {
