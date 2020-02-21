@@ -32,7 +32,8 @@
             "ban-keywords",
             "check-format",
             "allow-leading-underscore",
-            "allow-snake-case"
+            "allow-snake-case",
+            "allow-pascal-case"
         ],
         "comment-format": [
             true,
