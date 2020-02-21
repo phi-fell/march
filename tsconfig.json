@@ -1,8 +1,12 @@
 {
   "compilerOptions": {
     "incremental": true,
-    "target": "es5",
+    "target": "es2019",
     "module": "commonjs",
+    "lib": [
+      "es2020",
+      "dom"
+    ],
     "outDir": "./build",
     "rootDir": "./src",
     /* Strict Type-Checking Options */
