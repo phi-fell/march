@@ -79,7 +79,7 @@ export class Client {
                     return socket.disconnect();
                 }
                 try {
-                    const { success, error, token } = await User.createUser(client, msg.user, msg.pass);
+                    const { success, error, token } = await client.server.createUser(msg.user, msg.pass);
                     if (success) {
                         socket.emit('success', {
                             'user': msg.user,
@@ -100,18 +100,10 @@ export class Client {
         });
         socket.on('validate', async (msg) => {
             if (UserAuthDataType.is(msg)) {
-                const user_id = await User.getUserIdFromName(msg.user);
+                const user_id = await client.server.getUserIdFromName(msg.user);
                 if (user_id) {
-                    let user = User.getLoadedUser(user_id);
-                    let owned = false;
-                    if (!user) {
-                        user = await User.loadUser(user_id);
-                        owned = true;
-                    }
-                    if (user.validateToken(msg.auth)) {
-                        if (owned) {
-                            user.unload();
-                        }
+                    const user = await client.server.getUser(user_id);
+                    if (user && user.validateToken(msg.auth)) {
                         socket.emit('success');
                         return socket.disconnect();
                     }
@@ -122,24 +114,18 @@ export class Client {
         });
         socket.on('authorize', async (msg) => {
             if (CredentialsDataType.is(msg)) {
-                const user_id = await User.getUserIdFromName(msg.user);
+                const user_id = await client.server.getUserIdFromName(msg.user);
                 if (user_id) {
-                    let user = User.getLoadedUser(user_id);
-                    let owned = false;
-                    if (!user) {
-                        user = await User.loadUser(user_id);
-                        owned = true;
-                    }
-                    const token = user.validateCredentials(msg.user, msg.pass);
-                    if (token) {
-                        if (owned) {
-                            user.unload();
+                    const user = await client.server.getUser(user_id);
+                    if (user) {
+                        const token = user.validateCredentials(msg.user, msg.pass);
+                        if (token) {
+                            socket.emit('success', {
+                                'user': msg.user,
+                                'auth': token,
+                            });
+                            return socket.disconnect();
                         }
-                        socket.emit('success', {
-                            'user': msg.user,
-                            'auth': token,
-                        });
-                        return socket.disconnect();
                     }
                 }
             }
@@ -148,31 +134,25 @@ export class Client {
         });
         socket.on('login', async (msg) => {
             if (UserAuthDataType.is(msg)) {
-                const user_id = await User.getUserIdFromName(msg.user);
+                const user_id = await client.server.getUserIdFromName(msg.user);
                 if (user_id) {
-                    let user = User.getLoadedUser(user_id);
-                    let owned = false;
-                    if (!user) {
-                        user = await User.loadUser(user_id);
-                        owned = true;
+                    const user = await client.server.getUser(user_id);
+                    if (user) {
+                        if (user.isLoggedIn()) {
+                            socket.emit('force_disconnect', 'You are already logged in on a different window or device.');
+                            socket.disconnect();
+                            return;
+                        }
+                        if (user.login(client, msg.auth)) {
+                            socket.emit('success');
+                            socket.removeAllListeners('validate');
+                            socket.removeAllListeners('authorize');
+                            socket.removeAllListeners('create_user');
+                            socket.removeAllListeners('login');
+                            client.addLoggedInListeners(socket);
+                            return;
+                        }
                     }
-                    if (user.isLoggedIn()) {
-                        socket.emit('force_disconnect', 'You are already logged in on a different window or device.');
-                        socket.disconnect();
-                        return;
-                    }
-                    if (user.login(client, msg.auth)) {
-                        socket.emit('success');
-                        socket.removeAllListeners('validate');
-                        socket.removeAllListeners('authorize');
-                        socket.removeAllListeners('create_user');
-                        socket.removeAllListeners('login');
-                        return;
-                    }
-                    if (owned) {
-                        user.unload();
-                    }
-
                 }
             }
             socket.emit('fail');
@@ -191,5 +171,17 @@ export class Client {
             this.socket.disconnect();
             console.log(this.socket.handshake.address + ' disconnected');
         }
+    }
+    private addLoggedInListeners(socket: Socket) {
+        const client = this;
+        socket.on('get', async (msg) => {
+            if (client.user) {
+                if (msg === 'players') {
+                    client.socket.emit('players', client.user.toJSON().players)
+                } else if (msg === '') {
+                    //
+                }
+            }
+        });
     }
 }

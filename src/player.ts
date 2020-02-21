@@ -448,13 +448,7 @@ export class Player extends Entity {
         delete players[this.id];
     }
     public saveToDisk() {
-        const data = {
-            'name': this.name,
-            'location': this.location.toJSON(),
-            'direction': DIRECTION[this.direction],
-            'sheet': this.charSheet.toJSON(),
-        };
-        fs.writeFile('players/' + this.id + '.plr', JSON.stringify(data), (err) => {
+        fs.writeFile('players/' + this.id + '.plr', JSON.stringify(this.toJSON()), (err) => {
             if (err) {
                 console.log(err);
             }
@@ -480,6 +474,15 @@ export class Player extends Entity {
             'name': this.name,
             'sheet': this.charSheet.toJSON(),
             'location': this.location.toJSON(),
+            'action': (this.queuedAction) ? this.queuedAction.toJSON() : { 'type': 'NONE' },
+        };
+    }
+    public toJSON() {
+        return {
+            'name': this.name,
+            'sheet': this.charSheet.toJSON(),
+            'location': this.location.toJSON(),
+            'direction': DIRECTION[this.direction],
             'action': (this.queuedAction) ? this.queuedAction.toJSON() : { 'type': 'NONE' },
         };
     }

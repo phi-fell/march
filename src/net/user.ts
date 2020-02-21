@@ -1,11 +1,10 @@
 import bcrypt = require('bcrypt');
 import crypto = require('crypto');
-import { promises as fs } from 'fs';
 import * as t from 'io-ts';
 
 import { Random } from '../math/random';
 import { Player } from '../player';
-import { File, OwnedFile } from '../system/file';
+import { OwnedFile } from '../system/file';
 import { FileBackedData } from '../system/file_backed_data';
 import { Client } from './client';
 
@@ -15,29 +14,12 @@ function generateAuthToken() {
     return Random.uuid();
 }
 
-async function getHash(pass: string) {
-    return bcrypt.hash(pass, 10);
-}
-
 async function testPass(pass: string, hash: string) {
     try {
         return bcrypt.compare(pass, hash);
     } catch (err) {
         return false;
     }
-}
-async function setUsername(id: string, name: string) {
-    return fs.writeFile('users/' + name.toLowerCase() + '.id', id + '\n' + name);
-}
-
-async function isUsernameUnavailable(username: string): Promise<boolean> {
-    return File.exists('users/' + username.toLowerCase() + '.id');
-}
-
-interface UserCreationResult {
-    success: boolean;
-    error?: string;
-    token?: string;
 }
 
 const UserDataType = t.type({
@@ -48,69 +30,23 @@ const UserDataType = t.type({
         'token': t.string,
         'token_creation_time': t.number,
     }),
+    'players': t.array(t.string),
 });
 
 export class User extends FileBackedData {
-    public static async createUser(client: Client, username: string, passphrase: string): Promise<UserCreationResult> {
-        if (await isUsernameUnavailable(username)) {
-            const success = false;
-            const error = 'Username not available.';
-            return { success, error };
-        }
-        let id = Random.uuid();
-        let path = 'users/' + id + '.json';
-        while (await File.exists(path)) {
-            console.log('Duplicate ID while creating User! UUID collisions should not occur!');
-            id = Random.uuid();
-            path = 'users/' + id + '.json';
-        }
-        const hash = getHash(passphrase);
-        const file = await File.acquireFile(path);
-        const user = new User(file, id);
-        setUsername(id, username);
-        user._name = username;
-        User.users[id] = user;
-        const token = user.getFreshAuthToken();
-        user.auth.hash = await hash;
-        user.save();
-        client.attachUser(user);
-        await user.unload();
-        const success = true;
-        return { success, token };
+    /** Remember to unload() created users! */
+    public static async createUserFromFile(file: OwnedFile): Promise<User> {
+        const user = new User(file);
+        await user.ready();
+        return user;
     }
-    public static getLoadedUser(id: string): User | undefined {
-        return User.users[id];
-    }
-    /** Remember to unload() loaded users! */
-    public static async loadUser(id: string): Promise<User> {
-        if (!User.users[id]) {
-            const path = 'users/' + id + '.json';
-            const file = await File.acquireFile(path);
-            User.users[id] = new User(file, id);
-        }
-        return User.users[id];
-    }
-    public static async getUserIdFromName(name: string): Promise<string | undefined> {
-        try {
-            const data = (await File.getReadOnlyFile('users/' + name.toLowerCase() + '.id')).getString();
-            const lines = (data + '').split('\n');
-            if (name === lines[1]) {// for now we don't allow usernames that only differ by case
-                return lines[0];
-            }
-            return;
-        } catch (err) {
-            return;
-        }
-    }
-    private static users: { [id: string]: User } = {};
 
     private client?: Client;
     private _name: string = '';
     private auth: { hash: string; token: string; token_creation_time: number; } = { 'hash': '', 'token': '', 'token_creation_time': 0 };
     private players: Player[] = [];
-    private constructor(file: OwnedFile, private id: string) {
-        super(file);
-    }
+    private id: string = '';
+
     public get name() { return this._name; }
     public async validateCredentials(username: string, pass: string): Promise<string | undefined> {
         if (username === this.name && await testPass(pass, this.auth.hash)) {
@@ -128,6 +64,9 @@ export class User extends FileBackedData {
         return this.client !== undefined;
     }
     public login(client: Client, token: string): boolean {
+        if (this.isLoggedIn()) {
+            return false;
+        }
         if (client.has_attached_user) {
             return false;
         }
@@ -140,7 +79,6 @@ export class User extends FileBackedData {
     }
     public logout() {
         this.client = undefined;
-        this.unload();
     }
     public toJSON() {
         return {
@@ -151,16 +89,25 @@ export class User extends FileBackedData {
                 'token': this.auth.token,
                 'token_creation_time': this.auth.token_creation_time,
             },
+            'players': this.players.forEach((player: Player) => player.toJSON()),
         };
     }
     protected async cleanup() {
-        delete User.users[this.id];
+        // No Cleanup for now
     }
-    protected fromJSON(json: any): void {
+    protected async fromJSON(json: any): Promise<void> {
         if (UserDataType.is(json)) {
             this.id = json.id;
             this._name = json.name;
             this.auth = json.auth;
+            for (const pid of json.players) {
+                const p = await Player.loadPlayer(pid);
+                if (p) {
+                    this.players.push(p);
+                } else {
+                    console.log('Error! Player could not be loaded into User!');
+                }
+            }
         } else {
             console.log('Invalid User JSON!');
         }
