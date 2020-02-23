@@ -11,9 +11,9 @@ $(() => {
         const socket = io();
         socket.emit('authorize', creds);
         socket.on('success', (msg: Credentials) => {
-            console.log('valid credentials, redirecting to /game');
+            console.log('valid credentials, redirecting to /home');
             cacheCredentials(msg);
-            window.location.href = '/game';
+            window.location.href = '/home';
         });
         socket.on('fail', () => {
             console.log('invalid credentials, redirecting to /login');

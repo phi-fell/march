@@ -3,9 +3,10 @@ import crypto = require('crypto');
 import * as t from 'io-ts';
 
 import { Random } from '../math/random';
-import { Player } from '../player';
 import { OwnedFile } from '../system/file';
 import { FileBackedData } from '../system/file_backed_data';
+import { Player } from '../world/player';
+import { World } from '../world/world';
 import { Client } from './client';
 
 const TOKEN_LIFESPAN = 1000 * 60 * 60 * 24 * 3; // 3 days in milliseconds
@@ -35,18 +36,21 @@ const UserDataType = t.type({
 
 export class User extends FileBackedData {
     /** Remember to unload() created users! */
-    public static async createUserFromFile(file: OwnedFile): Promise<User> {
-        const user = new User(file);
+    public static async createUserFromFile(world: World, file: OwnedFile): Promise<User> {
+        const user = new User(world, file);
         await user.ready();
         return user;
     }
 
+    public players: Player[] = [];
     private client?: Client;
     private _name: string = '';
     private auth: { hash: string; token: string; token_creation_time: number; } = { 'hash': '', 'token': '', 'token_creation_time': 0 };
-    private players: Player[] = [];
     private id: string = '';
 
+    constructor(private world: World, file: OwnedFile) {
+        super(file);
+    }
     public get name() { return this._name; }
     public async validateCredentials(username: string, pass: string): Promise<string | undefined> {
         if (username === this.name && await testPass(pass, this.auth.hash)) {
@@ -80,6 +84,10 @@ export class User extends FileBackedData {
     public logout() {
         this.client = undefined;
     }
+    public async addNewPlayer(name: string) {
+        this.players.push(await this.world.createPlayer(name));
+        this.save();
+    }
     public toJSON() {
         return {
             'id': this.id,
@@ -89,7 +97,7 @@ export class User extends FileBackedData {
                 'token': this.auth.token,
                 'token_creation_time': this.auth.token_creation_time,
             },
-            'players': this.players.forEach((player: Player) => player.toJSON()),
+            'players': this.players.map((player: Player) => player.id),
         };
     }
     protected async cleanup() {
@@ -101,7 +109,7 @@ export class User extends FileBackedData {
             this._name = json.name;
             this.auth = json.auth;
             for (const pid of json.players) {
-                const p = await Player.loadPlayer(pid);
+                const p = await this.world.getPlayer(pid);
                 if (p) {
                     this.players.push(p);
                 } else {
@@ -115,6 +123,7 @@ export class User extends FileBackedData {
     private getFreshAuthToken() {
         this.auth.token_creation_time = Date.now();
         this.auth.token = generateAuthToken();
+        this.save();
         return this.auth.token;
     }
 }

@@ -174,10 +174,17 @@ export class Client {
     }
     private addLoggedInListeners(socket: Socket) {
         const client = this;
+        socket.on('new_player', (msg) => {
+            if (client.user) {
+                client.user.addNewPlayer(msg);
+            } else {
+                console.log('cannot create player on logged out client!')
+            }
+        });
         socket.on('get', async (msg) => {
             if (client.user) {
                 if (msg === 'players') {
-                    client.socket.emit('players', client.user.toJSON().players)
+                    client.socket.emit('players', client.user.players.map((p) => p.toJSON()));
                 } else if (msg === '') {
                     //
                 }

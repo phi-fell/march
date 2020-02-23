@@ -14,9 +14,9 @@ $(() => {
             const socket = io();
             socket.emit('create_user', creds);
             socket.on('success', (msg: Credentials) => {
-                console.log('success! redirecting to /character_creation');
+                console.log('success! redirecting to /home');
                 cacheCredentials(msg);
-                window.location.href = '/character_creation';
+                window.location.href = '/home';
             });
             socket.on('fail', (msg: any) => {
                 console.log('something went wrong');

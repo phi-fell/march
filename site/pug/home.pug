@@ -1,0 +1,16 @@
+doctype html
+html
+    head
+        title GotG
+        script(src="/socket.io/socket.io.js")
+        script(src="/dependencies/jquery.js")
+        script(src="/dependencies/vue.js")
+        script(type="module" src="/js/home.js")
+        style
+            include ../css/home.css
+
+body
+    #home
+        player(v-for="player in players" v-bind:key="player.id" v-bind:player="player")
+        input(v-model="new_player_name" placeholder="Name")
+        button#new_player_button New Player

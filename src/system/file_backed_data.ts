@@ -4,6 +4,7 @@ export abstract class FileBackedData {
     private constructionPromise?: Promise<any>;
     protected constructor(private file: OwnedFile) {
         const fbdata = this;
+        // the following lines uses a promise so that the constructor of a subclass will not override values set in .fromJSON()
         this.constructionPromise = Promise.resolve().then(() => { fbdata.fromJSON(file.getJSON()); });
     }
     public async ready() {

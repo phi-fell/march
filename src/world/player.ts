@@ -16,22 +16,24 @@ export class Player extends FileBackedData {
         return player;
     }
 
-    private id: string = '';
+    private _id: string = '';
     private name: string = '';
-
+    public get id() {
+        return this._id;
+    }
+    public toJSON() {
+        return {
+            'id': this._id,
+            'name': this.name,
+        };
+    }
     protected async fromJSON(json: any): Promise<void> {
         if (PlayerDataType.is(json)) {
-            this.id = json.id;
+            this._id = json.id;
             this.name = json.name;
         } else {
             console.log('Invalid Player JSON!');
         }
-    }
-    protected toJSON() {
-        return {
-            'id': this.id,
-            'name': this.name,
-        };
     }
     protected async cleanup(): Promise<void> {
         // nothing to do here
