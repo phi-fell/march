@@ -28,7 +28,7 @@ async function main(process_arguments: string[]) {
     const io_server = new Server(web_server.getSocketIO());
 
     const graceful_exit = () => {
-        process.stdout.write('Shutting down...  ');
+        process.stdout.write('Shutting down...\n');
         io_server.shutdown();
         web_server.shutdown();
         process.stdout.write('done\n');
