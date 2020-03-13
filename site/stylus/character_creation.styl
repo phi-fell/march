@@ -1,0 +1,91 @@
+flex-col()
+    display: flex
+    flex-direction: column
+
+flex-row()
+    display: flex
+    flex-direction: row
+
+flex-full()
+    flex 1 1 auto
+
+flex-shrink()
+    flex 0 1 auto
+
+flex-grow()
+    flex 1 0 auto
+
+flex-none()
+    flex 0 0 auto
+
+.flex
+    flex-full()
+
+.flex_grow
+    flex-grow()
+
+.flex_shrink
+    flex-shrink()
+
+.flex_none {
+    flex-none()
+    flex-row()
+}
+
+.cnum
+    flex-row()
+    flex-none()
+.cnum_button, .cnum_value
+    flex-none()
+
+.input
+    min-width 50px
+    border 1px solid black
+
+body {
+    font: 13px Helvetica, Arial;
+}
+th, td {
+    text-align: left;
+}
+table {
+    border-collapse: collapse;
+    height: 100%;
+    width: 100%;
+}
+p {
+    margin: 5px;
+}
+.wrap
+    display inline-block
+.all {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    left: 0%;
+    top: 0%;
+}
+.outer {
+    padding: 5px;
+    position: relative;
+}
+.char_sheet {
+    border: 2px solid black;
+}
+.row {
+    flex-full()
+    flex-row()
+}
+.col {
+    flex-full()
+    flex-col()
+}
+.section {
+    border: 2px solid black;
+    margin: 5px;
+    padding: 5px;
+
+    flex-full()
+}
+.stretch
+    align-items stretch

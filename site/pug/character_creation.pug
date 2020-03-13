@@ -1,98 +1,35 @@
 doctype html
-
 html
     head
-        title Create Character
-        style.
-            body {
-                font: 13px Helvetica, Arial;
-            }
-            th, td {
-                text-align: left;
-            }
-            table {
-                border-collapse: collapse;
-                height: 100%;
-                width: 100%;
-            }
-            p {
-                margin: 5px;
-            }
-            .all_div {
-                position: absolute;
-                height: 100%;
-                width: 100%;
-                left: 0%;
-                top: 0%;
-            }
-            .outer_div {
-                padding: 5px;
-                position: relative;
-            }
-            .char_sheet_div {
-                border: 2px solid black;
-                display: flex;
-                flex-flow: column;
-            }
-            .no_grow {
-                flex: 0 0 auto;
-
-                display:flex;
-                flex-flow: row;
-            }
-            .row_div {
-                flex: 1 1 auto;
-
-                display: flex;
-                flex-flow: row;
-            }
-            .col_div {
-                flex: 1 1 auto;
-
-                display: flex;
-                flex-flow: column;
-            }
-            .section_div {
-                border: 2px solid black;
-                margin: 5px;
-                padding: 5px;
-
-                flex: 1 1 auto;
-
-                display: flex;
-                flex-flow: row;
-            }
+        title GotG
+        script(src="/socket.io/socket.io.js")
         script(src="/dependencies/jquery.js")
-        script.
-            var essence=#{essence};
-            var attributes='!{attributes}'.split(',');
-            var skills='!{skills}'.split(',');
-            var races=JSON.parse('!{races}');
-            var traits=JSON.parse('!{traits}');
-        script(src="/js/character_creation.js")
-        script(src="/js/auth.js")
+        script(src="/dependencies/vue.js")
+        script(type="module" src="/js/character_creation.js")
+        style
+            include ../css/character_creation.css
 
-    body
-        .all_div
-            .outer_div
-                .char_sheet_div
-                    .row_div
-                        .section_div
-                            p='Name: '
-                            div(contenteditable="true")
-                                p(id="name")
-                        .section_div
+body
+    #character_sheet
+        .all
+            .outer
+                .char_sheet.col
+                    .row
+                        .section.row
+                            p.flex_none='Name: '
+                            span.input.flex(contenteditable="true")
+                        .section.row
                             p='Race: '
                             select(id="race" onChange="setRace(this.value)")
-                        .section_div
+                        .section.row
                             p='Essence: '
                             p(id="essence")
-                        .section_div
+                        .section.row
                             button(onclick="finishCreation()") create
-                    .row_div
-                        .col_div
-                            .row_div
-                                .section_div
+                    .row
+                        .col
+                            .row
+                                .section
                                     table.table
                                         tr
                                             td
@@ -129,53 +66,40 @@ html
                                                 p Initiative:
                                             td
                                                 p(id='initiative')
-                                .section_div
-                                    .col_div
-                                        p Traits:
-                                        ul(id='traits')
-                                        .no_grow
-                                            select(id="traitbuy")
-                                            button(onclick="addTraitChoice()") +
-                            .section_div
+                                .section.col
+                                    p Traits:
+                                    ul(id='traits')
+                                    .flex_none
+                                        select(id="traitbuy")
+                                        button(onclick="addTraitChoice()") +
+                            .section
                                 table.table
                                     tr
                                         th
                                             p Attribute
                                         th
                                             p Value
-                                        th
-                                            p Add/Remove
-                                    each attr in attributes
-                                        tr
-                                            td
-                                                p=attr.charAt(0).toUpperCase() + attr.substring(1).toLowerCase() + ':'
-                                            td
-                                                p(id=attr)
-                                            td
-                                                button(onclick="addAttributePoint('"+attr+"')") +
-                                                button(onclick="removeAttributePoint('"+attr+"')") -
-                            .row_div
-                                .section_div
+                                    tr(v-for="attribute in sheet.attributes")
+                                        td
+                                            p="{{attribute.name.split('_').map((w)=>{return w.charAt(0).toUpperCase() + w.substring(1).toLowerCase()}).join(' ')  + ':'}}"
+                                        td
+                                            cnum(v-bind:self="attribute" v-bind:override="button_disable_override")
+                            .row
+                                .section
                                     p="Inventory: "
-                                .section_div
-                                    .row_div
-                                        p="Gold: "
-                                        p(id="gold")
-                        .section_div
+                                .section.row
+                                    p="Gold: "
+                                    p(id="gold")
+                        .section
                             table.table
                                 tr
                                     th
                                         p Skill
                                     th
                                         p Maximum
-                                    th
-                                        p Increase/Decrease
-                                each skill in skills
-                                    tr
-                                        td
-                                            p=skill.split('_').map((w)=>{return w.charAt(0).toUpperCase() + w.substring(1).toLowerCase()}).join(' ')  + ':'
-                                        td
-                                            p(id=skill)
-                                        td
-                                            button(onclick="increaseSkillCap('"+skill+"')") +
-                                            button(onclick="decreaseSkillCap('"+skill+"')") -
+                                tr(v-for="skill in sheet.skills")
+                                    td
+                                        p="{{skill.name.split('_').map((w)=>{return w.charAt(0).toUpperCase() + w.substring(1).toLowerCase()}).join(' ')  + ':'}}"
+                                    td
+                                        cnum(v-bind:self="skill" v-bind:override="button_disable_override")
+

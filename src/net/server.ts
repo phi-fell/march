@@ -2,6 +2,7 @@ import bcrypt = require('bcrypt');
 import { promises as fs } from 'fs';
 import { Socket } from 'socket.io';
 
+import { CharacterSheet } from '../character/charactersheet';
 import { Random } from '../math/random';
 import { File } from '../system/file';
 import { World } from '../world/world';
@@ -112,6 +113,7 @@ export class Server {
                 'token_creation_time': 0,
 
             },
+            'unfinished_player': (new CharacterSheet()).toJSON(),
             'players': [],
         });
         const user = await User.createUserFromFile(this.world, file);

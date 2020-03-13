@@ -154,6 +154,9 @@ function attachWebRoutes(app: any) {
     app.get('/home', (req: Request, res: Response) => {
         res.send(pug.renderFile(path.resolve('site/pug/home.pug')));
     });
+    app.get('/character_creation', (req: Request, res: Response) => {
+        res.send(pug.renderFile(path.resolve('site/pug/character_creation.pug')));
+    });
     app.get('/create', (req: Request, res: Response) => {
         res.send(pug.renderFile(path.resolve('site/pug/new.pug')));
     });
@@ -162,7 +165,7 @@ function attachWebRoutes(app: any) {
         res.sendFile(path.resolve('site/js' + req.path + (req.path.endsWith('.js') ? '' : '.js')));
     });
     app.use('/vue', (req: Request, res: Response, next: NextFunction) => {
-        res.sendFile(path.resolve('site/vue' + req.path + (req.path.endsWith('.html') ? '' : '.html')));
+        res.send(pug.renderFile(path.resolve('site/vue/' + req.path + '.pug')));
     });
 
     app.use('/tex', express.static(path.resolve('site/tex')));

@@ -118,7 +118,7 @@ export class Client {
                 if (user_id) {
                     const user = await client.server.getUser(user_id);
                     if (user) {
-                        const token = user.validateCredentials(msg.user, msg.pass);
+                        const token = await user.validateCredentials(msg.user, msg.pass);
                         if (token) {
                             socket.emit('success', {
                                 'user': msg.user,
@@ -178,15 +178,15 @@ export class Client {
             if (client.user) {
                 client.user.addNewPlayer(msg);
             } else {
-                console.log('cannot create player on logged out client!')
+                console.log('cannot create player on logged out client!');
             }
         });
         socket.on('get', async (msg) => {
             if (client.user) {
                 if (msg === 'players') {
                     client.socket.emit('players', client.user.players.map((p) => p.toJSON()));
-                } else if (msg === '') {
-                    //
+                } else if (msg === 'unfinished_player') {
+                    client.socket.emit('unfinished_player', client.user.unfinished_player.toJSON());
                 }
             }
         });

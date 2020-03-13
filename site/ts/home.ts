@@ -1,13 +1,12 @@
 import { loadCredentials } from './auth';
-import { registerPlayerComponent } from './vue/player';
+import { registerComponent } from './vue_component';
 
 declare var Vue: any;
 
 let app: any;
 
-registerPlayerComponent(Vue);
-
-$(document).ready(() => {
+$(document).ready(async () => {
+    await registerComponent(Vue, 'player');
     const creds = loadCredentials();
     if (creds.user && creds.auth) {
         console.log('logging in...');
@@ -16,17 +15,17 @@ $(document).ready(() => {
         socket.on('success', () => {
             console.log('valid credentials, loading');
             socket.on('players', (msg: any[]) => {
-                console.log(msg);
                 app = new Vue({
                     'el': '#home',
                     'data': {
                         'players': msg,
-                        'new_player_name': '',
+                        'MAX_PLAYERS': 5,
+                        'test': { 'value': 1 },
                     },
                     'mounted': () => {
                         $('#new_player_button').on('click', () => {
                             $('#new_player_button').prop('disabled', true);
-                            socket.emit('new_player', app.new_player_name);
+                            window.location.href = '/character_creation';
                         });
                     },
                 });

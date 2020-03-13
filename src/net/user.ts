@@ -2,6 +2,7 @@ import bcrypt = require('bcrypt');
 import crypto = require('crypto');
 import * as t from 'io-ts';
 
+import { CharacterSheet } from '../character/charactersheet';
 import { Random } from '../math/random';
 import { OwnedFile } from '../system/file';
 import { FileBackedData } from '../system/file_backed_data';
@@ -23,7 +24,7 @@ async function testPass(pass: string, hash: string) {
     }
 }
 
-const UserDataType = t.type({
+const UserSchema = t.type({
     'id': t.string,
     'name': t.string,
     'auth': t.type({
@@ -31,6 +32,7 @@ const UserDataType = t.type({
         'token': t.string,
         'token_creation_time': t.number,
     }),
+    'unfinished_player': t.any,
     'players': t.array(t.string),
 });
 
@@ -42,6 +44,7 @@ export class User extends FileBackedData {
         return user;
     }
 
+    public unfinished_player: CharacterSheet = new CharacterSheet();
     public players: Player[] = [];
     private client?: Client;
     private _name: string = '';
@@ -88,7 +91,7 @@ export class User extends FileBackedData {
         this.players.push(await this.world.createPlayer(name));
         this.save();
     }
-    public toJSON() {
+    public toJSON(): t.TypeOf<typeof UserSchema> {
         return {
             'id': this.id,
             'name': this.name,
@@ -97,6 +100,7 @@ export class User extends FileBackedData {
                 'token': this.auth.token,
                 'token_creation_time': this.auth.token_creation_time,
             },
+            'unfinished_player': this.unfinished_player.toJSON(),
             'players': this.players.map((player: Player) => player.id),
         };
     }
@@ -104,10 +108,11 @@ export class User extends FileBackedData {
         // No Cleanup for now
     }
     protected async fromJSON(json: any): Promise<void> {
-        if (UserDataType.is(json)) {
+        if (UserSchema.is(json)) {
             this.id = json.id;
             this._name = json.name;
             this.auth = json.auth;
+            this.unfinished_player = CharacterSheet.fromJSON(json.unfinished_player);
             for (const pid of json.players) {
                 const p = await this.world.getPlayer(pid);
                 if (p) {

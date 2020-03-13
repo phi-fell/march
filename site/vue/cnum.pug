@@ -1,0 +1,4 @@
+.cnum
+    button.cnum_button(:disabled="override" v-if="self.decrement" v-on:click="self.decrement()") -
+    p.cnum_value {{self.value}}
+    button.cnum_button(:disabled="override" v-if="self.increment" v-on:click="self.increment()") +

@@ -93,7 +93,9 @@ export class CharacterEquipment {
         for (const slot_name in EQUIPMENT_SLOT) {
             if (isNaN(Number(slot_name))) {
                 const item = this.equipment[EQUIPMENT_SLOT[slot_name as keyof typeof EQUIPMENT_SLOT]];
-                equipped[slot_name as keyof typeof EQUIPMENT_SLOT] = item && item.toJSON();
+                if (item) {
+                    equipped[slot_name as keyof typeof EQUIPMENT_SLOT] = item && item.toJSON();
+                }
             }
         }
         return {
