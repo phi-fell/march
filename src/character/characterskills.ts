@@ -28,7 +28,10 @@ export enum SKILL {
     BENEDICTION, // beneficially affecting others (buffs, etc)
     MALEDICTION, // detrimentally affecting others (debuffs, curses, etc.)
     ENHANCEMENT, // making the self more powerful
-    RESTORATION, // curing diseases, mending wounds, fixing that which is broken
+    RESTORATION, // curing diseases, mending wounds, fixing that which is decayed, rusted, injured, etc. (a stick broken in half would use alteration, a rotting loaf of bread could be 'restored')
+    ALTERATION, // altering the physical world: igniting or freezing an object, some physical repairs (removing rust would be restoration, combining two broken halves would be alteration)
+    RECONFIGURATION, // "space magic" - Moving things, levitation, telekinesis, spacial expansion (bags of holding, house in a bag)
+    REORIENTATION, // "dimensional magic" - looking from a different perspective: dimensional travel, teleportation
     CONJURATION, // creating objects or beings from magic
     SUMMONING, // calling forth an existing being from far away (another plane, etc.)
     BINDING, // forcing a being to follow your will
