@@ -18,29 +18,22 @@ flex-grow()
 flex-none()
     flex 0 0 auto
 
-.flex
-    flex-full()
-
-.flex_grow
-    flex-grow()
-
-.flex_shrink
-    flex-shrink()
-
-.flex_none {
-    flex-none()
-    flex-row()
-}
-
 .cnum
     flex-row()
     flex-none()
 .cnum_button, .cnum_value
     flex-none()
 
+.nav
+    justify-content space-between
+    margin-bottom 5px
+
 .input
-    min-width 50px
+    min-width 100px
     border 1px solid black
+    flex-col()
+    justify-content center
+    padding 3px
 
 body {
     font: 13px Helvetica, Arial;
@@ -88,4 +81,18 @@ p {
     flex-full()
 }
 .stretch
-    align-items stretch
+    justify-content stretch
+
+.flex
+    flex-full()
+
+.flex_grow
+    flex-grow()
+
+.flex_shrink
+    flex-shrink()
+
+.flex_none {
+    flex-none()
+    flex-row()
+}

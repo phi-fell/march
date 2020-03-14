@@ -1,24 +1,18 @@
 import { loadCredentials } from './auth';
+import { registerDirectives } from './vue-directives';
 import { registerComponent } from './vue_component';
 
 declare var Vue: any;
 
 let app: any;
 
-function make_cnum(name: string, value: number, increment: (id: string) => any, decrement: (id: string) => any) {
+function make_cnum(name: string, value: number, increment?: (id: string) => any, decrement?: (id: string) => any) {
     return {
         name,
         value,
-        'increment': () => increment(name),
-        'decrement': () => decrement(name),
+        'increment': increment ? (() => increment(name)) : undefined,
+        'decrement': decrement ? (() => decrement(name)) : undefined,
     };
-}
-
-function incrementAttribute(name: string) {
-    console.log('Attributes[' + name + ']++');
-}
-function decrementAttribute(name: string) {
-    console.log('Attributes[' + name + ']--');
 }
 
 function incrementSkill(name: string) {
@@ -29,6 +23,7 @@ function decrementSkill(name: string) {
 }
 
 $(document).ready(async () => {
+    registerDirectives(Vue);
     await registerComponent(Vue, 'cnum', ['self', 'override']);
     const creds = loadCredentials();
     if (creds.user && creds.auth) {
@@ -42,7 +37,8 @@ $(document).ready(async () => {
                 'data': {
                     'sheet': {
                         'attributes': [],
-                        'skills': []
+                        'skills': [],
+                        'essence': 0,
                     },
                     'MAX_PLAYERS': 5,
                     'button_disable_override': true,
@@ -58,15 +54,40 @@ $(document).ready(async () => {
                 console.log(JSON.parse(JSON.stringify(msg)));
                 app.sheet = {
                     'attributes': Object.keys(msg.attributes).map((name: string) => {
-                        return make_cnum(name, msg.attributes[name], incrementAttribute, decrementAttribute);
+                        return make_cnum(
+                            name,
+                            msg.attributes[name],
+                            (msg.attributeLevelupCosts[name] <= msg.essence)
+                                ? ((attr: string) => {
+                                    app.button_disable_override = true;
+                                    socket.emit('character_creation', { 'action': 'increment_attribute', 'attribute': attr });
+                                    socket.emit('get', 'unfinished_player');
+                                })
+                                : undefined,
+                            (msg.attributes[name] > 0)
+                                ? ((attr: string) => {
+                                    app.button_disable_override = true;
+                                    socket.emit('character_creation', { 'action': 'decrement_attribute', 'attribute': attr });
+                                    socket.emit('get', 'unfinished_player');
+                                })
+                                : undefined);
                     }),
                     'skills': Object.keys(msg.skills).map((name: string) => {
                         return make_cnum(name, msg.skills[name], incrementSkill, decrementSkill);
                     }),
+                    'essence': msg.essence,
                 };
                 app.button_disable_override = false;
             });
+            socket.on('available_races', (msg: any) => {
+                app.races = msg;
+            });
+            socket.on('available_traits', (msg: any) => {
+                app.traits = msg;
+            });
             socket.emit('get', 'unfinished_player');
+            socket.emit('get', 'available_races');
+            socket.emit('get', 'available_traits');
         });
         socket.on('fail', () => {
             console.log('invalid credentials, redirecting to /login');

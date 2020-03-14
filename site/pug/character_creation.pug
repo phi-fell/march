@@ -12,20 +12,21 @@ html
 body
     #character_sheet
         .all
-            .outer
+            .outer.col
+                .nav.row
+                    a.flex_none(href="/home") Back to Home
+                    button.flex_none(v-on:click="finishCreation()") create
                 .char_sheet.col
                     .row
-                        .section.row
+                        .section.row.flex_none
                             p.flex_none='Name: '
                             span.input.flex(contenteditable="true")
                         .section.row
                             p='Race: '
                             select(id="race" onChange="setRace(this.value)")
                         .section.row
-                            p='Essence: '
-                            p(id="essence")
-                        .section.row
-                            button(onclick="finishCreation()") create
+                            p Essence: 
+                            p {{sheet.essence}}
                     .row
                         .col
                             .row

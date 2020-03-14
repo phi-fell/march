@@ -12,6 +12,11 @@ import { CharacterStatus } from './characterstatus';
 export const STARTING_ESSENCE = 100;
 
 export class CharacterSheet {
+    public static newPlayerSheet() {
+        const ret = new CharacterSheet();
+        ret._essence = STARTING_ESSENCE;
+        return ret;
+    }
     public static validateAndCreateFromJSON(json: any) {
         const ret = new CharacterSheet();
         if (!CharacterRace.raceExists(json.race)) {
@@ -121,8 +126,19 @@ export class CharacterSheet {
         if (this._essence >= costs.get(attr)) {
             this._essence -= costs.get(attr);
             this._allocatedAttributes.set(attr, this._allocatedAttributes.get(attr) + 1);
+            this.recalculateDerivedStats();
+        } else {
+            // Failure
         }
-        this.recalculateDerivedStats();
+    }
+    public levelDownAttribute(attr: ATTRIBUTE) {
+        if (this._allocatedAttributes.get(attr) > 0) {
+            this._allocatedAttributes.set(attr, this._allocatedAttributes.get(attr) - 1);
+            this._essence += this._allocatedAttributes.getLevelupCosts().get(attr);
+            this.recalculateDerivedStats();
+        } else {
+            // Failure
+        }
     }
     public startNewTurn() {
         this._status.startNewTurn();

@@ -1,6 +1,9 @@
 import * as t from 'io-ts';
 import { Socket } from 'socket.io';
 
+import { ATTRIBUTE } from '../character/characterattributes';
+import { CharacterRace } from '../character/characterrace';
+import { CharacterTrait } from '../character/charactertrait';
 import { Server } from './server';
 import { User } from './user';
 
@@ -187,6 +190,19 @@ export class Client {
                     client.socket.emit('players', client.user.players.map((p) => p.toJSON()));
                 } else if (msg === 'unfinished_player') {
                     client.socket.emit('unfinished_player', client.user.unfinished_player.toJSON());
+                } else if (msg === 'available_races') {
+                    client.socket.emit('available_races', CharacterRace.getPlayableRaces());
+                } else if (msg === 'available_traits') {
+                    client.socket.emit('available_traits', [CharacterTrait.getTraitList()]);
+                }
+            }
+        });
+        socket.on('character_creation', async (msg: any) => {
+            if (client.user) {
+                if (msg.action === 'increment_attribute') {
+                    client.user.unfinished_player.levelUpAttribute(ATTRIBUTE[(msg.attribute as keyof typeof ATTRIBUTE)]);
+                } else if (msg.action === 'decrement_attribute') {
+                    client.user.unfinished_player.levelDownAttribute(ATTRIBUTE[(msg.attribute as keyof typeof ATTRIBUTE)]);
                 }
             }
         });

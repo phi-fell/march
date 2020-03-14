@@ -113,7 +113,7 @@ export class Server {
                 'token_creation_time': 0,
 
             },
-            'unfinished_player': (new CharacterSheet()).toJSON(),
+            'unfinished_player': CharacterSheet.newPlayerSheet().toJSON(),
             'players': [],
         });
         const user = await User.createUserFromFile(this.world, file);
