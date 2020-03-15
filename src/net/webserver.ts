@@ -77,7 +77,7 @@ export class WebServer {
             };
 
             this.https_server = https.createServer(options, this.express_app);
-            this.socketIO = socketIO(this.https_server);
+            this.socketIO = socketIO(this.https_server, { 'transports': ['websocket'] });
 
             this.redirect_app = express();
             this.http_server = http.createServer(this.redirect_app);
@@ -87,7 +87,7 @@ export class WebServer {
             });
         } else {
             this.http_server = http.createServer(this.express_app);
-            this.socketIO = socketIO(this.http_server);
+            this.socketIO = socketIO(this.http_server, { 'transports': ['websocket'] });
         }
         attachWebRoutes(this.express_app);
     }
