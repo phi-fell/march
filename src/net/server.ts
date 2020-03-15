@@ -47,9 +47,7 @@ export class Server {
             client.disconnect();
         });
         this.clients = {};
-        Object.values(this.users).forEach((user: User) => {
-            user.unload();
-        });
+        await Promise.all(Object.values(this.users).map((user: User) => user.unload()));
         this.users = {};
     }
     public removeClient(id: string) {

@@ -13,12 +13,14 @@ export abstract class FileBackedData {
             this.constructionPromise = undefined;
         }
     }
-    public save() {
-        this.file.setJSON(this.toJSON());
+    public async save() {
+        return this.file.setJSON(this.toJSON());
     }
     /** Should be called when this object is no longer needed, before GC */
     public async unload() {
-        return Promise.all([this.file.release(), this.cleanup()]);
+        await this.save();
+        await this.file.release();
+        await this.cleanup();
     }
     protected abstract async fromJSON(json: any): Promise<void>;
     protected abstract toJSON(): any;
