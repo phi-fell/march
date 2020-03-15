@@ -4,7 +4,7 @@ $(() => {
     const creds = loadCredentials();
     if (creds.user && creds.auth) {
         console.log('validating stored credentials...');
-        const socket = io();
+        const socket = io({ 'transports': ['websocket'] });
         socket.emit('validate', creds);
         socket.on('success', () => {
             console.log('valid credentials, redirecting to /home');

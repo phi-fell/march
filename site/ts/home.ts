@@ -10,7 +10,7 @@ $(document).ready(async () => {
     const creds = loadCredentials();
     if (creds.user && creds.auth) {
         console.log('logging in...');
-        const socket = io();
+        const socket = io({ 'transports': ['websocket'] });
         socket.emit('login', creds);
         socket.on('success', () => {
             console.log('valid credentials, loading');

@@ -8,7 +8,7 @@ $(() => {
             'pass': $('#pass').val(),
         };
         console.log('validating credentials...');
-        const socket = io();
+        const socket = io({ 'transports': ['websocket'] });
         socket.emit('authorize', creds);
         socket.on('success', (msg: Credentials) => {
             console.log('valid credentials, redirecting to /home');

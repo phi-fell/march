@@ -228,7 +228,7 @@ function addMessage(msg) {
 $(function () {
     creds = loadCredentials();
     if (creds.user && creds.auth) {
-        socket = io();
+        socket = io({ 'transports': ['websocket'] });
         socket.on('connect', () => {
             console.log('logging in as ' + creds.user);
             socket.emit('login', creds);

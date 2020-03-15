@@ -11,7 +11,7 @@ $(() => {
                 'pass': pass1,
             };
             console.log('Creating user...');
-            const socket = io();
+            const socket = io({ 'transports': ['websocket'] });
             socket.emit('create_user', creds);
             socket.on('success', (msg: Credentials) => {
                 console.log('success! redirecting to /home');
