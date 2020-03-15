@@ -36,6 +36,7 @@ $(document).ready(async () => {
                 'el': '#character_sheet',
                 'data': {
                     'sheet': {
+                        'name': '',
                         'attributes': [],
                         'skills': [],
                         'essence': 0,
@@ -49,10 +50,21 @@ $(document).ready(async () => {
                         window.location.href = '/character_creation';
                     });
                 },
+                'methods': {
+                    'refreshName': () => {
+                        socket.emit('character_creation', { 'action': 'name', 'name': $('#name').text() });
+                    },
+                    'finish': () => {
+                        socket.emit('character_creation', { 'action': 'finish' });
+                        app.button_disable_override = true;
+                        window.location.href = '/home';
+                    },
+                },
             });
             socket.on('unfinished_player', (msg: any) => {
                 console.log(JSON.parse(JSON.stringify(msg)));
                 app.sheet = {
+                    'name': msg.name,
                     'attributes': Object.keys(msg.attributes).map((name: string) => {
                         return make_cnum(
                             name,

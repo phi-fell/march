@@ -87,8 +87,10 @@ export class User extends FileBackedData {
     public logout() {
         this.client = undefined;
     }
-    public async addNewPlayer(name: string) {
-        this.players.push(await this.world.createPlayer(name));
+    public async finishPlayer() {
+        const plr = await this.world.createPlayer(this.unfinished_player.name);
+        this.unfinished_player = CharacterSheet.newPlayerSheet();
+        this.players.push(plr);
         this.save();
     }
     public toJSON(): t.TypeOf<typeof UserSchema> {

@@ -15,12 +15,12 @@ body
             .outer.col
                 .nav.row
                     a.flex_none(href="/home") Back to Home
-                    button.flex_none(v-on:click="finishCreation()") create
+                    button.flex_none(v-on:click="finish()") create
                 .char_sheet.col
                     .row
                         .section.row.flex_none
                             p.flex_none='Name: '
-                            span.input.flex(contenteditable="true")
+                            span.input.flex#name(contenteditable="true" v-on:input="refreshName" v-text="sheet.name")
                         .section.row
                             p='Race: '
                             select(id="race" onChange="setRace(this.value)")

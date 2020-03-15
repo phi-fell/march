@@ -19,6 +19,7 @@ export class CharacterSheet {
     }
     public static validateAndCreateFromJSON(json: any) {
         const ret = new CharacterSheet();
+        ret._name = json.name;
         if (!CharacterRace.raceExists(json.race)) {
             return null;
         }
@@ -35,6 +36,7 @@ export class CharacterSheet {
     }
     public static fromMobSchemaJSON(json: any) {
         const ret = new CharacterSheet();
+        ret._name = json.name;
         ret._race = new CharacterRace(json.race);
         ret._allocatedAttributes = CharacterAttributes.fromJSON(json.attributes);
         ret._skills = CharacterSkills.fromJSON(json.skills);
@@ -45,6 +47,7 @@ export class CharacterSheet {
     }
     public static fromJSON(json: any) {
         const ret = new CharacterSheet();
+        ret._name = json.name;
         // TODO: load faiths
         ret._equipment = CharacterEquipment.fromJSON(json.equipment);
         ret._race = CharacterRace.fromJSON(json.race);
@@ -56,6 +59,7 @@ export class CharacterSheet {
         ret.recalculateDerivedStats();
         return ret;
     }
+    private _name: string = '';
     private _allocatedAttributes: CharacterAttributes = new CharacterAttributes();
     private _skills: CharacterSkills = new CharacterSkills();
     private _race: CharacterRace;
@@ -75,6 +79,12 @@ export class CharacterSheet {
         this._essence = 0;
         this._exp = 0;
         this.recalculateDerivedStats();
+    }
+    get name() {
+        return this._name;
+    }
+    set name(n: string) {
+        this._name = n;
     }
     get race() {
         return this._race;
@@ -212,6 +222,7 @@ export class CharacterSheet {
     }
     public toJSON() {
         return {
+            'name': this._name,
             'attributes': this._cachedAttributes.toJSON(),
             'allocatedAttributes': this._allocatedAttributes.toJSON(),
             'attributeLevelupCosts': this._allocatedAttributes.getLevelupCosts().toJSON(),

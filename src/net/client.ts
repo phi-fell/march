@@ -177,13 +177,6 @@ export class Client {
     }
     private addLoggedInListeners(socket: Socket) {
         const client = this;
-        socket.on('new_player', (msg) => {
-            if (client.user) {
-                client.user.addNewPlayer(msg);
-            } else {
-                console.log('cannot create player on logged out client!');
-            }
-        });
         socket.on('get', async (msg) => {
             if (client.user) {
                 if (msg === 'players') {
@@ -199,7 +192,11 @@ export class Client {
         });
         socket.on('character_creation', async (msg: any) => {
             if (client.user) {
-                if (msg.action === 'increment_attribute') {
+                if (msg.action === 'finish') {
+                    client.user.finishPlayer();
+                } else if (msg.action === 'name') {
+                    client.user.unfinished_player.name = msg.name;
+                } else if (msg.action === 'increment_attribute') {
                     client.user.unfinished_player.levelUpAttribute(ATTRIBUTE[(msg.attribute as keyof typeof ATTRIBUTE)]);
                 } else if (msg.action === 'decrement_attribute') {
                     client.user.unfinished_player.levelDownAttribute(ATTRIBUTE[(msg.attribute as keyof typeof ATTRIBUTE)]);
