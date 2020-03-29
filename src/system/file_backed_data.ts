@@ -1,12 +1,24 @@
+import * as t from 'io-ts';
+
 import { OwnedFile } from './file';
 
 export abstract class FileBackedData {
-    private constructionPromise?: Promise<any>;
+    public static schema: t.Any = t.unknown;
+
+    private constructionPromise?: Promise<unknown>;
     protected constructor(private file: OwnedFile) {
         const fbdata = this;
-        // the following lines uses a promise so that the constructor of a subclass will not override values set in .fromJSON()
-        this.constructionPromise = Promise.resolve().then(() => { fbdata.fromJSON(file.getJSON()); });
+        // the following lines use a promise so that the constructor of a subclass will not override values set in .fromJSON()
+        this.constructionPromise = Promise.resolve().then(async () => {
+            const json = file.getJSON();
+            if (this.schema.is(json)) {
+                await fbdata.fromJSON(json);
+            } else {
+                console.log('Invalid FileBackedData JSON!');
+            }
+        });
     }
+    public abstract get schema(): t.Any;
     public async ready() {
         if (this.constructionPromise) {
             await this.constructionPromise;
@@ -22,8 +34,8 @@ export abstract class FileBackedData {
         await this.file.release();
         await this.cleanup();
     }
-    protected abstract async fromJSON(json: any): Promise<void>;
-    protected abstract toJSON(): any;
+    protected abstract async fromJSON(json: unknown): Promise<void>;
+    protected abstract toJSON(): unknown;
     /** does any necessary cleanup.  called by unload(), override in subclass if cleanup is needed */
-    protected abstract async cleanup(): Promise<void>;
+    protected async cleanup(): Promise<void> { /* override in subclass if needed */ }
 }

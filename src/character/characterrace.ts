@@ -1,4 +1,5 @@
 import fs = require('fs');
+import * as t from 'io-ts';
 
 import { CharacterAttributes } from './characterattributes';
 
@@ -82,7 +83,15 @@ characterRaceProps[NO_RACE] = {
     'traits': [],
 };
 
+type CharacterRaceSchema = t.TypeOf<typeof CharacterRace.schema>;
+
 export class CharacterRace {
+    public static schema = t.type({
+        'raceID': t.string,
+        'name': t.string,
+        'description': t.string,
+    });
+
     public static getRaceList() {
         return Object.entries(characterRaceProps);
     }
@@ -95,7 +104,7 @@ export class CharacterRace {
     public static raceExists(id: string) {
         return characterRaceProps.hasOwnProperty(id);
     }
-    public static fromJSON(json: any) {
+    public static fromJSON(json: CharacterRaceSchema) {
         return new CharacterRace(json.raceID);
     }
     constructor(private raceID: CharacterRaceID = NO_RACE) {
@@ -121,7 +130,7 @@ export class CharacterRace {
     public getNetAttributes() {
         return this.baseAttributes.clone();
     }
-    public toJSON() {
+    public toJSON(): CharacterRaceSchema {
         return {
             'raceID': this.raceID,
             'name': this.name,

@@ -1,3 +1,5 @@
+import * as t from 'io-ts';
+
 export enum ATTRIBUTE {
     // body
     STRENGTH, // physical strength, ability to exert force via muscles.  affects e.g. lifting weight, max force of a punch, jump height
@@ -19,11 +21,20 @@ export enum ATTRIBUTE {
 
 const ATTRIBUTE_COUNT: number = ATTRIBUTE.LUCK + 1;
 
+type CharacterAttributesSchema = t.TypeOf<typeof CharacterAttributes.schema>;
+
 export class CharacterAttributes {
-    public static fromJSON(json: any) {
+    public static schema = t.type(Object.keys(ATTRIBUTE).reduce((all, attr) => {
+        if (isNaN(Number(attr))) {
+            all[attr as keyof typeof ATTRIBUTE] = t.number;
+        }
+        return all;
+    }, {} as Record<keyof typeof ATTRIBUTE, t.NumberC>));
+
+    public static fromJSON(json: CharacterAttributesSchema) {
         const ret = new CharacterAttributes();
         for (let i = 0; i < ATTRIBUTE_COUNT; i++) {
-            ret.values[i] = json[ATTRIBUTE[i]] || 0;
+            ret.values[i] = json[ATTRIBUTE[i] as keyof typeof ATTRIBUTE] || 0;
         }
         return ret;
     }
@@ -83,11 +94,12 @@ export class CharacterAttributes {
         }
         return ret;
     }
-    public toJSON() {
-        const ret: { [id: string]: any; } = {};
-        for (let i = 0; i < ATTRIBUTE_COUNT; i++) {
-            ret[ATTRIBUTE[i]] = this.values[i];
-        }
-        return ret;
+    public toJSON(): CharacterAttributesSchema {
+        return this.values.reduce(
+            (attributes: CharacterAttributesSchema, value: number, attribute: ATTRIBUTE) => {
+                attributes[ATTRIBUTE[attribute] as keyof typeof ATTRIBUTE] = value;
+                return attributes;
+            }, {} as CharacterAttributesSchema,
+        );
     }
 }

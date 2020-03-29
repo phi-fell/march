@@ -1,3 +1,5 @@
+import * as t from 'io-ts';
+
 import { AttackEvent } from '../clientevent';
 import { Damage, DAMAGE_TYPE, DamageMetaData } from '../damage';
 import { Random } from '../math/random';
@@ -11,7 +13,28 @@ import { CharacterStatus } from './characterstatus';
 
 export const STARTING_ESSENCE = 100;
 
+export type CharacterSheetSchema = t.TypeOf<typeof CharacterSheet.schema>;
+
 export class CharacterSheet {
+    public static schema = t.intersection([
+        t.type({
+            'name': t.string,
+            'equipment': CharacterEquipment.schema,
+            'race': CharacterRace.schema,
+            'skills': CharacterSkills.schema,
+            'status': CharacterStatus.schema,
+            'allocatedAttributes': CharacterAttributes.schema,
+            'essence': t.number,
+            'exp': t.number,
+        }),
+        t.partial({
+            'attributes': CharacterAttributes.schema,
+            'attributeLevelupCosts': t.any,
+            'faiths': t.any,
+            'exp_cap': t.number,
+        }),
+    ]);
+
     public static newPlayerSheet() {
         const ret = new CharacterSheet();
         ret._essence = STARTING_ESSENCE;
@@ -45,7 +68,7 @@ export class CharacterSheet {
         ret._status.restoreFully();
         return ret;
     }
-    public static fromJSON(json: any) {
+    public static fromJSON(json: CharacterSheetSchema) {
         const ret = new CharacterSheet();
         ret._name = json.name;
         // TODO: load faiths
@@ -220,7 +243,7 @@ export class CharacterSheet {
     public getEssenceWorth() {
         return this._race.getEssenceCost() + this._allocatedAttributes.getEssenceCost() + this._skills.getEssenceCost() + this._essence;
     }
-    public toJSON() {
+    public toJSON(): CharacterSheetSchema {
         return {
             'name': this._name,
             'attributes': this._cachedAttributes.toJSON(),

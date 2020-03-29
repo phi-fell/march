@@ -1,4 +1,5 @@
 import fs = require('fs');
+import * as t from 'io-ts';
 import path = require('path');
 
 import { Random } from '../math/random';
@@ -9,7 +10,18 @@ import { WeaponData } from './weapondata';
 
 export type ItemSchemaID = string;
 
+export type ItemSchema = t.TypeOf<typeof Item.schema>;
+
 export class Item {
+    public static schema = t.type({
+        'id': t.string,
+        'schema': t.string,
+        'name': t.string,
+        'stackable': t.boolean,
+        'weapon_data': t.any,
+        'armor_data': t.any,
+    });
+
     public static generateNewItemID() {
         return Random.uuid();
     }
@@ -24,7 +36,7 @@ export class Item {
     public static addSchema(id: ItemSchemaID, schema: Item) {
         Item.itemSchemas[id] = schema;
     }
-    public static fromJSON(json: any) {
+    public static fromJSON(json: ItemSchema) {
         return new Item(
             json.schema,
             json.name,
@@ -56,7 +68,7 @@ export class Item {
     public equals(other: Item | null) {
         return other && this._id === other._id;
     }
-    public toJSON() {
+    public toJSON(): ItemSchema {
         return {
             'id': this._id,
             'schema': this.schema,

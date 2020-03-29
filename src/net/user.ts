@@ -24,19 +24,20 @@ async function testPass(pass: string, hash: string) {
     }
 }
 
-const UserSchema = t.type({
-    'id': t.string,
-    'name': t.string,
-    'auth': t.type({
-        'hash': t.string,
-        'token': t.string,
-        'token_creation_time': t.number,
-    }),
-    'unfinished_player': t.any,
-    'players': t.array(t.string),
-});
+export type UserSchema = t.TypeOf<typeof User.schema>;
 
 export class User extends FileBackedData {
+    public static schema = t.type({
+        'id': t.string,
+        'name': t.string,
+        'auth': t.type({
+            'hash': t.string,
+            'token': t.string,
+            'token_creation_time': t.number,
+        }),
+        'unfinished_player': CharacterSheet.schema,
+        'players': t.array(Player.schema),
+    });
     /** Remember to unload() created users! */
     public static async createUserFromFile(world: World, file: OwnedFile): Promise<User> {
         const user = new User(world, file);
@@ -53,6 +54,9 @@ export class User extends FileBackedData {
 
     constructor(private world: World, file: OwnedFile) {
         super(file);
+    }
+    public get schema() {
+        return User.schema;
     }
     public get name() { return this._name; }
     public async validateCredentials(username: string, pass: string): Promise<string | undefined> {
@@ -88,12 +92,13 @@ export class User extends FileBackedData {
         this.client = undefined;
     }
     public async finishPlayer() {
-        const plr = await this.world.createPlayer(this.unfinished_player.name);
+        const plr = new Player();
+        plr.sheet = this.unfinished_player;
         this.unfinished_player = CharacterSheet.newPlayerSheet();
         this.players.push(plr);
         this.save();
     }
-    public toJSON(): t.TypeOf<typeof UserSchema> {
+    public toJSON(): UserSchema {
         return {
             'id': this.id,
             'name': this.name,
@@ -103,25 +108,17 @@ export class User extends FileBackedData {
                 'token_creation_time': this.auth.token_creation_time,
             },
             'unfinished_player': this.unfinished_player.toJSON(),
-            'players': this.players.map((player: Player) => player.id),
+            'players': this.players.map((player: Player) => player.toJSON()),
         };
     }
-    protected async cleanup() {
-        // No Cleanup for now
-    }
-    protected async fromJSON(json: any): Promise<void> {
-        if (UserSchema.is(json)) {
+    protected async fromJSON(json: UserSchema): Promise<void> {
+        if (User.schema.is(json)) {
             this.id = json.id;
             this._name = json.name;
             this.auth = json.auth;
             this.unfinished_player = CharacterSheet.fromJSON(json.unfinished_player);
-            for (const pid of json.players) {
-                const p = await this.world.getPlayer(pid);
-                if (p) {
-                    this.players.push(p);
-                } else {
-                    console.log('Error! Player could not be loaded into User!');
-                }
+            for (const plr of json.players) {
+                this.players.push(await Player.fromJSON(plr));
             }
         } else {
             console.log('Invalid User JSON!');

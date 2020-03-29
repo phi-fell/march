@@ -1,3 +1,5 @@
+import * as t from 'io-ts';
+
 import { Armor } from '../item/armor';
 import { EQUIPMENT_SLOT } from '../item/equipment_slot';
 import { Inventory } from '../item/inventory';
@@ -34,8 +36,22 @@ export enum EQUIPMENT_SLOT {
     LEFT_FOOT, RIGHT_FOOT,
 }*/
 
+const equipment_schema = t.partial(Object.keys(EQUIPMENT_SLOT).reduce((all, equip) => {
+    if (isNaN(Number(equip))) {
+        all[equip as keyof typeof EQUIPMENT_SLOT] = Item.schema;
+    }
+    return all;
+}, {} as Record<keyof typeof EQUIPMENT_SLOT, typeof Item.schema>));
+type EquipmentSchema = t.TypeOf<typeof equipment_schema>;
+
+export type CharacterEquipmentSchema = t.TypeOf<typeof CharacterEquipment.schema>;
+
 export class CharacterEquipment {
-    public static fromJSON(json: any) {
+    public static schema = t.type({
+        'inventory': Inventory.schema,
+        'equipped': equipment_schema,
+    });
+    public static fromJSON(json: CharacterEquipmentSchema) {
         const ret = new CharacterEquipment();
         if (!json) {
             return ret;
@@ -43,14 +59,17 @@ export class CharacterEquipment {
         ret.inventory = Inventory.fromJSON(json.inventory);
         if (json.equipped) {
             for (const slot of Object.keys(json.equipped)) {
-                ret.equipment[EQUIPMENT_SLOT[slot as keyof typeof EQUIPMENT_SLOT]] = Item.fromJSON(json.equipped[slot]);
+                const item = json.equipped[slot as keyof typeof EQUIPMENT_SLOT]
+                if (item) {
+                    ret.equipment[EQUIPMENT_SLOT[slot as keyof typeof EQUIPMENT_SLOT]] = Item.fromJSON(item);
+                }
             }
         }
         return ret;
     }
     // public shield: Shield | null;
     public inventory: Inventory;
-    private equipment: { [slot: number]: Item | null; } = {};
+    private equipment: Array<Item | undefined> = [];
     constructor() {
         this.inventory = new Inventory();
     }
@@ -59,8 +78,8 @@ export class CharacterEquipment {
         return ret ? (ret as Weapon) : (null);
     }
     public set weapon(weapon: Weapon | null) {
-        this.inventory.addItem(this.equipment[EQUIPMENT_SLOT.WEAPON]);
-        this.equipment[EQUIPMENT_SLOT.WEAPON] = weapon;
+        this.inventory.addItem(this.equipment[EQUIPMENT_SLOT.WEAPON] || null);
+        this.equipment[EQUIPMENT_SLOT.WEAPON] = weapon || undefined;
     }
     public getEquipment(slot: EQUIPMENT_SLOT): Item | null {
         return this.equipment[slot] || null;
@@ -69,7 +88,7 @@ export class CharacterEquipment {
         if (!weapon) {
             return;
         }
-        this.inventory.addItem(this.equipment[EQUIPMENT_SLOT.WEAPON]);
+        this.inventory.addItem(this.equipment[EQUIPMENT_SLOT.WEAPON] || null);
         this.equipment[EQUIPMENT_SLOT.WEAPON] = weapon;
     }
     public equipArmor(armor: Armor | null) {
@@ -84,23 +103,20 @@ export class CharacterEquipment {
         if (this.equipment[slot]) {
             ret = true;
         }
-        this.inventory.addItem(this.equipment[slot]);
-        this.equipment[slot] = null;
+        this.inventory.addItem(this.equipment[slot] || null);
+        this.equipment[slot] = undefined;
         return ret;
     }
-    public toJSON() {
-        const equipped: { [id: string]: any; } = {};
-        for (const slot_name in EQUIPMENT_SLOT) {
-            if (isNaN(Number(slot_name))) {
-                const item = this.equipment[EQUIPMENT_SLOT[slot_name as keyof typeof EQUIPMENT_SLOT]];
-                if (item) {
-                    equipped[slot_name as keyof typeof EQUIPMENT_SLOT] = item && item.toJSON();
-                }
-            }
-        }
+    public toJSON(): CharacterEquipmentSchema {
         return {
-            equipped,
             'inventory': this.inventory.toJSON(),
+            'equipped': this.equipment.reduce(
+                (equipped: EquipmentSchema, item: Item | undefined, slot: EQUIPMENT_SLOT): EquipmentSchema => {
+                    equipped[EQUIPMENT_SLOT[slot] as keyof typeof EQUIPMENT_SLOT] = item?.toJSON();
+                    return equipped;
+                },
+                {} as EquipmentSchema,
+            ),
         };
     }
 }

@@ -1,31 +1,31 @@
-import { OwnedFile } from '../system/file';
-import { FileBackedData } from '../system/file_backed_data';
+import * as t from 'io-ts';
 
-export class Player extends FileBackedData {
-    /** Remember to unload() created users! */
-    public static async createPlayerFromFile(file: OwnedFile): Promise<Player> {
-        let player;
-        player = new Player(file);
-        await player.ready();
-        return player;
+import { CharacterSheet } from '../character/charactersheet';
+import { Random } from '../math/random';
+
+export type PlayerSchema = t.TypeOf<typeof Player.schema>;
+
+export class Player {
+    public static schema = t.type({
+        'id': t.string,
+        'sheet': CharacterSheet.schema,
+    });
+
+    public static async fromJSON(json: PlayerSchema): Promise<Player> {
+        const ret = new Player(json.id);
+        ret.sheet = CharacterSheet.fromJSON(json.sheet);
+        return ret;
     }
 
-    protected _id: string = '';
-    protected name: string = '';
+    public sheet: CharacterSheet = new CharacterSheet();
+    public constructor(protected _id: string = Random.uuid()) { }
     public get id() {
         return this._id;
     }
-    public toJSON() {
+    public toJSON(): PlayerSchema {
         return {
             'id': this.id,
-            'name': this.name,
+            'sheet': this.sheet.toJSON(),
         };
-    }
-    protected async fromJSON(json: any): Promise<void> {
-        this._id = json.id;
-        this.name = json.name;
-    }
-    protected async cleanup(): Promise<void> {
-        // nothing to do here
     }
 }

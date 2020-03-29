@@ -3,23 +3,14 @@ import path = require('path');
 
 import { NoThrow } from '../error/nothrow';
 
-const save_interval = 1000 * 60 * 5; // 5 minutes in milliseconds
-
-enum FILE_STATE {
-    LOADING,
-    LOADED,
-    UNLOADING,
-    UNLOADED,
-}
-
 export interface ReadOnlyFile {
     getString(): string;
-    getJSON(): any;
+    getJSON(): unknown;
 }
 
 class ReadOnlyFileImpl implements ReadOnlyFile {
     private data: string = '';
-    private loadPromise: Promise<any>;
+    private loadPromise: Promise<unknown>;
     public constructor(private id: string) {
         this.loadPromise = this.loadFromDisk();
     }
@@ -74,20 +65,20 @@ export class File {
 
 export interface OwnedFile {
     readonly id: string;
-    release(): Promise<any>;
-    flush(): Promise<any>;
+    release(): Promise<unknown>;
+    flush(): Promise<unknown>;
     getString(): string;
-    getJSON(): any;
-    setString(s: string): Promise<any>;
-    setJSON(json: any): Promise<any>;
+    getJSON(): unknown;
+    setString(s: string): Promise<unknown>;
+    setJSON(json: unknown): Promise<unknown>;
 }
 
 class OwnedFileImpl implements OwnedFile {
 
     private data?: string;
-    private jsonCache?: any;
-    private loadPromise: Promise<any>;
-    private savePromise?: Promise<any>;
+    private jsonCache?: unknown;
+    private loadPromise: Promise<unknown>;
+    private savePromise?: Promise<unknown>;
     private modified: boolean = false;
 
     public constructor(private _id: string) {
@@ -126,7 +117,7 @@ class OwnedFileImpl implements OwnedFile {
         this.modified = true;
         return this.saveToDisk();
     }
-    public async setJSON(json: any) {
+    public async setJSON(json: unknown) {
         this.jsonCache = json;
         this.data = JSON.stringify(json);
         this.modified = true;

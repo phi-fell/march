@@ -1,3 +1,5 @@
+import * as t from 'io-ts';
+
 import { Item } from './item';
 
 export interface ItemStack {
@@ -5,14 +7,21 @@ export interface ItemStack {
     count: number;
 }
 
+export type InventorySchema = t.TypeOf<typeof Inventory.schema>;
+
 export class Inventory {
-    public static fromJSON(json: any): Inventory {
+    public static schema = t.array(t.type({
+        'item': t.union([Item.schema, t.string]),
+        'count': t.number,
+    }));
+
+    public static fromJSON(json: InventorySchema): Inventory {
         const ret = new Inventory();
         for (const stack of json) {
-            if (stack.item.schema) {
-                ret.addItem(Item.fromJSON(stack.item), stack.count);
-            } else {
+            if (typeof stack.item === 'string') {
                 ret.addItem(Item.getItemFromSchemaID(stack.item), stack.count);
+            } else {
+                ret.addItem(Item.fromJSON(stack.item), stack.count);
             }
         }
         return ret;
@@ -73,8 +82,8 @@ export class Inventory {
     get stacks() {
         return this._items.length;
     }
-    public toJSON() {
-        const ret: any[] = [];
+    public toJSON(): InventorySchema {
+        const ret: InventorySchema = [];
         for (const stack of this._items) {
             ret.push({
                 'item': stack.item.toJSON(),

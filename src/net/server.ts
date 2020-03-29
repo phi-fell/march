@@ -7,7 +7,7 @@ import { Random } from '../math/random';
 import { File } from '../system/file';
 import { World } from '../world/world';
 import { Client, CLIENT_CONNECTION_STATE } from './client';
-import { User } from './user';
+import { User, UserSchema } from './user';
 
 async function getHash(pass: string) {
     return bcrypt.hash(pass, 10);
@@ -102,7 +102,7 @@ export class Server {
         }
         const file = await File.acquireFile(path);
         const hash = getHash(passphrase);
-        file.setJSON({
+        const user_json: UserSchema = {
             'id': id,
             'name': username,
             'auth': {
@@ -113,7 +113,8 @@ export class Server {
             },
             'unfinished_player': CharacterSheet.newPlayerSheet().toJSON(),
             'players': [],
-        });
+        };
+        file.setJSON(user_json);
         const user = await User.createUserFromFile(this.world, file);
         this.users[id] = user;
         user.save();

@@ -1,3 +1,5 @@
+import * as t from 'io-ts';
+
 export enum SKILL {
     // weapon
     LONG_BLADE,
@@ -49,11 +51,20 @@ export enum SKILL {
 
 const SKILL_COUNT: number = SKILL.ENCHANTING + 1;
 
+type CharacterSkillsSchema = t.TypeOf<typeof CharacterSkills.schema>;
+
 export class CharacterSkills {
-    public static fromJSON(json: any) {
+    public static schema = t.type(Object.keys(SKILL).reduce((all, skill) => {
+        if (isNaN(Number(skill))) {
+            all[skill as keyof typeof SKILL] = t.number;
+        }
+        return all;
+    }, {} as Record<keyof typeof SKILL, t.NumberC>));
+
+    public static fromJSON(json: CharacterSkillsSchema) {
         const ret = new CharacterSkills();
         for (let i = 0; i < SKILL_COUNT; i++) {
-            ret.values[i] = json[SKILL[i]] || 0;
+            ret.values[i] = json[SKILL[i] as keyof typeof SKILL] || 0;
         }
         return ret;
     }
@@ -91,11 +102,12 @@ export class CharacterSkills {
         }
         return ret;
     }
-    public toJSON() {
-        const ret: { [id: string]: any; } = {};
-        for (let i = 0; i < SKILL_COUNT; i++) {
-            ret[SKILL[i]] = this.values[i];
-        }
-        return ret;
+    public toJSON(): CharacterSkillsSchema {
+        return this.values.reduce(
+            (skills: CharacterSkillsSchema, value: number, skill: SKILL) => {
+                skills[SKILL[skill] as keyof typeof SKILL] = value;
+                return skills;
+            }, {} as CharacterSkillsSchema,
+        );
     }
 }

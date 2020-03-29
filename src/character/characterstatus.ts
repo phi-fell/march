@@ -1,15 +1,38 @@
+import * as t from 'io-ts';
+
 import { Random } from '../math/random';
 import { CharacterResource, RESOURCE } from './characterresource';
 
+export type CharacterStatusSchema = t.TypeOf<typeof CharacterStatus.schema>;
+
 export class CharacterStatus {
-    public static fromJSON(json: any) {
+    public static schema = t.intersection([
+        t.type({
+            'action_points': t.number,
+            'max_action_points': t.number,
+            'action_point_recovery': t.number,
+        }),
+        t.partial(Object.keys(RESOURCE).reduce((all, res) => {
+            if (isNaN(Number(res))) {
+                all[res as keyof typeof RESOURCE] = t.type({
+                    'quantity': t.number,
+                    'capacity': t.number,
+                });
+            }
+            return all;
+        }, {} as Record<keyof typeof RESOURCE, t.TypeC<{ quantity: t.NumberC, capacity: t.NumberC }>>)),
+    ]);
+    public static fromJSON(json: CharacterStatusSchema) {
         const ret = new CharacterStatus();
         ret.action_points = json.action_points;
         ret.max_action_points = json.max_action_points;
         ret.action_point_recovery = json.action_point_recovery;
         for (const pool of ret.pools) {
-            pool.quantity = json[RESOURCE[pool.resource_type]].quantity;
-            pool.capacity = json[RESOURCE[pool.resource_type]].capacity;
+            const json_pool = json[RESOURCE[pool.resource_type] as keyof typeof RESOURCE];
+            if (json_pool) {
+                pool.quantity = json_pool.quantity;
+                pool.capacity = json_pool.capacity;
+            }
         }
         return ret;
     }
@@ -56,19 +79,20 @@ export class CharacterStatus {
     public endRest() {
         this._rest = -1;
     }
-    public toJSON() {
-        const ret: { [id: string]: any; } = {
-            'action_points': this.action_points,
-            'max_action_points': this.max_action_points,
-            'action_point_recovery': this.action_point_recovery,
-        };
-        for (const pool of this.pools) {
-            ret[RESOURCE[pool.resource_type]] = {
-                'quantity': pool.quantity,
-                'capacity': pool.capacity,
-            };
-        }
-        return ret;
+    public toJSON(): CharacterStatusSchema {
+        return this.pools.reduce(
+            (pools: CharacterStatusSchema, pool: CharacterResource) => {
+                pools[RESOURCE[pool.resource_type] as keyof typeof RESOURCE] = {
+                    'quantity': pool.quantity,
+                    'capacity': pool.capacity,
+                };
+                return pools;
+            }, {
+                'action_points': this.action_points,
+                'max_action_points': this.max_action_points,
+                'action_point_recovery': this.action_point_recovery,
+            } as CharacterStatusSchema,
+        );
     }
     private restOneTurn() {
         if (this.action_points < this.max_action_points) {
