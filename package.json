@@ -9,18 +9,19 @@
     "build-styles": "stylus -c ./site/stylus --out ./site/css",
     "build-client": "npm run build-styles && npm run build-browser-js",
     "build-server": "tsc",
-    "build": "npm run build-client && npm run build-server",
+    "build": " npm run build-server && npm run build-client",
     "predev": "npm run build",
     "dev": "node build/index.js -NO_HTTPS -PUBLISH_DIAGNOSTIC_DATA -UNLOCK_DIAGNOSTIC",
     "dev_no_build": "node build/index.js -NO_HTTPS -PUBLISH_DIAGNOSTIC_DATA -UNLOCK_DIAGNOSTIC",
-    "validate": "npm run lint && npm run build && npm run test",
+    "validate": "npm run lint && npm run build && npm run tests",
     "devv": "npm run validate && npm run dev_no_build",
     "push": "npm run validate && git push",
     "predebug": "npm run predev",
     "debug": "node --inspect build/index.js -NO_HTTPS -PUBLISH_DIAGNOSTIC_DATA -UNLOCK_DIAGNOSTIC",
     "preprod": "npm run build",
     "prod": "node build/watcher.js -PUBLISH_DIAGNOSTIC_DATA",
-    "test": "mocha -r ts-node/register src/**/*.spec.ts"
+    "tests": "mocha -r ts-node/register src/**/*.spec.ts",
+    "test": "npm run validate"
   },
   "repository": {
     "type": "git",
