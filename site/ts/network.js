@@ -322,7 +322,7 @@ let handleEvents = async () => {
     try {
         await handleNextEvent();
     } catch {
-
+        // do nothing
     }
     setTimeout(handleEvents, 0);
 };

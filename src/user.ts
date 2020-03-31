@@ -311,7 +311,6 @@ export function validateCredentialsByAuthToken(username: string, token: string, 
                 }
                 return callback(null, false);
             });
-
         });
     } else {
         try {

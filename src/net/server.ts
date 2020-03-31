@@ -109,7 +109,6 @@ export class Server {
                 'hash': await hash,
                 'token': '',
                 'token_creation_time': 0,
-
             },
             'unfinished_player': CharacterSheet.newPlayerSheet().toJSON(),
             'players': [],

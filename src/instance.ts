@@ -85,7 +85,6 @@ export class Instance {
         } catch (err) {
             console.log(err);
         }
-
     }
     public static getAvailableNonFullInstance(plr: Player): Instance | null {
         for (const inst of Object.values(Instance.instances)) {

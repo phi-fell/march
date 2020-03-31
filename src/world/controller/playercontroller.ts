@@ -5,5 +5,4 @@ export class PlayerController implements Controller {
     public getNextAction(): Action {
         return new AsyncAction();
     }
-
 }
