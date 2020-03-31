@@ -146,7 +146,7 @@ function attachWebRoutes(app: any) {
         res.send(pug.renderFile(path.resolve('site/pug/test.pug')));
     });
     app.get('/game', (req: Request, res: Response) => {
-        res.sendFile(path.resolve('site/html/game.html'));
+        res.send(pug.renderFile(path.resolve('site/pug/game.pug')));
     });
     app.get('/login', (req: Request, res: Response) => {
         res.send(pug.renderFile(path.resolve('site/pug/login.pug')));
