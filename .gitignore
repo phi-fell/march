@@ -6,7 +6,6 @@ dev_fallback/*
 package-lock.json
 bugs/*
 users/*
-players/*
 world/*
 config/launch.json
 config/versions.json

@@ -47,6 +47,7 @@ export class User extends FileBackedData {
 
     public unfinished_player: CharacterSheet = new CharacterSheet();
     public players: Player[] = [];
+    private activePlayer?: Player;
     private client?: Client;
     private _name: string = '';
     private auth: { hash: string; token: string; token_creation_time: number; } = { 'hash': '', 'token': '', 'token_creation_time': 0 };
@@ -59,6 +60,16 @@ export class User extends FileBackedData {
         return User.schema;
     }
     public get name() { return this._name; }
+    public setActivePlayer(index: number): boolean {
+        if (this.activePlayer) {
+            return false;
+        }
+        this.activePlayer = this.players[index];
+        return true;
+    }
+    public unsetActivePlayer() {
+        this.activePlayer = undefined;
+    }
     public async validateCredentials(username: string, pass: string): Promise<string | undefined> {
         if (username === this.name && await testPass(pass, this.auth.hash)) {
             return this.getFreshAuthToken();

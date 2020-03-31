@@ -203,5 +203,14 @@ export class Client {
                 }
             }
         });
+        socket.on('set_active_player', async (msg: any) => {
+            if (client.user) {
+                if (typeof msg === 'number') {
+                    client.user.setActivePlayer(msg);
+                } else {
+                    console.log('Could not set active player to Players[' + msg + ']!');
+                }
+            }
+        });
     }
 }

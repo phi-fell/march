@@ -18,9 +18,14 @@ $(document).ready(async () => {
                 app = new Vue({
                     'el': '#home',
                     'data': {
-                        'players': msg,
+                        'players': msg.map((plr, index) => {
+                            plr.play = () => {
+                                socket.emit('set_active_player', index);
+                                window.location.href = '/game';
+                            };
+                            return plr;
+                        }),
                         'MAX_PLAYERS': 5,
-                        'test': { 'value': 1 },
                     },
                     'mounted': () => {
                         $('#new_player_button').on('click', () => {
