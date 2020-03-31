@@ -1,10 +1,10 @@
 import fs = require('fs');
-import { Socket } from 'socket.io';
+import type { Socket } from 'socket.io';
 
 import { DIRECTION } from './direction';
 import { Random } from './math/random';
 import { MoveAction } from './player';
-import { User } from './user';
+import type { User } from './user';
 import { launch_id, version } from './version';
 
 function getHelp(socket: Socket) {

@@ -1,5 +1,5 @@
-import { Item } from './item';
-import { WeaponData } from './weapondata';
+import type { Item } from './item';
+import type { WeaponData } from './weapondata';
 
 export interface Weapon extends Item {
     weapon_data: WeaponData;

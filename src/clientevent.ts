@@ -1,6 +1,6 @@
-import { Damage } from './damage';
+import type { Damage } from './damage';
 import { DIRECTION } from './direction';
-import { Entity } from './entity';
+import type { Entity } from './entity';
 
 export enum EVENT_TYPE {
     NEW_ROUND,

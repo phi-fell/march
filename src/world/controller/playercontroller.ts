@@ -1,5 +1,5 @@
 import { Action, AsyncAction } from '../action';
-import { Controller } from '../controller';
+import type { Controller } from '../controller';
 
 export class PlayerController implements Controller {
     public getNextAction(): Action {

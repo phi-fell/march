@@ -1,6 +1,6 @@
 import bcrypt = require('bcrypt');
 import { promises as fs } from 'fs';
-import { Socket } from 'socket.io';
+import type { Socket } from 'socket.io';
 
 import { CharacterSheet } from '../character/charactersheet';
 import { Random } from '../math/random';

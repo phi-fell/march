@@ -202,7 +202,7 @@ if (PUBLISH_DIAGNOSTIC_DATA) {
                         pug.renderFile(
                             path.resolve(
                                 __dirname +
-                                    '/../site/pug/diagnostic/instance.pug',
+                                '/../site/pug/diagnostic/instance.pug',
                             ),
                             {
                                 'instance': inst,
@@ -251,8 +251,8 @@ app.get('/character_creation', (req: any, res: any) => {
                             console.log(load_err);
                             return res.send(
                                 'Error: Could not load user!\n' +
-                                    'This is most likely a bug.\n' +
-                                    'If so, reporting it to the devs (along with any relevant info on how and when this occured) would be appreciated.',
+                                'This is most likely a bug.\n' +
+                                'If so, reporting it to the devs (along with any relevant info on how and when this occured) would be appreciated.',
                             );
                         }
                         user.unload();
@@ -260,7 +260,7 @@ app.get('/character_creation', (req: any, res: any) => {
                             pug.renderFile(
                                 path.resolve(
                                     __dirname +
-                                        '/../site/pug/character_creation.pug',
+                                    '/../site/pug/character_creation.pug',
                                 ),
                                 {
                                     'essence': 100,

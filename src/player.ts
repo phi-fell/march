@@ -6,11 +6,11 @@ import { AddMobEvent, AttackEvent, MoveEvent, RemoveMobEvent, TurnEvent } from '
 import { DIRECTION, directionVectors } from './direction';
 import { ACTION_STATUS, Entity, MAX_VISIBILITY_RADIUS } from './entity';
 import { Instance } from './instance';
-import { EQUIPMENT_SLOT } from './item/equipment_slot';
-import { WorldItemStack } from './item/worlditemstack';
+import type { EQUIPMENT_SLOT } from './item/equipment_slot';
+import type { WorldItemStack } from './item/worlditemstack';
 import { Location } from './location';
 import { Random } from './math/random';
-import { User } from './user';
+import type { User } from './user';
 
 const players: { [id: string]: Player; } = {};
 

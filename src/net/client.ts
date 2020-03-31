@@ -1,11 +1,11 @@
 import * as t from 'io-ts';
-import { Socket } from 'socket.io';
+import type { Socket } from 'socket.io';
 
 import { ATTRIBUTE } from '../character/characterattributes';
 import { CharacterRace } from '../character/characterrace';
 import { CharacterTrait } from '../character/charactertrait';
-import { Server } from './server';
-import { User } from './user';
+import type { Server } from './server';
+import type { User } from './user';
 
 export enum CLIENT_CONNECTION_STATE {
     CONNECTED,

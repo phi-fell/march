@@ -1,6 +1,6 @@
 import * as t from 'io-ts';
 
-import { OwnedFile } from './file';
+import type { OwnedFile } from './file';
 
 export abstract class FileBackedData {
     public static schema: t.Any = t.unknown;

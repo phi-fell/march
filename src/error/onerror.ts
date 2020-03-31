@@ -15,4 +15,3 @@ export function OnError(handler: (err: any) => void) {
         return descriptor;
     };
 }
-

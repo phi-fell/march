@@ -1,8 +1,8 @@
-import { CharacterSheet } from '../character/charactersheet';
-import { Inventory } from '../item/inventory';
-import { ArmorData, ItemData, WeaponData } from '../item/itemdata';
-import { Controller } from './controller';
-import { Location } from './location';
+import type { CharacterSheet } from '../character/charactersheet';
+import type { Inventory } from '../item/inventory';
+import type { ArmorData, ItemData, WeaponData } from '../item/itemdata';
+import type { Controller } from './controller';
+import type { Location } from './location';
 
 export interface Locatable extends Entity {
     location: Location;

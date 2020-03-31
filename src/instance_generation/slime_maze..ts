@@ -1,4 +1,4 @@
-import { Instance } from '../instance';
+import type { Instance } from '../instance';
 import { getRandomAdjacency } from '../instanceschema';
 import { Location } from '../location';
 import { Random } from '../math/random';

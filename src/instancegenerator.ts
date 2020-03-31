@@ -1,4 +1,4 @@
-import { Instance } from './instance';
+import type { Instance } from './instance';
 import { generate_SLIME_ABYSS } from './instance_generation/slime_abyss';
 import { generate_SLIME_CAVE } from './instance_generation/slime_cave';
 import { generate_SLIME_MAZE } from './instance_generation/slime_maze.';

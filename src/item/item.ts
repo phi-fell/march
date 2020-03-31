@@ -3,9 +3,9 @@ import * as t from 'io-ts';
 import path = require('path');
 
 import { Random } from '../math/random';
-import { Armor } from './armor';
+import type { Armor } from './armor';
 import { ArmorData } from './armordata';
-import { Weapon } from './weapon';
+import type { Weapon } from './weapon';
 import { WeaponData } from './weapondata';
 
 export type ItemSchemaID = string;

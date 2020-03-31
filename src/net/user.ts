@@ -4,11 +4,11 @@ import * as t from 'io-ts';
 
 import { CharacterSheet } from '../character/charactersheet';
 import { Random } from '../math/random';
-import { OwnedFile } from '../system/file';
+import type { OwnedFile } from '../system/file';
 import { FileBackedData } from '../system/file_backed_data';
 import { Player } from '../world/player';
-import { World } from '../world/world';
-import { Client } from './client';
+import type { World } from '../world/world';
+import type { Client } from './client';
 
 const TOKEN_LIFESPAN = 1000 * 60 * 60 * 24 * 3; // 3 days in milliseconds
 

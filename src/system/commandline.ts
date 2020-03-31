@@ -28,16 +28,16 @@ const commands: { [cmd: string]: Command } = {
     '?': new Command('display help dialog',
         (out, _tok) => {
             getHelp(out);
-        }
+        },
     ),
     'help': new Command('display help dialog',
         (out, _tok) => {
             getHelp(out);
-        }
+        },
     ),
     'exit': new Command('display help dialog',
         (out, _tok, graceful_exit) => {
             graceful_exit();
-        }
+        },
     ),
 };

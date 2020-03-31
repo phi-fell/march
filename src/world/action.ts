@@ -1,9 +1,9 @@
 import { AddMobEvent, AttackEvent, MoveEvent, RemoveMobEvent, TurnEvent } from '../clientevent';
 import { DIRECTION, directionVectors } from '../direction';
-import { Entity } from '../entity';
+import type { Entity } from '../entity';
 import { Instance } from '../instance';
-import { EQUIPMENT_SLOT } from '../item/equipment_slot';
-import { WorldItemStack } from '../item/worlditemstack';
+import type { EQUIPMENT_SLOT } from '../item/equipment_slot';
+import type { WorldItemStack } from '../item/worlditemstack';
 
 export enum ACTION_TYPE {
     ASYNC,

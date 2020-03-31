@@ -10,7 +10,7 @@ import {
     validateUserByIdAndPass,
 } from './auth';
 import { ATTRIBUTE } from './character/characterattributes';
-import { ClientEvent } from './clientevent';
+import type { ClientEvent } from './clientevent';
 import { execute } from './commands';
 import { DIRECTION } from './direction';
 import { EQUIPMENT_SLOT } from './item/equipment_slot';

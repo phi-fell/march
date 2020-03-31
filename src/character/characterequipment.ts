@@ -1,10 +1,10 @@
 import * as t from 'io-ts';
 
-import { Armor } from '../item/armor';
+import type { Armor } from '../item/armor';
 import { EQUIPMENT_SLOT } from '../item/equipment_slot';
 import { Inventory } from '../item/inventory';
 import { Item } from '../item/item';
-import { Weapon } from '../item/weapon';
+import type { Weapon } from '../item/weapon';
 
 /*
 export enum EQUIPMENT_SLOT {
@@ -59,7 +59,7 @@ export class CharacterEquipment {
         ret.inventory = Inventory.fromJSON(json.inventory);
         if (json.equipped) {
             for (const slot of Object.keys(json.equipped)) {
-                const item = json.equipped[slot as keyof typeof EQUIPMENT_SLOT]
+                const item = json.equipped[slot as keyof typeof EQUIPMENT_SLOT];
                 if (item) {
                     ret.equipment[EQUIPMENT_SLOT[slot as keyof typeof EQUIPMENT_SLOT]] = Item.fromJSON(item);
                 }

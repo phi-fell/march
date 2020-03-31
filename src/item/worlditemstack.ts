@@ -1,5 +1,5 @@
-import { Location } from '../location';
-import { Item } from './item';
+import type { Location } from '../location';
+import type { Item } from './item';
 
 export interface WorldItemStack {
     item: Item;

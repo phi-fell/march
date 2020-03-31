@@ -2,7 +2,7 @@ import { CharacterSheet } from './character/charactersheet';
 import { AddMobEvent, AttackEvent, MoveEvent, RemoveMobEvent } from './clientevent';
 import { DIRECTION, directionVectors } from './direction';
 import { Instance } from './instance';
-import { Location } from './location';
+import type { Location } from './location';
 import { Random } from './math/random';
 
 export const MOVE_AP = 5;

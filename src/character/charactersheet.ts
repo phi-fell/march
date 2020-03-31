@@ -1,11 +1,11 @@
 import * as t from 'io-ts';
 
-import { AttackEvent } from '../clientevent';
+import type { AttackEvent } from '../clientevent';
 import { Damage, DAMAGE_TYPE, DamageMetaData } from '../damage';
 import { Random } from '../math/random';
 import { ATTRIBUTE, CharacterAttributes } from './characterattributes';
 import { CharacterEquipment } from './characterequipment';
-import { CharacterFaith } from './characterfaith';
+import type { CharacterFaith } from './characterfaith';
 import { CharacterRace } from './characterrace';
 import { RESOURCE } from './characterresource';
 import { CharacterSkills } from './characterskills';

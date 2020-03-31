@@ -1,5 +1,5 @@
-import { ArmorData } from './armordata';
-import { Item } from './item';
+import type { ArmorData } from './armordata';
+import type { Item } from './item';
 
 export interface Armor extends Item {
     armor_data: ArmorData;
