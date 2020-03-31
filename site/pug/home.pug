@@ -11,6 +11,12 @@ html
 
 body
     #home
-        p Players ({{players.length}}/{{MAX_PLAYERS}})
-        player(v-for="player in players" v-bind:key="player.id" v-bind:self="player")
-        button#new_player_button New Player
+        .row
+            .section.flex_none
+                .col
+                    p Players ({{players.length}}/{{MAX_PLAYERS}})
+                    player.row(v-for="player in players" v-bind:key="player.id" v-bind:self="player")
+                    .row
+                        .flex
+                        button#new_player_button New Player
+            .flex
