@@ -1,16 +1,30 @@
 @require 'util'
+    
+body
+    font 13px Helvetica, Arial
+
+.all
+    position absolute
+    left 0
+    top 0 
+    width 100%
+    height 100%
 
 .overflow_auto
     overflow auto
-
-body
-    font 13px Helvetica, Arial
 
 .stretch
     justify-content stretch
 
 .wrap
     display inline-block
+    
+.border_sides
+    border-left 1px solid black
+    border-right 1px solid black
+
+.border_bottom
+    border-bottom 1px solid black 
 
 .row
     flex-full()
@@ -32,3 +46,9 @@ body
 .flex_none
     flex-none()
     flex-row()
+
+.maxw25
+    max-width 25%
+
+.maxh50
+    max-height 50%
