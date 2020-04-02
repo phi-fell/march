@@ -1,10 +1,10 @@
 flex-col()
-    display: flex
-    flex-direction: column
+    display flex
+    flex-direction column
 
 flex-row()
-    display: flex
-    flex-direction: row
+    display flex
+    flex-direction row
 
 flex-full()
     flex 1 1 auto
@@ -18,23 +18,37 @@ flex-grow()
 flex-none()
     flex 0 0 auto
 
-body {
-    font: 13px Helvetica, Arial;
-}
+body
+    font 13px Helvetica, Arial
+
+p
+    margin 0
+
+.all
+    position absolute
+    left 0
+    top 0 
+    width 100%
+    height 100%
 
 #canvas_div
+    position relative
 
-canvas
-    position: absolute;
-    left: 0;
-    top: 0; 
-    width: 100%;
-    height: 100%;
+canvas,#canvasText
+    position absolute
+    left 0
+    top 0 
+    width 100%
+    height 100%
 
 #tileCanvas
-    z-index: 0;
+    z-index 0
+#entityCanvas
+    z-index 1
 #uiCanvas
-    z-index: 1;
+    z-index 2
+#canvasText
+    z-index 3
 
 .row
     flex-full()
@@ -45,9 +59,9 @@ canvas
     flex-col()
 
 .section
-    border: 2px solid black;
-    margin: 5px;
-    padding: 5px;
+    border 2px solid black
+    margin 5px
+    padding 5px
 
     flex-full()
 
