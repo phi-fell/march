@@ -186,7 +186,9 @@ export class Client {
                 } else if (msg === 'available_races') {
                     client.socket.emit('available_races', CharacterRace.getPlayableRaces());
                 } else if (msg === 'available_traits') {
-                    client.socket.emit('available_traits', [CharacterTrait.getTraitList()]);
+                    client.socket.emit('available_traits', CharacterTrait.getTraitList());
+                } else if (msg === 'game_data') {
+                    client.socket.emit('game_data', client.user.getGameData());
                 }
             }
         });
