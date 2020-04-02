@@ -1,0 +1,13 @@
+.game_sheet_pane.col
+    .flex_none.row
+        p.sheet_title.flex_none -----
+        p.sheet_title.flex_none Character Sheet:
+        select.flex_none(v-model="self.sheet_view")
+            option(value="attributes") Attributes
+            option(value="race") Race
+            option(value="skills") Skills
+            option(value="equipment") Equipment
+            option(value="inventory") Inventory
+        p.sheet_title.flex_none -----
+    .flex.overflow_auto
+        p {{self.player}}

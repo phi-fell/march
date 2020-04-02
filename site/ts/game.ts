@@ -6,7 +6,9 @@ declare var Vue: any;
 let app: any;
 
 $(document).ready(async () => {
-    await registerComponent(Vue, 'player');
+    await registerComponent(Vue, 'centered_label');
+    await registerComponent(Vue, 'game_status_pane');
+    await registerComponent(Vue, 'game_sheet_pane');
     const creds = loadCredentials();
     if (creds.user && creds.auth) {
         console.log('logging in...');
@@ -19,7 +21,17 @@ $(document).ready(async () => {
                     app = new Vue({
                         'el': '#game',
                         'data': {
-                            'player': msg,
+                            'sheet_view': 'attributes',
+                            'player': msg.player,
+                            'canvas_labels': [
+                                {
+                                    'text': 'Asdf',
+                                    'x': 50,
+                                    'y': 10,
+                                },
+                            ],
+                            'chat': {},
+                            'social': {},
                         },
                         'mounted': () => {
                             // TODO
