@@ -1,2 +1,12 @@
 .game_status-pane.overflow_auto
-    p {{self.player}}
+    p #[span(title="Controls\n - Turn with the arrow keys\n - Use WASD to move\nstrafing takes more AP than moving forward\n - Attack with spacebar\nbut only in the direction you\'re facing\n - press Z to wait, X to stop waiting\n - press . or > to use stairs") #[b [Controls]]] <- mouse over
+    p Player: {{self.player.sheet.name}}
+    p Race: {{self.player.sheet.race.name}}
+    p Essence: {{self.player.sheet.essence}}
+    p Exp: {{Math.floor(self.player.sheet.exp)}}/{{self.player.sheet.exp_cap}}
+    p Action: (Display Not Implemented)
+    p (Turn Display Not Implemented)
+    p -----Status-----
+    p Position: (Display Not Implemented)
+    game_player-resource(v-for='(resource, name) in self.player.sheet.status.pools' v-bind:self='{name,...resource}' :key='name')
+    p Action Points: {{self.player.sheet.status.action_points}}/{{self.player.sheet.status.max_action_points}} ({{self.player.sheet.status.action_point_recovery}}/turn)
