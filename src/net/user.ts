@@ -61,11 +61,11 @@ export class User extends FileBackedData {
     }
     public get name() { return this._name; }
     public setActivePlayer(index: number | undefined): boolean {
-        if (this.activePlayer && (!index || this.players[index] !== this.activePlayer)) {
+        if (this.activePlayer && (index === undefined || this.players[index] !== this.activePlayer)) {
             // TODO: deactivate player
             this.activePlayer = undefined;
         }
-        if (index && index >= 0 && index < this.players.length && this.players[index] !== this.activePlayer) {
+        if (index !== undefined && index >= 0 && index < this.players.length && this.players[index] !== this.activePlayer) {
             this.activePlayer = this.players[index];
             // TODO: activate player
         } else {
