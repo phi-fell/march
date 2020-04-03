@@ -14,14 +14,14 @@ html
 body
     #game.all.row
         .flex.col.maxw25.border_sides
-            game_sheet_pane.flex.maxh50.border_bottom(v-bind:self="{player,sheet_view}")
-            game_status_pane.flex.maxh50(v-bind:self="{player}")
+            game_sheet-pane.flex.maxh50.border_bottom(v-bind:self="{player,sheet_view}" v-model="sheet_view")
+            game_status-pane.flex.maxh50(v-bind:self="{player}")
         #canvas_div.flex
             canvas#tileCanvas
             canvas#entityCanvas
                 canvas#uiCanvas
             #canvasText
-                centered_label(v-for="label in canvas_labels" v-bind:key="label.x + label.text + label.y" v-bind:self="label")
+                centered-label(v-for="label in canvas_labels" v-bind:key="label.x + label.text + label.y" v-bind:self="label")
         .flex.col.maxw25.border_sides
             game_social_pane.flex.maxh50.border_bottom(v-bind:self="social")
             game_chat_pane.flex.maxh50(v-bind:self="chat")

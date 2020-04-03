@@ -6,9 +6,14 @@ declare var Vue: any;
 let app: any;
 
 $(document).ready(async () => {
-    await registerComponent(Vue, 'centered_label');
-    await registerComponent(Vue, 'game_status_pane');
-    await registerComponent(Vue, 'game_sheet_pane');
+    await registerComponent(Vue, 'centered-label');
+    await registerComponent(Vue, 'game_status-pane');
+    await registerComponent(Vue, 'game_sheet-pane');
+    await registerComponent(Vue, 'game_player-attributes');
+    await registerComponent(Vue, 'game_player-race');
+    await registerComponent(Vue, 'game_player-skills');
+    await registerComponent(Vue, 'game_player-inventory');
+    await registerComponent(Vue, 'game_player-equipment');
     const creds = loadCredentials();
     if (creds.user && creds.auth) {
         console.log('logging in...');
