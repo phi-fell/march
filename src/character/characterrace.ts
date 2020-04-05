@@ -2,11 +2,12 @@ import fs = require('fs');
 import * as t from 'io-ts';
 
 import { CharacterAttributes } from './characterattributes';
+import { CharacterTrait } from './charactertrait';
 
 export enum BODY_SIZE {
     MINISCULE, // ants, fleas, etc.                                 no bigger than a dime.
     DIMINUTIVE, // mice, butterflies, small birds, etc.             dime sized to baseball sized.
-    TINY, // cats, small dogs, etc  baseball                        baseball sized to basketball sized
+    TINY, // cats, small dogs, etc                                  baseball sized to basketball sized
     SMALL, // most dogs, human children, etc.
     MEDIUM, // humans, big dogs, etc
     LARGE, // bigger than a human.  e.g. horses, minotaurs, etc.    this is the largest size that can occupy a single tile
@@ -90,6 +91,10 @@ export class CharacterRace {
         'raceID': t.string,
         'name': t.string,
         'description': t.string,
+        'playable': t.boolean,
+        'bodySize': t.string,
+        'baseAttributes': CharacterAttributes.schema,
+        'traits': t.array(CharacterTrait.schema),
     });
 
     public static getRaceList() {
@@ -131,10 +136,15 @@ export class CharacterRace {
         return this.baseAttributes.clone();
     }
     public toJSON(): CharacterRaceSchema {
+        const props = characterRaceProps[this.raceID];
         return {
             'raceID': this.raceID,
             'name': this.name,
             'description': this.description,
+            'playable': props.playable,
+            'bodySize': BODY_SIZE[props.bodySize],
+            'baseAttributes': props.baseAttributes.toJSON(),
+            'traits': this.traits.map((trait) => CharacterTrait.get(trait).toJSON()),
         };
     }
 }
@@ -151,6 +161,7 @@ fs.readdir('res/race', (dir_err, filenames) => {
             const name = filename.split('.')[0];
             const props = JSON.parse(content);
             props.baseAttributes = CharacterAttributes.fromJSON(props.baseAttributes);
+            props.bodySize = BODY_SIZE[props.bodySize];
             characterRaceProps[name] = props;
         });
     });

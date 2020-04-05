@@ -186,7 +186,7 @@ export class Client {
                 } else if (msg === 'available_races') {
                     client.socket.emit('available_races', CharacterRace.getPlayableRaces());
                 } else if (msg === 'available_traits') {
-                    client.socket.emit('available_traits', CharacterTrait.getTraitList());
+                    client.socket.emit('available_traits', CharacterTrait.getBuyableTraits());
                 } else if (msg === 'game_data') {
                     client.socket.emit('game_data', client.user.getGameData());
                 }
@@ -202,6 +202,22 @@ export class Client {
                     client.user.unfinished_player.levelUpAttribute(ATTRIBUTE[(msg.attribute as keyof typeof ATTRIBUTE)]);
                 } else if (msg.action === 'decrement_attribute') {
                     client.user.unfinished_player.levelDownAttribute(ATTRIBUTE[(msg.attribute as keyof typeof ATTRIBUTE)]);
+                } else if (msg.action === 'race') {
+                    const race = msg.race;
+                    if (race && CharacterRace.raceExists(race)) {
+                        client.user.unfinished_player.race = new CharacterRace(race);
+                    }
+                } else if (msg.action === 'add_trait') {
+                    const traitID = msg.trait;
+                    if (traitID && CharacterTrait.traitExists(traitID)) {
+                        const trait = CharacterTrait.get(traitID);
+                        client.user.unfinished_player.addTrait(trait);
+                    }
+                } else if (msg.action === 'remove_trait') {
+                    const traitIndex: unknown = msg.index;
+                    if (traitIndex !== undefined && typeof traitIndex === 'number') {
+                        client.user.unfinished_player.removeTrait(traitIndex);
+                    }
                 }
             }
         });

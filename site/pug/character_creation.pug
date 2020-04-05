@@ -25,7 +25,8 @@ body
                             span.input.flex#name(contenteditable="true" v-on:input="refreshName" v-text="sheet.name")
                         .section.row
                             p='Race: '
-                            select(id="race" onChange="setRace(this.value)")
+                            select(@change="setRace" v-model="sheet.race.raceID")
+                                option(v-for="race in races" :value="race[0]") {{race[1].name}}
                         .section.row
                             p Essence: 
                             p {{sheet.essence}}
@@ -34,47 +35,35 @@ body
                             .row
                                 .section
                                     table.table
-                                        tr
+                                        tr(v-for="(pool,name) in sheet.status.pools" v-bind:key="name")
                                             td
-                                                p Flesh:
+                                                p="{{name.split('_').map((w)=>{return w.charAt(0).toUpperCase() + w.substring(1).toLowerCase()}).join(' ')  + ':'}}:"
                                             td
-                                                p(id='flesh')
-                                        tr
-                                            td
-                                                p Blood:
-                                            td
-                                                p(id='blood')
-                                        tr
-                                            td
-                                                p Bone:
-                                            td
-                                                p(id='bone')
-                                        tr
-                                            td
-                                                p Soul:
-                                            td
-                                                p(id='soul')
-                                        tr
-                                            td
-                                                p Stamina:
-                                            td
-                                                p(id='stamina')
+                                                p {{pool.capacity}}
                                         tr
                                             td
                                                 p Action Points:
                                             td
-                                                p(id='ap')
+                                                p /{{sheet.status.max_action_points}} (+{{sheet.status.action_point_recovery}})
                                         tr
                                             td
                                                 p Initiative:
                                             td
-                                                p(id='initiative')
+                                                p='AP + {{sheet.attributes.find((a) => a.name === "PERCEPTION").value}}'
                                 .section.col
                                     p Traits:
-                                    ul(id='traits')
+                                    ul
+                                        li(v-for="trait in sheet.race.traits")
+                                            span(:title='trait.description')
+                                                b [{{trait.name}}]
+                                        li(v-for="(trait, index) in sheet.traits")
+                                            span(:title='trait.description')
+                                                b [{{trait.name}}] 
+                                            button(@click="removeTrait(index)") -
                                     .flex_none
-                                        select(id="traitbuy")
-                                        button(onclick="addTraitChoice()") +
+                                        select(v-model='trait_choice')
+                                            option(v-for="trait in traits" :value="trait[0]") {{trait[1].name}} ({{trait[1].cost}})
+                                        button(@click="addTrait()") +
                             .section
                                 table.table
                                     tr
