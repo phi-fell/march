@@ -111,6 +111,7 @@ export class User extends FileBackedData {
     public async finishPlayer() {
         const plr = new Player();
         plr.sheet = this.unfinished_player;
+        plr.sheet.status.restoreFully();
         this.unfinished_player = CharacterSheet.newPlayerSheet();
         this.players.push(plr);
         this.save();
