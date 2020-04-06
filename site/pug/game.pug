@@ -19,7 +19,7 @@ body
         #canvas_div.flex
             canvas#tileCanvas
             canvas#entityCanvas
-                canvas#uiCanvas
+            canvas#uiCanvas
             #canvasText
                 centered-label(v-for="label in canvas_labels" v-bind:key="label.x + label.text + label.y" v-bind:self="label")
         .flex.col.maxw25.border_sides
