@@ -1,9 +1,12 @@
 import { loadCredentials } from './auth';
+import { Graphics } from './game/graphics';
 import { registerComponent } from './vue_component';
 
 declare var Vue: any;
 
 let app: any;
+
+let graphics: Graphics | undefined;
 
 $(document).ready(async () => {
     await registerComponent(Vue, 'centered-label');
@@ -46,6 +49,12 @@ $(document).ready(async () => {
                             // TODO
                         },
                     });
+                    graphics = new Graphics(
+                        $('#tileCanvas')[0] as HTMLCanvasElement,
+                        $('#tileCanvas')[0] as HTMLCanvasElement,
+                        $('#tileCanvas')[0] as HTMLCanvasElement,
+                        app.canvas_labels,
+                    );
                 } else {
                     window.location.href = '/home';
                 }
