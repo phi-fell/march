@@ -58,8 +58,8 @@ function validateAdminToken(token: string) {
 if (USE_HTTPS) {
     const options = {
         // TODO: make certificate path variable?
-        'key': readFileSync('/etc/letsencrypt/live/gotg.phi.ac/privkey.pem'),
-        'cert': readFileSync('/etc/letsencrypt/live/gotg.phi.ac/cert.pem'),
+        'key': readFileSync('/etc/letsencrypt/live/gotg.io/privkey.pem'),
+        'cert': readFileSync('/etc/letsencrypt/live/gotg.io/cert.pem'),
     };
 
     https_server = https.createServer(options, app);

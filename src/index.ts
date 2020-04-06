@@ -18,8 +18,8 @@ async function main(process_arguments: string[]) {
     });
 
     if (web_options.use_https) {
-        key = fs.readFile('/etc/letsencrypt/live/gotg.phi.ac/privkey.pem');
-        cert = fs.readFile('/etc/letsencrypt/live/gotg.phi.ac/cert.pem');
+        key = fs.readFile('/etc/letsencrypt/live/gotg.io/privkey.pem');
+        cert = fs.readFile('/etc/letsencrypt/live/gotg.io/cert.pem');
     }
 
     web_options.https_key = (await key).toString();
