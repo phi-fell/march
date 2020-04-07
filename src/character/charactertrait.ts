@@ -1,15 +1,30 @@
 import fs = require('fs');
+import * as t from 'io-ts';
 
 export type CharacterTraitID = string;
 
 const characterTraits: { [id: string]: CharacterTrait; } = {};
 
+export type CharacterTraitSchema = t.TypeOf<typeof CharacterTrait.schema>;
+
 export class CharacterTrait {
+    public static schema = t.type({
+        'id': t.string,
+        'buyable': t.boolean,
+        'cost': t.number,
+        'name': t.string,
+        'description': t.string,
+        'effects': t.array(t.string),
+    });
+
     public static getTraitList() {
         return Object.entries(characterTraits);
     }
-    public static getTraitsJSONString() {
-        return JSON.stringify(CharacterTrait.getTraitList());
+    public static getBuyableTraits() {
+        return CharacterTrait.getTraitList().filter((pair) => pair[1].buyable);
+    }
+    public static getBuyableTraitsJSONString() {
+        return JSON.stringify(CharacterTrait.getBuyableTraits());
     }
     public static traitExists(id: string) {
         return characterTraits.hasOwnProperty(id);
@@ -17,7 +32,7 @@ export class CharacterTrait {
     public static get(id: CharacterTraitID) {
         return characterTraits[id];
     }
-    public static fromJSON(json: any) {
+    public static fromJSON(json: CharacterTraitSchema) {
         return CharacterTrait.get(json.id);
     }
     constructor(
@@ -31,7 +46,7 @@ export class CharacterTrait {
     public getEssenceCost(): number {
         return this.cost;
     }
-    public toJSON() {
+    public toJSON(): CharacterTraitSchema {
         return {
             'id': this.id,
             'buyable': this.buyable,

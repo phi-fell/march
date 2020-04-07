@@ -60,15 +60,21 @@ export class User extends FileBackedData {
         return User.schema;
     }
     public get name() { return this._name; }
-    public setActivePlayer(index: number): boolean {
-        if (this.activePlayer) {
-            return false;
+    public setActivePlayer(index: number | undefined): boolean {
+        if (this.activePlayer && (index === undefined || this.players[index] !== this.activePlayer)) {
+            // TODO: deactivate player
+            this.activePlayer = undefined;
         }
-        this.activePlayer = this.players[index];
+        if (index !== undefined && index >= 0 && index < this.players.length && this.players[index] !== this.activePlayer) {
+            this.activePlayer = this.players[index];
+            // TODO: activate player
+        } else {
+            this.activePlayer = undefined;
+        }
         return true;
     }
     public unsetActivePlayer() {
-        this.activePlayer = undefined;
+        this.setActivePlayer(undefined);
     }
     public async validateCredentials(username: string, pass: string): Promise<string | undefined> {
         if (username === this.name && await testPass(pass, this.auth.hash)) {
@@ -105,9 +111,18 @@ export class User extends FileBackedData {
     public async finishPlayer() {
         const plr = new Player();
         plr.sheet = this.unfinished_player;
+        plr.sheet.status.restoreFully();
         this.unfinished_player = CharacterSheet.newPlayerSheet();
         this.players.push(plr);
         this.save();
+    }
+    public getGameData() {
+        if (!this.activePlayer) {
+            return null;
+        }
+        return {
+            'player': this.activePlayer.toJSON(),
+        };
     }
     public toJSON(): UserSchema {
         return {

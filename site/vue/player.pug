@@ -1,3 +1,4 @@
-div.player
+.player
     p {{self.sheet.name}}
+    p {{self.sheet.race.name}}, Unclassed
     button.play_button(v-if="self.play" v-on:click="self.play()") Play

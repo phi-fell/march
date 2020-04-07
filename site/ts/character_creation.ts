@@ -32,64 +32,109 @@ $(document).ready(async () => {
         socket.emit('login', creds);
         socket.on('success', () => {
             console.log('valid credentials, loading');
-            app = new Vue({
-                'el': '#character_sheet',
-                'data': {
-                    'sheet': {
-                        'name': '',
-                        'attributes': [],
-                        'skills': [],
-                        'essence': 0,
-                    },
-                    'MAX_PLAYERS': 5,
-                    'button_disable_override': true,
-                },
-                'mounted': () => {
-                    $('#new_player_button').on('click', () => {
-                        $('#new_player_button').prop('disabled', true);
-                        window.location.href = '/character_creation';
-                    });
-                },
-                'methods': {
-                    'refreshName': () => {
-                        socket.emit('character_creation', { 'action': 'name', 'name': $('#name').text() });
-                    },
-                    'finish': () => {
-                        socket.emit('character_creation', { 'action': 'finish' });
-                        app.button_disable_override = true;
-                        window.location.href = '/home';
-                    },
-                },
-            });
             socket.on('unfinished_player', (msg: any) => {
                 console.log(JSON.parse(JSON.stringify(msg)));
-                app.sheet = {
-                    'name': msg.name,
-                    'attributes': Object.keys(msg.attributes).map((name: string) => {
-                        return make_cnum(
-                            name,
-                            msg.attributes[name],
-                            (msg.attributeLevelupCosts[name] <= msg.essence)
-                                ? ((attr: string) => {
-                                    app.button_disable_override = true;
-                                    socket.emit('character_creation', { 'action': 'increment_attribute', 'attribute': attr });
-                                    socket.emit('get', 'unfinished_player');
-                                })
-                                : undefined,
-                            (msg.attributes[name] > 0)
-                                ? ((attr: string) => {
-                                    app.button_disable_override = true;
-                                    socket.emit('character_creation', { 'action': 'decrement_attribute', 'attribute': attr });
-                                    socket.emit('get', 'unfinished_player');
-                                })
-                                : undefined);
-                    }),
-                    'skills': Object.keys(msg.skills).map((name: string) => {
-                        return make_cnum(name, msg.skills[name], incrementSkill, decrementSkill);
-                    }),
-                    'essence': msg.essence,
-                };
-                app.button_disable_override = false;
+                if (!app) {
+                    app = new Vue({
+                        'el': '#character_sheet',
+                        'data': {
+                            'races': [],
+                            'traits': [],
+                            'trait_choice': '',
+                            'sheet': {
+                                'name': msg.name,
+                                'race': msg.race,
+                                'status': msg.status,
+                                'traits': msg.traits,
+                                'attributes': Object.keys(msg.attributes).map((name: string) => {
+                                    return make_cnum(
+                                        name,
+                                        msg.attributes[name],
+                                        (msg.attributeLevelupCosts[name] <= msg.essence)
+                                            ? ((attr: string) => {
+                                                app.button_disable_override = true;
+                                                socket.emit('character_creation', { 'action': 'increment_attribute', 'attribute': attr });
+                                                socket.emit('get', 'unfinished_player');
+                                            })
+                                            : undefined,
+                                        (msg.attributes[name] > 0)
+                                            ? ((attr: string) => {
+                                                app.button_disable_override = true;
+                                                socket.emit('character_creation', { 'action': 'decrement_attribute', 'attribute': attr });
+                                                socket.emit('get', 'unfinished_player');
+                                            })
+                                            : undefined);
+                                }),
+                                'skills': Object.keys(msg.skills).map((name: string) => {
+                                    return make_cnum(name, msg.skills[name], incrementSkill, decrementSkill);
+                                }),
+                                'essence': msg.essence,
+                            },
+                            'MAX_PLAYERS': 5,
+                            'button_disable_override': false,
+                        },
+                        'mounted': () => {
+                            $('#new_player_button').on('click', () => {
+                                $('#new_player_button').prop('disabled', true);
+                                window.location.href = '/character_creation';
+                            });
+                        },
+                        'methods': {
+                            'refreshName': () => {
+                                socket.emit('character_creation', { 'action': 'name', 'name': $('#name').text() });
+                            },
+                            'setRace': () => {
+                                socket.emit('character_creation', { 'action': 'race', 'race': app.sheet.race.raceID });
+                                socket.emit('get', 'unfinished_player');
+                            },
+                            'addTrait': () => {
+                                socket.emit('character_creation', { 'action': 'add_trait', 'trait': app.trait_choice });
+                                socket.emit('get', 'unfinished_player');
+                            },
+                            'removeTrait': (index: number) => {
+                                console.log(index);
+                                socket.emit('character_creation', { 'action': 'remove_trait', index });
+                                socket.emit('get', 'unfinished_player');
+                            },
+                            'finish': () => {
+                                socket.emit('character_creation', { 'action': 'finish' });
+                                app.button_disable_override = true;
+                                window.location.href = '/home';
+                            },
+                        },
+                    });
+                } else {
+                    app.sheet = {
+                        'name': msg.name,
+                        'race': msg.race,
+                        'status': msg.status,
+                        'traits': msg.traits,
+                        'attributes': Object.keys(msg.attributes).map((name: string) => {
+                            return make_cnum(
+                                name,
+                                msg.attributes[name],
+                                (msg.attributeLevelupCosts[name] <= msg.essence)
+                                    ? ((attr: string) => {
+                                        app.button_disable_override = true;
+                                        socket.emit('character_creation', { 'action': 'increment_attribute', 'attribute': attr });
+                                        socket.emit('get', 'unfinished_player');
+                                    })
+                                    : undefined,
+                                (msg.attributes[name] > 0)
+                                    ? ((attr: string) => {
+                                        app.button_disable_override = true;
+                                        socket.emit('character_creation', { 'action': 'decrement_attribute', 'attribute': attr });
+                                        socket.emit('get', 'unfinished_player');
+                                    })
+                                    : undefined);
+                        }),
+                        'skills': Object.keys(msg.skills).map((name: string) => {
+                            return make_cnum(name, msg.skills[name], incrementSkill, decrementSkill);
+                        }),
+                        'essence': msg.essence,
+                    };
+                    app.button_disable_override = false;
+                }
             });
             socket.on('available_races', (msg: any) => {
                 app.races = msg;

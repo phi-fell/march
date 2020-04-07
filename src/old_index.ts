@@ -275,7 +275,7 @@ app.get('/character_creation', (req: any, res: any) => {
                                             'number',
                                     ),
                                     'races': CharacterRace.getPlayableRacesJSONString(),
-                                    'traits': CharacterTrait.getTraitsJSONString(),
+                                    'traits': CharacterTrait.getBuyableTraitsJSONString(),
                                 },
                             ),
                         );

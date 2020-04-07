@@ -1,1 +1,27 @@
-p GAME
+doctype html
+html
+    head
+        title GotG
+        script(src="/socket.io/socket.io.js")
+        script(src="/dependencies/jquery.js")
+        script(src="/dependencies/vue.js")
+        script(type="module" src="/js/game.js")
+        style
+            include ../css/global.css
+        style
+            include ../css/game.css
+
+body
+    #game.all.row
+        .flex.col.maxw25.border_sides
+            game_status-pane.flex.pane.maxh50.border_bottom(v-bind:self="{player}")
+            game_sheet-pane.flex.pane.maxh50(v-bind:self="{player,sheet_view}" v-model="sheet_view")
+        #canvas_div.flex
+            canvas#tileCanvas
+            canvas#entityCanvas
+            canvas#uiCanvas
+            #canvasText
+                centered-label(v-for="label in canvas_labels" v-bind:key="label.x + label.text + label.y" v-bind:self="label")
+        .flex.col.maxw25.border_sides
+            game_social-pane.pane.flex.maxh50.border_bottom(v-bind:self="social")
+            game_chat-pane.flex.maxh50(v-bind:self="chat")

@@ -10,6 +10,7 @@ import { CharacterRace } from './characterrace';
 import { RESOURCE } from './characterresource';
 import { CharacterSkills } from './characterskills';
 import { CharacterStatus } from './characterstatus';
+import { CharacterTrait } from './charactertrait';
 
 export const STARTING_ESSENCE = 100;
 
@@ -21,6 +22,7 @@ export class CharacterSheet {
             'name': t.string,
             'equipment': CharacterEquipment.schema,
             'race': CharacterRace.schema,
+            'traits': t.array(CharacterTrait.schema),
             'skills': CharacterSkills.schema,
             'status': CharacterStatus.schema,
             'allocatedAttributes': CharacterAttributes.schema,
@@ -30,7 +32,7 @@ export class CharacterSheet {
         t.partial({
             'attributes': CharacterAttributes.schema,
             'attributeLevelupCosts': t.any,
-            'faiths': t.any,
+            'faiths': t.any, // TODO: faith schema
             'exp_cap': t.number,
         }),
     ]);
@@ -71,6 +73,7 @@ export class CharacterSheet {
     public static fromJSON(json: CharacterSheetSchema) {
         const ret = new CharacterSheet();
         ret._name = json.name;
+        ret._additional_traits = json.traits.map(CharacterTrait.fromJSON);
         // TODO: load faiths
         ret._equipment = CharacterEquipment.fromJSON(json.equipment);
         ret._race = CharacterRace.fromJSON(json.race);
@@ -86,7 +89,8 @@ export class CharacterSheet {
     private _allocatedAttributes: CharacterAttributes = new CharacterAttributes();
     private _skills: CharacterSkills = new CharacterSkills();
     private _race: CharacterRace;
-    private _faiths: CharacterFaith[];
+    private _additional_traits: CharacterTrait[] = [];
+    private _faiths: CharacterFaith[] = [];
     private _equipment: CharacterEquipment;
     private _status: CharacterStatus;
     private _essence: number;
@@ -96,7 +100,6 @@ export class CharacterSheet {
     private _hasPool: boolean[] = [];
     constructor() {
         this._race = new CharacterRace();
-        this._faiths = [];
         this._equipment = new CharacterEquipment();
         this._status = new CharacterStatus();
         this._essence = 0;
@@ -171,6 +174,20 @@ export class CharacterSheet {
             this.recalculateDerivedStats();
         } else {
             // Failure
+        }
+    }
+    public addTrait(trait: CharacterTrait) {
+        if (trait.buyable && this._essence >= trait.cost) {
+            this._essence -= trait.cost;
+            this._additional_traits.push(trait);
+        }
+    }
+    public removeTrait(index: number) {
+        if (index >= 0 && index < this._additional_traits.length) {
+            this._essence += this._additional_traits[index].cost;
+            this._additional_traits.splice(index, 1);
+        } else {
+            console.log('could not remove trait[' + index + '] from traits');
         }
     }
     public startNewTurn() {
@@ -250,6 +267,7 @@ export class CharacterSheet {
             'allocatedAttributes': this._allocatedAttributes.toJSON(),
             'attributeLevelupCosts': this._allocatedAttributes.getLevelupCosts().toJSON(),
             'skills': this._skills.toJSON(),
+            'traits': this._additional_traits.map((trait) => trait.toJSON()),
             'faiths': [],
             'race': this._race.toJSON(),
             'equipment': this._equipment.toJSON(),
