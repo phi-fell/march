@@ -5,7 +5,6 @@ import type { Socket } from 'socket.io';
 import { CharacterSheet } from '../character/charactersheet';
 import { Random } from '../math/random';
 import { File } from '../system/file';
-import { World } from '../world/world';
 import { Client, CLIENT_CONNECTION_STATE } from './client';
 import { User, UserSchema } from './user';
 
@@ -30,7 +29,6 @@ export class Server {
     private running: boolean = true;
     private clients: { [id: string]: Client; } = {};
     private users: { [id: string]: User; } = {};
-    private world: World = new World();
     constructor(private _server: SocketIO.Server) {
         _server.on('connection', (socket: Socket) => {
             if (this.running) {
@@ -71,7 +69,7 @@ export class Server {
         if (!this.users[id]) {
             const path = 'users/' + id + '.json';
             const file = await File.acquireFile(path);
-            this.users[id] = await User.createUserFromFile(this.world, file);
+            this.users[id] = await User.createUserFromFile(file);
         }
         return this.users[id];
     }
@@ -114,7 +112,7 @@ export class Server {
             'players': [],
         };
         file.setJSON(user_json);
-        const user = await User.createUserFromFile(this.world, file);
+        const user = await User.createUserFromFile(file);
         this.users[id] = user;
         user.save();
         await setUsername(id, username);

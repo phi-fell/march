@@ -7,7 +7,6 @@ import { Random } from '../math/random';
 import type { OwnedFile } from '../system/file';
 import { FileBackedData } from '../system/file_backed_data';
 import { Player } from '../world/player';
-import type { World } from '../world/world';
 import type { Client } from './client';
 
 const TOKEN_LIFESPAN = 1000 * 60 * 60 * 24 * 3; // 3 days in milliseconds
@@ -39,8 +38,8 @@ export class User extends FileBackedData {
         'players': t.array(Player.schema),
     });
     /** Remember to unload() created users! */
-    public static async createUserFromFile(world: World, file: OwnedFile): Promise<User> {
-        const user = new User(world, file);
+    public static async createUserFromFile(file: OwnedFile): Promise<User> {
+        const user = new User(file);
         await user.ready();
         return user;
     }
@@ -53,7 +52,7 @@ export class User extends FileBackedData {
     private auth: { hash: string; token: string; token_creation_time: number; } = { 'hash': '', 'token': '', 'token_creation_time': 0 };
     private id: string = '';
 
-    constructor(private world: World, file: OwnedFile) {
+    protected constructor(file: OwnedFile) {
         super(file);
     }
     public get schema() {
