@@ -2,14 +2,10 @@ import type { CharacterSheet } from '../character/charactersheet';
 import type { Inventory } from '../item/inventory';
 import type { ArmorData, ItemData, WeaponData } from '../item/itemdata';
 import type { Controller } from './controller';
+import { Locatable } from './locatable';
 import type { Location } from './location';
 
-export interface Locatable extends Entity {
-    location: Location;
-}
-
-export interface Mob extends Locatable {
-    location: Location;
+export interface Mob extends Entity {
     controller: Controller;
     sheet: CharacterSheet;
     inventory: Inventory;
@@ -25,20 +21,22 @@ export interface Armor extends Item {
     item_data: ArmorData;
 }
 
-export class Entity {
-    public location?: Location;
+export class Entity extends Locatable {
     public sheet?: CharacterSheet;
     public controller?: Controller;
     public inventory?: Inventory;
     public item_data?: ItemData;
-    public isLocatable(): this is Locatable {
-        return this.location !== undefined;
+    constructor(loc: Location) {
+        super(loc);
+    }
+    public isEntity(): this is Entity {
+        return true;
     }
     public isMob(): this is Mob {
-        return (this.location !== undefined
-            && this.controller !== undefined
-            && this.sheet !== undefined
-            && this.inventory !== undefined
+        return (
+            this.controller !== undefined &&
+            this.sheet !== undefined &&
+            this.inventory !== undefined
         );
     }
 }
