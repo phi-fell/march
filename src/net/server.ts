@@ -30,7 +30,7 @@ export class Server {
     private running: boolean = true;
     private clients: { [id: string]: Client; } = {};
     private users: { [id: string]: User; } = {};
-    constructor(private _server: SocketIO.Server, private world: World) {
+    constructor(private _server: SocketIO.Server, public readonly world: World) {
         _server.on('connection', (socket: Socket) => {
             if (this.running) {
                 this.clients[socket.id] = new Client(this, socket.id, socket);

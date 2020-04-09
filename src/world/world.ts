@@ -1,12 +1,10 @@
 import * as t from 'io-ts';
 
-import type { OwnedFile } from '../system/file';
+import { File, OwnedFile } from '../system/file';
 import { FileBackedData } from '../system/file_backed_data';
-import type { Instance } from './instance';
+import { Instance } from './instance';
 
-const instance_ref_schema = t.type({
-    'id': t.string,
-});
+const instance_ref_schema = t.string;
 
 export type WorldSchema = t.TypeOf<typeof World.schema>;
 
@@ -22,15 +20,26 @@ export class World extends FileBackedData {
     }
 
     private _instances: Record<string, Instance> = {};
+    private _instance_refs: Array<t.TypeOf<typeof instance_ref_schema>> = [];
     protected constructor(file: OwnedFile) {
         super(file);
+    }
+    public async getInstance(id: string): Promise<Instance | undefined> {
+        if (!this._instances[id]) {
+            if (this._instance_refs.includes(id)) {
+                this._instances[id] = await Instance.loadInstanceFromFile(await File.acquireFile('world/inst-' + id + '.json'));
+            } else {
+                return;
+            }
+        }
+        return this._instances[id];
     }
 
     public get schema(): t.Any {
         return World.schema;
     }
     protected async fromJSON(json: WorldSchema): Promise<void> {
-        // TODO: load instances
+        this._instance_refs = [...json.instances];
     }
     protected toJSON(): WorldSchema {
         throw new Error('Method not implemented.');

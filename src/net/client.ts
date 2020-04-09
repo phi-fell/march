@@ -46,7 +46,7 @@ export class Client {
     public get has_attached_user(): boolean {
         return this.user !== undefined;
     }
-    constructor(private server: Server, public id: string, private socket: Socket) {
+    constructor(public readonly server: Server, public id: string, private socket: Socket) {
         this.connection_state_inner = CLIENT_CONNECTION_STATE.CONNECTED;
         socket.on('disconnect', () => this.disconnect());
         console.log('Connection from ' + socket.handshake.address);
