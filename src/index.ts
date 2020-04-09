@@ -5,6 +5,7 @@ import { Server } from './net/server';
 import { WebServer, WebServerOptions } from './net/webserver';
 import { runCommand } from './system/commandline';
 import { File } from './system/file';
+import { World, WorldSchema } from './world/world';
 
 const ssl_paths_schema = t.type({
     'root': t.string,
@@ -38,6 +39,17 @@ async function main(process_arguments: string[]) {
         }
     });
 
+    const worldFilePath = 'world/world.json';
+    const worldFile = await File.acquireFile(worldFilePath);
+    if (!await File.exists(worldFilePath)) {
+        console.log('Could not find world! creating new world...');
+        const json: WorldSchema = {
+            'instances': [],
+        };
+        worldFile.setJSON(json);
+    }
+    const world = World.loadWorldFromFile(worldFile);
+
     if (web_options.use_https) {
         if (ssl_paths) {
             key = fs.readFile(ssl_paths.root + ssl_paths.key);
@@ -50,7 +62,7 @@ async function main(process_arguments: string[]) {
     web_options.https_key = (await key).toString();
     web_options.https_cert = (await cert).toString();
     const web_server = new WebServer(web_options);
-    const io_server = new Server(web_server.getSocketIO());
+    const io_server = new Server(web_server.getSocketIO(), await world);
 
     const graceful_exit = async () => {
         process.stdout.write('Shutting down...\n');

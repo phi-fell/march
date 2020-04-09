@@ -5,6 +5,7 @@ import type { Socket } from 'socket.io';
 import { CharacterSheet } from '../character/charactersheet';
 import { Random } from '../math/random';
 import { File } from '../system/file';
+import type { World } from '../world/world';
 import { Client, CLIENT_CONNECTION_STATE } from './client';
 import { User, UserSchema } from './user';
 
@@ -29,7 +30,7 @@ export class Server {
     private running: boolean = true;
     private clients: { [id: string]: Client; } = {};
     private users: { [id: string]: User; } = {};
-    constructor(private _server: SocketIO.Server) {
+    constructor(private _server: SocketIO.Server, private world: World) {
         _server.on('connection', (socket: Socket) => {
             if (this.running) {
                 this.clients[socket.id] = new Client(this, socket.id, socket);
