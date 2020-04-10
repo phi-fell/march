@@ -8,82 +8,28 @@ html
         script(type="module" src="/js/new.js")
         style
             include ../css/global.css
-        style.
-            .outer {
-                display: flex;
-                flex-direction: column;
-
-                position: absolute;
-                height: 90%;
-                width: 90%;
-
-                text-align: right;
-            }
-
-            .mid {
-                display: flex;
-                flex-direction: row;
-
-                flex: 0 1 auto;
-            }
-
-            .inner {
-                flex: 0 1 auto;
-            }
-
-            .pad {
-                flex: 1 1 auto;
-            }
-
-            .formbox {
-                display: flex;
-                flex-direction: row;
-            }
-
-            .inputcol {
-                flex: 1 1 auto;
-
-                display: flex;
-                flex-direction: column;
-            }
-
-            .labelcol {
-                flex: 1 1 auto;
-
-                display: flex;
-                flex-direction: column;
-            }
-
-            .formitem {
-                flex: 1 1 auto;
-                margin: 5px;
-            }
-
-            .nav {
-                position: absolute;
-                left: 10px;
-                top: 10px;
-                z-index: 1;
-            }
+        style
+            include ../css/new.css
 
     body
-        .nav
-            a(href="/login") Login
-        .outer
-            .pad
-            .mid
+        #new.all
+            .nav
+                a(href="/login") Login
+            .outer
                 .pad
-                .inner
-                    form(action="")
-                        .formbox
-                            .labelcol
-                                label.formitem(for="user") Userame:
-                                label.formitem(for="pass") Passphrase:
-                                label.formitem(for="pass") Enter pass again:
-                            .inputcol
-                                input.formitem(type="text" id="user" name="username") 
-                                input.formitem(type="password" id="pass1" name="password") 
-                                input.formitem(type="password" id="pass2" name="password") 
-                        button Create New Account
+                .mid
+                    .pad
+                    .inner
+                        form(action="")
+                            .formbox
+                                .labelcol
+                                    label.formitem(for="user") Userame:
+                                    label.formitem(for="pass") Passphrase:
+                                    label.formitem(for="pass") Enter pass again:
+                                .inputcol
+                                    input.formitem(type="text" id="user" name="username") 
+                                    input.formitem(type="password" id="pass1" name="password") 
+                                    input.formitem(type="password" id="pass2" name="password") 
+                            button Create New Account
+                    .pad
                 .pad
-            .pad

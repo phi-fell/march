@@ -5,6 +5,12 @@
     
 body
     font 13px Helvetica, Arial
+    color $content_color_faded
+
+input, button, select
+    background-color $background_color_faded
+    color $content_color_faded
+    border-color $border_color_faded
 
 .all
     position absolute
@@ -20,11 +26,11 @@ body
     display inline-block
     
 .border_sides
-    border-left 1px solid black
-    border-right 1px solid black
+    border-left 1px solid $border_color_faded
+    border-right 1px solid $border_color_faded
 
 .border_bottom
-    border-bottom 1px solid black 
+    border-bottom 1px solid $border_color_faded 
 
 .row
     flex-full()
@@ -45,7 +51,6 @@ body
 
 .flex_none
     flex-none()
-    flex-row()
 
 .maxw25
     max-width 25%

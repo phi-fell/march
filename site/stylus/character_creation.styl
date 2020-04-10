@@ -1,5 +1,9 @@
 @require 'util'
 
+#character_sheet
+    background()
+    overflow auto
+
 .cnum
     flex-row()
     flex-none()
@@ -12,7 +16,7 @@
 
 .input
     min-width 100px
-    border 1px solid black
+    border 1px solid $border_color_faded
     flex-col()
     justify-content center
     padding 3px
@@ -33,46 +37,19 @@ p {
 }
 .wrap
     display inline-block
-.all {
-    position: absolute;
-    height: 100%;
-    width: 100%;
-    left: 0%;
-    top: 0%;
-}
+
 .outer {
     padding: 5px;
     position: relative;
 }
 .char_sheet {
-    border: 2px solid black;
+    border: 2px solid $border_color_pure;
 }
-.row {
-    flex-full()
-    flex-row()
-}
-.col {
-    flex-full()
-    flex-col()
-}
+
 .section {
-    border: 2px solid black;
+    border: 2px solid $border_color_faded;
     margin: 5px;
     padding: 5px;
 
     flex-full()
-}
-
-.flex
-    flex-full()
-
-.flex_grow
-    flex-grow()
-
-.flex_shrink
-    flex-shrink()
-
-.flex_none {
-    flex-none()
-    flex-row()
 }
