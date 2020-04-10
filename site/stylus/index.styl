@@ -1,0 +1,77 @@
+@require 'util'
+
+*
+    color #FFF
+
+p
+    margin 0
+
+a 
+    color #AFA
+
+.outer 
+    flex-col()
+
+    position absolute
+    height 100%
+    width 100%
+
+    text-align right
+
+.mid 
+    flex-row()
+    flex-shrink()
+
+.inner 
+    flex-shrink()
+
+.pad 
+    flex-full()
+
+.formbox 
+    flex-row()
+
+.inputcol 
+    flex-full()
+    flex-col()
+
+.labelcol 
+    flex-full()
+    flex-col()
+
+.formitem 
+    flex-full()
+    margin 5px
+
+.nav_left
+    position absolute
+    left 10px
+    top 10px
+    z-index 1
+
+.nav_right
+    position absolute
+    right 10px
+    top 10px
+    z-index 1
+
+.ko-fi_button
+    align-items center
+    position absolute
+    border-radius 10px
+    right 10px
+    bottom 8px
+    z-index 1
+    padding 8px
+
+.ko-fi_button, .ko-fi_button *
+    background-color #639
+    text-decoration none
+
+.ko-fi_cup
+    max-height 20px
+    margin-right 10px
+
+#index
+    background-color #111
+    background-image radial-gradient(circle at 50% -50%,#333,#020102)
