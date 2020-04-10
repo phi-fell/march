@@ -1,6 +1,6 @@
 import { randomBytes } from 'crypto';
-import uuid_rand = require('uuid/v4');
-import uuid_deterministic = require('uuid/v5');
+import { v4 as uuid_rand } from 'uuid';
+import { v5 as uuid_deterministic } from 'uuid';
 
 export class Random {
     public static getSecureID() {
