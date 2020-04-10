@@ -3,7 +3,6 @@ build/*
 site/js/*
 site/css/*
 dev_fallback/*
-package-lock.json
 bugs/*
 users/*
 world/*
