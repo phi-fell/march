@@ -6,9 +6,22 @@ import { Random } from './math/random';
 // tslint:disable-next-line: no-var-requires
 const package_json = require('../package.json');
 
+let versionsJSON;
+try {
+    versionsJSON = JSON.parse(String(readFileSync('config/versions.json')));
+} catch {
+    versionsJSON = [];
+}
+let hash;
+try {
+    hash = JSON.parse(String(readFileSync('config/launch.json'))).hash;
+} catch {
+    hash = undefined;
+}
+
 export const version = package_json.version;
-export let versions = JSON.parse(String(readFileSync('config/versions.json')));
-export const version_hash = JSON.parse(String(readFileSync('config/launch.json'))).hash;
+export let versions = versionsJSON;
+export const version_hash = hash;
 export const launch_id = Random.uuid();
 
 export class Version {
