@@ -224,9 +224,17 @@ export class Client {
         socket.on('set_active_player', async (msg: any) => {
             if (client.user) {
                 if (typeof msg === 'number') {
-                    client.user.setActivePlayer(msg);
+                    const success = client.user.setActivePlayer(msg);
+                    socket.emit('active_player_response', {
+                        'success': success,
+                        'msg': success ? undefined : 'Index is out of bounds!',
+                    });
                 } else {
                     console.log('Could not set active player to Players[' + msg + ']!');
+                    socket.emit('active_player_response', {
+                        'success': false,
+                        'msg': 'Index must be a number!',
+                    });
                 }
             }
         });

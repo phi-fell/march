@@ -56,6 +56,7 @@ $(document).ready(async () => {
                         app.canvas_labels,
                     );
                 } else {
+                    console.log('did not recieve valid game_data!');
                     window.location.href = '/home';
                 }
             });
