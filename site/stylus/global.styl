@@ -2,10 +2,23 @@
 
 *
     box-sizing border-box
+    scrollbar-color $scrollbar_color $background_color_vivid
+    scrollbar-width thin
     
 body
     font 13px Helvetica, Arial
     color $content_color_faded
+
+::-webkit-scrollbar-track
+    background-color: $background_color_vivid;
+
+::-webkit-scrollbar
+    width: 6px;
+    background-color: $background_color_vivid
+
+
+::-webkit-scrollbar-thumb
+    background-color: $scrollbar_color;
 
 input, button, select
     background-color $background_color_faded
