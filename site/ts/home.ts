@@ -21,7 +21,21 @@ $(document).ready(async () => {
                         'players': msg.map((plr, index) => {
                             plr.play = () => {
                                 socket.emit('set_active_player', index);
-                                window.location.href = '/game';
+                                socket.on('active_player_response', (resp: any) => {
+                                    if (resp) {
+                                        if (resp.success) {
+                                            console.log('active player set, redirecting to game');
+                                            window.location.href = '/game';
+                                        } else {
+                                            console.log(resp.msg);
+                                            alert('Could not set player!\nServer response: ' + resp.msg + '\nThis is likely a bug, try refreshing the page, and consider submitting an issue on our github page (especially if this happens multiple times).');
+                                        }
+                                    } else {
+                                        const s = 'Could not set player! Empty response recieved! This is likely a bug, try refreshing the page, and consider submitting an issue on our github page (especially if this happens multiple times).';
+                                        console.log(s);
+                                        alert(s);
+                                    }
+                                });
                             };
                             return plr;
                         }),

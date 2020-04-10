@@ -1,4 +1,5 @@
 doctype html
+
 html
     head
         title GotG
@@ -10,22 +11,23 @@ html
         style
             include ../css/login.css
 
-body
-    .nav
-        a(href="/create") New User
-    .outer
-        .pad
-        .mid
-            .pad
-            .inner
-                form(action="")
-                    .formbox
-                        .labelcol
-                            label.formitem(for="user") Userame:
-                            label.formitem(for="pass") Passphrase:
-                        .inputcol
-                            input.formitem(type="text" id="user" name="username")
-                            input.formitem(type="password" id="pass" name="password")
-                    button Login
-            .pad
-        .pad
+    body
+        #login.all
+            .nav
+                a(href="/create") New User
+            .outer
+                .pad
+                .mid
+                    .pad
+                    .inner
+                        form(action="")
+                            .formbox
+                                .labelcol
+                                    label.formitem(for="user") Userame:
+                                    label.formitem(for="pass") Passphrase:
+                                .inputcol
+                                    input.formitem(type="text" id="user" name="username")
+                                    input.formitem(type="password" id="pass" name="password")
+                            button Login
+                    .pad
+                .pad

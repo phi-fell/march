@@ -61,20 +61,27 @@ export class User extends FileBackedData {
     }
     public get name() { return this._name; }
     public setActivePlayer(index: number | undefined): boolean {
-        if (this.activePlayer && (index === undefined || this.players[index] !== this.activePlayer)) {
-            // TODO: deactivate player
-            this.activePlayer = undefined;
+        if (index === undefined) {
+            this.unsetActivePlayer();
+            return true;
         }
-        if (index !== undefined && index >= 0 && index < this.players.length && this.players[index] !== this.activePlayer) {
-            this.activePlayer = this.players[index];
-            // TODO: activate player
-        } else {
-            this.activePlayer = undefined;
+        if (index < 0 || index >= this.players.length) {
+            console.log('could not set active player to index ' + index);
+            return false;
         }
+        if (this.activePlayer && this.players[index] === this.activePlayer) {
+            return true;
+        }
+        this.unsetActivePlayer();
+        this.activePlayer = this.players[index];
+        // TODO: activate player
         return true;
     }
     public unsetActivePlayer() {
-        this.setActivePlayer(undefined);
+        if (this.activePlayer) {
+            // TODO: deactivate player
+            this.activePlayer = undefined;
+        }
     }
     public async validateCredentials(username: string, pass: string): Promise<string | undefined> {
         if (username === this.name && await testPass(pass, this.auth.hash)) {
@@ -118,7 +125,7 @@ export class User extends FileBackedData {
     }
     public getGameData() {
         if (!this.activePlayer) {
-            return null;
+            return;
         }
         return {
             'player': this.activePlayer.toJSON(),

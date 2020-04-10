@@ -1,3 +1,5 @@
+@require 'constants'
+
 flex-col()
     display flex
     flex-direction column
@@ -17,3 +19,7 @@ flex-grow()
 
 flex-none()
     flex 0 0 auto
+
+background-gradient()
+    background-color $background_color_faded
+    background-image radial-gradient(circle at 50% -50%, $gradient_color_inner, $gradient_color_outer)

@@ -1,5 +1,8 @@
 @require 'util'
 
+#game
+    background-gradient()
+
 p
     margin-top 0
     margin-left 0
@@ -39,10 +42,10 @@ canvas,#canvasText
     word-wrap break-word
 
 .chat-pane_message-list li:nth-child(odd)
-    background #eee
+    background-color $background_color_mid
 
 .chat-pane_input-div
-    background black
+    background-color $border_color_faded
 
 .chat-pane_input
     border 0
