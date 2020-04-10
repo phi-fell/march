@@ -69,7 +69,7 @@ export class CharacterEquipment {
     }
     // public shield: Shield | null;
     public inventory: Inventory;
-    private equipment: Array<Item | undefined> = [];
+    private equipment: (Item | undefined)[] = [];
     constructor() {
         this.inventory = new Inventory();
     }
