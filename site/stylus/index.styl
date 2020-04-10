@@ -1,7 +1,7 @@
 @require 'util'
 
-*
-    color #FFF
+#index
+    background-gradient()
 
 p
     margin 0
@@ -9,6 +9,10 @@ p
 a 
     color $link_color
     text-decoration none
+
+.title
+    font-family: 'IM Fell English SC', serif;
+    font-size 10em
 
 .outer 
     flex-col()
@@ -47,19 +51,20 @@ a
 .nav_left
     position absolute
     left 10px
-    top 10px
+    top 5px
     z-index 1
 
 .nav_right
     position absolute
     right 10px
-    top 10px
+    top 5px
     z-index 1
 
 .ko-fi_button
     align-items center
     position absolute
     border-radius 10px
+    color $content_color_pure
     right 10px
     bottom 8px
     z-index 1
@@ -72,7 +77,3 @@ a
 .ko-fi_cup
     max-height 20px
     margin-right 10px
-
-#index
-    background-color #111
-    background-image radial-gradient(circle at 50% -50%,#333,#020102)
