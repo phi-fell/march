@@ -14,6 +14,8 @@ async function main(process_arguments: string[]) {
             web_options.use_https = false;
         } else if (val === '-UNLOCK_DIAGNOSTIC') {
             web_options.unlock_diagnostic = true;
+        } else if (val === '-JS_DEBUG_LIBS') {
+            web_options.useDebugJS = true;
         }
     });
 

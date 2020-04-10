@@ -9,41 +9,12 @@ import socketIO = require('socket.io');
 
 import { launch_id, version } from '../version';
 
-const DEBUG_MODE = true;
-
-let jqueryjs: string | undefined;
-let vuejs: string | undefined;
-
-(async () => {
-    try {
-        const loadJQuery = bent('https://code.jquery.com', 'string');
-        jqueryjs = await (
-            DEBUG_MODE
-                ? loadJQuery('/jquery-3.4.1.js')
-                : loadJQuery('/jquery-3.4.1.min.js')
-        );
-    } catch (error) {
-        console.log('could not GET jquery.js:');
-        console.log(error);
-    }
-    try {
-        const loadVue = bent('https://cdn.jsdelivr.net', 'string');
-        vuejs = await (
-            DEBUG_MODE
-                ? loadVue('/npm/vue/dist/vue.js')
-                : loadVue('/npm/vue')
-        );
-    } catch (error) {
-        console.log('could not GET vue.js:');
-        console.log(error);
-    }
-})();
-
 export class WebServerOptions {
     public http_port: number = 80;
     public https_port: number = 443;
     public use_https: boolean = true;
     public unlock_diagnostic: boolean = false;
+    public useDebugJS: boolean = false;
     public https_key: string = '';
     public https_cert: string = '';
     public clone(): WebServerOptions {
@@ -52,6 +23,7 @@ export class WebServerOptions {
         ret.https_port = this.https_port;
         ret.use_https = this.use_https;
         ret.unlock_diagnostic = this.unlock_diagnostic;
+        ret.useDebugJS = this.useDebugJS;
         ret.https_key = this.https_key;
         ret.https_cert = this.https_cert;
         return ret;
@@ -65,8 +37,35 @@ export class WebServer {
     private http_server: http.Server;
     private https_server: https.Server | null = null;
     private socketIO: SocketIO.Server;
+    private jqueryjs: string | undefined;
+    private vuejs: string | undefined;
     constructor(opts: WebServerOptions) {
         this.options = opts.clone();
+        const ws = this;
+        (async () => {
+            try {
+                const loadJQuery = bent('https://code.jquery.com', 'string');
+                ws.jqueryjs = await (
+                    (ws.options.useDebugJS)
+                        ? loadJQuery('/jquery-3.4.1.js')
+                        : loadJQuery('/jquery-3.4.1.min.js')
+                );
+            } catch (error) {
+                console.log('could not GET jquery.js:');
+                console.log(error);
+            }
+            try {
+                const loadVue = bent('https://cdn.jsdelivr.net', 'string');
+                ws.vuejs = await (
+                    (ws.options.useDebugJS)
+                        ? loadVue('/npm/vue/dist/vue.js')
+                        : loadVue('/npm/vue')
+                );
+            } catch (error) {
+                console.log('could not GET vue.js:');
+                console.log(error);
+            }
+        })();
         this.express_app = express();
         this.express_app.use(cookieParser());
         this.express_app.use(express.json());
@@ -89,7 +88,7 @@ export class WebServer {
             this.http_server = http.createServer(this.express_app);
             this.socketIO = socketIO(this.http_server, { 'transports': ['websocket'] });
         }
-        attachWebRoutes(this.express_app);
+        this.attachWebRoutes();
     }
     public shutdown() {
         if (this.options.use_https) {
@@ -116,58 +115,58 @@ export class WebServer {
     public getSocketIO() {
         return this.socketIO;
     }
-}
+    private attachWebRoutes() {
+        this.express_app.get('/', (req: Request, res: Response) => {
+            res.send(pug.renderFile(path.resolve('site/pug/index.pug')));
+        });
 
-function attachWebRoutes(app: any) {
-    app.get('/', (req: Request, res: Response) => {
-        res.send(pug.renderFile(path.resolve('site/pug/index.pug')));
-    });
+        this.express_app.get('/dependencies/jquery.js', async (req: Request, res: Response) => {
+            if (this.jqueryjs) {
+                res.send(this.jqueryjs);
+            } else {
+                res.sendFile(path.resolve('dev_fallback/jquery.js'));
+            }
+        });
+        this.express_app.get('/dependencies/vue(.js)?', async (req: Request, res: Response) => {
+            if (this.vuejs) {
+                res.type('this.express_application/javascript').send(this.vuejs);
+            } else {
+                res.sendFile(path.resolve('dev_fallback/vue.js'));
+            }
+        });
 
-    app.get('/dependencies/jquery.js', async (req: Request, res: Response) => {
-        if (jqueryjs) {
-            res.send(jqueryjs);
-        } else {
-            res.sendFile(path.resolve('dev_fallback/jquery.js'));
-        }
-    });
-    app.get('/dependencies/vue(.js)?', async (req: Request, res: Response) => {
-        if (vuejs) {
-            res.type('application/javascript').send(vuejs);
-        } else {
-            res.sendFile(path.resolve('dev_fallback/vue.js'));
-        }
-    });
+        this.express_app.get('/favicon.ico', (req: Request, res: Response) => {
+            res.sendFile(path.resolve('site/logo/favicon.ico'));
+        });
 
-    app.get('/favicon.ico', (req: Request, res: Response) => {
-        res.sendFile(path.resolve('site/logo/favicon.ico'));
-    });
+        this.express_app.get('/test', (req: Request, res: Response) => {
+            res.send(pug.renderFile(path.resolve('site/pug/test.pug')));
+        });
+        this.express_app.get('/game', (req: Request, res: Response) => {
+            res.send(pug.renderFile(path.resolve('site/pug/game.pug')));
+        });
+        this.express_app.get('/login', (req: Request, res: Response) => {
+            res.send(pug.renderFile(path.resolve('site/pug/login.pug')));
+        });
+        this.express_app.get('/home', (req: Request, res: Response) => {
+            res.send(pug.renderFile(path.resolve('site/pug/home.pug')));
+        });
+        this.express_app.get('/character_creation', (req: Request, res: Response) => {
+            res.send(pug.renderFile(path.resolve('site/pug/character_creation.pug')));
+        });
+        this.express_app.get('/create', (req: Request, res: Response) => {
+            res.send(pug.renderFile(path.resolve('site/pug/new.pug')));
+        });
 
-    app.get('/test', (req: Request, res: Response) => {
-        res.send(pug.renderFile(path.resolve('site/pug/test.pug')));
-    });
-    app.get('/game', (req: Request, res: Response) => {
-        res.send(pug.renderFile(path.resolve('site/pug/game.pug')));
-    });
-    app.get('/login', (req: Request, res: Response) => {
-        res.send(pug.renderFile(path.resolve('site/pug/login.pug')));
-    });
-    app.get('/home', (req: Request, res: Response) => {
-        res.send(pug.renderFile(path.resolve('site/pug/home.pug')));
-    });
-    app.get('/character_creation', (req: Request, res: Response) => {
-        res.send(pug.renderFile(path.resolve('site/pug/character_creation.pug')));
-    });
-    app.get('/create', (req: Request, res: Response) => {
-        res.send(pug.renderFile(path.resolve('site/pug/new.pug')));
-    });
+        this.express_app.use('/js', (req: Request, res: Response, next: NextFunction) => {
+            res.sendFile(path.resolve('site/js' + req.path + (req.path.endsWith('.js') ? '' : '.js')));
+        });
+        this.express_app.use('/vue', (req: Request, res: Response, next: NextFunction) => {
+            res.send(pug.renderFile(path.resolve('site/vue/' + req.path + '.pug')));
+        });
 
-    app.use('/js', (req: Request, res: Response, next: NextFunction) => {
-        res.sendFile(path.resolve('site/js' + req.path + (req.path.endsWith('.js') ? '' : '.js')));
-    });
-    app.use('/vue', (req: Request, res: Response, next: NextFunction) => {
-        res.send(pug.renderFile(path.resolve('site/vue/' + req.path + '.pug')));
-    });
+        this.express_app.use('/tex', express.static(path.resolve('site/tex')));
+        this.express_app.use(express.static(path.resolve('public')));
+    }
 
-    app.use('/tex', express.static(path.resolve('site/tex')));
-    app.use(express.static(path.resolve('public')));
 }
