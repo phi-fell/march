@@ -5,6 +5,7 @@ import http = require('http');
 import https = require('https');
 import path = require('path');
 import pug from 'pug';
+import octicons = require('@primer/octicons');
 import socketIO = require('socket.io');
 
 import { launch_id, version } from '../version';
@@ -163,6 +164,15 @@ export class WebServer {
         });
         this.express_app.use('/vue', (req: Request, res: Response, next: NextFunction) => {
             res.send(pug.renderFile(path.resolve('site/vue/' + req.path + '.pug')));
+        });
+
+        this.express_app.use('/svg/octicon', (req: Request, res: Response, next: NextFunction) => {
+            const icon = octicons[req.path.substring(1)];
+            if (icon) {
+                res.send(icon.toSVG());
+            } else {
+                res.sendStatus(404);
+            }
         });
 
         this.express_app.use('/tex', express.static(path.resolve('site/tex')));
