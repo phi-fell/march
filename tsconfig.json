@@ -28,6 +28,7 @@
     "importsNotUsedAsValues": "error"
   },
   "exclude": [
-    "site"
+    "./site",
+    "./**/*/.test.ts"
   ]
 }

@@ -1,7 +1,3 @@
-import 'mocha';
-
-import { expect } from 'chai';
-
 import { Random } from './random';
 
 describe('Random', () => {
@@ -13,18 +9,20 @@ describe('Random', () => {
         it('should return between [0,1)', () => {
             for (let i = 0; i < 100; i++) {
                 const f = baseline.float();
-                expect(f).to.be.lessThan(1).and.not.lessThan(0);
+                expect(f).toBeLessThan(1)
+                expect(f).toBeGreaterThanOrEqual(0);
             }
             for (let i = 0; i < 100; i++) {
                 const f = duplicate.float();
-                expect(f).to.be.lessThan(1).and.not.lessThan(0);
+                expect(f).toBeLessThan(1);
+                expect(f).toBeGreaterThanOrEqual(0);
             }
         });
         it('should be deterministic', () => {
             for (let i = 0; i < 100; i++) {
                 const b = baseline.float();
                 const d = duplicate.float();
-                expect(b).to.equal(d);
+                expect(b).toEqual(d);
             }
         });
     });
