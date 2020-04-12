@@ -10,6 +10,11 @@ import socketIO = require('socket.io');
 
 import { launch_id, version } from '../version';
 
+const LINKS: { [id: string]: string } = {
+    'github': 'https://github.com/phi-fell/march',
+    'bugs': 'https://github.com/phi-fell/march/issues',
+};
+
 export class WebServerOptions {
     public http_port: number = 80;
     public https_port: number = 443;
@@ -166,36 +171,48 @@ export class WebServer {
             res.send(pug.renderFile(path.resolve('site/vue/' + req.path + '.pug')));
         });
 
-        this.express_app.use('/svg/octicon/:name/:arg1?/:arg2?', (req: Request, res: Response, next: NextFunction) => {
+        this.express_app.use('/link/:link', (req: Request, res: Response, next: NextFunction) => {
+            const link = req.params.link;
+            if (LINKS[link]) {
+                res.redirect(LINKS[link]);
+            } else {
+                res.sendStatus(404);
+            }
+        });
+
+        const MAX_ARGS = 10;
+        const seperator = '-';
+        const color_mapper = (val: string) => {
+            return (/^[0-9a-fA-F]{3}$|^[0-9a-fA-F]{6}$/.test(val)) ? ('#' + val) : val;
+        }
+        const attr_map: { [id: string]: (val: string) => string } = {
+            'fill': color_mapper,
+            'stroke': color_mapper,
+        };
+        const names: string[] = [...Array(MAX_ARGS).keys()].map((i: number) => 'arg' + i);
+        this.express_app.use('/svg/octicon/:name/:' + names.join('?/:') + '?', (req: Request, res: Response, next: NextFunction) => {
             const icon = octicons[req.params.name];
             if (icon) {
                 const attr: any = { 'xmlns': 'http://www.w3.org/2000/svg' }
-                const params = [];
-                if (req.params.arg1) {
-                    params.push(req.params.arg1)
-                }
-                if (req.params.arg2) {
-                    params.push(req.params.arg2);
-                }
-                for (const p of params) {
-                    if (!(/^[0-9a-zA-Z-]+$/.test(p))) {
-                        res.sendStatus(404);
-                        return;
-                    }
-                    const seperator = '-';
-                    const attributes = ['fill', 'stroke'];
-                    const ps = p.split(seperator);
-                    const id = ps[0];
-                    let val = ps[1];
-                    if (attributes.includes(id)) {
-                        if (/^[0-9a-fA-F]{3}$|^[0-9a-fA-F]{6}$/.test(val)) {
-                            val = '#' + val;
+                names.forEach((name) => {
+                    const p = req.params[name];
+                    if (p) {
+                        if (!(/^[0-9a-zA-Z-_]+$/.test(p))) {
+                            res.sendStatus(404);
+                            return;
                         }
-                        attr[id] = val;
+                        const ps = p.split(seperator);
+                        const id = ps[0];
+                        const val = ps.slice(1).join(seperator);
+                        const mapper = attr_map[id];
+                        if (mapper) {
+                            attr[id] = mapper(val);
+                        }
                     }
-                }
+                });
                 res.setHeader('Content-Type', 'image/svg+xml');
                 res.send(icon.toSVG(attr));
+
             } else {
                 res.sendStatus(404);
             }

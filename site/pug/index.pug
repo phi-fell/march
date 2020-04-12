@@ -20,7 +20,9 @@ html
             p.nav_right(v-if="logged_in") Signed in as {{username}}, 
                 a(href="/home") Play
             .bottom_left.row
-                img(src="/svg/octicon/mark-github/fill-FFF" alt="Github Repo")
+                .github_icon.flex.row
+                    a.flex.row(href="/link/github")
+                        img.flex(src="/svg/octicon/mark-github/fill-FFF" alt="Github Repo")
             .bottom_right.row
                 a.ko-fi_button.row.flex_none(href='https://ko-fi.com/P5P31LH97')
                     img.ko-fi_cup.flex_shrink(src="https://cdn.ko-fi.com/cdn/cup-border.png")
