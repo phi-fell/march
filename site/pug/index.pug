@@ -14,13 +14,22 @@ html
             include ../css/index.css
     body
         #index.all
-            a.nav_left(v-if="!logged_in" href="/create") New User
-            a.nav_right(v-if="!logged_in" href="/login") Log In
-            a.nav_left(v-if="logged_in" href="" @click="clearCredentials") Sign Out
-            p.nav_right(v-if="logged_in") Signed in as {{username}}, 
-                a(href="/home") Play
+            a.nav_left.round_border.row-r(v-if="!logged_in" href="/create")
+                p.flex_none New User
+                img.icon.flex(src="/svg/octicon/person/fill-FFF")
+            a.nav_right.round_border.row(v-if="!logged_in" href="/login")
+                p.flex_none Sign In
+                img.icon.flex(src="/svg/octicon/sign-in/fill-FFF")
+            a.nav_left.round_border.row-r(v-if="logged_in" href="" @click="clearCredentials")
+                p.flex_none Sign Out
+                img.icon.flex(src="/svg/octicon/sign-out/fill-FFF")
+            .nav_right.row(v-if="logged_in")
+                p.flex_none.f_end Signed in as {{username}}, 
+                a.round_border.flex.row(href="/home")
+                    p.flex_none Play
+                    img.icon.flex(src="/svg/octicon/home/fill-FFF")
             .bottom_left.row
-                .github_icon.flex.row
+                .icon_large.flex.row
                     a.flex.row(href="/link/github")
                         img.flex(src="/svg/octicon/mark-github/fill-FFF" alt="Github Repo")
             .bottom_right.row
