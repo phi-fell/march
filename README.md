@@ -8,10 +8,14 @@ Repo for [GotG](https://gotg.io)
 For developement:
 1. install node and npm
 2. clone the repo
-4. run after_clone_dev.sh (e.g. on ubuntu: "sh after_clone_dev.sh")
-5. to build and run: "npm run dev" (you will likely need root to listen on port 80)
+4. run setup_dev.sh (e.g. on ubuntu: "sh setup_dev.sh")
+5. to build and run: "npm run dev" (you will likely need root to listen on port 80, so use sudo)
 -----
 For production (https):
 1. install node and npm
 2. clone the repo
-3. run first_time.sh (that's it!)
+3. run setup_prod.sh
+4. enter an admin token when prompted
+5. enter an SSL directory path (e.g. '/etc/letsencrypt/live/gotg.io/')
+6. enter a key filename (defaults to 'privkey.pem')
+7. enter a cert filename (defaults to 'cert.pem')
