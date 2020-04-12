@@ -14,8 +14,9 @@ For developement:
 For production (https):
 1. install node and npm
 2. clone the repo
-3. run setup_prod.sh
-4. enter an admin token when prompted
-5. enter an SSL directory path (e.g. '/etc/letsencrypt/live/gotg.io/')
-6. enter a key filename (defaults to 'privkey.pem')
-7. enter a cert filename (defaults to 'cert.pem')
+3. ensure the program will be able to bind to ports (e.g. by "sudo setcap CAP_NET_BIND_SERVICE=+eip $(which node)" or using authbind)
+4. run setup_prod.sh
+5. enter an admin token when prompted
+6. enter an SSL directory path (e.g. '/etc/letsencrypt/live/gotg.io/')
+7. enter a key filename (defaults to 'privkey.pem')
+8. enter a cert filename (defaults to 'cert.pem')
