@@ -166,11 +166,37 @@ export class WebServer {
             res.send(pug.renderFile(path.resolve('site/vue/' + req.path + '.pug')));
         });
 
-        this.express_app.use('/svg/octicon', (req: Request, res: Response, next: NextFunction) => {
-            const icon = octicons[req.path.substring(1)];
+        this.express_app.use('/svg/octicon/:name/:arg1?/:arg2?', (req: Request, res: Response, next: NextFunction) => {
+            console.log(req.params);
+            const icon = octicons[req.params.name];
             if (icon) {
+                const attr: any = { 'xmlns': 'http://www.w3.org/2000/svg' }
+                const params = [];
+                if (req.params.arg1) {
+                    params.push(req.params.arg1)
+                }
+                if (req.params.arg2) {
+                    params.push(req.params.arg2);
+                }
+                for (const p of params) {
+                    if (!(/^[0-9a0zA-Z-]^$/.test(p))) {
+                        res.sendStatus(404);
+                        return;
+                    }
+                    const seperator = '-';
+                    const attributes = ['fill', 'stroke'];
+                    const ps = p.split(seperator);
+                    const id = ps[0];
+                    let val = ps[1];
+                    if (attributes.includes(id)) {
+                        if (/^[0-9a-fA-F]{3}$|^[0-9a-fA-F]{6}$/.test(val)) {
+                            val = '#' + val;
+                        }
+                        attr[id] = val;
+                    }
+                }
                 res.setHeader('Content-Type', 'image/svg+xml');
-                res.send(icon.toSVG({ 'xmlns': 'http://www.w3.org/2000/svg' }));
+                res.send(icon.toSVG(attr));
             } else {
                 res.sendStatus(404);
             }
