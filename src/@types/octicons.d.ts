@@ -1,6 +1,6 @@
 declare module '@primer/octicons' {
     interface Octicon {
-        toSVG(): string;
+        toSVG(props?: { [attr: string]: string }): string;
     }
     let octicons: { [id: string]: Octicon | undefined };
     export = octicons;

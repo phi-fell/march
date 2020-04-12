@@ -169,7 +169,8 @@ export class WebServer {
         this.express_app.use('/svg/octicon', (req: Request, res: Response, next: NextFunction) => {
             const icon = octicons[req.path.substring(1)];
             if (icon) {
-                res.send(icon.toSVG());
+                res.setHeader('Content-Type', 'image/svg+xml');
+                res.send(icon.toSVG({ 'xmlns': 'http://www.w3.org/2000/svg' }));
             } else {
                 res.sendStatus(404);
             }
