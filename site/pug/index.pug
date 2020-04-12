@@ -19,9 +19,12 @@ html
             a.nav_left(v-if="logged_in" href="" @click="clearCredentials") Sign Out
             p.nav_right(v-if="logged_in") Signed in as {{username}}, 
                 a(href="/home") Play
-            a.ko-fi_button.row(href='https://ko-fi.com/P5P31LH97')
-                img.ko-fi_cup.flex_shrink(src="https://cdn.ko-fi.com/cdn/cup-border.png")
-                p Buy me a Coffee :)
+            .bottom_left.row
+                img(src="/svg/octicon/mark-github" alt="Github Repo")
+            .bottom_right.row
+                a.ko-fi_button.row.flex_none(href='https://ko-fi.com/P5P31LH97')
+                    img.ko-fi_cup.flex_shrink(src="https://cdn.ko-fi.com/cdn/cup-border.png")
+                    p Buy me a Coffee :)
             .outer
                 .pad
                 .mid
