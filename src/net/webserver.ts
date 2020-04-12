@@ -167,7 +167,6 @@ export class WebServer {
         });
 
         this.express_app.use('/svg/octicon/:name/:arg1?/:arg2?', (req: Request, res: Response, next: NextFunction) => {
-            console.log(req.params);
             const icon = octicons[req.params.name];
             if (icon) {
                 const attr: any = { 'xmlns': 'http://www.w3.org/2000/svg' }
