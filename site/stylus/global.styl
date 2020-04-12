@@ -10,6 +10,13 @@ body
     font-family 'Open Sans', sans-serif
     color $content_color_faded
 
+p
+    margin 0
+
+a 
+    color $link_color
+    text-decoration none
+
 ::-webkit-scrollbar-track
     background-color: $background_color_vivid;
 
@@ -38,6 +45,51 @@ input, button, select
 
 .wrap
     display inline-block
+
+.icon
+    height 30px
+    width 30px
+
+.icon_large
+    height 40px
+    width 40px
+
+.nav_right .icon
+    margin-left 10px
+
+.nav_left .icon
+    margin-right 10px
+
+.round_border
+    border 2px solid $content_color_pure
+    border-radius 10px
+    align-items center
+
+.nav_left, .nav_right
+    font-size 15px
+    position absolute
+    top 5px
+    z-index 1
+
+.nav_left
+    left 10px
+
+.nav_left.round_border, .nav_left .round_border
+    margin-right 10px
+    padding-left 5px
+    padding-right 12px
+    padding-top 8px
+    padding-bottom 8px
+
+.nav_right
+    right 10px
+
+.nav_right.round_border,.nav_right .round_border
+    margin-left 10px
+    padding-left 12px
+    padding-right 5px
+    padding-top 8px
+    padding-bottom 8px
     
 .border_sides
     border-left 1px solid $border_color_faded
@@ -50,9 +102,17 @@ input, button, select
     flex-full()
     flex-row()
 
+.row-r
+    flex-full()
+    flex-row-r()
+
 .col
     flex-full()
     flex-col()
+
+.col-r
+    flex-full()
+    flex-col-r()
 
 .flex
     flex-full()
@@ -65,6 +125,9 @@ input, button, select
 
 .flex_none
     flex-none()
+
+.f_end
+    align-self flex-end
 
 .maxw25
     max-width 25%

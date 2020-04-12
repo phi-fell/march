@@ -5,9 +5,15 @@ import http = require('http');
 import https = require('https');
 import path = require('path');
 import pug from 'pug';
+import octicons = require('@primer/octicons');
 import socketIO = require('socket.io');
 
 import { launch_id, version } from '../version';
+
+const LINKS: { [id: string]: string } = {
+    'github': 'https://github.com/phi-fell/march',
+    'bugs': 'https://github.com/phi-fell/march/issues',
+};
 
 export class WebServerOptions {
     public http_port: number = 80;
@@ -163,6 +169,53 @@ export class WebServer {
         });
         this.express_app.use('/vue', (req: Request, res: Response, next: NextFunction) => {
             res.send(pug.renderFile(path.resolve('site/vue/' + req.path + '.pug')));
+        });
+
+        this.express_app.use('/link/:link', (req: Request, res: Response, next: NextFunction) => {
+            const link = req.params.link;
+            if (LINKS[link]) {
+                res.redirect(LINKS[link]);
+            } else {
+                res.sendStatus(404);
+            }
+        });
+
+        const MAX_ARGS = 10;
+        const seperator = '-';
+        const color_mapper = (val: string) => {
+            return (/^[0-9a-fA-F]{3}$|^[0-9a-fA-F]{6}$/.test(val)) ? ('#' + val) : val;
+        }
+        const attr_map: { [id: string]: (val: string) => string } = {
+            'fill': color_mapper,
+            'stroke': color_mapper,
+        };
+        const names: string[] = [...Array(MAX_ARGS).keys()].map((i: number) => 'arg' + i);
+        this.express_app.use('/svg/octicon/:name/:' + names.join('?/:') + '?', (req: Request, res: Response, next: NextFunction) => {
+            const icon = octicons[req.params.name];
+            if (icon) {
+                const attr: any = { 'xmlns': 'http://www.w3.org/2000/svg' }
+                names.forEach((name) => {
+                    const p = req.params[name];
+                    if (p) {
+                        if (!(/^[0-9a-zA-Z-_]+$/.test(p))) {
+                            res.sendStatus(404);
+                            return;
+                        }
+                        const ps = p.split(seperator);
+                        const id = ps[0];
+                        const val = ps.slice(1).join(seperator);
+                        const mapper = attr_map[id];
+                        if (mapper) {
+                            attr[id] = mapper(val);
+                        }
+                    }
+                });
+                res.setHeader('Content-Type', 'image/svg+xml');
+                res.send(icon.toSVG(attr));
+
+            } else {
+                res.sendStatus(404);
+            }
         });
 
         this.express_app.use('/tex', express.static(path.resolve('site/tex')));

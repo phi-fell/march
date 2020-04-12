@@ -34,6 +34,7 @@
   },
   "homepage": "https://github.com/nulltitleexception/march#readme",
   "dependencies": {
+    "@primer/octicons": "^9.6.0",
     "@types/async": "^3.2.0",
     "@types/bcrypt": "^3.0.0",
     "@types/bent": "^7.0.2",
