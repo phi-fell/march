@@ -178,7 +178,7 @@ export class WebServer {
                     params.push(req.params.arg2);
                 }
                 for (const p of params) {
-                    if (!(/^[0-9a0zA-Z-]^$/.test(p))) {
+                    if (!(/^[0-9a-zA-Z-]+$/.test(p))) {
                         res.sendStatus(404);
                         return;
                     }
