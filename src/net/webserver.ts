@@ -7,8 +7,10 @@ import path = require('path');
 import pug from 'pug';
 import octicons = require('@primer/octicons');
 import socketIO = require('socket.io');
+import * as stylus from 'stylus';
 
 import { launch_id, version } from '../version';
+import { File } from '../system/file';
 
 const LINKS: { [id: string]: string } = {
     'github': 'https://github.com/phi-fell/march',
@@ -164,11 +166,35 @@ export class WebServer {
             res.send(pug.renderFile(path.resolve('site/pug/new.pug')));
         });
 
-        this.express_app.use('/js', (req: Request, res: Response, next: NextFunction) => {
-            res.sendFile(path.resolve('site/js' + req.path + (req.path.endsWith('.js') ? '' : '.js')));
+        this.express_app.get('/css/:filename', async (req: Request, res: Response) => {
+            try {
+                stylus.render(
+                    (await File.getReadOnlyFile(`site/stylus/${req.params.filename}.styl`)).getString(),
+                    {
+                        'filename': req.path,
+                        'paths': ['site/stylus'],
+                    },
+                    (err, css) => {
+                        if (err) {
+                            console.log(err);
+                            res.send(err);
+                        } else {
+                            res.setHeader('Content-Type', 'text/css');
+                            res.send(css);
+                        }
+                    },
+                );
+            } catch (e) {
+                console.log(e);
+                res.sendStatus(404)
+            }
         });
-        this.express_app.use('/vue', (req: Request, res: Response, next: NextFunction) => {
-            res.send(pug.renderFile(path.resolve('site/vue/' + req.path + '.pug')));
+
+        this.express_app.get('/js/:filename', (req: Request, res: Response) => {
+            res.sendFile(path.resolve(`site/js/${req.params.filename}${req.params.filename.endsWith('.js') ? '' : '.js'}`));
+        });
+        this.express_app.get('/vue/:filename', (req: Request, res: Response) => {
+            res.send(pug.renderFile(path.resolve('site/vue/' + req.params.filename + '.pug')));
         });
 
         this.express_app.use('/link/:link', (req: Request, res: Response, next: NextFunction) => {

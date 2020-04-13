@@ -5,9 +5,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "tslint -p '.' -c tslint.json 'src/**/*.ts'",
-    "build-browser-js": "tsc -p ./site",
-    "build-styles": "stylus -c ./site/stylus --out ./site/css",
-    "build-client": "npm run build-styles && npm run build-browser-js",
+    "build-client": "tsc -p ./site",
     "build-server": "tsc",
     "build": " npm run build-server && npm run build-client",
     "predev": "npm run build",
@@ -44,6 +42,7 @@
     "@types/pug": "^2.0.4",
     "@types/socket.io": "^2.1.4",
     "@types/socket.io-client": "^1.4.32",
+    "@types/stylus": "^0.48.32",
     "@types/uuid": "^7.0.2",
     "async": "^3.2.0",
     "bcrypt": "^4.0.1",

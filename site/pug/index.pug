@@ -8,10 +8,8 @@ html
         script(src="/dependencies/vue.js")
         script(type="module" src="/js/index.js")
         link(href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=Open+Sans&display=swap" rel="stylesheet")
-        style
-            include ../css/global.css
-        style
-            include ../css/index.css
+        link(rel="stylesheet" type="text/css" href="css/global")
+        link(rel="stylesheet" type="text/css" href="css/index")
     body
         #index.all
             a.nav_left.round_border.row-r(v-if="!logged_in" href="/create")
