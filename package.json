@@ -5,9 +5,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "tslint -p '.' -c tslint.json 'src/**/*.ts'",
-    "build-browser-js": "tsc -p ./site",
-    "build-styles": "stylus -c ./site/stylus --out ./site/css",
-    "build-client": "npm run build-styles && npm run build-browser-js",
+    "build-client": "tsc -p ./site",
     "build-server": "tsc",
     "build": " npm run build-server && npm run build-client",
     "predev": "npm run build",
