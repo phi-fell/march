@@ -20,7 +20,7 @@ export class World extends FileBackedData {
     }
 
     private _instances: Record<string, Instance> = {};
-    private _instance_refs: Array<t.TypeOf<typeof instance_ref_schema>> = [];
+    private _instance_refs: Array<t.TypeOf<typeof instance_ref_schema>[] = [];
     protected constructor(file: OwnedFile) {
         super(file);
     }
