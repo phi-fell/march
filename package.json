@@ -44,6 +44,7 @@
     "@types/pug": "^2.0.4",
     "@types/socket.io": "^2.1.4",
     "@types/socket.io-client": "^1.4.32",
+    "@types/stylus": "^0.48.32",
     "@types/uuid": "^7.0.2",
     "async": "^3.2.0",
     "bcrypt": "^4.0.1",
