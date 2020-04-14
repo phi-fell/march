@@ -2,6 +2,8 @@ import { randomBytes } from 'crypto';
 import { v4 as uuid_rand } from 'uuid';
 import { v5 as uuid_deterministic } from 'uuid';
 
+export type UUID = string;
+
 export class Random {
     public static getSecureID() {
         return randomBytes(16).toString('hex');
@@ -15,10 +17,10 @@ export class Random {
     public static int(min_inclusive: number, max_exclusive: number): number {
         return Random.r.int(min_inclusive, max_exclusive);
     }
-    public static uuid() {
+    public static uuid(): UUID {
         return uuid_rand();
     }
-    public static getDeterministicID(): string {
+    public static getDeterministicID(): UUID {
         return Random.r.getDeterministicID();
     }
     public static reSeed(seed: string) {
@@ -59,7 +61,7 @@ export class Random {
     public int(min_inclusive: number, max_exclusive: number): number {
         return Math.floor(this.floatRange(min_inclusive, max_exclusive));
     }
-    public getDeterministicID(): string {
+    public getDeterministicID(): UUID {
         return uuid_deterministic(
             '' + this.float() + ', ' + this.float() + ', ' + this.float() + ', ' + this.float(),
             uuid_deterministic.URL,
