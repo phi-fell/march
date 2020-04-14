@@ -1,10 +1,23 @@
 import type { Entity } from './entity';
 import { Location } from './location';
 import type { Position } from './position';
+import * as t from 'io-ts';
+import type { World } from './world';
 
+export const locatable_schema = t.type({
+    'location': Location.schema
+});
+
+export type LocatableSchema = t.TypeOf<typeof locatable_schema>
+
+/**
+ * This class exists to keep all the handling of locations separate from Entity
+ * this lets it be small and clean and easy to validate that setting location also moves the Locatable
+ * to the correct Cell, etc.
+ */
 export abstract class Locatable {
     private _location: Location;
-    constructor(loc: Location) {
+    constructor(private world: World, loc: Location) {
         this._location = loc;
     }
     public isEntity(): this is Entity {

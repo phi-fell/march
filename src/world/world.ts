@@ -3,6 +3,9 @@ import * as t from 'io-ts';
 import { File, OwnedFile } from '../system/file';
 import { FileBackedData } from '../system/file_backed_data';
 import { Instance } from './instance';
+import type { UUID } from '../math/random';
+
+const WORLD_DIR = 'world';
 
 const instance_ref_schema = t.string;
 
@@ -24,10 +27,10 @@ export class World extends FileBackedData {
     protected constructor(file: OwnedFile) {
         super(file);
     }
-    public async getInstance(id: string): Promise<Instance | undefined> {
+    public async getInstance(id: UUID): Promise<Instance | undefined> {
         if (!this._instances[id]) {
             if (this._instance_refs.includes(id)) {
-                this._instances[id] = await Instance.loadInstanceFromFile(await File.acquireFile('world/inst-' + id + '.json'));
+                this._instances[id] = await Instance.loadInstanceFromFile(this, await File.acquireFile(`${WORLD_DIR}/inst-${id}.json`));
             } else {
                 return;
             }
@@ -35,7 +38,7 @@ export class World extends FileBackedData {
         return this._instances[id];
     }
 
-    public get schema(): t.Any {
+    public get schema() {
         return World.schema;
     }
     protected async fromJSON(json: WorldSchema): Promise<void> {

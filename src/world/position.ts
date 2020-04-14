@@ -1,13 +1,14 @@
 import * as t from 'io-ts';
 
-export type PositionSchema = t.TypeOf<typeof Position.schema>;
+export const position_schema = t.type({
+    'x': t.number,
+    'y': t.number,
+
+});
+
+export type PositionSchema = t.TypeOf<typeof position_schema>;
 
 export class Position {
-    public static schema: t.Any = t.type({
-        'x': t.number,
-        'y': t.number,
-
-    });
     public static fromJSON(json: PositionSchema) {
         return new Position(json.x, json.y);
     }

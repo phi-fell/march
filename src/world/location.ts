@@ -4,7 +4,7 @@ import { Position } from './position';
 export type LocationSchema = t.TypeOf<typeof Location.schema>;
 
 export class Location extends Position {
-    public static schema: t.Any = t.type({
+    public static schema = t.type({
         'instance_id': t.string,
         'x': t.number,
         'y': t.number,

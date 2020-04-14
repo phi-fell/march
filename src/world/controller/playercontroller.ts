@@ -1,7 +1,8 @@
 import { Action, AsyncAction } from '../action';
-import type { Controller } from '../controller';
+import { CONTROLLER, Controller } from '../controller';
 
-export class PlayerController implements Controller {
+export class PlayerController extends Controller {
+    type: CONTROLLER.PLAYER = CONTROLLER.PLAYER;
     public getNextAction(): Action {
         return new AsyncAction();
     }

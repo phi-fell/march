@@ -1,7 +1,24 @@
-import type { Entity } from '../entity';
+import { Entity } from './entity';
 import { NO_TILE, Tile } from '../tile';
+import * as t from 'io-ts';
+import type { World } from './world';
+
+export type BoardSchema = t.TypeOf<typeof Board.schema>
 
 export class Board {
+    public static schema = t.type({
+        'width': t.number,
+        'height': t.number,
+        'tiles': t.array(t.array(t.number)),
+        'entities': t.array(Entity.schema),
+    });
+
+    public static fromJSON(world: World, json: BoardSchema): Board {
+        const ret = new Board(json.width, json.height, json.tiles);
+        ret.entities = json.entities.map((ent) => Entity.fromJSON(world, ent));
+        return ret;
+    }
+
     private tiles: Tile[][] = [];
     private entities: Entity[] = [];
     /*
@@ -10,12 +27,29 @@ export class Board {
         I'll wait on this and not prematurely optimize,
         especially without profiling to ensure this is even an area that's executed enough to be worthwhile
     */
-    constructor(private width: number, private height: number) {
-        for (let x = 0; x < width; x++) {
-            this.tiles[x] = [];
-            for (let y = 0; y < height; y++) {
-                this.tiles[x][y] = NO_TILE;
+    constructor(private width: number, private height: number, t_in?: Tile[][]) {
+        if (t_in === undefined) {
+            for (let x = 0; x < width; x++) {
+                this.tiles[x] = [];
+                for (let y = 0; y < height; y++) {
+                    this.tiles[x][y] = NO_TILE;
+                }
             }
+        } else {
+            for (let x = 0; x < width; x++) {
+                this.tiles[x] = [];
+                for (let y = 0; y < height; y++) {
+                    this.tiles[x][y] = t_in[x][y];
+                }
+            }
+        }
+    }
+    public toJSON(): BoardSchema {
+        return {
+            'width': this.width,
+            'height': this.height,
+            'tiles': this.tiles,
+            'entities': this.entities.map((ent) => ent.toJSON()),
         }
     }
 }
