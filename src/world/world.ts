@@ -27,12 +27,12 @@ export class World extends FileBackedData {
     protected constructor(file: OwnedFile) {
         super(file);
     }
-    public async getInstance(id: UUID): Promise<Instance | undefined> {
+    public async getInstance(id: UUID): Promise<Instance> {
         if (!this._instances[id]) {
             if (this._instance_refs.includes(id)) {
-                this._instances[id] = await Instance.loadInstanceFromFile(this, await File.acquireFile(`${WORLD_DIR}/inst-${id}.json`));
+                this._instances[id] = await Instance.loadInstanceFromFile(this, `${WORLD_DIR}/inst-${id}`, await File.acquireFile(`${WORLD_DIR}/inst-${id}.json`));
             } else {
-                return;
+                throw Error(`No such instance as {id:${id}}!`);
             }
         }
         return this._instances[id];

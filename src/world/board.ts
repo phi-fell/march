@@ -13,9 +13,9 @@ export class Board {
         'entities': t.array(Entity.schema),
     });
 
-    public static fromJSON(world: World, json: BoardSchema): Board {
+    public static async fromJSON(world: World, json: BoardSchema): Promise<Board> {
         const ret = new Board(json.width, json.height, json.tiles);
-        ret.entities = json.entities.map((ent) => Entity.fromJSON(world, ent));
+        ret.entities = await Promise.all(json.entities.map((ent) => Entity.fromJSON(world, ent)));
         return ret;
     }
 
@@ -43,6 +43,16 @@ export class Board {
                 }
             }
         }
+    }
+    public addEntity(ent: Entity) {
+        this.entities.push(ent);
+    }
+    public removeEntity(ent: Entity) {
+        const i = this.entities.findIndex((e) => e.equals(ent));
+        if (i === -1) {
+            console.log('Cannot remove nonexistent entity from Board!');
+        }
+        this.entities.splice(i, 1);
     }
     public toJSON(): BoardSchema {
         return {

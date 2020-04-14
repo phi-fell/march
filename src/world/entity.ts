@@ -6,6 +6,7 @@ import { Locatable, locatable_schema } from './locatable';
 import { Location } from './location';
 import * as t from 'io-ts';
 import type { World } from './world';
+import { UUID, Random } from '../math/random';
 
 export interface Mob extends Entity {
     controller: Controller;
@@ -27,6 +28,9 @@ export type EntitySchema = t.TypeOf<typeof Entity.schema>;
 
 export class Entity extends Locatable {
     public static schema = t.intersection([
+        t.type({
+            'id': t.string,
+        }),
         locatable_schema,
         t.partial({
             'sheet': CharacterSheet.schema,
@@ -36,8 +40,8 @@ export class Entity extends Locatable {
         }),
     ]);
 
-    public static fromJSON(world: World, json: EntitySchema): Entity {
-        const ret = new Entity(world, Location.fromJSON(json.location));
+    public static async fromJSON(world: World, json: EntitySchema): Promise<Entity> {
+        const ret = new Entity(world, Location.fromJSON(json.location), json.id);
         if (json.sheet) {
             ret.sheet = CharacterSheet.fromJSON(json.sheet);
         }
@@ -50,6 +54,7 @@ export class Entity extends Locatable {
         if (json.item_data) {
             ret.item_data = ItemData.fromJSON(json.item_data);
         }
+        await ret.ready();
         return ret;
     }
 
@@ -57,7 +62,7 @@ export class Entity extends Locatable {
     public controller?: Controller;
     public inventory?: Inventory;
     public item_data?: ItemData;
-    constructor(world: World, loc: Location) {
+    private constructor(world: World, loc: Location, public id: UUID = Random.uuid()) {
         super(world, loc);
     }
     public isEntity(): this is Entity {
@@ -70,8 +75,12 @@ export class Entity extends Locatable {
             this.inventory !== undefined
         );
     }
+    public equals(other: Entity): boolean {
+        return this.id === other.id;
+    }
     public toJSON(): EntitySchema {
         const ret: EntitySchema = {
+            'id': this.id,
             'location': this.location.toJSON(),
         }
         if (this.sheet) {

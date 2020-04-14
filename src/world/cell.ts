@@ -5,6 +5,7 @@ import type { OwnedFile } from '../system/file';
 import * as t from 'io-ts';
 import type { World } from './world';
 import type { Instance } from './instance';
+import type { Locatable } from './locatable';
 
 export type CellSchema = t.TypeOf<typeof Cell.schema>;
 
@@ -29,9 +30,29 @@ export class Cell extends FileBackedData {
     public get schema() {
         return Cell.schema;
     }
+    /**
+     * Only call this from inside Locatable!
+     */
+    public removeLocatable(locatable: Locatable) {
+        if (locatable.isEntity()) {
+            this.board.removeEntity(locatable);
+        } else {
+            throw Error('Non-Entity Locatables do not exist?')
+        }
+    }
+    /**
+     * Only call this from inside Locatable!
+     */
+    public addLocatable(locatable: Locatable) {
+        if (locatable.isEntity()) {
+            this.board.addEntity(locatable);
+        } else {
+            throw Error('Non-Entity Locatables do not exist?')
+        }
+    }
     protected async fromJSON(json: CellSchema): Promise<void> {
         this.id = json.id;
-        this.board = Board.fromJSON(this.instance.world, json.board);
+        this.board = await Board.fromJSON(this.instance.world, json.board);
     }
     protected toJSON(): CellSchema {
         return {
