@@ -8,6 +8,7 @@ import type { OwnedFile } from '../system/file';
 import { FileBackedData } from '../system/file_backed_data';
 import { Player } from '../world/player';
 import type { Client } from './client';
+import type { World } from '../world/world';
 
 const TOKEN_LIFESPAN = 1000 * 60 * 60 * 24 * 3; // 3 days in milliseconds
 
@@ -38,8 +39,8 @@ export class User extends FileBackedData {
         'players': t.array(Player.schema),
     });
     /** Remember to unload() created users! */
-    public static async createUserFromFile(file: OwnedFile): Promise<User> {
-        const user = new User(file);
+    public static async createUserFromFile(world: World, file: OwnedFile): Promise<User> {
+        const user = new User(world, file);
         await user.ready();
         return user;
     }
@@ -52,14 +53,14 @@ export class User extends FileBackedData {
     private auth: { hash: string; token: string; token_creation_time: number; } = { 'hash': '', 'token': '', 'token_creation_time': 0 };
     private id: string = '';
 
-    protected constructor(file: OwnedFile) {
+    protected constructor(private world: World, file: OwnedFile) {
         super(file);
     }
     public get schema() {
         return User.schema;
     }
     public get name() { return this._name; }
-    public setActivePlayer(index: number | undefined): boolean {
+    public async setActivePlayer(index: number | undefined): Promise<boolean> {
         if (index === undefined) {
             this.unsetActivePlayer();
             return true;
@@ -73,12 +74,12 @@ export class User extends FileBackedData {
         }
         this.unsetActivePlayer();
         this.activePlayer = this.players[index];
-        // TODO: activate player
+        await this.activePlayer.setActive();
         return true;
     }
     public unsetActivePlayer() {
         if (this.activePlayer) {
-            // TODO: deactivate player
+            this.activePlayer.setInactive();
             this.activePlayer = undefined;
         }
     }
@@ -115,7 +116,7 @@ export class User extends FileBackedData {
         this.client = undefined;
     }
     public async finishPlayer() {
-        const plr = new Player();
+        const plr = new Player(this.world);
         plr.sheet = this.unfinished_player;
         plr.sheet.status.restoreFully();
         this.unfinished_player = CharacterSheet.newPlayerSheet();
@@ -128,6 +129,7 @@ export class User extends FileBackedData {
         }
         return {
             'player': this.activePlayer.toJSON(),
+            'player_entity': this.activePlayer.getEntity().toJSON(),
         };
     }
     public toJSON(): UserSchema {
@@ -150,11 +152,15 @@ export class User extends FileBackedData {
             this.auth = json.auth;
             this.unfinished_player = CharacterSheet.fromJSON(json.unfinished_player);
             for (const plr of json.players) {
-                this.players.push(await Player.fromJSON(plr));
+                this.players.push(await Player.fromJSON(this.world, plr));
             }
         } else {
             console.log('Invalid User JSON!');
         }
+    }
+    protected async prepForUnload(): Promise<void> {
+        this.activePlayer?.setInactive();
+        this.activePlayer = undefined;
     }
     private getFreshAuthToken() {
         this.auth.token_creation_time = Date.now();

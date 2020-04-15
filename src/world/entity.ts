@@ -7,6 +7,7 @@ import { Location } from './location';
 import * as t from 'io-ts';
 import type { World } from './world';
 import { UUID, Random } from '../math/random';
+import { DIRECTION } from './direction';
 
 export interface Mob extends Entity {
     controller: Controller;
@@ -30,6 +31,7 @@ export class Entity extends Locatable {
     public static schema = t.intersection([
         t.type({
             'id': t.string,
+            'direction': t.keyof(DIRECTION),
         }),
         locatable_schema,
         t.partial({
@@ -42,6 +44,7 @@ export class Entity extends Locatable {
 
     public static async fromJSON(world: World, json: EntitySchema): Promise<Entity> {
         const ret = new Entity(world, Location.fromJSON(json.location), json.id);
+        ret.direction = DIRECTION[json.direction];
         if (json.sheet) {
             ret.sheet = CharacterSheet.fromJSON(json.sheet);
         }
@@ -58,6 +61,7 @@ export class Entity extends Locatable {
         return ret;
     }
 
+    public direction: DIRECTION = DIRECTION.UP;
     public sheet?: CharacterSheet;
     public controller?: Controller;
     public inventory?: Inventory;
@@ -81,6 +85,7 @@ export class Entity extends Locatable {
     public toJSON(): EntitySchema {
         const ret: EntitySchema = {
             'id': this.id,
+            'direction': DIRECTION[this.direction] as keyof typeof DIRECTION,
             'location': this.location.toJSON(),
         }
         if (this.sheet) {

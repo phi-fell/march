@@ -70,7 +70,7 @@ export class Server {
         if (!this.users[id]) {
             const path = 'users/' + id + '.json';
             const file = await File.acquireFile(path);
-            this.users[id] = await User.createUserFromFile(file);
+            this.users[id] = await User.createUserFromFile(this.world, file);
         }
         return this.users[id];
     }
@@ -113,7 +113,7 @@ export class Server {
             'players': [],
         };
         file.setJSON(user_json);
-        const user = await User.createUserFromFile(file);
+        const user = await User.createUserFromFile(this.world, file);
         this.users[id] = user;
         user.save();
         await setUsername(id, username);

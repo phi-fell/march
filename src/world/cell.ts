@@ -6,6 +6,7 @@ import * as t from 'io-ts';
 import type { World } from './world';
 import type { Instance } from './instance';
 import type { Locatable } from './locatable';
+import type { Entity } from './entity';
 
 export type CellSchema = t.TypeOf<typeof Cell.schema>;
 
@@ -30,6 +31,9 @@ export class Cell extends FileBackedData {
     public get schema() {
         return Cell.schema;
     }
+    getEntity(id: UUID): Entity {
+        return this.board.getEntity(id);
+    }
     /**
      * Only call this from inside Locatable!
      */
@@ -37,7 +41,7 @@ export class Cell extends FileBackedData {
         if (locatable.isEntity()) {
             this.board.removeEntity(locatable);
         } else {
-            throw new Error('Non-Entity Locatables do not exist?')
+            throw new Error('Non-Entity Locatables do not exist?');
         }
     }
     /**
@@ -47,7 +51,7 @@ export class Cell extends FileBackedData {
         if (locatable.isEntity()) {
             this.board.addEntity(locatable);
         } else {
-            throw new Error('Non-Entity Locatables do not exist?')
+            throw new Error('Non-Entity Locatables do not exist?');
         }
     }
     protected async fromJSON(json: CellSchema): Promise<void> {

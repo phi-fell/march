@@ -224,7 +224,7 @@ export class Client {
         socket.on('set_active_player', async (msg: any) => {
             if (client.user) {
                 if (typeof msg === 'number') {
-                    const success = client.user.setActivePlayer(msg);
+                    const success: boolean = await client.user.setActivePlayer(msg);
                     socket.emit('active_player_response', {
                         'success': success,
                         'msg': success ? undefined : 'Index is out of bounds!',

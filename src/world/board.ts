@@ -2,6 +2,7 @@ import { Entity } from './entity';
 import { NO_TILE, Tile } from '../tile';
 import * as t from 'io-ts';
 import type { World } from './world';
+import type { UUID } from '../math/random';
 
 export type BoardSchema = t.TypeOf<typeof Board.schema>
 
@@ -43,6 +44,13 @@ export class Board {
                 }
             }
         }
+    }
+    public getEntity(id: UUID): Entity {
+        const ret = this.entities.find((ent) => ent.id === id);
+        if (ret) {
+            return ret;
+        }
+        throw new Error(`No such entity in board as {id:${id}}!`)
     }
     public addEntity(ent: Entity) {
         this.entities.push(ent);
