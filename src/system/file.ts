@@ -41,7 +41,7 @@ export class File {
     public static async getReadOnlyFile(filepath: string): Promise<ReadOnlyFile> {
         filepath = path.resolve(filepath);
         if (File.owned_files[filepath]) {
-            throw Error('cannot read owned file!');
+            throw new Error('cannot read owned file!');
         }
         const f = new ReadOnlyFileImpl(filepath);
         await f.ready();
@@ -50,7 +50,7 @@ export class File {
     public static async acquireFile(filepath: string): Promise<OwnedFile> {
         filepath = path.resolve(filepath);
         if (File.owned_files[filepath]) {
-            throw Error('cannot acquire already owned file!');
+            throw new Error('cannot acquire already owned file!');
         }
         File.owned_files[filepath] = new OwnedFileImpl(filepath);
         await File.owned_files[filepath].ready();
@@ -98,13 +98,13 @@ class OwnedFileImpl implements OwnedFile {
     }
     public getString() {
         if (!this.data) {
-            throw Error('Cannot read nonexistent file!: ' + this._id);
+            throw new Error('Cannot read nonexistent file!: ' + this._id);
         }
         return this.data;
     }
     public getJSON() {
         if (!this.data) {
-            throw Error('Cannot read nonexistent file!: ' + this._id);
+            throw new Error('Cannot read nonexistent file!: ' + this._id);
         }
         if (!this.jsonCache) {
             this.jsonCache = JSON.parse(this.data);

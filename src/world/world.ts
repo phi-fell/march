@@ -32,7 +32,7 @@ export class World extends FileBackedData {
             if (this._instance_refs.includes(id)) {
                 this._instances[id] = await Instance.loadInstanceFromFile(this, `${WORLD_DIR}/inst-${id}`, await File.acquireFile(`${WORLD_DIR}/inst-${id}.json`));
             } else {
-                throw Error(`No such instance as {id:${id}}!`);
+                throw new Error(`No such instance as {id:${id}}!`);
             }
         }
         return this._instances[id];

@@ -24,7 +24,7 @@ export class Animation {
                     anim.frames[i] = document.createElement('canvas');
                     const context = anim.frames[i].getContext('2d');
                     if (!context) {
-                        throw Error('Could not create animation context!');
+                        throw new Error('Could not create animation context!');
                     }
                     anim.frames[i].width = json.frame_width;
                     anim.frames[i].height = json.frame_height;

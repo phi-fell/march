@@ -37,7 +37,7 @@ export class Cell extends FileBackedData {
         if (locatable.isEntity()) {
             this.board.removeEntity(locatable);
         } else {
-            throw Error('Non-Entity Locatables do not exist?')
+            throw new Error('Non-Entity Locatables do not exist?')
         }
     }
     /**
@@ -47,7 +47,7 @@ export class Cell extends FileBackedData {
         if (locatable.isEntity()) {
             this.board.addEntity(locatable);
         } else {
-            throw Error('Non-Entity Locatables do not exist?')
+            throw new Error('Non-Entity Locatables do not exist?')
         }
     }
     protected async fromJSON(json: CellSchema): Promise<void> {

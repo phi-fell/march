@@ -55,7 +55,7 @@ async function main(process_arguments: string[]) {
             key = fs.readFile(ssl_paths.root + ssl_paths.key);
             cert = fs.readFile(ssl_paths.root + ssl_paths.cert);
         } else {
-            throw Error('No paths to SSL certificate! Did you run setup_prod.sh?')
+            throw new Error('No paths to SSL certificate! Did you run setup_prod.sh?')
         }
     }
 

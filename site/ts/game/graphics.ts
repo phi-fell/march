@@ -19,10 +19,10 @@ export class Graphics {
         const h = tileCanvas.clientHeight;
         console.log('(' + w + ', ' + h + ')');
         if (!w) {
-            throw Error('invalid canvas width!');
+            throw new Error('invalid canvas width!');
         }
         if (!h) {
-            throw Error('invalid canvas height!');
+            throw new Error('invalid canvas height!');
         }
         this.width = w;
         this.height = h;

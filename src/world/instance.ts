@@ -33,7 +33,7 @@ export class Instance extends FileBackedData {
             if (this.cell_refs.includes(id)) {
                 this.cells[id] = await Cell.loadCellFromFile(this, await File.acquireFile(`${this.directory}/cell-${id}.json`));
             } else {
-                throw Error(`No such cell as {id:${id}}!`);
+                throw new Error(`No such cell as {id:${id}}!`);
             }
         }
         return this.cells[id];
