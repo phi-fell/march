@@ -1,7 +1,7 @@
 import fs = require('fs');
 import { resolve } from 'path';
 
-import { Instance, InstanceAttributes } from './instance';
+import { Instance, InstanceAttributes } from './old_instance';
 import { INSTANCE_GEN_TYPE } from './instancegenerator';
 import { Random } from './math/random';
 import { spawnMobFromSchema } from './mobschema';

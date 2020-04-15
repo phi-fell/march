@@ -12,7 +12,7 @@ import {
 import { ATTRIBUTE } from './character/characterattributes';
 import type { ClientEvent } from './clientevent';
 import { execute } from './commands';
-import { DIRECTION } from './direction';
+import { DIRECTION } from './world/direction';
 import { EQUIPMENT_SLOT } from './item/equipment_slot';
 import { Random } from './math/random';
 import {
@@ -28,7 +28,7 @@ import {
     UnwaitAction,
     UsePortalAction,
     WaitAction,
-} from './player';
+} from './old_player';
 import { getTilePalette } from './tile';
 
 const users: { [id: string]: User; } = {};

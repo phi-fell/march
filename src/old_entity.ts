@@ -1,8 +1,8 @@
 import { CharacterSheet } from './character/charactersheet';
 import { AddMobEvent, AttackEvent, MoveEvent, RemoveMobEvent } from './clientevent';
-import { DIRECTION, directionVectors } from './direction';
-import { Instance } from './instance';
-import type { Location } from './location';
+import { DIRECTION, directionVectors } from './world/direction';
+import { Instance } from './old_instance';
+import type { Location } from './old_location';
 import { Random } from './math/random';
 
 export const MOVE_AP = 5;

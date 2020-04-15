@@ -1,6 +1,6 @@
-import { Instance } from './instance';
+import { Instance } from './old_instance';
 import { getInstanceFromSchema, InstanceSchemaID } from './instanceschema';
-import { Location } from './location';
+import { Location } from './old_location';
 import { Random } from './math/random';
 
 export class Portal {

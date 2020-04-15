@@ -1,8 +1,8 @@
 import { createContext, runInContext } from 'vm';
 
-import { Entity } from './entity';
-import { Instance } from './instance';
-import { Player } from './player';
+import { Entity } from './old_entity';
+import { Instance } from './old_instance';
+import { Player } from './old_player';
 import { User } from './user';
 
 class Logger {
