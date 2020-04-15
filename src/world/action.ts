@@ -221,7 +221,8 @@ export class PickupAction implements Action {
         const pickup = this;
         const inv = entity.sheet.equipment.inventory;
         const loc = entity.location;
-        let picked_up: boolean = false;
+        const picked_up: boolean = false;
+        /* TODO:
         inst.items.forEach((stack: WorldItemStack, index: number) => {
             if (!picked_up && stack.location.equals(loc) && stack.item.id === pickup.item_id) {
                 if (pickup.count === null || stack.count === null || pickup.count >= stack.count) {
@@ -234,6 +235,7 @@ export class PickupAction implements Action {
                 picked_up = true;
             }
         });
+        */
         if (!picked_up) {
             console.log('Cannot pick up nonexistent item!');
             return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
