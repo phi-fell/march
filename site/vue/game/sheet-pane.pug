@@ -10,8 +10,8 @@
             option(value="inventory") Inventory
         p.sheet_title.flex_none -----
     .flex.overflow_auto
-        game_player-attributes(v-if="self.sheet_view==='attributes'" v-bind:self="self.player.sheet.attributes")
-        game_player-race(v-else-if="self.sheet_view==='race'" v-bind:self="self.player.sheet.race")
-        game_player-skills(v-else-if="self.sheet_view==='skills'" v-bind:self="self.player.sheet.skills")
-        game_player-equipment(v-else-if="self.sheet_view==='equipment'" v-bind:self="self.player.sheet.equipment.equipped")
-        game_player-inventory(v-else-if="self.sheet_view==='inventory'" v-bind:self="self.player.sheet.equipment.inventory")
+        game_player-attributes(v-if="self.sheet_view==='attributes'" v-bind:self="self.player_sheet.attributes")
+        game_player-race(v-else-if="self.sheet_view==='race'" v-bind:self="self.player_sheet.race")
+        game_player-skills(v-else-if="self.sheet_view==='skills'" v-bind:self="self.player_sheet.skills")
+        game_player-equipment(v-else-if="self.sheet_view==='equipment'" v-bind:self="self.player_sheet.equipment.equipped")
+        game_player-inventory(v-else-if="self.sheet_view==='inventory'" v-bind:self="self.player_sheet.equipment.inventory")

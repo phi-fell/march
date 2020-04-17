@@ -29,7 +29,6 @@ $(document).ready(async () => {
             console.log('valid credentials, loading');
             socket.on('game_data', (msg: any) => {
                 if (msg) {
-                    console.log(JSON.parse(JSON.stringify(msg.player)));
                     app = new Vue({
                         'el': '#game',
                         'data': {

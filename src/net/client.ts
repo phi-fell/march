@@ -231,7 +231,7 @@ export class Client {
                     const success: boolean = await client.user.setActivePlayer(msg);
                     socket.emit('active_player_response', {
                         'success': success,
-                        'msg': success ? undefined : 'Index is out of bounds!',
+                        'msg': success ? undefined : 'Could not set active player!',
                     });
                 } else {
                     console.log('Could not set active player to Players[' + msg + ']!');
