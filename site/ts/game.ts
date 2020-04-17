@@ -34,7 +34,9 @@ $(document).ready(async () => {
                         'el': '#game',
                         'data': {
                             'sheet_view': 'attributes',
-                            'player': msg.player,
+                            'player_sheet': msg.player_sheet,
+                            'player_entity': msg.player_entity,
+                            'board': msg.board,
                             'canvas_labels': [
                                 {
                                     'text': 'Asdf',
@@ -59,6 +61,10 @@ $(document).ready(async () => {
                     console.log('did not recieve valid game_data!');
                     window.location.href = '/home';
                 }
+            });
+            socket.on('game_data_fail', () => {
+                console.log('did not recieve game_data!');
+                window.location.href = '/home';
             });
             socket.emit('get', 'game_data');
         });

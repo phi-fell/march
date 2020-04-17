@@ -124,6 +124,7 @@ export class User extends FileBackedData {
     }
     public async getGameData() {
         if (!this.activePlayer) {
+            console.log('No Active Player!');
             return;
         }
         return this.activePlayer.getGameData();

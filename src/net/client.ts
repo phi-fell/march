@@ -187,7 +187,12 @@ export class Client {
                 } else if (msg === 'available_traits') {
                     client.socket.emit('available_traits', CharacterTrait.getBuyableTraits());
                 } else if (msg === 'game_data') {
-                    client.socket.emit('game_data', await client.user.getGameData());
+                    const data = await client.user.getGameData();
+                    if (data) {
+                        client.socket.emit('game_data', data);
+                    } else {
+                        client.socket.emit('game_data_fail');
+                    }
                 }
             }
         });
