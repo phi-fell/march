@@ -1,14 +1,14 @@
 import bcrypt = require('bcrypt');
 import crypto = require('crypto');
 import * as t from 'io-ts';
-
 import { CharacterSheet } from '../character/charactersheet';
 import { Random } from '../math/random';
 import type { OwnedFile } from '../system/file';
 import { FileBackedData } from '../system/file_backed_data';
 import { Player } from '../world/player';
-import type { Client } from './client';
 import type { World } from '../world/world';
+import type { Client } from './client';
+
 
 const TOKEN_LIFESPAN = 1000 * 60 * 60 * 24 * 3; // 3 days in milliseconds
 
@@ -116,8 +116,7 @@ export class User extends FileBackedData {
         this.client = undefined;
     }
     public async finishPlayer() {
-        const plr = new Player(this.world);
-        plr.sheet = this.unfinished_player;
+        const plr = await Player.createPlayer(this.world, this.unfinished_player);
         plr.sheet.status.restoreFully();
         this.unfinished_player = CharacterSheet.newPlayerSheet();
         this.players.push(plr);

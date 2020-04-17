@@ -1,8 +1,9 @@
+import * as t from 'io-ts';
 import { Random, UUID } from '../math/random';
-import { OwnedFile, File } from '../system/file';
+import { File, OwnedFile } from '../system/file';
 import { FileBackedData } from '../system/file_backed_data';
 import { Cell } from './cell';
-import * as t from 'io-ts';
+import type { CellAttributes } from './generation/cellattributes';
 import type { World } from './world';
 
 const cell_ref_schema = t.string;
@@ -22,6 +23,15 @@ export class Instance extends FileBackedData {
         await inst.ready();
         return inst;
     }
+    public static async createInstance(world: World, dir: string, file: OwnedFile) {
+        const json: InstanceSchema = {
+            'cells': [],
+        };
+        file.setJSON(json);
+        const inst = new Instance(world, dir, file);
+        await inst.ready();
+        return inst;
+    }
 
     private cells: Record<UUID, Cell> = {};
     private cell_refs: t.TypeOf<typeof cell_ref_schema>[] = [];
@@ -37,6 +47,13 @@ export class Instance extends FileBackedData {
             }
         }
         return this.cells[id];
+    }
+    public async createCell(attributes: CellAttributes): Promise<Cell> {
+        const id = Cell.generateNewID();
+        const cell: Cell = await Cell.createCell(this, await File.acquireFile(`${this.directory}/cell-${id}.json`), attributes);
+        this.cell_refs.push(id);
+        this.cells[id] = cell;
+        return cell;
     }
     public get schema() {
         return Instance.schema;

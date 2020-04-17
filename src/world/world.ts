@@ -1,9 +1,9 @@
 import * as t from 'io-ts';
-
+import type { UUID } from '../math/random';
 import { File, OwnedFile } from '../system/file';
 import { FileBackedData } from '../system/file_backed_data';
+import type { Cell } from './cell';
 import { Instance } from './instance';
-import type { UUID } from '../math/random';
 
 const WORLD_DIR = 'world';
 
@@ -36,6 +36,17 @@ export class World extends FileBackedData {
             }
         }
         return this._instances[id];
+    }
+    public async createInstance(): Promise<Instance> {
+        const id = Instance.generateNewID();
+        const inst = await Instance.createInstance(this, `${WORLD_DIR}/inst-${id}`, await File.acquireFile(`${WORLD_DIR}/inst-${id}.json`));
+        this._instance_refs.push(id);
+        this._instances[id] = inst;
+        return inst;
+    }
+    public async getCell(instance_id: UUID, cell_id: UUID): Promise<Cell> {
+        const instance = await this.getInstance(instance_id);
+        return instance.getCell(cell_id);
     }
 
     public get schema() {

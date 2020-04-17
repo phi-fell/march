@@ -1,7 +1,7 @@
+import * as t from 'io-ts';
 import type { Entity } from './entity';
 import { Location } from './location';
 import { Position } from './position';
-import * as t from 'io-ts';
 import type { World } from './world';
 
 export const locatable_schema = t.type({
@@ -23,8 +23,7 @@ export abstract class Locatable {
         this._ready = this.finishConstruction();
     }
     private async finishConstruction() {
-        const inst = await this.world.getInstance(this._location.instance_id);
-        const cell = await inst.getCell(this._location.cell_id)
+        const cell = await this.world.getCell(this._location.instance_id, this._location.cell_id)
         cell.addLocatable(this);
     }
     protected async ready(): Promise<void> {
@@ -45,11 +44,8 @@ export abstract class Locatable {
         if (this._location.instance_id === loc.instance_id && this.location.cell_id === loc.cell_id) {
             this.setPosition(new Position(loc.x, loc.y))
         } else {
-            const from_inst = this.world.getInstance(this._location.instance_id);
-            const to_inst = this.world.getInstance(loc.instance_id);
-
-            const from_cell_p = (await from_inst).getCell(this._location.cell_id);
-            const to_cell_p = (await to_inst).getCell(loc.cell_id)
+            const from_cell_p = this.world.getCell(this._location.instance_id, this._location.cell_id);
+            const to_cell_p = this.world.getCell(loc.instance_id, loc.cell_id)
 
             const from_cell = await from_cell_p;
             const to_cell = await to_cell_p;

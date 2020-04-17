@@ -1,9 +1,13 @@
 import * as t from 'io-ts';
-
 import { CharacterSheet } from '../character/charactersheet';
 import { Random } from '../math/random';
-import type { Entity } from './entity';
+import type { Cell } from './cell';
+import { Entity } from './entity';
+import { CellAttributes } from './generation/cellattributes';
+import { CELL_GENERATION } from './generation/cellgeneration';
+import type { Instance } from './instance';
 import type { World } from './world';
+
 
 const entity_ref_schema = t.type({
     'instance_id': t.string,
@@ -28,12 +32,26 @@ export class Player {
         ret.entity_ref = json.entity_ref;
         return ret;
     }
+    public static async createPlayer(world: World, sheet: CharacterSheet) {
+        const ret = new Player(world);
+        ret.sheet = sheet;
+        const inst: Instance = await world.createInstance();
+        const cell: Cell = await inst.createCell(new CellAttributes(Random.getDeterministicID(), CELL_GENERATION.SLIME_CAVE, 50, 50));
+        const loc = cell.getRandomPassableLocation();
+        const ent = new Entity(world, loc);
+        ret.entity_ref = {
+            'instance_id': inst.id,
+            'cell_id': cell.id,
+            'entity_id': ent.id
+        };
+        return ret;
+    }
 
     public sheet: CharacterSheet = new CharacterSheet();
     private entity_ref?: EntityRef;
     private entity?: Entity;
     private _active: boolean = false;
-    constructor(private world: World, protected _id: string = Random.uuid()) { }
+    private constructor(private world: World, protected _id: string = Random.uuid()) { }
     public get id() {
         return this._id;
     }
@@ -51,12 +69,10 @@ export class Player {
             throw new Error('Player already active!');
         }
         if (this.entity_ref === undefined) {
-            // TODO: create and set entity
-        } else {
-            const inst = await this.world.getInstance(this.entity_ref.instance_id);
-            const cell = await inst.getCell(this.entity_ref.cell_id);
-            this.entity = cell.getEntity(this.entity_ref.entity_id);
+            throw new Error('Player did not have an attached entity!')
         }
+        const cell = await this.world.getCell(this.entity_ref.instance_id, this.entity_ref.cell_id);
+        this.entity = cell.getEntity(this.entity_ref.entity_id);
         this._active = true;
     }
     public setInactive() {

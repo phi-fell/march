@@ -1,13 +1,13 @@
+import * as t from 'io-ts';
 import { CharacterSheet } from '../character/charactersheet';
 import { Inventory } from '../item/inventory';
 import { ArmorData, ItemData, WeaponData } from '../item/itemdata';
+import { Random, UUID } from '../math/random';
 import { Controller } from './controller';
+import { DIRECTION } from './direction';
 import { Locatable, locatable_schema } from './locatable';
 import { Location } from './location';
-import * as t from 'io-ts';
 import type { World } from './world';
-import { UUID, Random } from '../math/random';
-import { DIRECTION } from './direction';
 
 export interface Mob extends Entity {
     controller: Controller;
@@ -66,7 +66,7 @@ export class Entity extends Locatable {
     public controller?: Controller;
     public inventory?: Inventory;
     public item_data?: ItemData;
-    private constructor(world: World, loc: Location, public id: UUID = Random.uuid()) {
+    public constructor(world: World, loc: Location, public id: UUID = Random.uuid()) {
         super(world, loc);
     }
     public isEntity(): this is Entity {

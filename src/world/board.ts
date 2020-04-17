@@ -1,8 +1,8 @@
-import { Entity } from './entity';
-import { NO_TILE, Tile } from '../tile';
 import * as t from 'io-ts';
-import type { World } from './world';
 import type { UUID } from '../math/random';
+import { NO_TILE, Tile } from '../tile';
+import { Entity } from './entity';
+import type { World } from './world';
 
 export type BoardSchema = t.TypeOf<typeof Board.schema>
 
@@ -20,7 +20,7 @@ export class Board {
         return ret;
     }
 
-    private tiles: Tile[][] = [];
+    public tiles: Tile[][] = [];
     private entities: Entity[] = [];
     /*
         TODO: ? could be worthwhile to split entities into a map by ID and an array by position, and duplicate data
@@ -28,7 +28,7 @@ export class Board {
         I'll wait on this and not prematurely optimize,
         especially without profiling to ensure this is even an area that's executed enough to be worthwhile
     */
-    constructor(private width: number, private height: number, t_in?: Tile[][]) {
+    constructor(public width: number, public height: number, t_in?: Tile[][]) {
         if (t_in === undefined) {
             for (let x = 0; x < width; x++) {
                 this.tiles[x] = [];
