@@ -69,4 +69,8 @@ export class World extends FileBackedData {
             'instances': this._instance_refs,
         }
     }
+    protected async prepForUnload(): Promise<void> {
+        await Promise.all(Object.entries(this._instances).map(async ([id, inst]) => inst.unload()));
+        this._instances = {};
+    }
 }

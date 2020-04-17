@@ -82,4 +82,8 @@ export class Instance extends FileBackedData {
             'cells': this.cell_refs,
         }
     }
+    protected async prepForUnload(): Promise<void> {
+        await Promise.all(Object.entries(this.cells).map(([id, cell]) => cell.unload()));
+        this.cells = {};
+    }
 }
