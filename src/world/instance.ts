@@ -12,6 +12,7 @@ export type InstanceSchema = t.TypeOf<typeof Instance.schema>;
 
 export class Instance extends FileBackedData {
     public static schema = t.type({
+        'id': t.string,
         'cells': t.array(cell_ref_schema),
     });
 
@@ -23,8 +24,9 @@ export class Instance extends FileBackedData {
         await inst.ready();
         return inst;
     }
-    public static async createInstance(world: World, dir: string, file: OwnedFile) {
+    public static async createInstance(world: World, id: UUID, dir: string, file: OwnedFile) {
         const json: InstanceSchema = {
+            id,
             'cells': [],
         };
         file.setJSON(json);
@@ -33,9 +35,10 @@ export class Instance extends FileBackedData {
         return inst;
     }
 
+    public id: UUID = '';
     private cells: Record<UUID, Cell> = {};
     private cell_refs: t.TypeOf<typeof cell_ref_schema>[] = [];
-    protected constructor(public world: World, private directory: string, file: OwnedFile, public id: string = Instance.generateNewID()) {
+    protected constructor(public world: World, private directory: string, file: OwnedFile) {
         super(file);
     }
     public async getCell(id: UUID): Promise<Cell> {
@@ -59,10 +62,12 @@ export class Instance extends FileBackedData {
         return Instance.schema;
     }
     protected async fromJSON(json: InstanceSchema): Promise<void> {
+        this.id = json.id;
         this.cell_refs = [...json.cells];
     }
     protected toJSON(): InstanceSchema {
         return {
+            'id': this.id,
             'cells': this.cell_refs,
         }
     }

@@ -39,7 +39,7 @@ export class World extends FileBackedData {
     }
     public async createInstance(): Promise<Instance> {
         const id = Instance.generateNewID();
-        const inst = await Instance.createInstance(this, `${WORLD_DIR}/inst-${id}`, await File.acquireFile(`${WORLD_DIR}/inst-${id}.json`));
+        const inst = await Instance.createInstance(this, id, `${WORLD_DIR}/inst-${id}`, await File.acquireFile(`${WORLD_DIR}/inst-${id}.json`));
         this._instance_refs.push(id);
         this._instances[id] = inst;
         return inst;
