@@ -39,6 +39,7 @@ export class Instance extends FileBackedData {
 
     public id: UUID = '';
     private cells: Record<UUID, Cell> = {};
+    private cells_loading: Record<UUID, Promise<Cell>> = {};
     private cell_refs: t.TypeOf<typeof cell_ref_schema>[] = [];
     protected constructor(public world: World, private directory: string, file: OwnedFile) {
         super(file);
@@ -46,7 +47,15 @@ export class Instance extends FileBackedData {
     public async getCell(id: UUID): Promise<Cell> {
         if (!this.cells[id]) {
             if (this.cell_refs.includes(id)) {
-                this.cells[id] = await Cell.loadCellFromFile(this, await File.acquireFile(`${this.directory}/cell-${id}.json`));
+                if (this.cells_loading[id]) {
+                    return this.cells_loading[id];
+                }
+                this.cells_loading[id] = (async () => {
+                    this.cells[id] = await Cell.loadCellFromFile(this, await File.acquireFile(`${this.directory}/cell-${id}.json`));
+                    return this.cells[id];
+                })();
+                await this.cells_loading[id];
+                delete this.cells_loading[id];
             } else {
                 throw new Error(`No such cell as {id:${id}}!`);
             }

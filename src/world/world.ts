@@ -22,7 +22,8 @@ export class World extends FileBackedData {
         return world;
     }
 
-    private _instances: Record<string, Instance> = {};
+    private _instances: Record<UUID, Instance> = {};
+    private _instances_loading: Record<UUID, Promise<Instance>> = {};
     private _instance_refs: t.TypeOf<typeof instance_ref_schema>[] = [];
     protected constructor(file: OwnedFile) {
         super(file);
@@ -30,7 +31,15 @@ export class World extends FileBackedData {
     public async getInstance(id: UUID): Promise<Instance> {
         if (!this._instances[id]) {
             if (this._instance_refs.includes(id)) {
-                this._instances[id] = await Instance.loadInstanceFromFile(this, `${WORLD_DIR}/inst-${id}`, await File.acquireFile(`${WORLD_DIR}/inst-${id}.json`));
+                if (this._instances_loading[id]) {
+                    return this._instances_loading[id];
+                }
+                this._instances_loading[id] = (async () => {
+                    this._instances[id] = await Instance.loadInstanceFromFile(this, `${WORLD_DIR}/inst-${id}`, await File.acquireFile(`${WORLD_DIR}/inst-${id}.json`));
+                    return this._instances[id];
+                })();
+                await this._instances_loading[id];
+                delete this._instances_loading[id];
             } else {
                 throw new Error(`No such instance as {id:${id}}!`);
             }
