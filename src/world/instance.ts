@@ -59,9 +59,11 @@ export class Instance extends FileBackedData {
         return Instance.schema;
     }
     protected async fromJSON(json: InstanceSchema): Promise<void> {
-        throw new Error('Method not implemented.');
+        this.cell_refs = [...json.cells];
     }
     protected toJSON(): InstanceSchema {
-        throw new Error('Method not implemented.');
+        return {
+            'cells': this.cell_refs,
+        }
     }
 }

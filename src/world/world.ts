@@ -56,6 +56,8 @@ export class World extends FileBackedData {
         this._instance_refs = [...json.instances];
     }
     protected toJSON(): WorldSchema {
-        throw new Error('Method not implemented.');
+        return {
+            'instances': this._instance_refs,
+        }
     }
 }
