@@ -1,33 +1,26 @@
 import * as t from 'io-ts';
 import type { Action } from './action';
+import { CONTROLLER } from './controller/controllers';
+import { InertController } from './controller/inertcontroller';
+import { PlayerController } from './controller/playercontroller';
 
-export enum CONTROLLER {
-    INERT,
-    PLAYER,
+const controller_schema = t.keyof(CONTROLLER);
+export type ControllerSchema = t.TypeOf<typeof controller_schema>;
+
+export interface Controller {
+    type: CONTROLLER;
+    getNextAction(): Action;
+    toJSON(): ControllerSchema;
 }
 
-export type ControllerSchema = t.TypeOf<typeof Controller.schema>;
+const controller: Record<CONTROLLER, new () => Controller> = [
+    InertController,
+    PlayerController
+];
 
-export abstract class Controller {
-    public static schema = t.keyof(CONTROLLER);
-
-    private static controllers: ((new () => Controller) | undefined)[] = [];
-    public static registerController(type: CONTROLLER, controller: new () => Controller) {
-        Controller.controllers[type] = controller;
-    }
-
-    public static fromJSON(json: ControllerSchema): Controller {
-        const controller_class = Controller.controllers[CONTROLLER[json]];
-        if (controller_class === undefined) {
-            throw new Error(`No registered controller found as ${json}!`);
-        }
-        return new controller_class();
-    }
-
-    abstract type: CONTROLLER;
-    abstract getNextAction(): Action;
-
-    public toJSON(): ControllerSchema {
-        return CONTROLLER[this.type] as keyof typeof CONTROLLER;
+export const Controller = {
+    'schema': controller_schema,
+    'fromJSON': (json: ControllerSchema): Controller => {
+        return new controller[CONTROLLER[json]]();
     }
 }
