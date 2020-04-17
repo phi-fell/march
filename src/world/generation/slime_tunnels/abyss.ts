@@ -1,10 +1,8 @@
 import type { GeneratableCell } from '../../cell';
-import { CellGenerator, CELL_GENERATION } from '../cellgeneration';
+import type { CellGenerator } from '../cellgeneration';
 
-export class SlimeAbyssGenerator extends CellGenerator {
+export class SlimeAbyssGenerator implements CellGenerator {
     public process(cell: GeneratableCell): GeneratableCell {
         return cell;
     }
 }
-
-CellGenerator.registerGenerator(CELL_GENERATION.SLIME_ABYSS, SlimeAbyssGenerator);

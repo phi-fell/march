@@ -2,7 +2,7 @@ import { Random } from '../../../math/random';
 import { getTileFromName } from '../../../tile';
 import { Board } from '../../board';
 import type { GeneratableCell } from '../../cell';
-import { CellGenerator, CELL_GENERATION } from '../cellgeneration';
+import type { CellGenerator } from '../cellgeneration';
 
 interface PartitionInfo {
     xmin: number;
@@ -11,7 +11,7 @@ interface PartitionInfo {
     ymax: number;
 }
 
-export class SlimeCaveGenerator extends CellGenerator {
+export class SlimeCaveGenerator implements CellGenerator {
     private rand: Random = new Random();
     public process(cell: GeneratableCell): GeneratableCell {
         const attr = cell.attributes;
@@ -143,7 +143,4 @@ export class SlimeCaveGenerator extends CellGenerator {
             'ymax': Math.max(p1.ymax, p2.ymax),
         };
     }
-
 }
-
-CellGenerator.registerGenerator(CELL_GENERATION.SLIME_CAVE, SlimeCaveGenerator);
