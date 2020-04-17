@@ -1,3 +1,4 @@
+import { promises as fs } from 'fs';
 import * as t from 'io-ts';
 import { Random, UUID } from '../math/random';
 import { File, OwnedFile } from '../system/file';
@@ -31,6 +32,7 @@ export class Instance extends FileBackedData {
         };
         file.setJSON(json);
         const inst = new Instance(world, dir, file);
+        await fs.mkdir(dir);
         await inst.ready();
         return inst;
     }
