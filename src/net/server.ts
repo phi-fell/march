@@ -1,7 +1,6 @@
 import bcrypt = require('bcrypt');
 import { promises as fs } from 'fs';
 import type { Socket } from 'socket.io';
-
 import { CharacterSheet } from '../character/charactersheet';
 import { Random } from '../math/random';
 import { File } from '../system/file';
@@ -48,6 +47,7 @@ export class Server {
         this.clients = {};
         await Promise.all(Object.values(this.users).map((user: User) => user.unload()));
         this.users = {};
+        await this.world.unload();
     }
     public removeClient(id: string) {
         if (this.clients[id]) {
