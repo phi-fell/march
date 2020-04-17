@@ -193,8 +193,8 @@ export class WebServer {
         this.express_app.use('/js', (req: Request, res: Response) => {
             res.sendFile(path.resolve(`site/js${req.path}${req.path.endsWith('.js') ? '' : '.js'}`));
         });
-        this.express_app.get('/vue/:filename', (req: Request, res: Response) => {
-            res.send(pug.renderFile(path.resolve('site/vue/' + req.params.filename + '.pug')));
+        this.express_app.use('/vue', (req: Request, res: Response) => {
+            res.send(pug.renderFile(path.resolve(`site/vue${req.path}.pug`)));
         });
 
         this.express_app.use('/link/:link', (req: Request, res: Response, next: NextFunction) => {
