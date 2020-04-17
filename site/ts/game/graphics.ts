@@ -13,7 +13,7 @@ export class Graphics {
         private tileCanvas: HTMLCanvasElement,
         entityCanvas: HTMLCanvasElement,
         uiCanvas: HTMLCanvasElement,
-        uiLabels: Array<{ 'text': string, 'x': number, 'y': number }>,
+        uiLabels: { 'text': string, 'x': number, 'y': number }[],
     ) {
         const w = tileCanvas.clientWidth;
         const h = tileCanvas.clientHeight;
@@ -33,26 +33,18 @@ export class Graphics {
         $(window).on('resize', () => {
             g.resize();
         });
-        this.draw();
+        const draw_loop = () => {
+            setTimeout(() => {
+                this.draw();
+                draw_loop();
+            }, 20);
+        };
     }
     public getAnimation(id: string) {
         if (!this.animations[id]) {
             this.animations[id] = new Animation(id);
         }
         return this.animations[id];
-    }
-    public queueRedraw() {
-        if (this.redrawing) {
-            return;
-        }
-        this.redrawing = true;
-        setTimeout(
-            () => {
-                this.draw();
-                this.redrawing = false;
-            },
-            10,
-        );
     }
     private resize() {
         this.width = this.tileCanvas.clientWidth;
@@ -65,7 +57,7 @@ export class Graphics {
     private draw() {
         this.tileContext.push();
         this.tileContext.translate(100, 100);
-        this.getAnimation('weapon/sword').draw(this.tileContext, Date.now());
+        this.getAnimation('mob/slime/idle').draw(this.tileContext, Date.now());
         this.tileContext.pop();
     }
 }

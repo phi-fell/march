@@ -36,7 +36,7 @@ export class Animation {
                 }
                 anim.loaded = true;
             };
-            anim.image.src = 'tex/animation/' + json.image;
+            anim.image.src = 'tex/animation/' + id + '.png';
         });
     }
     public draw(context: GraphicsContext, time: number) {
