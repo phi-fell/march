@@ -1,3 +1,3 @@
 #!/bin/bash
 rm users/*
-rm world/*
+rm -r world/*
