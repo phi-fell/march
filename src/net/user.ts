@@ -122,14 +122,11 @@ export class User extends FileBackedData {
         this.players.push(plr);
         this.save();
     }
-    public getGameData() {
+    public async getGameData() {
         if (!this.activePlayer) {
             return;
         }
-        return {
-            'player': this.activePlayer.toJSON(),
-            'player_entity': this.activePlayer.getEntity().toJSON(),
-        };
+        return this.activePlayer.getGameData();
     }
     public toJSON(): UserSchema {
         return {

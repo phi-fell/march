@@ -102,4 +102,7 @@ export class Entity extends Locatable {
         }
         return ret;
     }
+    public getClientJSON() {
+        return this.toJSON(); // TODO: reduce info sent
+    }
 }

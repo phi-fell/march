@@ -1,7 +1,6 @@
 import * as t from 'io-ts';
-
 import type { AttackEvent } from '../clientevent';
-import { Damage, DAMAGE_TYPE, DamageMetaData } from '../damage';
+import { Damage, DamageMetaData, DAMAGE_TYPE } from '../damage';
 import { Random } from '../math/random';
 import { ATTRIBUTE, CharacterAttributes } from './characterattributes';
 import { CharacterEquipment } from './characterequipment';
@@ -266,6 +265,27 @@ export class CharacterSheet {
             'attributes': this._cachedAttributes.toJSON(),
             'allocatedAttributes': this._allocatedAttributes.toJSON(),
             'attributeLevelupCosts': this._allocatedAttributes.getLevelupCosts().toJSON(),
+            'skills': this._skills.toJSON(),
+            'traits': this._additional_traits.map((trait) => trait.toJSON()),
+            'faiths': [],
+            'race': this._race.toJSON(),
+            'equipment': this._equipment.toJSON(),
+            'status': this._status.toJSON(),
+            'essence': this._essence,
+            'exp_cap': this.getEssenceWorth(),
+            'exp': this._exp,
+        };
+    }
+    public getClientJSON() {
+        const attributeLevelupAvailable = Object.fromEntries(
+            Object.entries(this._allocatedAttributes.getLevelupCosts().toJSON()).map(
+                ([k, v]) => [k, v >= this._essence]
+            )
+        ) as Record<keyof typeof ATTRIBUTE, boolean>;
+        return {
+            'name': this._name,
+            'attributes': this._cachedAttributes.toJSON(),
+            attributeLevelupAvailable,
             'skills': this._skills.toJSON(),
             'traits': this._additional_traits.map((trait) => trait.toJSON()),
             'faiths': [],

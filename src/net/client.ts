@@ -1,6 +1,5 @@
 import * as t from 'io-ts';
 import type { Socket } from 'socket.io';
-
 import { ATTRIBUTE } from '../character/characterattributes';
 import { CharacterRace } from '../character/characterrace';
 import { CharacterTrait } from '../character/charactertrait';
@@ -188,7 +187,7 @@ export class Client {
                 } else if (msg === 'available_traits') {
                     client.socket.emit('available_traits', CharacterTrait.getBuyableTraits());
                 } else if (msg === 'game_data') {
-                    client.socket.emit('game_data', client.user.getGameData());
+                    client.socket.emit('game_data', await client.user.getGameData());
                 }
             }
         });

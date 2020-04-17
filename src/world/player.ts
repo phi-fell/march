@@ -55,6 +55,14 @@ export class Player {
     public get id() {
         return this._id;
     }
+    public async getGameData() {
+        const ent = this.getEntity();
+        return {
+            'player_sheet': this.sheet.getClientJSON(),
+            'player_entity': ent.getClientJSON(),
+            'board': (await this.world.getCell(ent.location.instance_id, ent.location.cell_id)).getClientJSON(ent),
+        }
+    }
     public getEntity(): Entity {
         if (!this._active) {
             throw new Error('Player not active!');
