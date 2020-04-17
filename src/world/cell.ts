@@ -6,7 +6,7 @@ import { getTileProps } from '../tile';
 import { Board } from './board';
 import type { Entity } from './entity';
 import { CellAttributes } from './generation/cellattributes';
-import { CellGenerator } from './generation/cellgeneration';
+import { CellGeneration } from './generation/cellgeneration';
 import type { Instance } from './instance';
 import type { Locatable } from './locatable';
 import { Location } from './location';
@@ -35,8 +35,8 @@ export class Cell extends FileBackedData {
         };
         file.setJSON(json);
         const cell = new GeneratableCell(instance, file);
-        CellGenerator.generateCell(cell);
         await cell.ready();
+        CellGeneration.generateCell(cell);
         return cell;
     }
 
