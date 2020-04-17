@@ -48,6 +48,7 @@ export class User extends FileBackedData {
     public unfinished_player: CharacterSheet = new CharacterSheet();
     public players: Player[] = [];
     private activePlayer?: Player;
+    private active_player_changing = false;
     private client?: Client;
     private _name: string = '';
     private auth: { hash: string; token: string; token_creation_time: number; } = { 'hash': '', 'token': '', 'token_creation_time': 0 };
@@ -61,6 +62,9 @@ export class User extends FileBackedData {
     }
     public get name() { return this._name; }
     public async setActivePlayer(index: number | undefined): Promise<boolean> {
+        if (this.active_player_changing) {
+            return false;
+        }
         if (index === undefined) {
             this.unsetActivePlayer();
             return true;
@@ -73,11 +77,14 @@ export class User extends FileBackedData {
             return true;
         }
         this.unsetActivePlayer();
-        this.activePlayer = this.players[index];
-        await this.activePlayer.setActive();
+        this.active_player_changing = true;
+        const plr = this.players[index];
+        await plr.setActive();
+        this.activePlayer = plr;
+        this.active_player_changing = false;
         return true;
     }
-    public unsetActivePlayer() {
+    protected unsetActivePlayer() {
         if (this.activePlayer) {
             this.activePlayer.setInactive();
             this.activePlayer = undefined;
