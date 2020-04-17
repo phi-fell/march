@@ -27,9 +27,9 @@ export class Cell extends FileBackedData {
         await cell.ready();
         return cell;
     }
-    public static async createCell(instance: Instance, file: OwnedFile, attributes: CellAttributes): Promise<Cell> {
+    public static async createCell(instance: Instance, id: UUID, file: OwnedFile, attributes: CellAttributes): Promise<Cell> {
         const json: CellSchema = {
-            'id': Cell.generateNewID(),
+            id,
             'attributes': attributes.toJSON(),
             'board': (new Board(0, 0)).toJSON()
         };

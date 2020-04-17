@@ -53,7 +53,7 @@ export class Instance extends FileBackedData {
     }
     public async createCell(attributes: CellAttributes): Promise<Cell> {
         const id = Cell.generateNewID();
-        const cell: Cell = await Cell.createCell(this, await File.acquireFile(`${this.directory}/cell-${id}.json`), attributes);
+        const cell: Cell = await Cell.createCell(this, id, await File.acquireFile(`${this.directory}/cell-${id}.json`), attributes);
         this.cell_refs.push(id);
         this.cells[id] = cell;
         return cell;
