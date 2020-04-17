@@ -20,11 +20,7 @@ export class CellGeneration {
         SlimeMazeGenerator,
     ];
     public static generateCell(cell: GeneratableCell) {
-        const generator_class = CellGeneration.generators[cell.attributes.type];
-        if (generator_class === undefined) {
-            throw new Error(`No registered generator found as ${cell.attributes.type} (${CELL_GENERATION[cell.attributes.type]})!`);
-        }
-        const generator = new generator_class();
+        const generator = new CellGeneration.generators[cell.attributes.type]();
         return generator.process(cell);
     }
 }
