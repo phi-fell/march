@@ -7,3 +7,5 @@ export class PlayerController extends Controller {
         return new AsyncAction();
     }
 }
+
+Controller.registerController(CONTROLLER.PLAYER, PlayerController);

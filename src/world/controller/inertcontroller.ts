@@ -7,3 +7,5 @@ export class InertController extends Controller {
         return new WaitAction();
     }
 }
+
+Controller.registerController(CONTROLLER.INERT, InertController);

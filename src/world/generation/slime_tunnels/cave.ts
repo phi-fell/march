@@ -2,7 +2,7 @@ import { Random } from '../../../math/random';
 import { getTileFromName } from '../../../tile';
 import { Board } from '../../board';
 import type { GeneratableCell } from '../../cell';
-import { CellGenerator } from '../cellgeneration';
+import { CellGenerator, CELL_GENERATION } from '../cellgeneration';
 
 interface PartitionInfo {
     xmin: number;
@@ -145,3 +145,5 @@ export class SlimeCaveGenerator extends CellGenerator {
     }
 
 }
+
+CellGenerator.registerGenerator(CELL_GENERATION.SLIME_CAVE, SlimeCaveGenerator);
