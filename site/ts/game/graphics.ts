@@ -105,13 +105,13 @@ export class Graphics {
                         'subtiles': st,
                     };
                 }
+                this.draw_cache.tiles_stale = true;
             }
             image.onerror = () => {
                 console.log('could not load')
             }
             image.src = `tex/tiles/${name}.png`;
         });
-        this.draw_cache.tiles_stale = true;
     }
     private getAnimation(id: string) {
         if (!this.animations[id]) {
