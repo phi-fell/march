@@ -29,13 +29,13 @@ $(document).ready(async () => {
             console.log('valid credentials, loading');
             socket.on('game_data', (msg: any) => {
                 if (msg) {
+                    socket.emit('get', 'palette');
                     app = new Vue({
                         'el': '#game',
                         'data': {
                             'sheet_view': 'attributes',
                             'player_sheet': msg.player_sheet,
                             'player_entity': msg.player_entity,
-                            'board': msg.board,
                             'canvas_labels': [
                                 {
                                     'text': 'Asdf',
@@ -50,12 +50,17 @@ $(document).ready(async () => {
                             // TODO
                         },
                     });
-                    graphics = new Graphics(
-                        $('#tileCanvas')[0] as HTMLCanvasElement,
-                        $('#tileCanvas')[0] as HTMLCanvasElement,
-                        $('#tileCanvas')[0] as HTMLCanvasElement,
-                        app.canvas_labels,
-                    );
+                    socket.on('palette', (palette: any) => {
+                        graphics = new Graphics(
+                            $('#tileCanvas')[0] as HTMLCanvasElement,
+                            $('#tileCanvas')[0] as HTMLCanvasElement,
+                            $('#tileCanvas')[0] as HTMLCanvasElement,
+                            app.canvas_labels,
+                        );
+                        graphics.setBoard(msg.board);
+                        graphics.setPalette(palette);
+                        graphics.startDrawLoop();
+                    });
                 } else {
                     console.log('did not recieve valid game_data!');
                     window.location.href = '/home';

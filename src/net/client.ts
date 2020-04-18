@@ -3,6 +3,7 @@ import type { Socket } from 'socket.io';
 import { ATTRIBUTE } from '../character/characterattributes';
 import { CharacterRace } from '../character/characterrace';
 import { CharacterTrait } from '../character/charactertrait';
+import { getTilePalette } from '../tile';
 import type { Server } from './server';
 import type { User } from './user';
 
@@ -186,6 +187,8 @@ export class Client {
                     client.socket.emit('available_races', CharacterRace.getPlayableRaces());
                 } else if (msg === 'available_traits') {
                     client.socket.emit('available_traits', CharacterTrait.getBuyableTraits());
+                } else if (msg === 'palette') {
+                    client.socket.emit('palette', getTilePalette());
                 } else if (msg === 'game_data') {
                     const data = await client.user.getGameData();
                     if (data) {
