@@ -35,6 +35,11 @@ export class Graphics {
     private animations: Record<string, Animation> = {};
     private board?: Board;
     private palette: Palette = [];
+    private draw_cache = {
+        'all_stale': true,
+        'tiles_stale': true,
+        'scale': 1,
+    }
     constructor(
         private tileCanvas: HTMLCanvasElement,
         private entityCanvas: HTMLCanvasElement,
@@ -68,6 +73,7 @@ export class Graphics {
     }
     public setBoard(board: Board) {
         this.board = board;
+        this.draw_cache.tiles_stale = true;
     }
     public setPalette(palette: string[]) {
         this.palette = [];
@@ -105,6 +111,7 @@ export class Graphics {
             }
             image.src = `tex/tiles/${name}.png`;
         });
+        this.draw_cache.tiles_stale = true;
     }
     private getAnimation(id: string) {
         if (!this.animations[id]) {
@@ -118,17 +125,38 @@ export class Graphics {
         this.tileContext.resize(this.width, this.height);
         this.entityContext.resize(this.width, this.height);
         this.uiContext.resize(this.width, this.height);
+        this.draw_cache.all_stale = true;
     }
     private draw() {
-        this.tileContext.clear();
-        this.tileContext.push();
         if (!this.board) {
             return console.log('Can\'t draw! No board!');
         }
-        const scaleX = this.board.width / this.width;
-        const scaleY = this.board.height / this.height;
-        const scale = 32; // Math.max(scaleX, scaleY);
-        this.tileContext.scale(scale, scale);
+        if (this.draw_cache.all_stale) {
+            const scaleX = this.width / this.board.width;
+            const scaleY = this.height / this.board.height;
+            this.draw_cache.scale = Math.max(scaleX, scaleY);
+            // set individual staleness flags
+            this.draw_cache.tiles_stale = true;
+        }
+        this.draw_cache.all_stale = false;
+        if (this.draw_cache.tiles_stale) {
+            this.drawTiles();
+            this.draw_cache.tiles_stale = false;
+        }
+        this.entityContext.push();
+        this.entityContext.scale(this.draw_cache.scale, this.draw_cache.scale);
+        // this.getAnimation('mob/slime/idle').draw(this.tileContext, Date.now());
+        this.entityContext.pop();
+    }
+    private drawTiles() {
+        if (!this.board) {
+            return console.log('Can\'t draw! No board!');
+        }
+        this.tileContext.clear();
+        this.tileContext.push();
+        this.tileContext.translate(this.width / 2, this.height / 2);
+        this.tileContext.scale(this.draw_cache.scale, this.draw_cache.scale);
+        this.tileContext.translate(this.board.width / -2, this.board.height / -2);
         for (let x = 0; x < this.board.width; x++) {
             for (let y = 0; y < this.board.height; y++) {
                 const tile = this.board.tiles[x][y];
@@ -187,9 +215,5 @@ export class Graphics {
             }
         }
         this.tileContext.pop();
-        this.entityContext.push();
-        this.entityContext.scale(scale, scale);
-        this.getAnimation('mob/slime/idle').draw(this.tileContext, Date.now());
-        this.entityContext.pop();
     }
 }
