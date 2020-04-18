@@ -78,31 +78,31 @@ export class Cell extends FileBackedData {
         const y0 = entity.location.y - MAX_RADIUS;
         const x1 = entity.location.x + MAX_RADIUS;
         const y1 = entity.location.y + MAX_RADIUS;
-        for (let i = x0; i <= x1; i++) {
-            retTiles[i - x0] = [];
-            tileAdjacencies[i - x0] = [];
-            for (let j = y0; j <= y1; j++) {
-                if (i < 0 || j < 0 || i >= this.attributes.width || j >= this.attributes.height /* || !entity.canSee(i, j)*/) {
-                    retTiles[i - x0][j - y0] = NO_TILE;
-                    tileAdjacencies[i - x0][j - y0] = 0;
+        for (let x = x0; x <= x1; x++) {
+            retTiles[x - x0] = [];
+            tileAdjacencies[x - x0] = [];
+            for (let y = y0; y <= y1; y++) {
+                if (x < 0 || y < 0 || x >= this.attributes.width || y >= this.attributes.height /* || !entity.canSee(i, j)*/) {
+                    retTiles[x - x0][y - y0] = NO_TILE;
+                    tileAdjacencies[x - x0][y - y0] = 0;
                 } else {
-                    retTiles[i - x0][j - y0] = this.board.tiles[i][j];
+                    retTiles[x - x0][y - y0] = this.board.tiles[x][y];
                     let adjacencySum = 0;
                     let multiplier = 1;
                     for (let a = -1; a <= 1; a++) {
                         for (let b = -1; b <= 1; b++) {
-                            if (i + a < 0 ||
-                                j + b < 0 ||
-                                i + a >= this.attributes.width ||
-                                j + b >= this.attributes.height ||
-                                (this.board.tiles[i][j] === this.board.tiles[i + a][j + b])
+                            if (x + a < 0 ||
+                                y + b < 0 ||
+                                x + a >= this.attributes.width ||
+                                y + b >= this.attributes.height ||
+                                (this.board.tiles[x][y] === this.board.tiles[x + a][y + b])
                             ) {
                                 adjacencySum += multiplier;
                             }
                             multiplier *= 2;
                         }
                     }
-                    tileAdjacencies[i - x0][j - y0] = adjacencySum;
+                    tileAdjacencies[x - x0][y - y0] = adjacencySum;
                 }
             }
         }
@@ -112,6 +112,7 @@ export class Cell extends FileBackedData {
             'width': (x1 - x0) + 1,
             'height': (y1 - y0) + 1,
             'tiles': retTiles,
+            tileAdjacencies,
         }
     }
     /**
