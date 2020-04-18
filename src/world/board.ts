@@ -1,6 +1,6 @@
 import * as t from 'io-ts';
 import type { UUID } from '../math/random';
-import { NO_TILE, Tile } from '../tile';
+import { getTileFromName, getTilePalette, NO_TILE, Tile } from '../tile';
 import { Entity } from './entity';
 import type { World } from './world';
 
@@ -12,10 +12,19 @@ export class Board {
         'height': t.number,
         'tiles': t.array(t.array(t.number)),
         'entities': t.array(Entity.schema),
+        'palette': t.array(t.string),
     });
 
     public static async fromJSON(world: World, json: BoardSchema): Promise<Board> {
-        const ret = new Board(json.width, json.height, json.tiles);
+        const mapping: number[] = json.palette.map(getTileFromName);
+        const t_mapped: Tile[][] = [];
+        for (let x = 0; x < json.width; x++) {
+            t_mapped[x] = [];
+            for (let y = 0; y < json.height; y++) {
+                t_mapped[x][y] = mapping[json.tiles[x][y]];
+            }
+        }
+        const ret = new Board(json.width, json.height, t_mapped);
         ret.entities = await Promise.all(json.entities.map((ent) => Entity.fromJSON(world, ent)));
         return ret;
     }
@@ -68,6 +77,7 @@ export class Board {
             'height': this.height,
             'tiles': this.tiles,
             'entities': this.entities.map((ent) => ent.toJSON()),
+            'palette': getTilePalette(),
         }
     }
 }
