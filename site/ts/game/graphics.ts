@@ -39,6 +39,7 @@ export class Graphics {
                 draw_loop();
             }, 20);
         };
+        draw_loop();
     }
     public getAnimation(id: string) {
         if (!this.animations[id]) {
@@ -52,7 +53,6 @@ export class Graphics {
         this.tileContext.resize(this.width, this.height);
         this.entityContext.resize(this.width, this.height);
         this.uiContext.resize(this.width, this.height);
-        this.draw();
     }
     private draw() {
         this.tileContext.push();
