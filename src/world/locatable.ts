@@ -18,9 +18,13 @@ export type LocatableSchema = t.TypeOf<typeof locatable_schema>
 export abstract class Locatable {
     private _ready: Promise<void>;
     private _location: Location;
-    protected constructor(private world: World, loc: Location) {
+    protected constructor(private world: World, loc: Location, emplaced: boolean = false) {
         this._location = loc;
-        this._ready = this.finishConstruction();
+        if (emplaced) {
+            this._ready = Promise.resolve();
+        } else {
+            this._ready = this.finishConstruction();
+        }
     }
     private async finishConstruction() {
         const cell = await this.world.getCell(this._location.instance_id, this._location.cell_id)
