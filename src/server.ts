@@ -1,6 +1,6 @@
 import type { Socket } from 'socket.io';
 
-import { Instance } from './instance';
+import { Instance } from './old_instance';
 import {
     createNewUser,
     getLoadedUserByName,

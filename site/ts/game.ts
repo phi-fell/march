@@ -29,12 +29,13 @@ $(document).ready(async () => {
             console.log('valid credentials, loading');
             socket.on('game_data', (msg: any) => {
                 if (msg) {
-                    console.log(JSON.parse(JSON.stringify(msg.player)));
+                    socket.emit('get', 'palette');
                     app = new Vue({
                         'el': '#game',
                         'data': {
                             'sheet_view': 'attributes',
-                            'player': msg.player,
+                            'player_sheet': msg.player_sheet,
+                            'player_entity': msg.player_entity,
                             'canvas_labels': [
                                 {
                                     'text': 'Asdf',
@@ -49,16 +50,25 @@ $(document).ready(async () => {
                             // TODO
                         },
                     });
-                    graphics = new Graphics(
-                        $('#tileCanvas')[0] as HTMLCanvasElement,
-                        $('#tileCanvas')[0] as HTMLCanvasElement,
-                        $('#tileCanvas')[0] as HTMLCanvasElement,
-                        app.canvas_labels,
-                    );
+                    socket.on('palette', (palette: any) => {
+                        graphics = new Graphics(
+                            $('#tileCanvas')[0] as HTMLCanvasElement,
+                            $('#tileCanvas')[0] as HTMLCanvasElement,
+                            $('#tileCanvas')[0] as HTMLCanvasElement,
+                            app.canvas_labels,
+                        );
+                        graphics.setBoard(msg.board);
+                        graphics.setPalette(palette);
+                        graphics.startDrawLoop();
+                    });
                 } else {
                     console.log('did not recieve valid game_data!');
                     window.location.href = '/home';
                 }
+            });
+            socket.on('game_data_fail', () => {
+                console.log('did not recieve game_data!');
+                window.location.href = '/home';
             });
             socket.emit('get', 'game_data');
         });

@@ -24,7 +24,7 @@ export class Animation {
                     anim.frames[i] = document.createElement('canvas');
                     const context = anim.frames[i].getContext('2d');
                     if (!context) {
-                        throw Error('Could not create animation context!');
+                        throw new Error('Could not create animation context!');
                     }
                     anim.frames[i].width = json.frame_width;
                     anim.frames[i].height = json.frame_height;
@@ -36,7 +36,7 @@ export class Animation {
                 }
                 anim.loaded = true;
             };
-            anim.image.src = 'tex/animation/' + json.image;
+            anim.image.src = 'tex/animation/' + id + '.png';
         });
     }
     public draw(context: GraphicsContext, time: number) {

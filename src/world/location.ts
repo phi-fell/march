@@ -1,40 +1,44 @@
 import * as t from 'io-ts';
+import { Position } from './position';
+import type { UUID } from '../math/random';
 
-export const LocationDataType = t.type({
-    'instance_id': t.string,
-    'x': t.number,
-    'y': t.number,
-});
+export type LocationSchema = t.TypeOf<typeof Location.schema>;
 
-export class Location {
-    public static fromJSON(json: t.TypeOf<typeof LocationDataType>) {
-        return new Location(json.x, json.y, json.instance_id);
+export class Location extends Position {
+    public static schema = t.type({
+        'instance_id': t.string,
+        'cell_id': t.string,
+        'x': t.number,
+        'y': t.number,
+    });
+
+    public static fromJSON(json: LocationSchema) {
+        return new Location(json.x, json.y, json.instance_id, json.cell_id);
     }
-    constructor(private _x: number, private _y: number, private _instance_id: string) {
-    }
-    get x(): number {
-        return this._x;
-    }
-    get y(): number {
-        return this._y;
+    constructor(x: number, y: number, private _instance_id: UUID, private _cell_id: UUID) {
+        super(x, y);
     }
     get instance_id(): string {
         return this._instance_id;
     }
-    public getMovedBy(dx: number, dy: number) {
-        return new Location(this._x + dx, this._y + dy, this._instance_id);
+    get cell_id(): string {
+        return this._cell_id;
+    }
+    public translate(dx: number, dy: number) {
+        return new Location(this.x + dx, this.y + dy, this._instance_id, this._cell_id);
     }
     public equals(rhs: Location) {
-        return this._x === rhs._x && this._y === rhs._y && this._instance_id === rhs._instance_id;
+        return this.x === rhs.x && this.y === rhs.y && this._instance_id === rhs._instance_id && this._cell_id === rhs._cell_id;
     }
     public clone() {
-        return new Location(this._x, this._y, this._instance_id);
+        return new Location(this.x, this.y, this._instance_id, this._cell_id);
     }
-    public toJSON() {
+    public toJSON(): LocationSchema {
         return {
+            'instance_id': this._instance_id,
+            'cell_id': this._cell_id,
             'x': this.x,
             'y': this.y,
-            'instance_id': this.instance_id,
         };
     }
 }

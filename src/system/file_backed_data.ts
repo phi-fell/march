@@ -30,6 +30,7 @@ export abstract class FileBackedData {
     }
     /** Should be called when this object is no longer needed, before GC */
     public async unload() {
+        await this.prepForUnload();
         await this.save();
         await this.file.release();
         await this.cleanup();
@@ -38,4 +39,6 @@ export abstract class FileBackedData {
     protected abstract toJSON(): unknown;
     /** does any necessary cleanup.  called by unload(), override in subclass if cleanup is needed */
     protected async cleanup(): Promise<void> { /* override in subclass if needed */ }
+    /** Called right before the meat of unload(), override in subclass for a pre-unload hook */
+    protected async prepForUnload(): Promise<void> { /* override in subclass if needed */ }
 }

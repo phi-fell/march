@@ -1,16 +1,16 @@
 import bent from 'bent';
 import cookieParser from 'cookie-parser';
 import express, { NextFunction, Request, Response } from 'express';
+import pug from 'pug';
+import * as stylus from 'stylus';
+import { File } from '../system/file';
+import { launch_id, version } from '../version';
 import http = require('http');
 import https = require('https');
 import path = require('path');
-import pug from 'pug';
 import octicons = require('@primer/octicons');
 import socketIO = require('socket.io');
-import * as stylus from 'stylus';
 
-import { launch_id, version } from '../version';
-import { File } from '../system/file';
 
 const LINKS: { [id: string]: string } = {
     'github': 'https://github.com/phi-fell/march',
@@ -190,11 +190,11 @@ export class WebServer {
             }
         });
 
-        this.express_app.get('/js/:filename', (req: Request, res: Response) => {
-            res.sendFile(path.resolve(`site/js/${req.params.filename}${req.params.filename.endsWith('.js') ? '' : '.js'}`));
+        this.express_app.use('/js', (req: Request, res: Response) => {
+            res.sendFile(path.resolve(`site/js${req.path}${req.path.endsWith('.js') ? '' : '.js'}`));
         });
-        this.express_app.get('/vue/:filename', (req: Request, res: Response) => {
-            res.send(pug.renderFile(path.resolve('site/vue/' + req.params.filename + '.pug')));
+        this.express_app.use('/vue', (req: Request, res: Response) => {
+            res.send(pug.renderFile(path.resolve(`site/vue${req.path}.pug`)));
         });
 
         this.express_app.use('/link/:link', (req: Request, res: Response, next: NextFunction) => {

@@ -1,6 +1,6 @@
-import type { Instance } from '../instance';
+import type { Instance } from '../old_instance';
 import { getRandomAdjacency } from '../instanceschema';
-import { Location } from '../location';
+import { Location } from '../old_location';
 import { Random } from '../math/random';
 import { Portal } from '../portal';
 import { getTileFromName } from '../tile';

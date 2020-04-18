@@ -2,8 +2,8 @@ import fs = require('fs');
 
 import type { CharacterRaceID } from './character/characterrace';
 import { CharacterSheet } from './character/charactersheet';
-import { Entity } from './entity';
-import type { Location } from './location';
+import { Entity } from './old_entity';
+import type { Location } from './old_location';
 
 interface MobSchema {
     name: string;

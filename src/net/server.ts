@@ -1,11 +1,10 @@
 import bcrypt = require('bcrypt');
 import { promises as fs } from 'fs';
 import type { Socket } from 'socket.io';
-
 import { CharacterSheet } from '../character/charactersheet';
 import { Random } from '../math/random';
 import { File } from '../system/file';
-import { World } from '../world/world';
+import type { World } from '../world/world';
 import { Client, CLIENT_CONNECTION_STATE } from './client';
 import { User, UserSchema } from './user';
 
@@ -30,8 +29,7 @@ export class Server {
     private running: boolean = true;
     private clients: { [id: string]: Client; } = {};
     private users: { [id: string]: User; } = {};
-    private world: World = new World();
-    constructor(private _server: SocketIO.Server) {
+    constructor(private _server: SocketIO.Server, public readonly world: World) {
         _server.on('connection', (socket: Socket) => {
             if (this.running) {
                 this.clients[socket.id] = new Client(this, socket.id, socket);
@@ -49,6 +47,7 @@ export class Server {
         this.clients = {};
         await Promise.all(Object.values(this.users).map((user: User) => user.unload()));
         this.users = {};
+        await this.world.unload();
     }
     public removeClient(id: string) {
         if (this.clients[id]) {

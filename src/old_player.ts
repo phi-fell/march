@@ -3,12 +3,12 @@ import fs = require('fs');
 import { CharacterSheet } from './character/charactersheet';
 import { CharGen } from './chargen';
 import { AddMobEvent, AttackEvent, MoveEvent, RemoveMobEvent, TurnEvent } from './clientevent';
-import { DIRECTION, directionVectors } from './direction';
-import { ACTION_STATUS, Entity, MAX_VISIBILITY_RADIUS } from './entity';
-import { Instance } from './instance';
+import { DIRECTION, directionVectors } from './world/direction';
+import { ACTION_STATUS, Entity, MAX_VISIBILITY_RADIUS } from './old_entity';
+import { Instance } from './old_instance';
 import type { EQUIPMENT_SLOT } from './item/equipment_slot';
 import type { WorldItemStack } from './item/worlditemstack';
-import { Location } from './location';
+import { Location } from './old_location';
 import { Random } from './math/random';
 import type { User } from './user';
 

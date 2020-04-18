@@ -1,7 +1,6 @@
 import bcrypt = require('bcrypt');
 import crypto = require('crypto');
 import * as t from 'io-ts';
-
 import { CharacterSheet } from '../character/charactersheet';
 import { Random } from '../math/random';
 import type { OwnedFile } from '../system/file';
@@ -9,6 +8,7 @@ import { FileBackedData } from '../system/file_backed_data';
 import { Player } from '../world/player';
 import type { World } from '../world/world';
 import type { Client } from './client';
+
 
 const TOKEN_LIFESPAN = 1000 * 60 * 60 * 24 * 3; // 3 days in milliseconds
 
@@ -48,19 +48,23 @@ export class User extends FileBackedData {
     public unfinished_player: CharacterSheet = new CharacterSheet();
     public players: Player[] = [];
     private activePlayer?: Player;
+    private active_player_changing = false;
     private client?: Client;
     private _name: string = '';
     private auth: { hash: string; token: string; token_creation_time: number; } = { 'hash': '', 'token': '', 'token_creation_time': 0 };
     private id: string = '';
 
-    constructor(private world: World, file: OwnedFile) {
+    protected constructor(private world: World, file: OwnedFile) {
         super(file);
     }
     public get schema() {
         return User.schema;
     }
     public get name() { return this._name; }
-    public setActivePlayer(index: number | undefined): boolean {
+    public async setActivePlayer(index: number | undefined): Promise<boolean> {
+        if (this.active_player_changing) {
+            return false;
+        }
         if (index === undefined) {
             this.unsetActivePlayer();
             return true;
@@ -73,13 +77,16 @@ export class User extends FileBackedData {
             return true;
         }
         this.unsetActivePlayer();
-        this.activePlayer = this.players[index];
-        // TODO: activate player
+        this.active_player_changing = true;
+        const plr = this.players[index];
+        await plr.setActive();
+        this.activePlayer = plr;
+        this.active_player_changing = false;
         return true;
     }
-    public unsetActivePlayer() {
+    protected unsetActivePlayer() {
         if (this.activePlayer) {
-            // TODO: deactivate player
+            this.activePlayer.setInactive();
             this.activePlayer = undefined;
         }
     }
@@ -116,20 +123,18 @@ export class User extends FileBackedData {
         this.client = undefined;
     }
     public async finishPlayer() {
-        const plr = new Player();
-        plr.sheet = this.unfinished_player;
+        const plr = await Player.createPlayer(this.world, this.unfinished_player);
         plr.sheet.status.restoreFully();
         this.unfinished_player = CharacterSheet.newPlayerSheet();
         this.players.push(plr);
         this.save();
     }
-    public getGameData() {
+    public async getGameData() {
         if (!this.activePlayer) {
+            console.log('No Active Player!');
             return;
         }
-        return {
-            'player': this.activePlayer.toJSON(),
-        };
+        return this.activePlayer.getGameData();
     }
     public toJSON(): UserSchema {
         return {
@@ -151,11 +156,15 @@ export class User extends FileBackedData {
             this.auth = json.auth;
             this.unfinished_player = CharacterSheet.fromJSON(json.unfinished_player);
             for (const plr of json.players) {
-                this.players.push(await Player.fromJSON(plr));
+                this.players.push(await Player.fromJSON(this.world, plr));
             }
         } else {
             console.log('Invalid User JSON!');
         }
+    }
+    protected async prepForUnload(): Promise<void> {
+        this.activePlayer?.setInactive();
+        this.activePlayer = undefined;
     }
     private getFreshAuthToken() {
         this.auth.token_creation_time = Date.now();

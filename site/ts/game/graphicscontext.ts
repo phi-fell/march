@@ -5,7 +5,7 @@ export class GraphicsContext {
         canvas.height = this.height;
         const context = canvas.getContext('2d');
         if (!context) {
-            throw Error('could not get canvas context!');
+            throw new Error('could not get canvas context!');
         }
         this.context = context;
         this.context.imageSmoothingEnabled = false;

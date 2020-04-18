@@ -1,7 +1,7 @@
-import { ACTION_STATUS, Entity } from './entity';
-import { Instance, InstanceAttributes } from './instance';
+import { ACTION_STATUS, Entity } from './old_entity';
+import { Instance, InstanceAttributes } from './old_instance';
 import { INSTANCE_GEN_TYPE } from './instancegenerator';
-import { Location } from './location';
+import { Location } from './old_location';
 import { Random } from './math/random';
 import { spawnMobFromSchema } from './mobschema';
 

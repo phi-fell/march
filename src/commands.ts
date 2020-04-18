@@ -1,9 +1,9 @@
 import fs = require('fs');
 import type { Socket } from 'socket.io';
 
-import { DIRECTION } from './direction';
+import { DIRECTION } from './world/direction';
 import { Random } from './math/random';
-import { MoveAction } from './player';
+import { MoveAction } from './old_player';
 import type { User } from './user';
 import { launch_id, version } from './version';
 

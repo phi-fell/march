@@ -1,9 +1,9 @@
-import type { Instance } from './instance';
+import type { Instance } from './old_instance';
 import { generate_SLIME_ABYSS } from './instance_generation/slime_abyss';
 import { generate_SLIME_CAVE } from './instance_generation/slime_cave';
 import { generate_SLIME_MAZE } from './instance_generation/slime_maze.';
 import { getRandomAdjacency } from './instanceschema';
-import { Location } from './location';
+import { Location } from './old_location';
 import { Random } from './math/random';
 import { Portal } from './portal';
 import { getTileFromName } from './tile';

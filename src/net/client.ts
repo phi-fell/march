@@ -1,9 +1,9 @@
 import * as t from 'io-ts';
 import type { Socket } from 'socket.io';
-
 import { ATTRIBUTE } from '../character/characterattributes';
 import { CharacterRace } from '../character/characterrace';
 import { CharacterTrait } from '../character/charactertrait';
+import { getTilePalette } from '../tile';
 import type { Server } from './server';
 import type { User } from './user';
 
@@ -46,7 +46,7 @@ export class Client {
     public get has_attached_user(): boolean {
         return this.user !== undefined;
     }
-    constructor(private server: Server, public id: string, private socket: Socket) {
+    constructor(public readonly server: Server, public id: string, private socket: Socket) {
         this.connection_state_inner = CLIENT_CONNECTION_STATE.CONNECTED;
         socket.on('disconnect', () => this.disconnect());
         console.log('Connection from ' + socket.handshake.address);
@@ -187,8 +187,15 @@ export class Client {
                     client.socket.emit('available_races', CharacterRace.getPlayableRaces());
                 } else if (msg === 'available_traits') {
                     client.socket.emit('available_traits', CharacterTrait.getBuyableTraits());
+                } else if (msg === 'palette') {
+                    client.socket.emit('palette', getTilePalette());
                 } else if (msg === 'game_data') {
-                    client.socket.emit('game_data', client.user.getGameData());
+                    const data = await client.user.getGameData();
+                    if (data) {
+                        client.socket.emit('game_data', data);
+                    } else {
+                        client.socket.emit('game_data_fail');
+                    }
                 }
             }
         });
@@ -224,10 +231,10 @@ export class Client {
         socket.on('set_active_player', async (msg: any) => {
             if (client.user) {
                 if (typeof msg === 'number') {
-                    const success = client.user.setActivePlayer(msg);
+                    const success: boolean = await client.user.setActivePlayer(msg);
                     socket.emit('active_player_response', {
                         'success': success,
-                        'msg': success ? undefined : 'Index is out of bounds!',
+                        'msg': success ? undefined : 'Could not set active player!',
                     });
                 } else {
                     console.log('Could not set active player to Players[' + msg + ']!');
