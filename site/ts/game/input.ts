@@ -47,7 +47,7 @@ let message_cache: string = '';
 let historyPos: number = 0;
 
 export class Input {
-    constructor(private socket: SocketIOClient.Socket, private chat: { current_message: string, typing: boolean }) {
+    constructor(private socket: SocketIOClient.Socket, private chat: { messages: string[], current_message: string, typing: boolean }) {
         document.addEventListener('keydown', this.keydown.bind(this));
     }
     keydown(e: KeyboardEvent) {
@@ -57,6 +57,7 @@ export class Input {
                     case CHAT_SHORTCUT.SEND:
                         const msg = this.chat.current_message;
                         if (msg.length > 0) {
+                            this.chat.messages.push(msg);
                             message_history.push(msg);
                             this.socket.emit('chat_message', msg);
                         }

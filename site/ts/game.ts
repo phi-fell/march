@@ -46,6 +46,7 @@ $(document).ready(async () => {
                                 },
                             ],
                             'chat': {
+                                'messages': [],
                                 'current_message': '',
                                 'typing': false,
                             },
