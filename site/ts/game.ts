@@ -1,5 +1,6 @@
 import { loadCredentials } from './auth';
 import { Graphics } from './game/graphics';
+import { Input } from './game/input';
 import { registerComponent } from './vue_component';
 
 declare var Vue: any;
@@ -7,6 +8,7 @@ declare var Vue: any;
 let app: any;
 
 let graphics: Graphics | undefined;
+let input: Input | undefined;
 
 $(document).ready(async () => {
     await registerComponent(Vue, 'centered-label');
@@ -43,13 +45,17 @@ $(document).ready(async () => {
                                     'y': 10,
                                 },
                             ],
-                            'chat': {},
+                            'chat': {
+                                'current_message': '',
+                                'typing': false,
+                            },
                             'social': {},
                         },
                         'mounted': () => {
                             // TODO
                         },
                     });
+                    input = new Input(socket, app.chat);
                     socket.on('palette', (palette: any) => {
                         graphics = new Graphics(
                             $('#tileCanvas')[0] as HTMLCanvasElement,

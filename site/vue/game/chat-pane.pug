@@ -34,4 +34,4 @@
         li 32
         li Last Message!
     .chat-pane_input-div.flex_none.row
-        input.chat-pane_input.flex(autocomplete="off")
+        input#chat_input.chat-pane_input.flex(autocomplete="off" :value="self.current_message" @focus="self.typing = true" @blur="self.typing = false" @input="$emit('input', $event.target.value)")
