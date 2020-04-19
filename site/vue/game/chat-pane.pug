@@ -1,5 +1,5 @@
 .chat-pane.col
-    ul#chat_history.chat-pane_message-list.flex
+    ul#chat_history.chat-pane_message-list.flex(v-autoscroll="self.autoscroll")
         li(v-for="message of self.messages") {{message}}
     .chat-pane_input-div.flex_none.row
         input#chat_input.chat-pane_input.flex(autocomplete="off" :value="self.current_message" @focus="self.typing = true" @blur="self.typing = false" @input="$emit('input', $event.target.value)")

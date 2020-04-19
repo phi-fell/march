@@ -1,9 +1,11 @@
+import type { VueConstructor } from 'vue';
 import { loadCredentials } from './auth';
 import { Graphics } from './game/graphics';
 import { Input } from './game/input';
+import { registerDirectives } from './vue-directives';
 import { registerComponent } from './vue_component';
 
-declare var Vue: any;
+declare var Vue: VueConstructor;
 
 let app: any;
 
@@ -11,6 +13,7 @@ let graphics: Graphics | undefined;
 let input: Input | undefined;
 
 $(document).ready(async () => {
+    registerDirectives(Vue);
     await registerComponent(Vue, 'centered-label');
     await registerComponent(Vue, 'game_status-pane');
     await registerComponent(Vue, 'game_sheet-pane');
@@ -46,14 +49,18 @@ $(document).ready(async () => {
                                 },
                             ],
                             'chat': {
-                                'messages': [],
+                                'autoscroll': true,
+                                'messages': [] as string[],
                                 'current_message': '',
                                 'typing': false,
                             },
                             'social': {},
                         },
-                        'mounted': () => {
-                            // TODO
+                        'mounted'() {
+                            $('#chat_history').scroll(() => {
+                                const el = $('#chat_history');
+                                this.chat.autoscroll = Math.ceil((el.scrollTop() || 0) + (el.innerHeight() || 0)) >= el[0].scrollHeight;
+                            });
                         },
                     });
                     input = new Input(socket, app.chat);
