@@ -44,6 +44,9 @@ export class Instance extends FileBackedData {
     protected constructor(public world: World, private directory: string, file: OwnedFile) {
         super(file);
     }
+    public async update(): Promise<void> {
+        await Promise.all(Object.values(this.cells).map((cell: Cell) => cell.update()));
+    }
     public async getCell(id: UUID): Promise<Cell> {
         if (!this.cells[id]) {
             if (this.cell_refs.includes(id)) {

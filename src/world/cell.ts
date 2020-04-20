@@ -51,6 +51,9 @@ export class Cell extends FileBackedData {
     public getEntity(id: UUID): Entity {
         return this.board.getEntity(id);
     }
+    public async update(): Promise<void> {
+        // TODO
+    }
     public getRandomPassableLocation(rand?: Random): Location {
         let x = 0;
         let y = 0;

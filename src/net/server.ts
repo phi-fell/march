@@ -27,6 +27,7 @@ interface UserCreationResult {
 
 export class Server {
     private running: boolean = true;
+    private running_promise: Promise<void> | undefined;
     private clients: { [id: string]: Client; } = {};
     private users: { [id: string]: User; } = {};
     constructor(private _server: SocketIO.Server, public readonly world: World) {
@@ -36,11 +37,18 @@ export class Server {
             }
         });
     }
+    public async run() {
+        while (this.running) {
+            this.running_promise = this.world.update();
+            await this.running_promise;
+        }
+    }
     public get server() {
         return this._server;
     }
     public async shutdown() {
         this.running = false;
+        await this.running_promise;
         Object.values(this.clients).forEach((client: Client) => {
             client.disconnect();
         });

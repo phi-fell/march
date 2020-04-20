@@ -28,6 +28,9 @@ export class World extends FileBackedData {
     protected constructor(file: OwnedFile) {
         super(file);
     }
+    public async update(): Promise<void> {
+        await Promise.all(Object.values(this._instances).map((inst: Instance) => inst.update()));
+    }
     public async getInstance(id: UUID): Promise<Instance> {
         if (!this._instances[id]) {
             if (this._instance_refs.includes(id)) {
