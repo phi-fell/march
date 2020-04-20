@@ -25,8 +25,11 @@ export class Location extends Position {
     get cell_id(): string {
         return this._cell_id;
     }
-    public translate(dx: number, dy: number) {
+    public translate(dx: number, dy: number): Location {
         return new Location(this.world, this.x + dx, this.y + dy, this._instance_id, this._cell_id);
+    }
+    public withPosition(pos: Position): Location {
+        return new Location(this.world, pos.x, pos.y, this._instance_id, this._cell_id);
     }
     public equals(rhs: Location) {
         return this.x === rhs.x && this.y === rhs.y && this._instance_id === rhs._instance_id && this._cell_id === rhs._cell_id;

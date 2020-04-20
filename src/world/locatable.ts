@@ -60,6 +60,6 @@ export abstract class Locatable {
         }
     }
     public setPosition(pos: Position) {
-        this._location = new Location(pos.x, pos.y, this._location.instance_id, this._location.cell_id);
+        this._location = this._location.withPosition(pos);
     }
 }
