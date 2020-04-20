@@ -64,6 +64,9 @@ $(document).ready(async () => {
                         },
                     });
                     input = new Input(socket, app.chat);
+                    socket.on('chat', (chat_msg: string) => {
+                        app.chat.messages.push(chat_msg);
+                    });
                     socket.on('palette', (palette: any) => {
                         graphics = new Graphics(
                             $('#tileCanvas')[0] as HTMLCanvasElement,

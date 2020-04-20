@@ -58,8 +58,8 @@ export class Player {
     public get id() {
         return this._id;
     }
-    public sendText(text: string) {
-        // TODO: e.g. socket.emit('chat', text);
+    public sendChatMessage(text: string) {
+        this.user.sendChatMessage(text);
     }
     public sayChatMessageAsEntity(msg: string) {
         this.action_queue.push(new SayAction(msg));
@@ -73,12 +73,12 @@ export class Player {
             const ent = this.getEntity();
             const action = ActionClasses[action_type].fromArgs(args);
             if (typeof action === 'string') {
-                // TODO: push string to player
+                this.sendChatMessage(action);
                 return;
             }
             this.action_queue.push(action);
         } else {
-            // TODO: push notice to player e.g. "Invalid action type!"
+            this.sendChatMessage('Invalid action type!');
         }
     }
     public getQuery(query: string) {

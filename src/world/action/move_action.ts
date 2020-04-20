@@ -13,7 +13,7 @@ export const MoveAction: ActionClass<ACTION_TYPE.MOVE> = class extends ActionBas
         }
         const chat_dir = args[0];
         const dir = ChatDirections[chat_dir];
-        if (dir) {
+        if (dir !== undefined) {
             return new MoveAction(dir);
         }
         return `${chat_dir} is not a valid direction!`;

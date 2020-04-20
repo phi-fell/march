@@ -61,6 +61,11 @@ export class User extends FileBackedData {
         return User.schema;
     }
     public get name() { return this._name; }
+    public sendChatMessage(msg: string) {
+        this.client?.sendChatMessage(msg);
+        // TODO: maybe buffer unsent messages so they still exist when player is logged off?
+        // TODO: chat history should maybe be stored server side in general anyway, no?
+    }
     public getActivePlayer(): Player | undefined {
         if (this.active_player_changing) {
             return;

@@ -13,7 +13,7 @@ export const LookAction: ActionClass<ACTION_TYPE.LOOK> = class extends ActionBas
         }
         const chat_dir = args[0];
         const dir = ChatDirections[chat_dir];
-        if (dir) {
+        if (dir !== undefined) {
             return new LookAction(dir);
         }
         return `${chat_dir} is not a valid direction!`;

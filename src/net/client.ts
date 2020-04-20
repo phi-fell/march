@@ -162,6 +162,9 @@ export class Client {
             socket.disconnect();
         });
     }
+    public sendChatMessage(msg: string) {
+        this.socket.emit('chat', msg);
+    }
     public attachUser(user: User) {
         this.user = user;
     }
