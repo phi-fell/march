@@ -6,11 +6,13 @@ import { AsyncAction } from './action/async_action';
 import { LookAction } from './action/look_action';
 import { MoveAction } from './action/move_action';
 import { SayAction } from './action/say_action';
+import { StrafeAction } from './action/strafe_action';
+import { TurnAction } from './action/turn_action';
 import { UnwaitAction } from './action/unwait_action';
 import { WaitAction } from './action/wait_action';
 import { WaitOnceAction } from './action/wait_once_action';
 import { WaitRoundAction } from './action/wait_round_action';
-import { DIRECTION, directionVectors } from './direction';
+import { directionVectors } from './direction';
 import type { Entity } from './entity';
 import type { World } from './world';
 
@@ -41,6 +43,8 @@ export const ChatActions: Record<string, ACTION_TYPE | undefined> = {
     'say': ACTION_TYPE.SAY,
     'look': ACTION_TYPE.LOOK,
     'move': ACTION_TYPE.MOVE,
+    'strafe': ACTION_TYPE.STRAFE,
+    'turn': ACTION_TYPE.TURN,
 }
 export const ActionClasses: ActionClassArray = [
     AsyncAction,
@@ -51,64 +55,9 @@ export const ActionClasses: ActionClassArray = [
     SayAction,
     LookAction,
     MoveAction,
+    StrafeAction,
+    TurnAction,
 ];
-
-class StrafeAction {
-    public readonly cost: number = 8;
-    constructor(public direction: DIRECTION) { }
-    public perform(world: World, entity: Entity) {
-        const to = entity.location.translate(directionVectors[this.direction].x, directionVectors[this.direction].y);
-        const inst = Instance.getLoadedInstanceById(entity.location.instance_id);
-        if (!inst) {
-            console.log('CANNOT STRAFE() ENTITY IN NONEXISTENT LOCATION!');
-            return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
-        }
-        if (!inst.isTilePassable(to.x, to.y)) {
-            return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
-        }
-        if (inst.getMobInLocation(to.x, to.y)) {
-            return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
-        }
-        /* TODO:
-        if (entity.sheet.hasSufficientAP(this.cost)) {
-            inst.emitWB(new AddMobEvent(entity), [to], [entity.location]);
-            inst.emit(new MoveEvent(entity, this.direction), entity.location, to);
-            inst.emitWB(new RemoveMobEvent(entity), [entity.location], [to]);
-            entity.location = to;
-            return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
-        }
-        */
-        return { 'result': ACTION_RESULT.INSUFFICIENT_AP, 'cost': 0 };
-    }
-    public toJSON(): object {
-        return {
-            // 'type': ACTION_TYPE[this.type],
-            'direction': this.direction,
-        };
-    }
-}
-
-class TurnAction {
-    public readonly cost: number = 5;
-    constructor(public direction: DIRECTION) { }
-    public perform(world: World, entity: Entity) {
-        if (entity.direction === this.direction) {
-            return { 'result': ACTION_RESULT.REDUNDANT, 'cost': 0 };
-        }
-        const inst = Instance.getLoadedInstanceById(entity.location.instance_id);
-        if (inst) {
-            // TODO: inst.emit(new TurnEvent(entity, this.direction), entity.location);
-        }
-        entity.direction = this.direction;
-        return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
-    }
-    public toJSON(): object {
-        return {
-            // 'type': ACTION_TYPE[this.type],
-            'direction': this.direction,
-        };
-    }
-}
 
 class UsePortalAction {
     public readonly cost: number = 5;
