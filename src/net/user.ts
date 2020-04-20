@@ -131,7 +131,7 @@ export class User extends FileBackedData {
         this.client = undefined;
     }
     public async finishPlayer() {
-        const plr = await Player.createPlayer(this.world, this.unfinished_player);
+        const plr = await Player.createPlayer(this, this.world, this.unfinished_player);
         plr.sheet.status.restoreFully();
         this.unfinished_player = CharacterSheet.newPlayerSheet();
         this.players.push(plr);
@@ -164,7 +164,7 @@ export class User extends FileBackedData {
             this.auth = json.auth;
             this.unfinished_player = CharacterSheet.fromJSON(json.unfinished_player);
             for (const plr of json.players) {
-                this.players.push(await Player.fromJSON(this.world, plr));
+                this.players.push(await Player.fromJSON(this, this.world, plr));
             }
         } else {
             console.log('Invalid User JSON!');

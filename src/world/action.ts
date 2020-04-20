@@ -17,14 +17,14 @@ type ValueOf<T> = T[keyof T];
 
 export interface Action<T extends ACTION_TYPE = ACTION_TYPE> {
     type: T;
-    perform(): { result: ACTION_RESULT, cost: number };
+    perform(entity: Entity): { result: ACTION_RESULT, cost: number };
     toJSON(): object;
 }
 
 export interface ActionClass<T extends ACTION_TYPE> {
     arg_count: number;
-    fromArgs(world: World, Entity: Entity, args: string[]): Action<T> | string;
-    new(world: World, entity: Entity, ...args: any): Action<T>;
+    fromArgs(args: string[]): Action<T> | string;
+    new(...args: any): Action<T>;
 }
 
 type ActionClassArray = {

@@ -1,4 +1,5 @@
-import { Action, AsyncAction } from '../action';
+import type { Action } from '../action';
+import { AsyncAction } from '../action/async_action';
 import { CONTROLLER } from './controllers';
 import { ControllerBase } from './controller_base';
 

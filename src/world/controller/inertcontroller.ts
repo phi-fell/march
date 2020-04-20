@@ -1,4 +1,5 @@
-import { Action, WaitAction } from '../action';
+import type { Action } from '../action';
+import { WaitAction } from '../action/wait_action';
 import { CONTROLLER } from './controllers';
 import { ControllerBase } from './controller_base';
 

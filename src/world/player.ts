@@ -1,6 +1,7 @@
 import * as t from 'io-ts';
 import { CharacterSheet } from '../character/charactersheet';
 import { Random } from '../math/random';
+import type { User } from '../net/user';
 import { Action, ActionClasses, ChatActions } from './action';
 import { SayAction } from './action/say_action';
 import type { Cell } from './cell';
@@ -27,14 +28,14 @@ export class Player {
         'entity_ref': t.union([entity_ref_schema, t.undefined]),
     });
 
-    public static async fromJSON(world: World, json: PlayerSchema): Promise<Player> {
-        const ret = new Player(world, json.id);
+    public static async fromJSON(user: User, world: World, json: PlayerSchema): Promise<Player> {
+        const ret = new Player(user, world, json.id);
         ret.sheet = CharacterSheet.fromJSON(json.sheet);
         ret.entity_ref = json.entity_ref;
         return ret;
     }
-    public static async createPlayer(world: World, sheet: CharacterSheet) {
-        const ret = new Player(world);
+    public static async createPlayer(user: User, world: World, sheet: CharacterSheet) {
+        const ret = new Player(user, world);
         ret.sheet = sheet;
         const inst: Instance = await world.createInstance();
         const cell: Cell = await inst.createCell(new CellAttributes(Random.getDeterministicID(), CELL_GENERATION.SLIME_CAVE, 50, 50));
@@ -53,16 +54,15 @@ export class Player {
     private entity?: Entity;
     private _active: boolean = false;
     private action_queue: Action[] = [];
-    private constructor(private world: World, protected _id: string = Random.uuid()) { }
+    private constructor(private user: User, private world: World, protected _id: string = Random.uuid()) { }
     public get id() {
         return this._id;
     }
     public sendText(text: string) {
-        //TODO: e.g. socket.emit('chat', text);
+        // TODO: e.g. socket.emit('chat', text);
     }
     public sayChatMessageAsEntity(msg: string) {
-        const say = new SayAction(this.world, this.getEntity(), msg);
-        say.perform();
+        this.action_queue.push(new SayAction(msg));
     }
     public doAction(msg: string) {
         const args = msg.split(' ');
@@ -71,7 +71,7 @@ export class Player {
         const action_type = ChatActions[chat_action];
         if (action_type) {
             const ent = this.getEntity();
-            const action = ActionClasses[action_type].fromArgs(this.world, ent, args);
+            const action = ActionClasses[action_type].fromArgs(args);
             if (typeof action === 'string') {
                 // TODO: push string to player
                 return;
