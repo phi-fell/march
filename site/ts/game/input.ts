@@ -75,6 +75,7 @@ export class Input {
                             historyPos = 0;
                         }
                         this.chat.current_message = message_history[historyPos];
+                        e.preventDefault();
                         return;
                     case CHAT_SHORTCUT.NEXT:
                         historyPos++;
@@ -83,7 +84,10 @@ export class Input {
                         } else if (historyPos === message_history.length) {
                             this.chat.current_message = message_cache;
                             message_cache = '';
+                        } else {
+                            this.chat.current_message = message_history[historyPos];
                         }
+                        e.preventDefault();
                         return;
                     case CHAT_SHORTCUT.ESCAPE:
                         $('#chat_input').blur();
