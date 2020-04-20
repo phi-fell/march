@@ -1,0 +1,17 @@
+export enum EVENT_TYPE {
+    NEW_ROUND,
+    // ADD_MOB,
+    // REMOVE_MOB,
+    // SAY,
+    // LOOK,
+    // MOVE,
+    // STRAFE,
+    // TURN,
+    // ATTACK,
+    // WAIT,
+    // BLEED,
+    // HEAL,
+    // PICKUP,
+    // DROP,
+    // DEATH,
+}
