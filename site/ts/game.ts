@@ -5,6 +5,11 @@ import { Input } from './game/input';
 import { registerDirectives } from './vue-directives';
 import { registerComponent } from './vue_component';
 
+interface GameEvent {
+    type: any;
+    message: string;
+}
+
 declare var Vue: VueConstructor;
 
 let app: any;
@@ -66,6 +71,9 @@ $(document).ready(async () => {
                     input = new Input(socket, app.chat);
                     socket.on('chat', (chat_msg: string) => {
                         app.chat.messages.push(chat_msg);
+                    });
+                    socket.on('event', (event: GameEvent) => {
+                        app.chat.messages.push(event.message);
                     });
                     socket.on('palette', (palette: any) => {
                         graphics = new Graphics(

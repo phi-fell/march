@@ -4,6 +4,7 @@ import type { Action } from './action';
 import { CONTROLLER } from './controller/controllers';
 import { InertController } from './controller/inertcontroller';
 import { PlayerController } from './controller/playercontroller';
+import type { Event } from './event';
 
 const controller_schema = t.type({
     'type': t.keyof(CONTROLLER),
@@ -15,6 +16,7 @@ export interface Controller<T extends CONTROLLER = CONTROLLER> {
     getNextAction(): Action;
     popAction(): void; // Called if action succeeded, failed, or was redundant (e.g. insufficient AP will not call this)
     newRound(): void;// Called when a new round starts
+    sendEvent(event: Event): void;
     toJSON(): ControllerSchema;
 }
 

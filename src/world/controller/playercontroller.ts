@@ -2,6 +2,7 @@ import type { Action } from '../action';
 import { ACTION_TYPE } from '../action/actiontype';
 import { AsyncAction } from '../action/async_action';
 import type { ControllerClass } from '../controller';
+import type { Event } from '../event';
 import type { Player } from '../player';
 import { CONTROLLER } from './controllers';
 import { ControllerBase } from './controller_base';
@@ -39,5 +40,8 @@ export const PlayerController: ControllerClass<CONTROLLER.PLAYER> = class extend
         if (action && action.type === ACTION_TYPE.WAIT_ROUND) {
             this.popAction();
         }
+    }
+    public sendEvent(event: Event) {
+        this.player?.sendEvent(event);
     }
 }

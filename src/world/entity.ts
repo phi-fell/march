@@ -7,6 +7,7 @@ import { Controller } from './controller';
 import { DIRECTION } from './direction';
 import { Locatable, locatable_schema } from './locatable';
 import { Location } from './location';
+import type { VisibilityManager } from './visibilitymanager';
 import type { World } from './world';
 
 export interface Mob extends Entity {
@@ -39,6 +40,7 @@ export class Entity extends Locatable {
             'controller': Controller.schema,
             'inventory': Inventory.schema,
             'item_data': ItemData.schema,
+            'visibility_manager': t.any,
         }),
     ]);
 
@@ -70,6 +72,7 @@ export class Entity extends Locatable {
     public controller?: Controller;
     public inventory?: Inventory;
     public item_data?: ItemData;
+    public visibility_manager?: VisibilityManager;
     public constructor(world: World, loc: Location, public id: UUID = Random.uuid(), emplaced: boolean = false) {
         super(world, loc, emplaced);
     }
@@ -109,6 +112,9 @@ export class Entity extends Locatable {
         }
         if (this.item_data) {
             ret.item_data = this.item_data.toJSON();
+        }
+        if (this.visibility_manager) {
+            ret.visibility_manager = this.visibility_manager.toJSON();
         }
         return ret;
     }

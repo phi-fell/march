@@ -4,6 +4,7 @@ import { ATTRIBUTE } from '../character/characterattributes';
 import { CharacterRace } from '../character/characterrace';
 import { CharacterTrait } from '../character/charactertrait';
 import { getTilePalette } from '../tile';
+import type { Event } from '../world/event';
 import type { Server } from './server';
 import type { User } from './user';
 
@@ -164,6 +165,9 @@ export class Client {
     }
     public sendChatMessage(msg: string) {
         this.socket.emit('chat', msg);
+    }
+    public sendEvent(event: Event) {
+        this.socket.emit('event', event.getClientJSON());
     }
     public attachUser(user: User) {
         this.user = user;

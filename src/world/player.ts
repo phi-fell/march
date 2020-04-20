@@ -8,6 +8,7 @@ import { SayAction } from './action/say_action';
 import type { Cell } from './cell';
 import { PlayerController } from './controller/playercontroller';
 import { Entity } from './entity';
+import type { Event } from './event';
 import { CellAttributes } from './generation/cellattributes';
 import { CELL_GENERATION } from './generation/cellgeneration';
 import type { Instance } from './instance';
@@ -64,6 +65,9 @@ export class Player {
     }
     public sendChatMessage(text: string) {
         this.user.sendChatMessage(text);
+    }
+    public sendEvent(event: Event) {
+        this.user.sendEvent(event);
     }
     public sayChatMessageAsEntity(msg: string) {
         this.action_queue.push(new SayAction(msg));

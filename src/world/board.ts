@@ -4,6 +4,8 @@ import { getTileFromName, getTilePalette, NO_TILE, Tile } from '../tile';
 import { assertUnreachable } from '../util/assert';
 import { ACTION_RESULT } from './action/actionresult';
 import { Entity } from './entity';
+import type { Event } from './event';
+import type { Location } from './location';
 import type { World } from './world';
 
 export type BoardSchema = t.TypeOf<typeof Board.schema>
@@ -53,6 +55,30 @@ export class Board {
                 this.tiles[x] = [];
                 for (let y = 0; y < height; y++) {
                     this.tiles[x][y] = t_in[x][y];
+                }
+            }
+        }
+    }
+    public emitGlobal(event: Event) {
+        for (const ent of this.entities) {
+            if (ent.controller) {
+                ent.controller.sendEvent(event);
+            }
+        }
+    }
+    public emit(event: Event, ...locations: Location[]) {
+        for (const ent of this.entities) {
+            if (ent.controller === undefined) {
+                continue;
+            }
+            if (ent.visibility_manager === undefined) {
+                ent.controller.sendEvent(event);
+                continue;
+            }
+            for (const loc of locations) {
+                if (ent.visibility_manager.canSee(loc)) {
+                    ent.controller.sendEvent(event);
+                    break;
                 }
             }
         }

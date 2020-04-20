@@ -5,6 +5,7 @@ import { CharacterSheet } from '../character/charactersheet';
 import { Random } from '../math/random';
 import type { OwnedFile } from '../system/file';
 import { FileBackedData } from '../system/file_backed_data';
+import type { Event } from '../world/event';
 import { Player } from '../world/player';
 import type { World } from '../world/world';
 import type { Client } from './client';
@@ -65,6 +66,9 @@ export class User extends FileBackedData {
         this.client?.sendChatMessage(msg);
         // TODO: maybe buffer unsent messages so they still exist when player is logged off?
         // TODO: chat history should maybe be stored server side in general anyway, no?
+    }
+    public sendEvent(event: Event) {
+        this.client?.sendEvent(event);
     }
     public getActivePlayer(): Player | undefined {
         if (this.active_player_changing) {
