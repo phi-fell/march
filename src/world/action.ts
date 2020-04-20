@@ -1,5 +1,6 @@
 import type { EQUIPMENT_SLOT } from '../item/equipment_slot';
 import { Instance } from '../old_instance';
+import type { ValueOf } from '../util/types';
 import { ACTION_RESULT } from './action/actionresult';
 import { ACTION_TYPE } from './action/actiontype';
 import { AsyncAction } from './action/async_action';
@@ -15,9 +16,6 @@ import { WaitRoundAction } from './action/wait_round_action';
 import { directionVectors } from './direction';
 import type { Entity } from './entity';
 import type { World } from './world';
-
-
-type ValueOf<T> = T[keyof T];
 
 export interface Action<T extends ACTION_TYPE = ACTION_TYPE> {
     type: T;

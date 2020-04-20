@@ -1,4 +1,5 @@
 import * as t from 'io-ts';
+import type { ValueOf } from '../util/types';
 import type { Action } from './action';
 import { CONTROLLER } from './controller/controllers';
 import { InertController } from './controller/inertcontroller';
@@ -23,7 +24,7 @@ export interface ControllerClass<T extends CONTROLLER> {
 }
 
 type ControllerClassArray = {
-    [P in typeof CONTROLLER[keyof typeof CONTROLLER]]: ControllerClass<P>;
+    [P in ValueOf<typeof CONTROLLER>]: ControllerClass<P>;
 };
 
 const controller: ControllerClassArray = [
