@@ -88,12 +88,15 @@ export class Board {
                         this.waitingOnAsyncEntityID = ent.id;
                         return; // waiting on player
                     case ACTION_RESULT.FAILURE:
+                        ent.controller.popAction();
                         break;
                     case ACTION_RESULT.INSUFFICIENT_AP:
                         break;
                     case ACTION_RESULT.REDUNDANT:
+                        ent.controller.popAction();
                         break;
                     case ACTION_RESULT.SUCCESS:
+                        ent.controller.popAction();
                         return;
                     default:
                         assertUnreachable(result.result);

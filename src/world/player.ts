@@ -6,6 +6,7 @@ import { Action, ActionClasses, ChatActions } from './action';
 import { ACTION_TYPE } from './action/actiontype';
 import { SayAction } from './action/say_action';
 import type { Cell } from './cell';
+import { PlayerController } from './controller/playercontroller';
 import { Entity } from './entity';
 import { CellAttributes } from './generation/cellattributes';
 import { CELL_GENERATION } from './generation/cellgeneration';
@@ -42,6 +43,8 @@ export class Player {
         const cell: Cell = await inst.createCell(new CellAttributes(Random.getDeterministicID(), CELL_GENERATION.SLIME_CAVE, 50, 50));
         const loc = cell.getRandomPassableLocation();
         const ent = new Entity(world, loc);
+        ent.sheet = ret.sheet;
+        ent.controller = new PlayerController(ret);
         ret.entity_ref = {
             'instance_id': inst.id,
             'cell_id': cell.id,
@@ -136,6 +139,7 @@ export class Player {
         }
         const cell = await this.world.getCell(this.entity_ref.instance_id, this.entity_ref.cell_id);
         this.entity = cell.getEntity(this.entity_ref.entity_id);
+        this.entity.controller = new PlayerController(this);
         this._active = true;
     }
     public setInactive() {

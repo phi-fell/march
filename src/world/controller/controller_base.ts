@@ -12,6 +12,6 @@ export abstract class ControllerBase implements Controller {
         // only needed if controller accounts for rounds
     }
     public toJSON(): ControllerSchema {
-        return CONTROLLER[this.type] as keyof typeof CONTROLLER;
+        return { 'type': CONTROLLER[this.type] as keyof typeof CONTROLLER };
     }
 }
