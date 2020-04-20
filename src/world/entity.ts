@@ -47,7 +47,7 @@ export class Entity extends Locatable {
      * e.g. call this from Board.fromJSON() and probably nowhere else
      */
     public static async fromJSON(world: World, json: EntitySchema): Promise<Entity> {
-        const ret = new Entity(world, Location.fromJSON(json.location), json.id, true);
+        const ret = new Entity(world, Location.fromJSON(world, json.location), json.id, true);
         ret.direction = DIRECTION[json.direction];
         if (json.sheet) {
             ret.sheet = CharacterSheet.fromJSON(json.sheet);
