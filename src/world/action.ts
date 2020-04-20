@@ -8,6 +8,8 @@ import { MoveAction } from './action/move_action';
 import { SayAction } from './action/say_action';
 import { UnwaitAction } from './action/unwait_action';
 import { WaitAction } from './action/wait_action';
+import { WaitOnceAction } from './action/wait_once_action';
+import { WaitRoundAction } from './action/wait_round_action';
 import { DIRECTION, directionVectors } from './direction';
 import type { Entity } from './entity';
 import type { World } from './world';
@@ -32,7 +34,9 @@ type ActionClassArray = {
 };
 
 export const ChatActions: Record<string, ACTION_TYPE | undefined> = {
-    'wait': ACTION_TYPE.WAIT,
+    'wait_forever': ACTION_TYPE.WAIT,
+    'skip': ACTION_TYPE.WAIT_ONCE,
+    'wait': ACTION_TYPE.WAIT_ROUND,
     'unwait': ACTION_TYPE.UNWAIT,
     'say': ACTION_TYPE.SAY,
     'look': ACTION_TYPE.LOOK,
@@ -41,6 +45,8 @@ export const ChatActions: Record<string, ACTION_TYPE | undefined> = {
 export const ActionClasses: ActionClassArray = [
     AsyncAction,
     WaitAction,
+    WaitOnceAction,
+    WaitRoundAction,
     UnwaitAction,
     SayAction,
     LookAction,

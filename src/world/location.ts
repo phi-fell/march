@@ -1,5 +1,6 @@
 import * as t from 'io-ts';
 import type { UUID } from '../math/random';
+import type { Cell } from './cell';
 import { Position } from './position';
 import type { World } from './world';
 
@@ -24,6 +25,9 @@ export class Location extends Position {
     }
     get cell_id(): string {
         return this._cell_id;
+    }
+    public async getCell(): Promise<Cell> {
+        return this.world.getCell(this.instance_id, this.cell_id);
     }
     public translate(dx: number, dy: number): Location {
         return new Location(this.world, this.x + dx, this.y + dy, this._instance_id, this._cell_id);

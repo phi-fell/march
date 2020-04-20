@@ -3,6 +3,7 @@ import { CharacterSheet } from '../character/charactersheet';
 import { Random } from '../math/random';
 import type { User } from '../net/user';
 import { Action, ActionClasses, ChatActions } from './action';
+import { ACTION_TYPE } from './action/actiontype';
 import { SayAction } from './action/say_action';
 import type { Cell } from './cell';
 import { Entity } from './entity';
@@ -76,7 +77,19 @@ export class Player {
                 this.sendChatMessage(action);
                 return;
             }
-            this.action_queue.push(action);
+            if (action.type === ACTION_TYPE.UNWAIT) {
+                this.action_queue = this.action_queue.filter((actn) => {
+                    return actn.type !== ACTION_TYPE.WAIT && actn.type !== ACTION_TYPE.WAIT_ONCE && actn.type !== ACTION_TYPE.WAIT_ROUND
+                })
+            } else {
+                if (this.action_queue.length === 0) {
+                    (async () => {
+                        const cell = await ent.location.getCell();
+                        cell.notifyAsyncEnt(ent.id);
+                    })();
+                }
+                this.action_queue.push(action);
+            }
         } else {
             this.sendChatMessage('Invalid action type!');
         }
@@ -86,6 +99,16 @@ export class Player {
     }
     public doCommand(command: string) {
         // TODO: handle command
+    }
+    public getNextAction() {
+        if (this.action_queue.length > 0) {
+            return this.action_queue[0];
+        }
+    }
+    public popAction() {
+        if (this.action_queue.length > 0) {
+            this.action_queue.shift();
+        }
     }
     public async getGameData() {
         const ent = this.getEntity();

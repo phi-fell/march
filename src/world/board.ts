@@ -1,6 +1,8 @@
 import * as t from 'io-ts';
 import type { UUID } from '../math/random';
 import { getTileFromName, getTilePalette, NO_TILE, Tile } from '../tile';
+import { assertUnreachable } from '../util/assert';
+import { ACTION_RESULT } from './action/actionresult';
 import { Entity } from './entity';
 import type { World } from './world';
 
@@ -30,6 +32,7 @@ export class Board {
     }
 
     public tiles: Tile[][] = [];
+    private waitingOnAsyncEntityID: UUID | undefined;
     private entities: Entity[] = [];
     /*
         TODO: ? could be worthwhile to split entities into a map by ID and an array by position, and duplicate data
@@ -51,6 +54,61 @@ export class Board {
                 for (let y = 0; y < height; y++) {
                     this.tiles[x][y] = t_in[x][y];
                 }
+            }
+        }
+    }
+    public notifyAsyncEnt(entity_id: UUID) {
+        if (this.waitingOnAsyncEntityID === entity_id) {
+            this.waitingOnAsyncEntityID = undefined;
+        }
+    }
+    public doNextTurn() {
+        if (this.waitingOnAsyncEntityID !== undefined) {
+            return;
+        }
+        this.entities.sort((a: Entity, b: Entity) => {
+            if (a.sheet && b.sheet) {
+                return b.sheet.getInitiative() - a.sheet.getInitiative();
+            }
+            if (a.sheet) {
+                return -1;
+            }
+            if (b.sheet) {
+                return 1;
+            }
+            return 0;
+        });
+        for (const ent of this.entities) {
+            if (ent.sheet && ent.controller) {
+                const action = ent.controller.getNextAction();
+                const result = action.perform(ent);
+                ent.sheet.useAP(result.cost);
+                switch (result.result) {
+                    case ACTION_RESULT.ASYNC:
+                        this.waitingOnAsyncEntityID = ent.id;
+                        return; // waiting on player
+                    case ACTION_RESULT.FAILURE:
+                        break;
+                    case ACTION_RESULT.INSUFFICIENT_AP:
+                        break;
+                    case ACTION_RESULT.REDUNDANT:
+                        break;
+                    case ACTION_RESULT.SUCCESS:
+                        return;
+                    default:
+                        assertUnreachable(result.result);
+                }
+            }
+        }
+        this.startNextRound();
+    }
+    public startNextRound() {
+        for (const ent of this.entities) {
+            if (ent.sheet) {
+                ent.sheet.startNewTurn();
+            }
+            if (ent.controller) {
+                ent.controller.newRound();
             }
         }
     }

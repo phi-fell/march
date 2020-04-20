@@ -10,10 +10,12 @@ export type ControllerSchema = t.TypeOf<typeof controller_schema>;
 export interface Controller {
     type: CONTROLLER;
     getNextAction(): Action;
+    popAction(): void; // Called if action succeeded, failed, or was redundant (e.g. insufficient AP will not call this)
+    newRound(): void;// Called when a new round starts
     toJSON(): ControllerSchema;
 }
 
-const controller: Record<CONTROLLER, new () => Controller> = [
+const controller: Record<CONTROLLER, new (...args: any) => Controller> = [
     InertController,
     PlayerController
 ];

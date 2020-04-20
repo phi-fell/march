@@ -1,6 +1,8 @@
 export enum ACTION_TYPE {
     ASYNC,
     WAIT,
+    WAIT_ONCE,
+    WAIT_ROUND,
     UNWAIT,
     SAY,
     LOOK,
