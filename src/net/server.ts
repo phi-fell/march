@@ -38,10 +38,9 @@ export class Server {
         });
     }
     public async run() {
-        while (this.running) {
-            this.running_promise = this.world.update();
-            await this.running_promise;
-        }
+        this.running_promise = this.world.update();
+        await this.running_promise;
+        setTimeout(() => this.run(), 10);
     }
     public get server() {
         return this._server;
