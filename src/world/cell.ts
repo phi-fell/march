@@ -119,6 +119,7 @@ export class Cell extends FileBackedData {
             'height': (y1 - y0) + 1,
             'tiles': retTiles,
             tileAdjacencies,
+            'entities': this.board.getClientEntitiesJSON(),
         }
     }
     /**

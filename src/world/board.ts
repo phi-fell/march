@@ -132,6 +132,9 @@ export class Board {
         }
         this.entities.splice(i, 1);
     }
+    public getClientEntitiesJSON() {
+        return this.entities.map((e) => e.getClientJSON());
+    }
     public toJSON(): BoardSchema {
         return {
             'width': this.width,
