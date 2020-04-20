@@ -1,6 +1,15 @@
 import { Animation } from './animation';
 import { GraphicsContext } from './graphicscontext';
 
+interface Entity {
+    id: string;
+    direction: 'UP' | 'LEFT' | 'DOWN' | 'RIGHT';
+    location: {
+        x: number;
+        y: number;
+    };
+}
+
 interface Board {
     x: number,
     y: number,
@@ -8,6 +17,7 @@ interface Board {
     height: number,
     tiles: number[][],
     tileAdjacencies: number[][],
+    entities: Entity[]
 }
 
 interface TileSprite {
@@ -143,9 +153,18 @@ export class Graphics {
             this.drawTiles();
             this.draw_cache.tiles_stale = false;
         }
+        this.entityContext.clear();
         this.entityContext.push();
+        this.entityContext.translate(this.width / 2, this.height / 2);
         this.entityContext.scale(this.draw_cache.scale, this.draw_cache.scale);
-        // this.getAnimation('mob/slime/idle').draw(this.tileContext, Date.now());
+        this.entityContext.translate(this.board.width / -2, this.board.height / -2);
+        this.entityContext.translate(-this.board.x, -this.board.y);
+        for (const entity of this.board.entities) {
+            this.entityContext.push();
+            this.entityContext.translate(entity.location.x + 0.5, entity.location.y + 0.5);
+            this.getAnimation('mob/slime/idle').draw(this.entityContext, Date.now());
+            this.entityContext.pop();
+        }
         this.entityContext.pop();
     }
     private drawTiles() {

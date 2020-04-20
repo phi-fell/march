@@ -70,8 +70,8 @@ $(document).ready(async () => {
                     socket.on('palette', (palette: any) => {
                         graphics = new Graphics(
                             $('#tileCanvas')[0] as HTMLCanvasElement,
-                            $('#tileCanvas')[0] as HTMLCanvasElement,
-                            $('#tileCanvas')[0] as HTMLCanvasElement,
+                            $('#entityCanvas')[0] as HTMLCanvasElement,
+                            $('#uiCanvas')[0] as HTMLCanvasElement,
                             app.canvas_labels,
                         );
                         graphics.setBoard(msg.board);
