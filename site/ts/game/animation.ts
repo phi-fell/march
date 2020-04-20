@@ -11,32 +11,31 @@ export class Animation {
     private scale: { x: number, y: number } = { 'x': 0, 'y': 0 };
     private frames: HTMLCanvasElement[] = [];
     constructor(id: string) {
-        const anim = this;
         $.getJSON('tex/animation/' + id + '.json', (json) => {
-            anim.image.onload = () => {
-                anim.frame_count = json.frames;
-                anim.frame_width = json.frame_width;
-                anim.frame_height = json.frame_height;
-                anim.delay = json.delay;
-                anim.offset = json.offset;
-                anim.scale = json.scale;
+            this.image.onload = () => {
+                this.frame_count = json.frames;
+                this.frame_width = json.frame_width;
+                this.frame_height = json.frame_height;
+                this.delay = json.delay;
+                this.offset = json.offset;
+                this.scale = json.scale;
                 for (let i = 0; i < json.frames; i++) {
-                    anim.frames[i] = document.createElement('canvas');
-                    const context = anim.frames[i].getContext('2d');
+                    this.frames[i] = document.createElement('canvas');
+                    const context = this.frames[i].getContext('2d');
                     if (!context) {
                         throw new Error('Could not create animation context!');
                     }
-                    anim.frames[i].width = json.frame_width;
-                    anim.frames[i].height = json.frame_height;
+                    this.frames[i].width = json.frame_width;
+                    this.frames[i].height = json.frame_height;
                     context.drawImage(
-                        anim.image,
+                        this.image,
                         i * json.frame_width, 0, json.frame_width, json.frame_height, // src(x y w h)
                         0, 0, json.frame_width, json.frame_height, // dest(x y w h)
                     );
                 }
-                anim.loaded = true;
+                this.loaded = true;
             };
-            anim.image.src = 'tex/animation/' + id + '.png';
+            this.image.src = 'tex/animation/' + id + '.png';
         });
     }
     public draw(context: GraphicsContext, time: number) {
@@ -44,12 +43,12 @@ export class Animation {
         try {
             if (!this.loaded) {
                 context.color('#F0F');
-                context.fillRect(-this.frame_width / 2, -this.frame_height / 2, this.frame_width, this.frame_height);
+                context.fillRect(-1 / 2, -1 / 2, 1, 1);
             } else {
                 const frame = Math.floor((time / this.delay) % this.frame_count); // TODO: add Math.max and Math.min to ensure within array bounds?
                 context.translate(this.offset.x, this.offset.y);
                 context.scale(this.scale.x, this.scale.y);
-                context.drawImage(this.frames[frame], -this.frame_width / 2, -this.frame_height / 2, this.frame_width, this.frame_height);
+                context.drawImage(this.frames[frame], -1 / 2, -1 / 2, 1, 1);
             }
         } finally {
             context.pop();
