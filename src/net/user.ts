@@ -61,6 +61,14 @@ export class User extends FileBackedData {
         return User.schema;
     }
     public get name() { return this._name; }
+    public getActivePlayer(): Player | undefined {
+        if (this.active_player_changing) {
+            return;
+        }
+        if (this.activePlayer) {
+            return this.activePlayer;
+        }
+    }
     public async setActivePlayer(index: number | undefined): Promise<boolean> {
         if (this.active_player_changing) {
             return false;

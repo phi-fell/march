@@ -176,62 +176,61 @@ export class Client {
         }
     }
     private addLoggedInListeners(socket: Socket) {
-        const client = this;
         socket.on('get', async (msg) => {
-            if (client.user) {
+            if (this.user) {
                 if (msg === 'players') {
-                    client.socket.emit('players', client.user.players.map((p) => p.toJSON()));
+                    this.socket.emit('players', this.user.players.map((p) => p.toJSON()));
                 } else if (msg === 'unfinished_player') {
-                    client.socket.emit('unfinished_player', client.user.unfinished_player.toJSON());
+                    this.socket.emit('unfinished_player', this.user.unfinished_player.toJSON());
                 } else if (msg === 'available_races') {
-                    client.socket.emit('available_races', CharacterRace.getPlayableRaces());
+                    this.socket.emit('available_races', CharacterRace.getPlayableRaces());
                 } else if (msg === 'available_traits') {
-                    client.socket.emit('available_traits', CharacterTrait.getBuyableTraits());
+                    this.socket.emit('available_traits', CharacterTrait.getBuyableTraits());
                 } else if (msg === 'palette') {
-                    client.socket.emit('palette', getTilePalette());
+                    this.socket.emit('palette', getTilePalette());
                 } else if (msg === 'game_data') {
-                    const data = await client.user.getGameData();
+                    const data = await this.user.getGameData();
                     if (data) {
-                        client.socket.emit('game_data', data);
+                        this.socket.emit('game_data', data);
                     } else {
-                        client.socket.emit('game_data_fail');
+                        this.socket.emit('game_data_fail');
                     }
                 }
             }
         });
         socket.on('character_creation', async (msg: any) => {
-            if (client.user) {
+            if (this.user) {
                 if (msg.action === 'finish') {
-                    client.user.finishPlayer();
+                    this.user.finishPlayer();
                 } else if (msg.action === 'name') {
-                    client.user.unfinished_player.name = msg.name;
+                    this.user.unfinished_player.name = msg.name;
                 } else if (msg.action === 'increment_attribute') {
-                    client.user.unfinished_player.levelUpAttribute(ATTRIBUTE[(msg.attribute as keyof typeof ATTRIBUTE)]);
+                    this.user.unfinished_player.levelUpAttribute(ATTRIBUTE[(msg.attribute as keyof typeof ATTRIBUTE)]);
                 } else if (msg.action === 'decrement_attribute') {
-                    client.user.unfinished_player.levelDownAttribute(ATTRIBUTE[(msg.attribute as keyof typeof ATTRIBUTE)]);
+                    this.user.unfinished_player.levelDownAttribute(ATTRIBUTE[(msg.attribute as keyof typeof ATTRIBUTE)]);
                 } else if (msg.action === 'race') {
                     const race = msg.race;
                     if (race && CharacterRace.raceExists(race)) {
-                        client.user.unfinished_player.race = new CharacterRace(race);
+                        this.user.unfinished_player.race = new CharacterRace(race);
                     }
                 } else if (msg.action === 'add_trait') {
                     const traitID = msg.trait;
                     if (traitID && CharacterTrait.traitExists(traitID)) {
                         const trait = CharacterTrait.get(traitID);
-                        client.user.unfinished_player.addTrait(trait);
+                        this.user.unfinished_player.addTrait(trait);
                     }
                 } else if (msg.action === 'remove_trait') {
                     const traitIndex: unknown = msg.index;
                     if (traitIndex !== undefined && typeof traitIndex === 'number') {
-                        client.user.unfinished_player.removeTrait(traitIndex);
+                        this.user.unfinished_player.removeTrait(traitIndex);
                     }
                 }
             }
         });
         socket.on('set_active_player', async (msg: any) => {
-            if (client.user) {
+            if (this.user) {
                 if (typeof msg === 'number') {
-                    const success: boolean = await client.user.setActivePlayer(msg);
+                    const success: boolean = await this.user.setActivePlayer(msg);
                     socket.emit('active_player_response', {
                         'success': success,
                         'msg': success ? undefined : 'Could not set active player!',
@@ -243,6 +242,26 @@ export class Client {
                         'msg': 'Index must be a number!',
                     });
                 }
+            }
+        });
+        socket.on('chat_message', (msg: string) => {
+            if (this.user) {
+                const plr = this.user.getActivePlayer();
+                if (plr) {
+                    if (msg.startsWith('/')) {
+                        plr.doCommand(msg.substring(1));
+                    } else if (msg.startsWith('#')) {
+                        plr.doAction(msg.substring(1));
+                    } else if (msg.startsWith('?')) {
+                        plr.getQuery(msg.substring(1));
+                    } else {
+                        plr.sayChatMessageAsEntity(msg);
+                    }
+                } else {
+                    console.log(`User [${this.user.name}] without active Player sent: ${msg}`);
+                }
+            } else {
+                console.log(`Client without User sent: ${msg}`);
             }
         });
     }

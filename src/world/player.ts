@@ -1,13 +1,14 @@
 import * as t from 'io-ts';
 import { CharacterSheet } from '../character/charactersheet';
 import { Random } from '../math/random';
+import { Action, ActionClasses, ChatActions } from './action';
+import { SayAction } from './action/say_action';
 import type { Cell } from './cell';
 import { Entity } from './entity';
 import { CellAttributes } from './generation/cellattributes';
 import { CELL_GENERATION } from './generation/cellgeneration';
 import type { Instance } from './instance';
 import type { World } from './world';
-
 
 const entity_ref_schema = t.type({
     'instance_id': t.string,
@@ -51,9 +52,40 @@ export class Player {
     private entity_ref?: EntityRef;
     private entity?: Entity;
     private _active: boolean = false;
+    private action_queue: Action[] = [];
     private constructor(private world: World, protected _id: string = Random.uuid()) { }
     public get id() {
         return this._id;
+    }
+    public sendText(text: string) {
+        //TODO: e.g. socket.emit('chat', text);
+    }
+    public sayChatMessageAsEntity(msg: string) {
+        const say = new SayAction(this.world, this.getEntity(), msg);
+        say.perform();
+    }
+    public doAction(msg: string) {
+        const args = msg.split(' ');
+        const chat_action = args[0];
+        args.shift();
+        const action_type = ChatActions[action];
+        if (action_type) {
+            const ent = this.getEntity();
+            const action = ActionClasses[action_type].fromArgs(this.world, ent, args);
+            if (typeof action === 'string') {
+                // TODO: push string to player
+                return;
+            }
+            this.action_queue.push(action);
+        } else {
+            // TODO: push notice to player e.g. "Invalid action type!"
+        }
+    }
+    public getQuery(query: string) {
+        // TODO: handle query
+    }
+    public doCommand(command: string) {
+        // TODO: handle command
     }
     public async getGameData() {
         const ent = this.getEntity();
