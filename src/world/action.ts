@@ -139,11 +139,6 @@ class AttackAction {
         }
         return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
     }
-    public toJSON(): object {
-        return {
-            'type': ACTION_TYPE[this.type],
-        };
-    }
 }
 
 class PickupAction {
@@ -179,15 +174,9 @@ class PickupAction {
         }
         return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
     }
-    public toJSON(): object {
-        return {
-            'type': ACTION_TYPE[this.type],
-        };
-    }
 }
 
 class DropAction {
-    public type: ACTION_TYPE.DROP = ACTION_TYPE.DROP;
     public readonly cost: number = 2;
     constructor(public item_id: string, public count: number) { }
     public perform(world: World, entity: Entity) {
@@ -214,15 +203,9 @@ class DropAction {
         console.log('Cannot drop nonexistent item!');
         return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
     }
-    public toJSON(): object {
-        return {
-            'type': ACTION_TYPE[this.type],
-        };
-    }
 }
 
 class EquipAction {
-    public type: ACTION_TYPE.EQUIP = ACTION_TYPE.EQUIP;
     public readonly cost: number = 12;
     constructor(public item_id: string) { }
     public perform(world: World, entity: Entity) {
@@ -245,15 +228,10 @@ class EquipAction {
         }
         return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
     }
-    public toJSON(): object {
-        return {
-            'type': ACTION_TYPE[this.type],
-        };
-    }
+
 }
 
 class UnequipAction {
-    public type: ACTION_TYPE.UNEQUIP = ACTION_TYPE.UNEQUIP;
     public readonly cost: number = 8;
     constructor(public slot: EQUIPMENT_SLOT) { }
     public perform(world: World, entity: Entity) {
@@ -265,10 +243,5 @@ class UnequipAction {
             return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
         }
         return { 'result': ACTION_RESULT.REDUNDANT, 'cost': 0 };
-    }
-    public toJSON(): object {
-        return {
-            'type': ACTION_TYPE[this.type],
-        };
     }
 }
