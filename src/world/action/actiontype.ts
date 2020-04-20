@@ -1,0 +1,16 @@
+export enum ACTION_TYPE {
+    ASYNC,
+    WAIT,
+    UNWAIT,
+    SAY,
+    LOOK,
+    MOVE,
+    // STRAFE,
+    // TURN,
+    // USE_PORTAL,
+    // ATTACK,
+    // PICKUP,
+    // DROP,
+    // EQUIP,
+    // UNEQUIP,
+}
