@@ -68,7 +68,7 @@ export class Player {
         const args = msg.split(' ');
         const chat_action = args[0];
         args.shift();
-        const action_type = ChatActions[action];
+        const action_type = ChatActions[chat_action];
         if (action_type) {
             const ent = this.getEntity();
             const action = ActionClasses[action_type].fromArgs(this.world, ent, args);
