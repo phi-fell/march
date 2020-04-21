@@ -22,7 +22,7 @@ export class Location extends Position {
         return this.cell.instance.id;
     }
     get cell_id(): string {
-        return this.cell.instance.id;
+        return this.cell.id;
     }
     public translate(dx: number, dy: number): Location {
         return new Location(this.x + dx, this.y + dy, this.cell);
