@@ -1,4 +1,4 @@
-import type { Location } from '../old_location';
+import type { Location } from '../deprecated/old_location';
 import type { Item } from './item';
 
 export interface WorldItemStack {

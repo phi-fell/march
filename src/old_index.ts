@@ -12,7 +12,7 @@ import { CharacterRace } from './character/characterrace';
 import { CharacterSheet } from './character/charactersheet';
 import { SKILL } from './character/characterskills';
 import { CharacterTrait } from './character/charactertrait';
-import { Instance } from './old_instance';
+import { Instance } from './deprecated/old_instance';
 import { generateName } from './namegen';
 import { Player } from './old_player';
 import { Server } from './server';

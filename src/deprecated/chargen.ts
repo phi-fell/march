@@ -1,9 +1,9 @@
-import { INSTANCE_GEN_TYPE } from '../instancegenerator';
+import { INSTANCE_GEN_TYPE } from './instancegenerator';
 import { Random } from '../math/random';
-import { spawnMobFromSchema } from '../mobschema';
-import { ACTION_STATUS, Entity } from '../old_entity';
-import { Instance, InstanceAttributes } from '../old_instance';
-import { Location } from '../old_location';
+import { spawnMobFromSchema } from './mobschema';
+import { ACTION_STATUS, Entity } from './old_entity';
+import { Instance, InstanceAttributes } from './old_instance';
+import { Location } from './old_location';
 
 class TextEntity extends Entity {
     public doNextAction(): ACTION_STATUS {

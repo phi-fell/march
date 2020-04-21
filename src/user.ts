@@ -10,7 +10,7 @@ import {
     validateUserByIdAndPass,
 } from './deprecated/auth';
 import { ATTRIBUTE } from './character/characterattributes';
-import type { ClientEvent } from './clientevent';
+import type { ClientEvent } from './deprecated/clientevent';
 import { execute } from './commands';
 import { DIRECTION } from './world/direction';
 import { EQUIPMENT_SLOT } from './item/equipment_slot';

@@ -1,5 +1,5 @@
-import type { Damage } from './damage';
-import { DIRECTION } from './world/direction';
+import type { Damage } from '../damage';
+import { DIRECTION } from '../world/direction';
 import type { Entity } from './old_entity';
 
 export enum EVENT_TYPE {

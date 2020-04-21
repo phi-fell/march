@@ -1,19 +1,19 @@
 import fs = require('fs');
 
-import { CharacterStatus } from './character/characterstatus';
+import { CharacterStatus } from '../character/characterstatus';
 import { AddMobEvent, ClientEvent, NewRoundEvent, RemoveMobEvent } from './clientevent';
 import { ACTION_STATUS, Entity } from './old_entity';
 import { INSTANCE_GEN_TYPE, InstanceGenerator } from './instancegenerator';
-import type { InstanceSchemaID } from './instanceschema';
-import type { Inventory } from './item/inventory';
-import { Item } from './item/item';
-import type { WorldItemStack } from './item/worlditemstack';
+import type { InstanceSchemaID } from '../instanceschema';
+import type { Inventory } from '../item/inventory';
+import { Item } from '../item/item';
+import type { WorldItemStack } from '../item/worlditemstack';
 import { Location } from './old_location';
-import { Random } from './math/random';
+import { Random } from '../math/random';
 import { spawnMobFromSchema } from './mobschema';
-import { Player } from './old_player';
-import { Portal } from './portal';
-import { getTileProps, NO_TILE, Tile } from './tile';
+import { Player } from '../old_player';
+import { Portal } from '../portal';
+import { getTileProps, NO_TILE, Tile } from '../tile';
 
 const MAX_INACTIVE_TIME = 1000 * 60 * 10; // 10 minutes (as milliseconds)
 

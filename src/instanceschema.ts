@@ -1,10 +1,10 @@
 import fs = require('fs');
 import { resolve } from 'path';
 
-import { Instance, InstanceAttributes } from './old_instance';
-import { INSTANCE_GEN_TYPE } from './instancegenerator';
+import { Instance, InstanceAttributes } from './deprecated/old_instance';
+import { INSTANCE_GEN_TYPE } from './deprecated/instancegenerator';
 import { Random } from './math/random';
-import { spawnMobFromSchema } from './mobschema';
+import { spawnMobFromSchema } from './deprecated/mobschema';
 
 interface InstanceSchema {
     name: string;

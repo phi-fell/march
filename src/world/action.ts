@@ -1,5 +1,5 @@
 import type { EQUIPMENT_SLOT } from '../item/equipment_slot';
-import { Instance } from '../old_instance';
+import { Instance } from '../deprecated/old_instance';
 import type { ValueOf } from '../util/types';
 import { ACTION_RESULT } from './action/actionresult';
 import { ACTION_TYPE } from './action/actiontype';

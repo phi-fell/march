@@ -1,7 +1,7 @@
 import { createContext, runInContext } from 'vm';
 
-import { Entity } from './old_entity';
-import { Instance } from './old_instance';
+import { Entity } from './deprecated/old_entity';
+import { Instance } from './deprecated/old_instance';
 import { Player } from './old_player';
 import { User } from './user';
 

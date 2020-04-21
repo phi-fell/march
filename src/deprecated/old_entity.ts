@@ -1,9 +1,9 @@
-import { CharacterSheet } from './character/charactersheet';
+import { CharacterSheet } from '../character/charactersheet';
 import { AddMobEvent, AttackEvent, MoveEvent, RemoveMobEvent } from './clientevent';
-import { Random } from './math/random';
+import { Random } from '../math/random';
 import { Instance } from './old_instance';
 import type { Location } from './old_location';
-import { DIRECTION, directionVectors } from './world/direction';
+import { DIRECTION, directionVectors } from '../world/direction';
 
 export const MOVE_AP = 5;
 export const MAX_VISIBILITY_RADIUS = 22;

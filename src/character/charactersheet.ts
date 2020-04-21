@@ -1,5 +1,5 @@
 import * as t from 'io-ts';
-import type { AttackEvent } from '../clientevent';
+import type { AttackEvent } from '../deprecated/clientevent';
 import { Damage, DamageMetaData, DAMAGE_TYPE } from '../damage';
 import { Random } from '../math/random';
 import { ATTRIBUTE, CharacterAttributes } from './characterattributes';
