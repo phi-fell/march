@@ -1,7 +1,7 @@
 import bcrypt = require('bcrypt');
 import fs = require('fs');
 
-import { Random } from './math/random';
+import { Random } from '../math/random';
 
 function generateNewUserPassword() {
     return Random.uuid();

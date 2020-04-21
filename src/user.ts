@@ -8,7 +8,7 @@ import {
     setUserPass,
     validateUserByIdAndAuthToken,
     validateUserByIdAndPass,
-} from './auth';
+} from './deprecated/auth';
 import { ATTRIBUTE } from './character/characterattributes';
 import type { ClientEvent } from './clientevent';
 import { execute } from './commands';
