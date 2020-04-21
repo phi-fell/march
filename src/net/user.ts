@@ -146,7 +146,7 @@ export class User extends FileBackedData {
         this.players.push(plr);
         this.save();
     }
-    public async getGameData() {
+    public getGameData() {
         if (!this.activePlayer) {
             console.log('No Active Player!');
             return;

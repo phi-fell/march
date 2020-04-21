@@ -75,6 +75,11 @@ $(document).ready(async () => {
                     socket.on('event', (event: GameEvent) => {
                         app.chat.messages.push(event.message);
                     });
+                    socket.on('update_data', (json: any) => {
+                        app.player_sheet = json.player_sheet;
+                        app.player_entity = json.player_entity;
+                        graphics?.setBoard(json.board);
+                    });
                     socket.on('palette', (palette: any) => {
                         graphics = new Graphics(
                             $('#tileCanvas')[0] as HTMLCanvasElement,
