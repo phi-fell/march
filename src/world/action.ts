@@ -4,6 +4,7 @@ import type { ValueOf } from '../util/types';
 import { ACTION_RESULT } from './action/actionresult';
 import { ACTION_TYPE } from './action/actiontype';
 import { AsyncAction } from './action/async_action';
+import { BackstepAction } from './action/backstep_action';
 import { LookAction } from './action/look_action';
 import { MoveAction } from './action/move_action';
 import { SayAction } from './action/say_action';
@@ -54,6 +55,7 @@ export const ActionClasses: ActionClassArray = [
     LookAction,
     MoveAction,
     StrafeAction,
+    BackstepAction,
     TurnAction,
 ];
 

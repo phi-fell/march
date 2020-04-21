@@ -8,7 +8,7 @@ export class WaitRoundEvent {
     public getClientJSON() {
         return {
             'type': EVENT_TYPE[this.type] as keyof typeof EVENT_TYPE,
-            'message': `${this.entity.getName()} waits`,
+            'message': `${this.entity.getName()} is waiting`,
         };
     }
 }

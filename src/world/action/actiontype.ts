@@ -8,6 +8,7 @@ export enum ACTION_TYPE {
     LOOK,
     MOVE,
     STRAFE,
+    BACKSTEP,
     TURN,
     // USE_PORTAL,
     // ATTACK,

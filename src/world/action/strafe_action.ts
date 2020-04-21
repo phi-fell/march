@@ -1,9 +1,12 @@
 import type { ActionClass } from '../action';
-import { ChatDirections, DIRECTION, directionVectors } from '../direction';
+import { ChatDirections, DIRECTION, directionVectors, getRelativeDirection, RELATIVE_DIRECTION } from '../direction';
 import type { Entity } from '../entity';
+import { StrafeEvent } from '../event/strafe_event';
 import { ActionBase } from './actionbase';
 import { ACTION_RESULT } from './actionresult';
 import { ACTION_TYPE } from './actiontype';
+import { BackstepAction } from './backstep_action';
+import { MoveAction } from './move_action';
 
 export const StrafeAction: ActionClass<ACTION_TYPE.STRAFE> = class extends ActionBase {
     public static arg_count = 1;
@@ -36,11 +39,17 @@ export const StrafeAction: ActionClass<ACTION_TYPE.STRAFE> = class extends Actio
         if (entity.sheet === undefined) {
             return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
         }
-        const cost = (entity.direction === this.direction) ? 5 : (this.cost);
-        if (entity.sheet.hasSufficientAP(cost)) {
-            // emit events when that's implemented
+        const rel_dir = getRelativeDirection(entity.direction, this.direction);
+        if (rel_dir === RELATIVE_DIRECTION.FORWARD) {
+            return (new MoveAction(this.direction)).perform(entity);
+        }
+        if (rel_dir === RELATIVE_DIRECTION.BACKWARD) {
+            return (new BackstepAction(this.direction)).perform(entity);
+        }
+        if (entity.sheet.hasSufficientAP(this.cost)) {
+            entity.location.cell.emit(new StrafeEvent(entity, this.direction), entity.location, newLoc);
             entity.setLocation(newLoc);
-            return { 'result': ACTION_RESULT.SUCCESS, cost };
+            return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
         }
         return { 'result': ACTION_RESULT.INSUFFICIENT_AP, 'cost': 0 };
     }
