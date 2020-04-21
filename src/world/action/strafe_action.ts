@@ -47,8 +47,9 @@ export const StrafeAction: ActionClass<ACTION_TYPE.STRAFE> = class extends Actio
             return (new BackstepAction(this.direction)).perform(entity);
         }
         if (entity.sheet.hasSufficientAP(this.cost)) {
-            entity.location.cell.emit(new StrafeEvent(entity, this.direction), entity.location, newLoc);
+            const oldLoc = entity.location;
             entity.setLocation(newLoc);
+            entity.location.cell.emit(new StrafeEvent(entity, this.direction), oldLoc, newLoc);
             return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
         }
         return { 'result': ACTION_RESULT.INSUFFICIENT_AP, 'cost': 0 };

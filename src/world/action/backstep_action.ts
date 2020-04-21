@@ -42,8 +42,9 @@ export const BackstepAction: ActionClass<ACTION_TYPE.BACKSTEP> = class extends A
             return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
         }
         if (entity.sheet.hasSufficientAP(this.cost)) {
-            entity.location.cell.emit(new BackstepEvent(entity, this.direction), entity.location, newLoc);
+            const oldLoc = entity.location;
             entity.setLocation(newLoc);
+            entity.location.cell.emit(new BackstepEvent(entity, this.direction), oldLoc, newLoc);
             return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
         }
         return { 'result': ACTION_RESULT.INSUFFICIENT_AP, 'cost': 0 };

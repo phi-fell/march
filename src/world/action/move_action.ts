@@ -41,8 +41,9 @@ export const MoveAction: ActionClass<ACTION_TYPE.MOVE> = class extends ActionBas
             return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
         }
         if (entity.sheet.hasSufficientAP(this.cost)) {
-            entity.location.cell.emit(new MoveEvent(entity, this.direction), entity.location, newLoc);
+            const oldLoc = entity.location;
             entity.setLocation(newLoc);
+            entity.location.cell.emit(new MoveEvent(entity, this.direction), oldLoc, newLoc);
             return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
         }
         return { 'result': ACTION_RESULT.INSUFFICIENT_AP, 'cost': 0 };

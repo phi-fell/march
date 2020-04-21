@@ -29,7 +29,7 @@ export class Board {
             }
         }
         const ret = new Board(json.width, json.height, t_mapped);
-        await Promise.all(json.entities.map((ent) => Entity.fromJSON(cell, ent)));
+        json.entities.map((ent) => Entity.fromJSON(cell, ent));
         return ret;
     }
 

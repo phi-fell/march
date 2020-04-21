@@ -1,6 +1,7 @@
 import type { ActionClass } from '../action';
 import { ChatDirections, DIRECTION } from '../direction';
 import type { Entity } from '../entity';
+import { TurnEvent } from '../event/turn_event';
 import { ActionBase } from './actionbase';
 import { ACTION_RESULT } from './actionresult';
 import { ACTION_TYPE } from './actiontype';
@@ -31,8 +32,9 @@ export const TurnAction: ActionClass<ACTION_TYPE.TURN> = class extends ActionBas
             return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
         }
         if (entity.sheet.hasSufficientAP(this.cost)) {
-            // emit events when that's implemented
+            const event = new TurnEvent(entity, entity.direction, this.direction);
             entity.direction = this.direction;
+            entity.location.cell.emit(event, entity.location);
             return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
         }
         return { 'result': ACTION_RESULT.INSUFFICIENT_AP, 'cost': 0 };
