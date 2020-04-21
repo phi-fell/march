@@ -69,7 +69,7 @@ export class Entity extends Locatable {
         return ret;
     }
 
-    public direction: DIRECTION = DIRECTION.UP;
+    public direction: DIRECTION = DIRECTION.NORTH;
     public sheet?: CharacterSheet;
     public controller?: Controller;
     public inventory?: Inventory;

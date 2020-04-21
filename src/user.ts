@@ -105,40 +105,40 @@ export class User {
             if (user.player) {
                 switch (msg.action + '') {
                     case 'move_up':
-                        user.player.setAction(new MoveAction(DIRECTION.UP));
+                        user.player.setAction(new MoveAction(DIRECTION.NORTH));
                         break;
                     case 'move_left':
-                        user.player.setAction(new MoveAction(DIRECTION.LEFT));
+                        user.player.setAction(new MoveAction(DIRECTION.WEST));
                         break;
                     case 'move_down':
-                        user.player.setAction(new MoveAction(DIRECTION.DOWN));
+                        user.player.setAction(new MoveAction(DIRECTION.SOUTH));
                         break;
                     case 'move_right':
-                        user.player.setAction(new MoveAction(DIRECTION.RIGHT));
+                        user.player.setAction(new MoveAction(DIRECTION.EAST));
                         break;
                     case 'strafe_up':
-                        user.player.setAction(new StrafeAction(DIRECTION.UP));
+                        user.player.setAction(new StrafeAction(DIRECTION.NORTH));
                         break;
                     case 'strafe_left':
-                        user.player.setAction(new StrafeAction(DIRECTION.LEFT));
+                        user.player.setAction(new StrafeAction(DIRECTION.WEST));
                         break;
                     case 'strafe_down':
-                        user.player.setAction(new StrafeAction(DIRECTION.DOWN));
+                        user.player.setAction(new StrafeAction(DIRECTION.SOUTH));
                         break;
                     case 'strafe_right':
-                        user.player.setAction(new StrafeAction(DIRECTION.RIGHT));
+                        user.player.setAction(new StrafeAction(DIRECTION.EAST));
                         break;
                     case 'turn_up':
-                        user.player.setAction(new TurnAction(DIRECTION.UP));
+                        user.player.setAction(new TurnAction(DIRECTION.NORTH));
                         break;
                     case 'turn_left':
-                        user.player.setAction(new TurnAction(DIRECTION.LEFT));
+                        user.player.setAction(new TurnAction(DIRECTION.WEST));
                         break;
                     case 'turn_down':
-                        user.player.setAction(new TurnAction(DIRECTION.DOWN));
+                        user.player.setAction(new TurnAction(DIRECTION.SOUTH));
                         break;
                     case 'turn_right':
-                        user.player.setAction(new TurnAction(DIRECTION.RIGHT));
+                        user.player.setAction(new TurnAction(DIRECTION.EAST));
                         break;
                     case 'wait':
                         user.player.setAction(new WaitAction());

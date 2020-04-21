@@ -1,8 +1,8 @@
 export enum DIRECTION {
-    UP,
-    LEFT,
-    DOWN,
-    RIGHT,
+    NORTH,
+    WEST,
+    SOUTH,
+    EAST,
 }
 
 export const directionVectors = [
@@ -13,12 +13,12 @@ export const directionVectors = [
 ];
 
 export const ChatDirections: Record<string, DIRECTION | undefined> = {
-    'up': DIRECTION.UP,
-    'left': DIRECTION.LEFT,
-    'down': DIRECTION.DOWN,
-    'right': DIRECTION.RIGHT,
-    'north': DIRECTION.UP,
-    'west': DIRECTION.LEFT,
-    'south': DIRECTION.DOWN,
-    'east': DIRECTION.RIGHT,
+    'up': DIRECTION.NORTH,
+    'left': DIRECTION.WEST,
+    'down': DIRECTION.SOUTH,
+    'right': DIRECTION.EAST,
+    'north': DIRECTION.NORTH,
+    'west': DIRECTION.WEST,
+    'south': DIRECTION.SOUTH,
+    'east': DIRECTION.EAST,
 };

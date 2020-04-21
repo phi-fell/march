@@ -1,9 +1,9 @@
 import { CharacterSheet } from './character/charactersheet';
 import { AddMobEvent, AttackEvent, MoveEvent, RemoveMobEvent } from './clientevent';
-import { DIRECTION, directionVectors } from './world/direction';
+import { Random } from './math/random';
 import { Instance } from './old_instance';
 import type { Location } from './old_location';
-import { Random } from './math/random';
+import { DIRECTION, directionVectors } from './world/direction';
 
 export const MOVE_AP = 5;
 export const MAX_VISIBILITY_RADIUS = 22;
@@ -27,7 +27,7 @@ export class Entity {
         public name: string,
         public schema_id: string,
         loc: Location,
-        public direction: DIRECTION = DIRECTION.UP,
+        public direction: DIRECTION = DIRECTION.NORTH,
     ) {
         this.visibility = [[]];
         this.charSheet = new CharacterSheet();
