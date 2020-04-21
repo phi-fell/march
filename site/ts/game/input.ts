@@ -1,21 +1,21 @@
 
-const ACTION_SHORTCUTS: Record<string, string[]> = {
-    '37': ['turn_left'],
-    '38': ['turn_up'],
-    '39': ['turn_right'],
-    '40': ['turn_down'],
-    '73': ['strafe_up'],
-    '74': ['strafe_left'],
-    '75': ['strafe_down'],
-    '76': ['strafe_right'],
-    '87': ['turn_up', 'move_up'],
-    '65': ['turn_left', 'move_left'],
-    '83': ['turn_down', 'move_down'],
-    '68': ['turn_right', 'move_right'],
-    '32': ['attack'],
-    '88': ['unwait'],
-    '90': ['wait'],
-    '190': ['portal'],
+const MACRO_SHORTCUTS: Record<string, string[]> = {
+    '37': ['#turn left'],
+    '38': ['#turn up'],
+    '39': ['#turn right'],
+    '40': ['#turn down'],
+    '73': ['#strafe up'],
+    '74': ['#strafe left'],
+    '75': ['#strafe down'],
+    '76': ['#strafe right'],
+    '87': ['#turn up', '#move up'],
+    '65': ['#turn left', '#move left'],
+    '83': ['#turn down', '#move down'],
+    '68': ['#turn right', '#move right'],
+    '32': ['#attack'],
+    '88': ['#unwait'],
+    '90': ['#wait'],
+    '190': ['#portal'],
 };
 
 enum GAME_SHORTCUT {
@@ -104,9 +104,12 @@ export class Input {
                     $('#chat_input').focus();
                     return;
             }
-        } else {
-            // ACTIONS
+        } else if (MACRO_SHORTCUTS[e.keyCode] !== undefined) {
             // TODO: do not send action if there are events/animations currently playing (unless action is unwait)
+            const msgs = MACRO_SHORTCUTS[e.keyCode];
+            for (const msg of msgs) {
+                this.socket.emit('chat_message', msg);
+            }
         }
     }
 }
