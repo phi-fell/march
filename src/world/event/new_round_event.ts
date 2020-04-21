@@ -1,7 +1,6 @@
-import type { Event, EventClass } from '../event';
 import { EVENT_TYPE } from './event_type';
 
-export const NewRoundEvent: EventClass<EVENT_TYPE.NEW_ROUND> = class implements Event {
+export class NewRoundEvent {
     public type: EVENT_TYPE.NEW_ROUND = EVENT_TYPE.NEW_ROUND;
     public resendBoard = false;
     public getClientJSON() {
