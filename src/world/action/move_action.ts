@@ -1,6 +1,7 @@
 import type { ActionClass } from '../action';
 import { ChatDirections, DIRECTION, directionVectors } from '../direction';
 import type { Entity } from '../entity';
+import { MoveEvent } from '../event/move_event';
 import { ActionBase } from './actionbase';
 import { ACTION_RESULT } from './actionresult';
 import { ACTION_TYPE } from './actiontype';
@@ -40,7 +41,7 @@ export const MoveAction: ActionClass<ACTION_TYPE.MOVE> = class extends ActionBas
             return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
         }
         if (entity.sheet.hasSufficientAP(this.cost)) {
-            // emit events when that's implemented
+            entity.location.cell.emit(new MoveEvent(entity, this.direction), entity.location);
             entity.setLocation(newLoc);
             return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
         }

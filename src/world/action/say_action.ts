@@ -1,5 +1,6 @@
 import type { ActionClass } from '../action';
 import type { Entity } from '../entity';
+import { SayEvent } from '../event/say_event';
 import { ActionBase } from './actionbase';
 import { ACTION_RESULT } from './actionresult';
 import { ACTION_TYPE } from './actiontype';
@@ -15,7 +16,7 @@ export const SayAction: ActionClass<ACTION_TYPE.SAY> = class extends ActionBase 
         super();
     }
     public perform(entity: Entity) {
-        entity.say(this.message);
+        entity.location.cell.emit(new SayEvent(entity, this.message), entity.location);
         return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
     }
     public toJSON(): object {

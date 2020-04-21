@@ -1,6 +1,7 @@
 import type { ActionClass } from '../action';
 import { ChatDirections, DIRECTION } from '../direction';
 import type { Entity } from '../entity';
+import { LookEvent } from '../event/look_event';
 import { ActionBase } from './actionbase';
 import { ACTION_RESULT } from './actionresult';
 import { ACTION_TYPE } from './actiontype';
@@ -24,7 +25,7 @@ export const LookAction: ActionClass<ACTION_TYPE.LOOK> = class extends ActionBas
         super();
     }
     public perform(entity: Entity) {
-        entity.look(this.direction);
+        entity.location.cell.emit(new LookEvent(entity, this.direction), entity.location);
         return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
     }
     public toJSON(): object {

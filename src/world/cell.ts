@@ -5,6 +5,7 @@ import { FileBackedData } from '../system/file_backed_data';
 import { getTileProps, NO_TILE, Tile } from '../tile';
 import { Board } from './board';
 import type { Entity } from './entity';
+import type { Event } from './event';
 import { CellAttributes } from './generation/cellattributes';
 import { CellGeneration } from './generation/cellgeneration';
 import type { Instance } from './instance';
@@ -56,6 +57,12 @@ export class Cell extends FileBackedData {
     }
     public notifyAsyncEnt(entity_id: UUID) {
         this.board.notifyAsyncEnt(entity_id);
+    }
+    public emitGlobal(event: Event) {
+        this.board.emitGlobal(event);
+    }
+    public emit(event: Event, ...locations: Location[]) {
+        this.board.emit(event, ...locations);
     }
     public getRandomPassableLocation(rand?: Random): Location {
         let x = 0;

@@ -78,12 +78,6 @@ export class Entity extends Locatable {
     public constructor(loc: Location, public id: UUID = Random.uuid()) {
         super(loc);
     }
-    public say(msg: string) {
-        // TODO: broadcast to cell?
-    }
-    public look(dir: DIRECTION) {
-        // TODO: send a message with info about what you see
-    }
     public isEntity(): this is Entity {
         return true;
     }
