@@ -43,7 +43,7 @@ export class Player {
         const inst: Instance = await world.createInstance();
         const cell: Cell = await inst.createCell(new CellAttributes(Random.getDeterministicID(), CELL_GENERATION.SLIME_CAVE, 50, 50));
         const loc = cell.getRandomPassableLocation();
-        const ent = new Entity(world, loc);
+        const ent = new Entity(loc);
         ent.sheet = ret.sheet;
         ent.controller = new PlayerController(ret);
         ret.entity_ref = {
@@ -90,10 +90,7 @@ export class Player {
                 })
             } else {
                 if (this.action_queue.length === 0) {
-                    (async () => {
-                        const cell = await ent.location.getCell();
-                        cell.notifyAsyncEnt(ent.id);
-                    })();
+                    ent.location.cell.notifyAsyncEnt(ent.id);
                 }
                 this.action_queue.push(action);
             }
@@ -117,12 +114,12 @@ export class Player {
             this.action_queue.shift();
         }
     }
-    public async getGameData() {
+    public getGameData() {
         const ent = this.getEntity();
         return {
             'player_sheet': this.sheet.getClientJSON(),
             'player_entity': ent.getClientJSON(),
-            'board': (await this.world.getCell(ent.location.instance_id, ent.location.cell_id)).getClientJSON(ent),
+            'board': ent.location.cell.getClientJSON(ent),
         }
     }
     public getEntity(): Entity {

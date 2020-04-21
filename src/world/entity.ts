@@ -3,12 +3,12 @@ import { CharacterSheet } from '../character/charactersheet';
 import { Inventory } from '../item/inventory';
 import { ArmorData, ItemData, WeaponData } from '../item/itemdata';
 import { Random, UUID } from '../math/random';
+import type { Cell } from './cell';
 import { Controller } from './controller';
 import { DIRECTION } from './direction';
 import { Locatable, locatable_schema } from './locatable';
 import { Location } from './location';
-import type { VisibilityManager } from './visibilitymanager';
-import type { World } from './world';
+import { VisibilityManager } from './visibilitymanager';
 
 export interface Mob extends Entity {
     controller: Controller;
@@ -48,8 +48,8 @@ export class Entity extends Locatable {
      * Only call if the resulting entity will be placed into a cell/board by the caller
      * e.g. call this from Board.fromJSON() and probably nowhere else
      */
-    public static async fromJSON(world: World, json: EntitySchema): Promise<Entity> {
-        const ret = new Entity(world, Location.fromJSON(world, json.location), json.id, true);
+    public static fromJSON(cell: Cell, json: EntitySchema): Entity {
+        const ret = new Entity(Location.fromJSON(cell, json.location), json.id);
         ret.direction = DIRECTION[json.direction];
         if (json.sheet) {
             ret.sheet = CharacterSheet.fromJSON(json.sheet);
@@ -63,7 +63,9 @@ export class Entity extends Locatable {
         if (json.item_data) {
             ret.item_data = ItemData.fromJSON(json.item_data);
         }
-        await ret.ready();
+        if (json.visibility_manager) {
+            ret.visibility_manager = VisibilityManager.fromJSON(json.visibility_manager);
+        }
         return ret;
     }
 
@@ -73,8 +75,8 @@ export class Entity extends Locatable {
     public inventory?: Inventory;
     public item_data?: ItemData;
     public visibility_manager?: VisibilityManager;
-    public constructor(world: World, loc: Location, public id: UUID = Random.uuid(), emplaced: boolean = false) {
-        super(world, loc, emplaced);
+    public constructor(loc: Location, public id: UUID = Random.uuid()) {
+        super(loc);
     }
     public say(msg: string) {
         // TODO: broadcast to cell?

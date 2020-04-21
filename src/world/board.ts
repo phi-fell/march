@@ -3,10 +3,10 @@ import type { UUID } from '../math/random';
 import { getTileFromName, getTilePalette, NO_TILE, Tile } from '../tile';
 import { assertUnreachable } from '../util/assert';
 import { ACTION_RESULT } from './action/actionresult';
+import type { Cell } from './cell';
 import { Entity } from './entity';
 import type { Event } from './event';
 import type { Location } from './location';
-import type { World } from './world';
 
 export type BoardSchema = t.TypeOf<typeof Board.schema>
 
@@ -19,7 +19,7 @@ export class Board {
         'palette': t.array(t.string),
     });
 
-    public static async fromJSON(world: World, json: BoardSchema): Promise<Board> {
+    public static async fromJSON(cell: Cell, json: BoardSchema): Promise<Board> {
         const mapping: number[] = json.palette.map(getTileFromName);
         const t_mapped: Tile[][] = [];
         for (let x = 0; x < json.width; x++) {
@@ -29,7 +29,7 @@ export class Board {
             }
         }
         const ret = new Board(json.width, json.height, t_mapped);
-        ret.entities = await Promise.all(json.entities.map((ent) => Entity.fromJSON(world, ent)));
+        await Promise.all(json.entities.map((ent) => Entity.fromJSON(cell, ent)));
         return ret;
     }
 

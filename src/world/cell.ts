@@ -64,7 +64,7 @@ export class Cell extends FileBackedData {
         do {
             if (max_iter-- < 0) {
                 console.log('looped too many times!');
-                return new Location(this.instance.world, -1, -1, this.instance.id, this.id);
+                return new Location(-1, -1, this);
             }
             if (rand) {
                 x = rand.int(0, this.attributes.width);
@@ -74,7 +74,7 @@ export class Cell extends FileBackedData {
                 y = Random.int(0, this.attributes.height);
             }
         } while (!getTileProps(this.board.tiles[x][y]).passable);
-        return new Location(this.instance.world, x, y, this.instance.id, this.id);
+        return new Location(x, y, this);
     }
     public getClientJSON(entity: Entity) {
         const retTiles: Tile[][] = [];
@@ -145,7 +145,7 @@ export class Cell extends FileBackedData {
     protected async fromJSON(json: CellSchema): Promise<void> {
         this.id = json.id;
         this.attributes = CellAttributes.fromJSON(json.attributes);
-        this.board = await Board.fromJSON(this.instance.world, json.board);
+        this.board = await Board.fromJSON(this, json.board);
     }
     protected toJSON(): CellSchema {
         return {
