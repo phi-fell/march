@@ -191,7 +191,7 @@ export class Client {
         }
     }
     private addLoggedInListeners(socket: Socket) {
-        socket.on('get', async (msg) => {
+        socket.on('get', (msg) => {
             if (this.user) {
                 if (msg === 'players') {
                     this.socket.emit('players', this.user.players.map((p) => p.toJSON()));
@@ -204,7 +204,7 @@ export class Client {
                 } else if (msg === 'palette') {
                     this.socket.emit('palette', getTilePalette());
                 } else if (msg === 'game_data') {
-                    const data = await this.user.getGameData();
+                    const data = this.user.getGameData();
                     if (data) {
                         this.socket.emit('game_data', data);
                     } else {
