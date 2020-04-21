@@ -94,6 +94,15 @@ export class Entity extends Locatable {
             this.inventory !== undefined
         );
     }
+    public getName(): string {
+        if (this.sheet) {
+            return this.sheet.name;
+        }
+        if (this.item_data) {
+            return this.item_data.name;
+        }
+        return this.id;
+    }
     public equals(other: Entity): boolean {
         return this.id === other.id;
     }

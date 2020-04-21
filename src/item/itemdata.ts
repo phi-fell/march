@@ -1,6 +1,6 @@
 import * as t from 'io-ts';
-
 import { EQUIPMENT_SLOT } from './equipment_slot';
+
 
 export interface WeaponData extends ItemData {
     weapon_data: WeaponSubData;
@@ -18,11 +18,14 @@ export class ItemData {
             'weapon_data': t.any, // WeaponSubData.schema,
             'armor_data': t.any, // ArmorSubData.schema,
         }),
-        t.type({})
+        t.type({
+            'name': t.string
+        })
     ]);
 
     public static fromJSON(json: ItemDataSchema): ItemData {
         const ret = new ItemData();
+        ret.name = json.name;
         if (json.weapon_data) {
             ret.weapon_data = WeaponSubData.fromJSON(json.weapon_data);
         }
@@ -32,6 +35,7 @@ export class ItemData {
         return ret;
     }
 
+    public name: string = '';
     public weapon_data?: WeaponSubData;
     public armor_data?: ArmorSubData;
     public isWeaponData(): this is WeaponData {
@@ -41,7 +45,9 @@ export class ItemData {
         return this.armor_data !== undefined;
     }
     public toJSON(): ItemDataSchema {
-        const ret: ItemDataSchema = {}
+        const ret: ItemDataSchema = {
+            'name': this.name,
+        }
         if (this.weapon_data) {
             ret.weapon_data = this.weapon_data.toJSON();
         }
