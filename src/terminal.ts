@@ -2,7 +2,7 @@ import { createContext, runInContext } from 'vm';
 
 import { Entity } from './deprecated/old_entity';
 import { Instance } from './deprecated/old_instance';
-import { Player } from './old_player';
+import { Player } from './deprecated/old_player';
 import { User } from './user';
 
 class Logger {

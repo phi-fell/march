@@ -2,7 +2,7 @@ import type { Instance } from '../deprecated/old_instance';
 import { getRandomAdjacency } from '../instanceschema';
 import { Location } from '../deprecated/old_location';
 import { Random } from '../math/random';
-import { Portal } from '../portal';
+import { Portal } from '../deprecated/portal';
 import { getTileFromName } from '../tile';
 
 export function generate_SLIME_MAZE(inst: Instance) {

@@ -3,7 +3,7 @@ import type { Socket } from 'socket.io';
 
 import { DIRECTION } from './world/direction';
 import { Random } from './math/random';
-import { MoveAction } from './old_player';
+import { MoveAction } from './deprecated/old_player';
 import type { User } from './user';
 import { launch_id, version } from './version';
 

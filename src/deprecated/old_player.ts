@@ -1,16 +1,16 @@
 import fs = require('fs');
 
-import { CharacterSheet } from './character/charactersheet';
-import { AddMobEvent, AttackEvent, MoveEvent, RemoveMobEvent, TurnEvent } from './deprecated/clientevent';
-import { CharGen } from './deprecated/chargen';
-import type { EQUIPMENT_SLOT } from './item/equipment_slot';
-import type { WorldItemStack } from './item/worlditemstack';
-import { Random } from './math/random';
-import { ACTION_STATUS, Entity, MAX_VISIBILITY_RADIUS } from './deprecated/old_entity';
-import { Instance } from './deprecated/old_instance';
-import { Location } from './deprecated/old_location';
-import type { User } from './user';
-import { DIRECTION, directionVectors } from './world/direction';
+import { CharacterSheet } from '../character/charactersheet';
+import { AddMobEvent, AttackEvent, MoveEvent, RemoveMobEvent, TurnEvent } from './clientevent';
+import { CharGen } from './chargen';
+import type { EQUIPMENT_SLOT } from '../item/equipment_slot';
+import type { WorldItemStack } from '../item/worlditemstack';
+import { Random } from '../math/random';
+import { ACTION_STATUS, Entity, MAX_VISIBILITY_RADIUS } from './old_entity';
+import { Instance } from './old_instance';
+import { Location } from './old_location';
+import type { User } from '../user';
+import { DIRECTION, directionVectors } from '../world/direction';
 
 const players: { [id: string]: Player; } = {};
 

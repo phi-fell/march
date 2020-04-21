@@ -1,7 +1,7 @@
-import { Instance } from './deprecated/old_instance';
-import { getInstanceFromSchema, InstanceSchemaID } from './instanceschema';
-import { Location } from './deprecated/old_location';
-import { Random } from './math/random';
+import { Instance } from './old_instance';
+import { getInstanceFromSchema, InstanceSchemaID } from '../instanceschema';
+import { Location } from './old_location';
+import { Random } from '../math/random';
 
 export class Portal {
     public static fromJSON(json: any): Portal {

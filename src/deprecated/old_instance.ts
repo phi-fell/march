@@ -11,8 +11,8 @@ import type { WorldItemStack } from '../item/worlditemstack';
 import { Location } from './old_location';
 import { Random } from '../math/random';
 import { spawnMobFromSchema } from './mobschema';
-import { Player } from '../old_player';
-import { Portal } from '../portal';
+import { Player } from './old_player';
+import { Portal } from './portal';
 import { getTileProps, NO_TILE, Tile } from '../tile';
 
 const MAX_INACTIVE_TIME = 1000 * 60 * 10; // 10 minutes (as milliseconds)

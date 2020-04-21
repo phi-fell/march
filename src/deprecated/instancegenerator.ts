@@ -5,7 +5,7 @@ import { generate_SLIME_MAZE } from '../instance_generation/slime_maze.';
 import { getRandomAdjacency } from '../instanceschema';
 import { Location } from './old_location';
 import { Random } from '../math/random';
-import { Portal } from '../portal';
+import { Portal } from './portal';
 import { getTileFromName } from '../tile';
 
 export enum INSTANCE_GEN_TYPE {

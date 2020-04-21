@@ -28,7 +28,7 @@ import {
     UnwaitAction,
     UsePortalAction,
     WaitAction,
-} from './old_player';
+} from './deprecated/old_player';
 import { getTilePalette } from './tile';
 
 const users: { [id: string]: User; } = {};
