@@ -7,6 +7,6 @@
     p Action: (Display Not Implemented)
     p (Turn Display Not Implemented)
     p -----Status-----
-    p Position: (Display Not Implemented)
+    p Position: ({{self.player_entity.location.x}}, {{self.player_entity.location.y}})
     game_player-resource(v-for='(resource, name) in self.player_sheet.status.pools' v-bind:self='{name,...resource}' :key='name')
     p Action Points: {{self.player_sheet.status.action_points}}/{{self.player_sheet.status.max_action_points}} ({{self.player_sheet.status.action_point_recovery}}/turn)

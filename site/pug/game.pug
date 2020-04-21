@@ -12,7 +12,7 @@ html
 body
     #game.all.row
         .flex.col.maxw25.border_sides
-            game_status-pane.flex.pane.maxh50.border_bottom(v-bind:self="{player_sheet}")
+            game_status-pane.flex.pane.maxh50.border_bottom(v-bind:self="{player_sheet, player_entity}")
             game_sheet-pane.flex.pane.maxh50(v-bind:self="{player_sheet,sheet_view}" v-model="sheet_view")
         #canvas_div.flex
             canvas#tileCanvas
