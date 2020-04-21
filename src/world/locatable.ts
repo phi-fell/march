@@ -16,9 +16,11 @@ export type LocatableSchema = t.TypeOf<typeof locatable_schema>
  */
 export abstract class Locatable {
     private _location: Location;
-    protected constructor(loc: Location) {
+    protected constructor(loc: Location, emplaced: boolean = false) {
         this._location = loc;
-        this._location.cell.addLocatable(this);
+        if (!emplaced) {
+            this._location.cell.addLocatable(this);
+        }
     }
     public isEntity(): this is Entity {
         return false;

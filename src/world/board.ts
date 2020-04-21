@@ -19,7 +19,7 @@ export class Board {
         'palette': t.array(t.string),
     });
 
-    public static async fromJSON(cell: Cell, json: BoardSchema): Promise<Board> {
+    public static fromJSON(cell: Cell, json: BoardSchema): Board {
         const mapping: number[] = json.palette.map(getTileFromName);
         const t_mapped: Tile[][] = [];
         for (let x = 0; x < json.width; x++) {
@@ -29,7 +29,7 @@ export class Board {
             }
         }
         const ret = new Board(json.width, json.height, t_mapped);
-        json.entities.map((ent) => Entity.fromJSON(cell, ent));
+        ret.entities = json.entities.map((ent) => Entity.fromJSON(cell, ent, true));
         return ret;
     }
 

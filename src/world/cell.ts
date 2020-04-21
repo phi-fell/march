@@ -152,7 +152,7 @@ export class Cell extends FileBackedData {
     protected async fromJSON(json: CellSchema): Promise<void> {
         this.id = json.id;
         this.attributes = CellAttributes.fromJSON(json.attributes);
-        this.board = await Board.fromJSON(this, json.board);
+        this.board = Board.fromJSON(this, json.board);
     }
     protected toJSON(): CellSchema {
         return {

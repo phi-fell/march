@@ -48,8 +48,9 @@ export class Entity extends Locatable {
      * Only call if the resulting entity will be placed into a cell/board by the caller
      * e.g. call this from Board.fromJSON() and probably nowhere else
      */
-    public static fromJSON(cell: Cell, json: EntitySchema): Entity {
-        const ret = new Entity(Location.fromJSON(cell, json.location), json.id);
+    public static fromJSON(cell: Cell, json: EntitySchema, emplaced: boolean = false): Entity {
+        console.log(json);
+        const ret = new Entity(Location.fromJSON(cell, json.location), json.id, emplaced);
         ret.direction = DIRECTION[json.direction];
         if (json.sheet) {
             ret.sheet = CharacterSheet.fromJSON(json.sheet);
@@ -75,8 +76,8 @@ export class Entity extends Locatable {
     public inventory?: Inventory;
     public item_data?: ItemData;
     public visibility_manager?: VisibilityManager;
-    public constructor(loc: Location, public id: UUID = Random.uuid()) {
-        super(loc);
+    public constructor(loc: Location, public id: UUID = Random.uuid(), emplaced: boolean = false) {
+        super(loc, emplaced);
     }
     public isEntity(): this is Entity {
         return true;
