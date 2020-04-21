@@ -89,6 +89,10 @@ export class Entity extends Locatable {
             this.inventory !== undefined
         );
     }
+    public isCollidable(): boolean {
+        // TODO: give entities a component that makes them collide?
+        return true;
+    }
     public getName(): string {
         if (this.sheet) {
             return this.sheet.name;

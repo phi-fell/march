@@ -59,6 +59,9 @@ export class Board {
             }
         }
     }
+    public getEntitiesAt(x: number, y: number): Entity[] {
+        return this.entities.filter((e) => { return e.location.x === x && e.location.y === y });
+    }
     public emitGlobal(event: Event) {
         for (const ent of this.entities) {
             if (ent.controller) {

@@ -1,5 +1,7 @@
 import * as t from 'io-ts';
+import type { Tile } from '../tile';
 import type { Cell } from './cell';
+import type { Entity } from './entity';
 import { Position } from './position';
 
 export type LocationSchema = t.TypeOf<typeof Location.schema>;
@@ -23,6 +25,12 @@ export class Location extends Position {
     }
     get cell_id(): string {
         return this.cell.id;
+    }
+    public getTileAt(): Tile {
+        return this.cell.getTileAt(this.x, this.y);
+    }
+    public getEntitiesAt(): Entity[] {
+        return this.cell.getEntitiesAt(this.x, this.y)
     }
     public translate(dx: number, dy: number): Location {
         return new Location(this.x + dx, this.y + dy, this.cell);

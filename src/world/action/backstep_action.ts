@@ -1,3 +1,4 @@
+import { getTileProps } from '../../tile';
 import type { ActionClass } from '../action';
 import { ChatDirections, DIRECTION, directionVectors, getRelativeDirection, RELATIVE_DIRECTION } from '../direction';
 import type { Entity } from '../entity';
@@ -32,11 +33,14 @@ export const BackstepAction: ActionClass<ACTION_TYPE.BACKSTEP> = class extends A
         const vec = directionVectors[this.direction];
         const newLoc = entity.location.translate(vec.x, vec.y);
 
-        // if tile is not passable
-        // return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
-
-        // if there is a mob in the way
-        // return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
+        if (!getTileProps(newLoc.getTileAt()).passable) {
+            return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
+        }
+        for (const ent of newLoc.getEntitiesAt()) {
+            if (ent.isCollidable()) {
+                return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
+            }
+        }
 
         if (entity.sheet === undefined) {
             return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };

@@ -64,6 +64,12 @@ export class Cell extends FileBackedData {
     public emit(event: Event, ...locations: Location[]) {
         this.board.emit(event, ...locations);
     }
+    public getTileAt(x: number, y: number): Tile {
+        return this.board.tiles[x][y];
+    }
+    public getEntitiesAt(x: number, y: number): Entity[] {
+        return this.board.getEntitiesAt(x, y);
+    }
     public getRandomPassableLocation(rand?: Random): Location {
         let x = 0;
         let y = 0;
