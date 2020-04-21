@@ -1,8 +1,8 @@
 import fs = require('fs');
 
 import { CharacterSheet } from './character/charactersheet';
-import { CharGen } from './chargen';
 import { AddMobEvent, AttackEvent, MoveEvent, RemoveMobEvent, TurnEvent } from './clientevent';
+import { CharGen } from './deprecated/chargen';
 import type { EQUIPMENT_SLOT } from './item/equipment_slot';
 import type { WorldItemStack } from './item/worlditemstack';
 import { Random } from './math/random';
