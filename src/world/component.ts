@@ -44,9 +44,7 @@ const componentwrappers = {
 export type ComponentName = keyof typeof componentwrappers;
 const ComponentNames = Object.keys(componentwrappers) as ComponentName[];
 type FlattenComponents<T> = T extends { fromJSON: (...args: any) => infer U } ? U : never;
-type Component = FlattenComponents<ValueOf<typeof componentwrappers>>;
-type FlattenSchemas<T> = T extends { schema: infer U } ? U : never;
-type ComponentSchema = FlattenSchemas<ValueOf<typeof componentwrappers>>;
+export type Component = FlattenComponents<ValueOf<typeof componentwrappers>>;
 
 type ComponentsSchemaEntries = {
     [P in ComponentName]: typeof componentwrappers[P]['schema'];
@@ -58,8 +56,43 @@ const components_schema = t.partial(
 export type ComponentsSchema = t.TypeOf<typeof components_schema>;
 
 type RetrieveComponent<T> = T extends { 'fromJSON': (...args: any) => infer U } ? U : never
-export type Components = {
-    [P in ComponentName]?: RetrieveComponent<typeof componentwrappers[P]>;
+type FullComponents = {
+    [P in ComponentName]: RetrieveComponent<typeof componentwrappers[P]>;
+}
+
+export type Components = Partial<FullComponents>;
+
+type ComponentWithName<T extends ComponentName> = FullComponents[T];
+function withComponent<T extends ComponentName>(components: Components, name: T, fun: (arg: ComponentWithName<T>) => void) {
+    const c = components[name];
+    if (c !== undefined) {
+        fun(c as FullComponents[T]);
+    }
+}
+
+withComponent({ 'direction': DIRECTION.WEST } as Components, 'direction', (dir: DIRECTION) => {
+    console.log(dir);
+});
+
+type ComponentsWithNames<T extends ComponentName[]> =
+    T extends { length: 0 } ? [] :
+    T extends { length: 1 } ? [ComponentWithName<T[0]>] :
+    T extends { length: 2 } ? [ComponentWithName<T[0]>, ComponentWithName<T[1]>] :
+    T extends { length: 3 } ? [ComponentWithName<T[0]>, ComponentWithName<T[1]>, ComponentWithName<T[2]>] :
+    T extends { length: 4 } ? [ComponentWithName<T[0]>, ComponentWithName<T[1]>, ComponentWithName<T[2]>, ComponentWithName<T[3]>] :
+    T extends { length: 5 } ? [
+        ComponentWithName<T[0]>, ComponentWithName<T[1]>, ComponentWithName<T[2]>, ComponentWithName<T[3]>, ComponentWithName<T[4]>
+    ] :
+    never;
+function withComponents<T extends ComponentName[]>(components: Components, names: T, fun: (...args: ComponentsWithNames<T>) => void) {
+    const c = names.map((name) => components[name]);
+    for (const comp of c) {
+        if (comp === undefined) {
+            return;
+        }
+    }
+    const args = c as ComponentsWithNames<T>;
+    fun(...args);
 }
 
 export const Components = {
@@ -83,5 +116,7 @@ export const Components = {
             }
         }
         return ret;
-    }
+    },
+    withComponent,
+    withComponents,
 };
