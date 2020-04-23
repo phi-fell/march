@@ -80,7 +80,8 @@ type ComponentsWithNames<T extends ComponentName[]> =
         ComponentWithName<T[0]>, ComponentWithName<T[1]>, ComponentWithName<T[2]>, ComponentWithName<T[3]>, ComponentWithName<T[4]>
     ] :
     never;
-function withComponents<T extends ComponentName[]>(components: Components, names: T, fun: (...args: ComponentsWithNames<T>) => void) {
+export type WithCallback<T extends ComponentName[]> = (...args: ComponentsWithNames<T>) => void;
+function withComponents<T extends ComponentName[]>(components: Components, names: T, fun: WithCallback<T>) {
     const c = names.map((name) => components[name]);
     for (const comp of c) {
         if (comp === undefined) {
