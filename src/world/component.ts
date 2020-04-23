@@ -70,10 +70,6 @@ function withComponent<T extends ComponentName>(components: Components, name: T,
     }
 }
 
-withComponent({ 'direction': DIRECTION.WEST } as Components, 'direction', (dir: DIRECTION) => {
-    console.log(dir);
-});
-
 type ComponentsWithNames<T extends ComponentName[]> =
     T extends { length: 0 } ? [] :
     T extends { length: 1 } ? [ComponentWithName<T[0]>] :
