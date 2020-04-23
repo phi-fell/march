@@ -1,30 +1,9 @@
 import * as t from 'io-ts';
-import { CharacterSheet } from '../character/charactersheet';
-import { Inventory } from '../item/inventory';
-import { ArmorData, ItemData, WeaponData } from '../item/itemdata';
 import { Random, UUID } from '../math/random';
 import type { Cell } from './cell';
-import { Controller } from './controller';
-import { DIRECTION } from './direction';
+import { ComponentName, Components, WithAllCallback, WithCallback } from './component';
 import { Locatable, locatable_schema } from './locatable';
 import { Location } from './location';
-import { VisibilityManager } from './visibilitymanager';
-
-export interface Mob extends Entity {
-    controller: Controller;
-    sheet: CharacterSheet;
-    inventory: Inventory;
-}
-
-export interface Item extends Entity {
-    item_data: ItemData;
-}
-export interface Weapon extends Item {
-    item_data: WeaponData;
-}
-export interface Armor extends Item {
-    item_data: ArmorData;
-}
 
 export type EntitySchema = t.TypeOf<typeof Entity.schema>;
 
@@ -32,16 +11,9 @@ export class Entity extends Locatable {
     public static schema = t.intersection([
         t.type({
             'id': t.string,
-            'direction': t.keyof(DIRECTION),
+            'components': Components.schema,
         }),
         locatable_schema,
-        t.partial({
-            'sheet': CharacterSheet.schema,
-            'controller': Controller.schema,
-            'inventory': Inventory.schema,
-            'item_data': ItemData.schema,
-            'visibility_manager': t.any,
-        }),
     ]);
 
     /**
@@ -51,54 +23,58 @@ export class Entity extends Locatable {
     public static fromJSON(cell: Cell, json: EntitySchema, emplaced: boolean = false): Entity {
         console.log(json);
         const ret = new Entity(Location.fromJSON(cell, json.location), json.id, emplaced);
-        ret.direction = DIRECTION[json.direction];
-        if (json.sheet) {
-            ret.sheet = CharacterSheet.fromJSON(json.sheet);
-        }
-        if (json.controller) {
-            ret.controller = Controller.fromJSON(json.controller);
-        }
-        if (json.inventory) {
-            ret.inventory = Inventory.fromJSON(json.inventory);
-        }
-        if (json.item_data) {
-            ret.item_data = ItemData.fromJSON(json.item_data);
-        }
-        if (json.visibility_manager) {
-            ret.visibility_manager = VisibilityManager.fromJSON(json.visibility_manager);
-        }
+        ret.components = Components.fromJSON(json.components);
         return ret;
     }
 
-    public direction: DIRECTION = DIRECTION.NORTH;
-    public sheet?: CharacterSheet;
-    public controller?: Controller;
-    public inventory?: Inventory;
-    public item_data?: ItemData;
-    public visibility_manager?: VisibilityManager;
+    private components: Components = {};
     public constructor(loc: Location, public id: UUID = Random.uuid(), emplaced: boolean = false) {
         super(loc, emplaced);
     }
     public isEntity(): this is Entity {
         return true;
     }
-    public isMob(): this is Mob {
-        return (
-            this.controller !== undefined &&
-            this.sheet !== undefined &&
-            this.inventory !== undefined
-        );
-    }
     public isCollidable(): boolean {
         // TODO: give entities a component that makes them collide?
+        // i.e. delete this function and add some component that handles that
+        // (even if the component is just a boolean with an entry in component_wrappers)
         return true;
     }
+    public getComponent<T extends ComponentName>(name: T) {
+        return this.components[name];
+    }
+    public getComponents<T extends ComponentName[]>(...names: T) {
+        return Components.getComponents(this.components, ...names);
+    }
+    public setComponent<T extends ComponentName>(name: T, component: Components[T]) {
+        this.components[name] = component;
+    }
+    /**
+     * Calls the passed callbacks with the values of the named components (or undefined for components not present)
+     * @param callback callback to be called (synchronously)
+     * @param names names of components
+     */
+    public with<T extends ComponentName[]>(callback: WithCallback<T>, ...names: T) {
+        return Components.withComponents(this.components, callback, ...names);
+    }
+    /**
+     * If all of the named components are present on this entity:
+     *      Calls the passed callbacks with the values of the named components
+     * If any of the named components are not present, does nothing
+     * @param callback callback to be called (synchronously)
+     * @param names names of components
+     */
+    public withAll<T extends ComponentName[]>(callback: WithAllCallback<T>, ...names: T) {
+        return Components.withAllComponents(this.components, callback, ...names);
+    }
     public getName(): string {
-        if (this.sheet) {
-            return this.sheet.name;
+        const sheet = this.getComponent('sheet');
+        if (sheet) {
+            return sheet.name;
         }
-        if (this.item_data) {
-            return this.item_data.name;
+        const item_data = this.getComponent('item_data');
+        if (item_data) {
+            return item_data.name;
         }
         return this.id;
     }
@@ -106,27 +82,11 @@ export class Entity extends Locatable {
         return this.id === other.id;
     }
     public toJSON(): EntitySchema {
-        const ret: EntitySchema = {
+        return {
             'id': this.id,
-            'direction': DIRECTION[this.direction] as keyof typeof DIRECTION,
             'location': this.location.toJSON(),
+            'components': Components.toJSON(this.components),
         }
-        if (this.sheet) {
-            ret.sheet = this.sheet.toJSON();
-        }
-        if (this.controller) {
-            ret.controller = this.controller.toJSON();
-        }
-        if (this.inventory) {
-            ret.inventory = this.inventory.toJSON();
-        }
-        if (this.item_data) {
-            ret.item_data = this.item_data.toJSON();
-        }
-        if (this.visibility_manager) {
-            ret.visibility_manager = this.visibility_manager.toJSON();
-        }
-        return ret;
     }
     public getClientJSON() {
         return this.toJSON(); // TODO: reduce info sent

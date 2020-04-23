@@ -78,7 +78,7 @@ export type WithAllCallback<T extends ComponentName[]> = (...args: ComponentsWit
 // names must be a ...rest parameter or typescript will not type it correctly when this is called.
 // passing ['a','b'] to names:[] will pass string[], whereas passing ,'a','b' to ...names:[] will pass ['a','b']
 // as const doesn't work right because of the readonly.
-function getComponents<T extends ComponentName[](components: Components, ...names: T): ComponentsWithNames<T, Components> {
+function getComponents<T extends ComponentName[]>(components: Components, ...names: T): ComponentsWithNames<T, Components> {
     return names.map((name) => components[name]) as ComponentsWithNames<T, Components>;
 }
 function withComponents<T extends ComponentName[]>(components: Components, fun: WithCallback<T>, ...names: T) {

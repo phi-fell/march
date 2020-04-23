@@ -40,17 +40,21 @@ export const StrafeAction: ActionClass<ACTION_TYPE.STRAFE> = class extends Actio
             }
         }
 
-        if (entity.sheet === undefined) {
+        const [direction, sheet] = entity.getComponents('direction', 'sheet');
+        if (direction === undefined) {
+            return (new MoveAction(this.direction)).perform(entity);
+        }
+        if (sheet === undefined) {
             return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
         }
-        const rel_dir = getRelativeDirection(entity.direction, this.direction);
+        const rel_dir = getRelativeDirection(direction, this.direction);
         if (rel_dir === RELATIVE_DIRECTION.FORWARD) {
             return (new MoveAction(this.direction)).perform(entity);
         }
         if (rel_dir === RELATIVE_DIRECTION.BACKWARD) {
             return (new BackstepAction(this.direction)).perform(entity);
         }
-        if (entity.sheet.hasSufficientAP(this.cost)) {
+        if (sheet.hasSufficientAP(this.cost)) {
             const oldLoc = entity.location;
             entity.setLocation(newLoc);
             entity.location.cell.emit(new StrafeEvent(entity, this.direction), oldLoc, newLoc);

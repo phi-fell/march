@@ -64,26 +64,27 @@ export class Board {
     }
     public emitGlobal(event: Event) {
         for (const ent of this.entities) {
-            if (ent.controller) {
-                ent.controller.sendEvent(event);
-            }
+            ent.withAll((controller) => {
+                controller.sendEvent(event);
+            }, 'controller');
         }
     }
     public emit(event: Event, ...locations: Location[]) {
         for (const ent of this.entities) {
-            if (ent.controller === undefined) {
-                continue;
-            }
-            if (ent.visibility_manager === undefined) {
-                ent.controller.sendEvent(event);
-                continue;
-            }
-            for (const loc of locations) {
-                if (ent.visibility_manager.canSee(loc)) {
-                    ent.controller.sendEvent(event);
-                    break;
-                }
-            }
+            ent.withAll((controller) => {
+                ent.with((visibility_manager) => {
+                    if (visibility_manager === undefined) {
+                        controller.sendEvent(event);
+                        return;
+                    }
+                    for (const loc of locations) {
+                        if (visibility_manager.canSee(loc)) {
+                            controller.sendEvent(event);
+                            break;
+                        }
+                    }
+                }, 'visibility_manager');
+            }, 'controller');
         }
     }
     public notifyAsyncEnt(entity_id: UUID) {
@@ -96,52 +97,54 @@ export class Board {
             return;
         }
         this.entities.sort((a: Entity, b: Entity) => {
-            if (a.sheet && b.sheet) {
-                return b.sheet.getInitiative() - a.sheet.getInitiative();
+            const a_sheet = a.getComponent('sheet');
+            const b_sheet = b.getComponent('sheet');
+            if (a_sheet && b_sheet) {
+                return b_sheet.getInitiative() - a_sheet.getInitiative();
             }
-            if (a.sheet) {
+            if (a_sheet) {
                 return -1;
             }
-            if (b.sheet) {
+            if (b_sheet) {
                 return 1;
             }
             return 0;
         });
         for (const ent of this.entities) {
-            if (ent.sheet && ent.controller) {
-                const action = ent.controller.getNextAction();
+            ent.withAll((sheet, controller) => {
+                const action = controller.getNextAction();
                 const result = action.perform(ent);
-                ent.sheet.useAP(result.cost);
+                sheet.useAP(result.cost);
                 switch (result.result) {
                     case ACTION_RESULT.ASYNC:
                         this.waitingOnAsyncEntityID = ent.id;
                         return; // waiting on player
                     case ACTION_RESULT.FAILURE:
-                        ent.controller.popAction();
+                        controller.popAction();
                         break;
                     case ACTION_RESULT.INSUFFICIENT_AP:
                         break;
                     case ACTION_RESULT.REDUNDANT:
-                        ent.controller.popAction();
+                        controller.popAction();
                         break;
                     case ACTION_RESULT.SUCCESS:
-                        ent.controller.popAction();
+                        controller.popAction();
                         return;
                     default:
                         assertUnreachable(result.result);
                 }
-            }
+            }, 'sheet', 'controller');
         }
         this.startNextRound();
     }
     public startNextRound() {
         for (const ent of this.entities) {
-            if (ent.sheet) {
-                ent.sheet.startNewTurn();
-            }
-            if (ent.controller) {
-                ent.controller.newRound();
-            }
+            ent.withAll((sheet) => {
+                sheet.startNewTurn();
+            }, 'sheet');
+            ent.withAll((controller) => {
+                controller.newRound();
+            }, 'controller');
         }
     }
     public getEntity(id: UUID): Entity {

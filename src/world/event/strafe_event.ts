@@ -7,9 +7,14 @@ export class StrafeEvent {
     public resendBoard = true;
     constructor(private entity: Entity, private direction: DIRECTION) { }
     public getClientJSON() {
+        const direction = this.entity.getComponent('direction');
+        let reldir = '';
+        if (direction) {
+            reldir = ' ' + RELATIVE_DIRECTION[getRelativeDirection(direction, this.direction)].toLowerCase();
+        }
         return {
             'type': EVENT_TYPE[this.type] as keyof typeof EVENT_TYPE,
-            'message': `${this.entity.getName()} sidesteps ${RELATIVE_DIRECTION[getRelativeDirection(this.entity.direction, this.direction)].toLowerCase()}`,
+            'message': `${this.entity.getName()} sidesteps${reldir}`,
         };
     }
 }

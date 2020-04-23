@@ -25,15 +25,19 @@ export const TurnAction: ActionClass<ACTION_TYPE.TURN> = class extends ActionBas
         super();
     }
     public perform(entity: Entity) {
-        if (entity.direction === this.direction) {
+        const [direction, sheet] = entity.getComponents('direction', 'sheet');
+        if (direction === undefined) {
             return { 'result': ACTION_RESULT.REDUNDANT, 'cost': 0 };
         }
-        if (entity.sheet === undefined) {
+        if (direction === this.direction) {
+            return { 'result': ACTION_RESULT.REDUNDANT, 'cost': 0 };
+        }
+        if (sheet === undefined) {
             return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
         }
-        if (entity.sheet.hasSufficientAP(this.cost)) {
-            const event = new TurnEvent(entity, entity.direction, this.direction);
-            entity.direction = this.direction;
+        if (sheet.hasSufficientAP(this.cost)) {
+            const event = new TurnEvent(entity, direction, this.direction);
+            entity.setComponent('direction', this.direction);
             entity.location.cell.emit(event, entity.location);
             return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
         }

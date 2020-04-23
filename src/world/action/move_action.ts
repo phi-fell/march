@@ -26,9 +26,11 @@ export const MoveAction: ActionClass<ACTION_TYPE.MOVE> = class extends ActionBas
         super();
     }
     public perform(entity: Entity) {
-        if (entity.direction !== this.direction) {
+        const [direction, sheet] = entity.getComponents('direction', 'sheet');
+        if (direction !== undefined && direction !== this.direction) {
             return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
         }
+
         const vec = directionVectors[this.direction];
         const newLoc = entity.location.translate(vec.x, vec.y);
 
@@ -41,10 +43,10 @@ export const MoveAction: ActionClass<ACTION_TYPE.MOVE> = class extends ActionBas
             }
         }
 
-        if (entity.sheet === undefined) {
+        if (sheet === undefined) {
             return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
         }
-        if (entity.sheet.hasSufficientAP(this.cost)) {
+        if (sheet.hasSufficientAP(this.cost)) {
             const oldLoc = entity.location;
             entity.setLocation(newLoc);
             entity.location.cell.emit(new MoveEvent(entity, this.direction), oldLoc, newLoc);

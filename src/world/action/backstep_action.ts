@@ -26,7 +26,11 @@ export const BackstepAction: ActionClass<ACTION_TYPE.BACKSTEP> = class extends A
         super();
     }
     public perform(entity: Entity) {
-        const rel_dir = getRelativeDirection(entity.direction, this.direction)
+        const [direction, sheet] = entity.getComponents('direction', 'sheet');
+        if (direction === undefined) {
+            return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 }; // directionless entities cannot backstep
+        }
+        const rel_dir = getRelativeDirection(direction, this.direction)
         if (rel_dir !== RELATIVE_DIRECTION.BACKWARD) {
             return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
         }
@@ -42,10 +46,10 @@ export const BackstepAction: ActionClass<ACTION_TYPE.BACKSTEP> = class extends A
             }
         }
 
-        if (entity.sheet === undefined) {
+        if (sheet === undefined) {
             return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
         }
-        if (entity.sheet.hasSufficientAP(this.cost)) {
+        if (sheet.hasSufficientAP(this.cost)) {
             const oldLoc = entity.location;
             entity.setLocation(newLoc);
             entity.location.cell.emit(new BackstepEvent(entity, this.direction), oldLoc, newLoc);
