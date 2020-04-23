@@ -16,10 +16,6 @@ export class Entity extends Locatable {
         locatable_schema,
     ]);
 
-    /**
-     * Only call if the resulting entity will be placed into a cell/board by the caller
-     * e.g. call this from Board.fromJSON() and probably nowhere else
-     */
     public static fromJSON(cell: Cell, json: EntitySchema, emplaced: boolean = false): Entity {
         console.log(json);
         const ret = new Entity(Location.fromJSON(cell, json.location), json.id, emplaced);
