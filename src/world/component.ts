@@ -62,36 +62,34 @@ type FullComponents = {
 
 export type Components = Partial<FullComponents>;
 
-type ComponentWithName<T extends ComponentName> = FullComponents[T];
-function withComponent<T extends ComponentName>(components: Components, name: T, fun: (arg: ComponentWithName<T>) => void) {
-    const c = components[name];
-    if (c !== undefined) {
-        fun(c as FullComponents[T]);
-    }
-}
-
-type ComponentsWithNames<T extends ComponentName[]> =
+type ComponentWithName<T extends ComponentName, U extends FullComponents | Components> = U[T];
+type ComponentsWithNames<T extends ComponentName[], U extends FullComponents | Components> =
     T extends { length: 0 } ? [] :
-    T extends { length: 1 } ? [ComponentWithName<T[0]>] :
-    T extends { length: 2 } ? [ComponentWithName<T[0]>, ComponentWithName<T[1]>] :
-    T extends { length: 3 } ? [ComponentWithName<T[0]>, ComponentWithName<T[1]>, ComponentWithName<T[2]>] :
-    T extends { length: 4 } ? [ComponentWithName<T[0]>, ComponentWithName<T[1]>, ComponentWithName<T[2]>, ComponentWithName<T[3]>] :
+    T extends { length: 1 } ? [ComponentWithName<T[0], U>] :
+    T extends { length: 2 } ? [ComponentWithName<T[0], U>, ComponentWithName<T[1], U>] :
+    T extends { length: 3 } ? [ComponentWithName<T[0], U>, ComponentWithName<T[1], U>, ComponentWithName<T[2], U>] :
+    T extends { length: 4 } ? [ComponentWithName<T[0], U>, ComponentWithName<T[1], U>, ComponentWithName<T[2], U>, ComponentWithName<T[3], U>] :
     T extends { length: 5 } ? [
-        ComponentWithName<T[0]>, ComponentWithName<T[1]>, ComponentWithName<T[2]>, ComponentWithName<T[3]>, ComponentWithName<T[4]>
+        ComponentWithName<T[0], U>, ComponentWithName<T[1], U>, ComponentWithName<T[2], U>, ComponentWithName<T[3], U>, ComponentWithName<T[4], U>
     ] :
     never;
-export type WithCallback<T extends ComponentName[]> = (...args: ComponentsWithNames<T>) => void;
+export type WithCallback<T extends ComponentName[]> = (...args: ComponentsWithNames<T, Components>) => void;
+export type WithAllCallback<T extends ComponentName[]> = (...args: ComponentsWithNames<T, FullComponents>) => void;
 // names must be a ...rest parameter or typescript will not type it correctly when this is called.
 // passing ['a','b'] to names:[] will pass string[], whereas passing ,'a','b' to ...names:[] will pass ['a','b']
 // as const doesn't work right because of the readonly.
 function withComponents<T extends ComponentName[]>(components: Components, fun: WithCallback<T>, ...names: T) {
+    const c = names.map((name) => components[name]);
+    fun(...c as ComponentsWithNames<T, Components>);
+}
+function withAllComponents<T extends ComponentName[]>(components: Components, fun: WithAllCallback<T>, ...names: T) {
     const c = names.map((name) => components[name]);
     for (const comp of c) {
         if (comp === undefined) {
             return;
         }
     }
-    const args = c as ComponentsWithNames<T>;
+    const args = c as ComponentsWithNames<T, FullComponents>;
     fun(...args);
 }
 
@@ -117,6 +115,6 @@ export const Components = {
         }
         return ret;
     },
-    withComponent,
     withComponents,
+    withAllComponents,
 };
