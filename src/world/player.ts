@@ -7,6 +7,7 @@ import { ACTION_TYPE } from './action/actiontype';
 import { SayAction } from './action/say_action';
 import type { Cell } from './cell';
 import { PlayerController } from './controller/playercontroller';
+import { DIRECTION } from './direction';
 import { Entity } from './entity';
 import type { Event } from './event';
 import { CellAttributes } from './generation/cellattributes';
@@ -44,6 +45,7 @@ export class Player {
         const cell: Cell = await inst.createCell(new CellAttributes(Random.getDeterministicID(), CELL_GENERATION.SLIME_CAVE, 50, 50));
         const loc = cell.getRandomPassableLocation();
         const ent = new Entity(loc);
+        ent.setComponent('direction', DIRECTION.NORTH);
         ent.setComponent('sheet', ret.sheet);
         ent.setComponent('controller', new PlayerController(ret));
         ret.entity_ref = {
