@@ -3,11 +3,15 @@ import { GraphicsContext } from './graphicscontext';
 
 interface Entity {
     id: string;
-    direction: 'UP' | 'LEFT' | 'DOWN' | 'RIGHT';
     location: {
         x: number;
         y: number;
     };
+    components: {
+        direction?: 'NORTH' | 'EAST' | 'WEST' | 'SOUTH';
+        sheet?: any;
+        sprite?: string;
+    }
 }
 
 interface Board {
@@ -161,8 +165,14 @@ export class Graphics {
         this.entityContext.translate(-this.board.x, -this.board.y);
         for (const entity of this.board.entities) {
             this.entityContext.push();
-            this.entityContext.translate(entity.location.x + 0.5, entity.location.y + 0.5);
-            this.getAnimation('mob/slime/idle').draw(this.entityContext, Date.now());
+            this.entityContext.translate(entity.location.x, entity.location.y);
+            const sprite = entity.components.sprite;
+            if (typeof sprite === 'string') {
+                this.getAnimation(`mob/${entity.components.sprite}/idle`).draw(this.entityContext, Date.now());
+            } else {
+                this.entityContext.color('#F0F');
+                this.entityContext.fillRect();
+            }
             this.entityContext.pop();
         }
         this.entityContext.pop();

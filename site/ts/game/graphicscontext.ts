@@ -29,19 +29,19 @@ export class GraphicsContext {
     public scale(x: number, y: number) {
         this.context.scale(x, y);
     }
-    public drawImage(image: HTMLCanvasElement | HTMLImageElement, dx: number, dy: number, dw: number, dh: number) {
+    public drawImage(image: HTMLCanvasElement | HTMLImageElement, dx: number = 0, dy: number = 0, dw: number = 1, dh: number = 1) {
         this.context.drawImage(image, dx, dy, dw, dh);
     }
     public color(stroke: string, fill: string = stroke) {
         this.context.strokeStyle = stroke;
         this.context.fillStyle = fill;
     }
-    public drawRect(x: number, y: number, w: number, h: number) {
+    public drawRect(x: number = 0, y: number = 0, w: number = 1, h: number = 1) {
         this.context.beginPath();
         this.context.rect(x, y, w, h);
         this.context.stroke();
     }
-    public fillRect(x: number, y: number, w: number, h: number) {
+    public fillRect(x: number = 0, y: number = 0, w: number = 1, h: number = 1) {
         this.context.fillRect(x, y, w, h);
     }
 }

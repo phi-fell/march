@@ -48,7 +48,7 @@ export class Animation {
                 const frame = Math.floor((time / this.delay) % this.frame_count); // TODO: add Math.max and Math.min to ensure within array bounds?
                 context.translate(this.offset.x, this.offset.y);
                 context.scale(this.scale.x, this.scale.y);
-                context.drawImage(this.frames[frame], -1 / 2, -1 / 2, 1, 1);
+                context.drawImage(this.frames[frame]);
             }
         } finally {
             context.pop();

@@ -48,6 +48,7 @@ export class Player {
         ent.setComponent('direction', DIRECTION.NORTH);
         ent.setComponent('sheet', ret.sheet);
         ent.setComponent('controller', new PlayerController(ret));
+        ent.setComponent('sprite', 'player');
         ret.entity_ref = {
             'instance_id': inst.id,
             'cell_id': cell.id,
