@@ -111,7 +111,7 @@ function getToJSON<T extends ComponentName>(name: T) {
     return componentwrappers[name].toJSON as toJSONFunction<T>;
 }
 
-function setComponentFromJSON<T extends ComponentName, U extends ComponentsSchema>(name: T, components: Components, json: U) {
+function setComponentFromJSON<T extends ComponentName>(name: T, components: Components, json: ComponentsSchema) {
     const component_json = json[name];
     if (component_json) {
         components[name] = getFromJSON(name)(component_json);
