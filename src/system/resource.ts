@@ -1,10 +1,12 @@
+import type * as t from 'io-ts';
 import { File } from './file';
 
-export type ResourceClass<T extends Resource> = new (id: string) => T;
+export type ResourceClass<S extends t.Any, T extends Resource<S>> = new (id: string) => T;
 
-export class ResourceManager<T extends Resource> {
+export abstract class ResourceManager<S extends t.Any, T extends Resource<S>> {
     private res: { [id: string]: T } = {};
-    constructor(private resource_class: ResourceClass<T>, private dir: string, private extension: string = '.json') { }
+    protected abstract resource_class: ResourceClass<S, T>;
+    constructor(private dir: string, private extension: string = '.json') { }
     public async get(id: string) {
         if (!this.res[id]) {
             this.res[id] = new this.resource_class(this.dir + '/' + id + this.extension);
@@ -14,13 +16,13 @@ export class ResourceManager<T extends Resource> {
     }
 }
 
-export abstract class Resource {
+export abstract class Resource<T extends t.Any> {
     private loadPromise: Promise<any>;
     public constructor(protected path: string) {
         this.loadPromise = this.load();
     }
-    public abstract fromJSON(json: any): void;
-    public abstract toJSON(): any;
+    public abstract fromJSON(json: t.TypeOf<T>): void;
+    public abstract toJSON(): t.TypeOf<T>;
     public async ready() {
         return this.loadPromise;
     }

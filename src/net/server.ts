@@ -4,6 +4,7 @@ import type { Socket } from 'socket.io';
 import { CharacterSheet } from '../character/charactersheet';
 import { Random } from '../math/random';
 import { File } from '../system/file';
+import { CellBlueprintManager } from '../world/generation/cellblueprint';
 import type { World } from '../world/world';
 import { Client, CLIENT_CONNECTION_STATE } from './client';
 import { User, UserSchema } from './user';
@@ -30,6 +31,7 @@ export class Server {
     private running_promise: Promise<void> | undefined;
     private clients: { [id: string]: Client; } = {};
     private users: { [id: string]: User; } = {};
+    private cell_blueprint_manager: CellBlueprintManager = new CellBlueprintManager('res/environment');
     constructor(private _server: SocketIO.Server, public readonly world: World) {
         _server.on('connection', (socket: Socket) => {
             if (this.running) {
