@@ -38,26 +38,33 @@ const componentwrappers = {
         'fromJSON': VisibilityManager.fromJSON,
         'toJSON': (component: VisibilityManager) => component.toJSON(),
     },
+    'sprite': {
+        'schema': t.string,
+        'fromJSON': (json: string) => json,
+        'toJSON': (component: string) => component,
+    }
 } as const;
 
-
-export type ComponentName = keyof typeof componentwrappers;
+type ComponentWrappers = typeof componentwrappers;
+export type ComponentName = keyof ComponentWrappers;
+type ComponentWrapper = ValueOf<ComponentWrappers>
 const ComponentNames = Object.keys(componentwrappers) as ComponentName[];
 type FlattenComponents<T> = T extends { fromJSON: (...args: any) => infer U } ? U : never;
-export type Component = FlattenComponents<ValueOf<typeof componentwrappers>>;
+export type Component = FlattenComponents<ComponentWrapper>;
 
 type ComponentsSchemaEntries = {
-    [P in ComponentName]: typeof componentwrappers[P]['schema'];
+    [P in ComponentName]: ComponentWrappers[P]['schema'];
 }
 const components_schema = t.partial(
     Object.fromEntries(Object.entries(componentwrappers).map(([p, v]) => [p, v.schema])) as ComponentsSchemaEntries
 );
 
 export type ComponentsSchema = t.TypeOf<typeof components_schema>;
+type FullComponentsSchema = t.TypeOf<t.TypeC<ComponentsSchemaEntries>>;
 
 type RetrieveComponent<T> = T extends { 'fromJSON': (...args: any) => infer U } ? U : never
 type FullComponents = {
-    [P in ComponentName]: RetrieveComponent<typeof componentwrappers[P]>;
+    [P in ComponentName]: RetrieveComponent<ComponentWrappers[P]>;
 }
 
 export type Components = Partial<FullComponents>;
@@ -95,15 +102,28 @@ function withAllComponents<T extends ComponentName[]>(components: Components, fu
     fun(...args);
 }
 
+type fromJSONFunction<T extends ComponentName> = (json: FullComponentsSchema[T]) => FullComponents[T];
+function getFromJSON<T extends ComponentName>(name: T) {
+    return componentwrappers[name].fromJSON as fromJSONFunction<T>;
+}
+type toJSONFunction<T extends ComponentName> = (component: FullComponents[T]) => FullComponentsSchema[T];
+function getToJSON<T extends ComponentName>(name: T) {
+    return componentwrappers[name].toJSON as toJSONFunction<T>;
+}
+
+function setComponentFromJSON<T extends ComponentName, U extends ComponentsSchema>(name: T, components: Components, json: U) {
+    const component_json = json[name];
+    if (component_json) {
+        components[name] = getFromJSON(name)(component_json);
+    }
+}
+
 export const Components = {
     'schema': components_schema,
     'fromJSON': (json: ComponentsSchema) => {
         const ret = {} as Components;
         for (const name of ComponentNames) {
-            const component_json = json[name];
-            if (component_json) {
-                ret[name] = componentwrappers[name].fromJSON(component_json) as any;
-            }
+            setComponentFromJSON(name, ret, json);
         }
         return ret;
     },
@@ -112,7 +132,7 @@ export const Components = {
         for (const name of ComponentNames) {
             const component = components[name];
             if (component) {
-                ret[name] = componentwrappers[name].toJSON(component as any);
+                ret[name] = getToJSON(name)(component);
             }
         }
         return ret;
