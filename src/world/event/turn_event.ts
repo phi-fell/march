@@ -22,7 +22,7 @@ export class TurnEvent {
         })();
         return {
             'type': EVENT_TYPE[this.type] as keyof typeof EVENT_TYPE,
-            'message': `${this.entity.getName()} ${message}`,
+            'message': `${this.entity.getComponent('name')} ${message}`,
         };
     }
 }

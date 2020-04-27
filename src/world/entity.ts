@@ -62,17 +62,6 @@ export class Entity extends Locatable {
     public withAll<T extends ComponentName[]>(callback: WithAllCallback<T>, ...names: T) {
         return Components.withAllComponents(this.components, callback, ...names);
     }
-    public getName(): string {
-        const sheet = this.getComponent('sheet');
-        if (sheet) {
-            return sheet.name;
-        }
-        const item_data = this.getComponent('item_data');
-        if (item_data) {
-            return item_data.name;
-        }
-        return this.id;
-    }
     public equals(other: Entity): boolean {
         return this.id === other.id;
     }

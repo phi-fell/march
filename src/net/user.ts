@@ -36,7 +36,10 @@ export class User extends FileBackedData {
             'token': t.string,
             'token_creation_time': t.number,
         }),
-        'unfinished_player': CharacterSheet.schema,
+        'unfinished_player': t.type({
+            'name': t.string,
+            'sheet': CharacterSheet.schema,
+        }),
         'players': t.array(Player.schema),
     });
     /** Remember to unload() created users! */
@@ -46,7 +49,10 @@ export class User extends FileBackedData {
         return user;
     }
 
-    public unfinished_player: CharacterSheet = new CharacterSheet();
+    public unfinished_player = {
+        'name': '',
+        'sheet': new CharacterSheet()
+    };
     public players: Player[] = [];
     private activePlayer?: Player;
     private active_player_changing = false;
@@ -140,9 +146,12 @@ export class User extends FileBackedData {
         this.client = undefined;
     }
     public async finishPlayer() {
-        const plr = await Player.createPlayer(this, this.world, this.unfinished_player);
+        const plr = await Player.createPlayer(this, this.world, this.unfinished_player.name, this.unfinished_player.sheet);
         plr.sheet.status.restoreFully();
-        this.unfinished_player = CharacterSheet.newPlayerSheet();
+        this.unfinished_player = {
+            'name': '',
+            'sheet': CharacterSheet.newPlayerSheet()
+        };
         this.players.push(plr);
         this.save();
     }
@@ -162,7 +171,10 @@ export class User extends FileBackedData {
                 'token': this.auth.token,
                 'token_creation_time': this.auth.token_creation_time,
             },
-            'unfinished_player': this.unfinished_player.toJSON(),
+            'unfinished_player': {
+                'name': this.unfinished_player.name,
+                'sheet': this.unfinished_player.sheet.toJSON(),
+            },
             'players': this.players.map((player: Player) => player.toJSON()),
         };
     }
@@ -171,7 +183,10 @@ export class User extends FileBackedData {
             this.id = json.id;
             this._name = json.name;
             this.auth = json.auth;
-            this.unfinished_player = CharacterSheet.fromJSON(json.unfinished_player);
+            this.unfinished_player = {
+                'name': json.unfinished_player.name,
+                'sheet': CharacterSheet.fromJSON(json.unfinished_player.sheet),
+            };
             for (const plr of json.players) {
                 this.players.push(await Player.fromJSON(this, this.world, plr));
             }

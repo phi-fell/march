@@ -1,6 +1,6 @@
 import * as t from 'io-ts';
-import type { AttackEvent } from '../deprecated/clientevent';
 import { Damage, DamageMetaData, DAMAGE_TYPE } from '../damage';
+import type { AttackEvent } from '../deprecated/clientevent';
 import { Random } from '../math/random';
 import { ATTRIBUTE, CharacterAttributes } from './characterattributes';
 import { CharacterEquipment } from './characterequipment';
@@ -18,7 +18,6 @@ export type CharacterSheetSchema = t.TypeOf<typeof CharacterSheet.schema>;
 export class CharacterSheet {
     public static schema = t.intersection([
         t.type({
-            'name': t.string,
             'equipment': CharacterEquipment.schema,
             'race': CharacterRace.schema,
             'traits': t.array(CharacterTrait.schema),
@@ -43,7 +42,6 @@ export class CharacterSheet {
     }
     public static validateAndCreateFromJSON(json: any) {
         const ret = new CharacterSheet();
-        ret._name = json.name;
         if (!CharacterRace.raceExists(json.race)) {
             return null;
         }
@@ -60,7 +58,6 @@ export class CharacterSheet {
     }
     public static fromMobSchemaJSON(json: any) {
         const ret = new CharacterSheet();
-        ret._name = json.name;
         ret._race = new CharacterRace(json.race);
         ret._allocatedAttributes = CharacterAttributes.fromJSON(json.attributes);
         ret._skills = CharacterSkills.fromJSON(json.skills);
@@ -71,7 +68,6 @@ export class CharacterSheet {
     }
     public static fromJSON(json: CharacterSheetSchema) {
         const ret = new CharacterSheet();
-        ret._name = json.name;
         ret._additional_traits = json.traits.map(CharacterTrait.fromJSON);
         // TODO: load faiths
         ret._equipment = CharacterEquipment.fromJSON(json.equipment);
@@ -84,7 +80,6 @@ export class CharacterSheet {
         ret.recalculateDerivedStats();
         return ret;
     }
-    private _name: string = '';
     private _allocatedAttributes: CharacterAttributes = new CharacterAttributes();
     private _skills: CharacterSkills = new CharacterSkills();
     private _race: CharacterRace;
@@ -104,12 +99,6 @@ export class CharacterSheet {
         this._essence = 0;
         this._exp = 0;
         this.recalculateDerivedStats();
-    }
-    get name() {
-        return this._name;
-    }
-    set name(n: string) {
-        this._name = n;
     }
     get race() {
         return this._race;
@@ -261,7 +250,6 @@ export class CharacterSheet {
     }
     public toJSON(): CharacterSheetSchema {
         return {
-            'name': this._name,
             'attributes': this._cachedAttributes.toJSON(),
             'allocatedAttributes': this._allocatedAttributes.toJSON(),
             'attributeLevelupCosts': this._allocatedAttributes.getLevelupCosts().toJSON(),
@@ -283,7 +271,6 @@ export class CharacterSheet {
             )
         ) as Record<keyof typeof ATTRIBUTE, boolean>;
         return {
-            'name': this._name,
             'attributes': this._cachedAttributes.toJSON(),
             attributeLevelupAvailable,
             'skills': this._skills.toJSON(),

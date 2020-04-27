@@ -28,18 +28,21 @@ export type PlayerSchema = t.TypeOf<typeof Player.schema>;
 export class Player {
     public static schema = t.type({
         'id': t.string,
+        'name': t.string,
         'sheet': CharacterSheet.schema,
         'entity_ref': t.union([entity_ref_schema, t.undefined]),
     });
 
     public static async fromJSON(user: User, world: World, json: PlayerSchema): Promise<Player> {
         const ret = new Player(user, world, json.id);
+        ret.name = json.name;
         ret.sheet = CharacterSheet.fromJSON(json.sheet);
         ret.entity_ref = json.entity_ref;
         return ret;
     }
-    public static async createPlayer(user: User, world: World, sheet: CharacterSheet) {
+    public static async createPlayer(user: User, world: World, name: string, sheet: CharacterSheet) {
         const ret = new Player(user, world);
+        ret.name = name;
         ret.sheet = sheet;
         const inst: Instance = await world.createInstance();
         const cell: Cell = await inst.createCell(new CellAttributes(Random.getDeterministicID(), CELL_GENERATION.SLIME_CAVE, 50, 50));
@@ -57,6 +60,7 @@ export class Player {
         return ret;
     }
 
+    public name: string = '';
     public sheet: CharacterSheet = new CharacterSheet();
     private entity_ref?: EntityRef;
     private entity?: Entity;
@@ -164,6 +168,7 @@ export class Player {
     public toJSON(): PlayerSchema {
         return {
             'id': this.id,
+            'name': this.name,
             'sheet': this.sheet.toJSON(),
             'entity_ref': this.entity_ref,
         };

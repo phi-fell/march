@@ -196,7 +196,10 @@ export class Client {
                 if (msg === 'players') {
                     this.socket.emit('players', this.user.players.map((p) => p.toJSON()));
                 } else if (msg === 'unfinished_player') {
-                    this.socket.emit('unfinished_player', this.user.unfinished_player.toJSON());
+                    this.socket.emit('unfinished_player', {
+                        'name': this.user.unfinished_player.name,
+                        'sheet': this.user.unfinished_player.sheet.toJSON(),
+                    });
                 } else if (msg === 'available_races') {
                     this.socket.emit('available_races', CharacterRace.getPlayableRaces());
                 } else if (msg === 'available_traits') {
@@ -220,24 +223,24 @@ export class Client {
                 } else if (msg.action === 'name') {
                     this.user.unfinished_player.name = msg.name;
                 } else if (msg.action === 'increment_attribute') {
-                    this.user.unfinished_player.levelUpAttribute(ATTRIBUTE[(msg.attribute as keyof typeof ATTRIBUTE)]);
+                    this.user.unfinished_player.sheet.levelUpAttribute(ATTRIBUTE[(msg.attribute as keyof typeof ATTRIBUTE)]);
                 } else if (msg.action === 'decrement_attribute') {
-                    this.user.unfinished_player.levelDownAttribute(ATTRIBUTE[(msg.attribute as keyof typeof ATTRIBUTE)]);
+                    this.user.unfinished_player.sheet.levelDownAttribute(ATTRIBUTE[(msg.attribute as keyof typeof ATTRIBUTE)]);
                 } else if (msg.action === 'race') {
                     const race = msg.race;
                     if (race && CharacterRace.raceExists(race)) {
-                        this.user.unfinished_player.race = new CharacterRace(race);
+                        this.user.unfinished_player.sheet.race = new CharacterRace(race);
                     }
                 } else if (msg.action === 'add_trait') {
                     const traitID = msg.trait;
                     if (traitID && CharacterTrait.traitExists(traitID)) {
                         const trait = CharacterTrait.get(traitID);
-                        this.user.unfinished_player.addTrait(trait);
+                        this.user.unfinished_player.sheet.addTrait(trait);
                     }
                 } else if (msg.action === 'remove_trait') {
                     const traitIndex: unknown = msg.index;
                     if (traitIndex !== undefined && typeof traitIndex === 'number') {
-                        this.user.unfinished_player.removeTrait(traitIndex);
+                        this.user.unfinished_player.sheet.removeTrait(traitIndex);
                     }
                 }
             }

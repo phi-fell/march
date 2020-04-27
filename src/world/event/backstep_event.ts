@@ -9,7 +9,7 @@ export class BackstepEvent {
     public getClientJSON() {
         return {
             'type': EVENT_TYPE[this.type] as keyof typeof EVENT_TYPE,
-            'message': `${this.entity.getName()} steps backward`,
+            'message': `${this.entity.getComponent('name')} steps backward`,
         };
     }
 }

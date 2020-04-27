@@ -14,7 +14,7 @@ export class StrafeEvent {
         }
         return {
             'type': EVENT_TYPE[this.type] as keyof typeof EVENT_TYPE,
-            'message': `${this.entity.getName()} sidesteps${reldir}`,
+            'message': `${this.entity.getComponent('name')} sidesteps${reldir}`,
         };
     }
 }

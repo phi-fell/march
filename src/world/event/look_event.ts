@@ -9,7 +9,7 @@ export class LookEvent {
     public getClientJSON() {
         return {
             'type': EVENT_TYPE[this.type] as keyof typeof EVENT_TYPE,
-            'message': `${this.entity.getName()} looks ${['North', 'West', 'South', 'East'][this.direction]}`,
+            'message': `${this.entity.getComponent('name')} looks ${['North', 'West', 'South', 'East'][this.direction]}`,
         };
     }
 }

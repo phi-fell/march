@@ -42,6 +42,11 @@ const componentwrappers = {
         'schema': t.string,
         'fromJSON': (json: string) => json,
         'toJSON': (component: string) => component,
+    },
+    'name': {
+        'schema': t.string,
+        'fromJSON': (json: string) => json,
+        'toJSON': (component: string) => component,
     }
 } as const;
 
