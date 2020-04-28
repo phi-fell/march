@@ -7,7 +7,8 @@ import { Board } from './board';
 import type { Entity } from './entity';
 import type { Event } from './event';
 import { CellAttributes } from './generation/cellattributes';
-import { CellGeneration } from './generation/cellgeneration';
+import type { CellBlueprint } from './generation/cell_blueprint';
+import type { MobBlueprintManager } from './generation/mob_blueprint';
 import type { Instance } from './instance';
 import type { Locatable } from './locatable';
 import { Location } from './location';
@@ -28,16 +29,22 @@ export class Cell extends FileBackedData {
         await cell.ready();
         return cell;
     }
-    public static async createCell(instance: Instance, id: UUID, file: OwnedFile, attributes: CellAttributes): Promise<Cell> {
+    public static async createCell(
+        instance: Instance,
+        id: UUID,
+        file: OwnedFile,
+        blueprint: CellBlueprint,
+        mob_blueprint_manager: MobBlueprintManager,
+    ): Promise<Cell> {
         const json: CellSchema = {
             id,
-            'attributes': attributes.toJSON(),
+            'attributes': blueprint.getAttributes().toJSON(),
             'board': (new Board(0, 0)).toJSON()
         };
         file.setJSON(json);
         const cell = new GeneratableCell(instance, file);
         await cell.ready();
-        CellGeneration.generateCell(cell);
+        await blueprint.generateCell(cell, mob_blueprint_manager);
         return cell;
     }
 

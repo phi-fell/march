@@ -4,7 +4,8 @@ import type { Socket } from 'socket.io';
 import { CharacterSheet } from '../character/charactersheet';
 import { Random } from '../math/random';
 import { File } from '../system/file';
-import { CellBlueprintManager } from '../world/generation/cellblueprint';
+import { CellBlueprintManager } from '../world/generation/cell_blueprint';
+import { MobBlueprintManager } from '../world/generation/mob_blueprint';
 import type { World } from '../world/world';
 import { Client, CLIENT_CONNECTION_STATE } from './client';
 import { User, UserSchema } from './user';
@@ -31,7 +32,8 @@ export class Server {
     private running_promise: Promise<void> | undefined;
     private clients: { [id: string]: Client; } = {};
     private users: { [id: string]: User; } = {};
-    private cell_blueprint_manager: CellBlueprintManager = new CellBlueprintManager('res/environment');
+    public cell_blueprint_manager: CellBlueprintManager = new CellBlueprintManager('res/environment');
+    public mob_blueprint_manager: MobBlueprintManager = new MobBlueprintManager('res/mob');
     constructor(private _server: SocketIO.Server, public readonly world: World) {
         _server.on('connection', (socket: Socket) => {
             if (this.running) {
@@ -79,7 +81,7 @@ export class Server {
         if (!this.users[id]) {
             const path = 'users/' + id + '.json';
             const file = await File.acquireFile(path);
-            this.users[id] = await User.createUserFromFile(this.world, file);
+            this.users[id] = await User.createUserFromFile(this, this.world, file);
         }
         return this.users[id];
     }
@@ -118,11 +120,14 @@ export class Server {
                 'token': '',
                 'token_creation_time': 0,
             },
-            'unfinished_player': CharacterSheet.newPlayerSheet().toJSON(),
+            'unfinished_player': {
+                'name': '',
+                'sheet': CharacterSheet.newPlayerSheet().toJSON(),
+            },
             'players': [],
         };
         file.setJSON(user_json);
-        const user = await User.createUserFromFile(this.world, file);
+        const user = await User.createUserFromFile(this, this.world, file);
         this.users[id] = user;
         user.save();
         await setUsername(id, username);

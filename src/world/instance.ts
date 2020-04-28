@@ -4,7 +4,8 @@ import { Random, UUID } from '../math/random';
 import { File, OwnedFile } from '../system/file';
 import { FileBackedData } from '../system/file_backed_data';
 import { Cell } from './cell';
-import type { CellAttributes } from './generation/cellattributes';
+import type { CellBlueprint } from './generation/cell_blueprint';
+import type { MobBlueprintManager } from './generation/mob_blueprint';
 import type { World } from './world';
 
 const cell_ref_schema = t.string;
@@ -65,9 +66,15 @@ export class Instance extends FileBackedData {
         }
         return this.cells[id];
     }
-    public async createCell(attributes: CellAttributes): Promise<Cell> {
+    public async createCell(blueprint: CellBlueprint, mob_blueprint_manager: MobBlueprintManager): Promise<Cell> {
         const id = Cell.generateNewID();
-        const cell: Cell = await Cell.createCell(this, id, await File.acquireFile(`${this.directory}/cell-${id}.json`), attributes);
+        const cell: Cell = await Cell.createCell(
+            this,
+            id,
+            await File.acquireFile(`${this.directory}/cell-${id}.json`),
+            blueprint,
+            mob_blueprint_manager
+        );
         this.cell_refs.push(id);
         this.cells[id] = cell;
         return cell;

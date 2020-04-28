@@ -10,8 +10,6 @@ import { PlayerController } from './controller/playercontroller';
 import { DIRECTION } from './direction';
 import { Entity } from './entity';
 import type { Event } from './event';
-import { CellAttributes } from './generation/cellattributes';
-import { CELL_GENERATION } from './generation/cellgeneration';
 import type { Instance } from './instance';
 import type { World } from './world';
 
@@ -45,9 +43,10 @@ export class Player {
         ret.name = name;
         ret.sheet = sheet;
         const inst: Instance = await world.createInstance();
-        const cell: Cell = await inst.createCell(new CellAttributes(Random.getDeterministicID(), CELL_GENERATION.SLIME_CAVE, 50, 50));
+        const cell: Cell = await inst.createCell(await user.server.cell_blueprint_manager.get('tutorial/start'), user.server.mob_blueprint_manager);
         const loc = cell.getRandomPassableLocation();
         const ent = new Entity(loc);
+        ent.setComponent('name', ret.name);
         ent.setComponent('direction', DIRECTION.NORTH);
         ent.setComponent('sheet', ret.sheet);
         ent.setComponent('controller', new PlayerController(ret));
