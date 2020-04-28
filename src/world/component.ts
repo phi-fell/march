@@ -74,6 +74,10 @@ type FullComponents = {
 
 export type Components = Partial<FullComponents>;
 
+export type ComponentsWith<T extends ComponentName> = Components & {
+    [P in T]: RetrieveComponent<ComponentWrappers[P]>;
+};
+
 type ComponentWithName<T extends ComponentName, U extends FullComponents | Components> = U[T];
 type ComponentsWithNames<T extends ComponentName[], U extends FullComponents | Components> =
     T extends { length: 0 } ? [] :
