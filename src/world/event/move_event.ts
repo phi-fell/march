@@ -4,7 +4,6 @@ import { EVENT_TYPE } from './event_type';
 
 export class MoveEvent {
     public type: EVENT_TYPE.MOVE = EVENT_TYPE.MOVE;
-    public resendBoard = true;
     constructor(private entity: Entity, private direction: DIRECTION) { }
     public getClientJSON() {
         return {

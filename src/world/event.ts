@@ -18,7 +18,6 @@ interface EventClientJSON {
 
 export interface Event<T extends EVENT_TYPE = EVENT_TYPE> {
     type: T;
-    resendBoard: boolean;
     getClientJSON(): EventClientJSON;
 }
 

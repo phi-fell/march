@@ -168,14 +168,12 @@ export class Client {
     }
     public sendEvent(event: Event) {
         this.socket.emit('event', event.getClientJSON());
-        if (event.resendBoard) {
-            if (this.user === undefined) {
-                //  Client.sendEvent should only be called by User.sendEvent() on it's client, so tis should not happen.
-                console.log('Client.sendEvent() called on client with no attached User! How?');
-                return;
-            }
-            this.socket.emit('update_data', this.user.getGameData());
+        if (this.user === undefined) {
+            //  Client.sendEvent should only be called by User.sendEvent() on it's client, so tis should not happen.
+            console.log('Client.sendEvent() called on client with no attached User! How?');
+            return;
         }
+        this.socket.emit('update_data', this.user.getGameData());
     }
     public attachUser(user: User) {
         this.user = user;

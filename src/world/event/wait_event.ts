@@ -3,7 +3,6 @@ import { EVENT_TYPE } from './event_type';
 
 export class WaitEvent {
     public type: EVENT_TYPE.WAIT = EVENT_TYPE.WAIT;
-    public resendBoard = false;
     constructor(private entity: Entity) { }
     public getClientJSON() {
         return {

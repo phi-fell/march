@@ -4,7 +4,6 @@ import { EVENT_TYPE } from './event_type';
 
 export class TurnEvent {
     public type: EVENT_TYPE.TURN = EVENT_TYPE.TURN;
-    public resendBoard = true;
     constructor(private entity: Entity, private from: DIRECTION, private to: DIRECTION) { }
     public getClientJSON() {
         const rel_dir = getRelativeDirection(this.from, this.to);

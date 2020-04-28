@@ -3,7 +3,6 @@ import { EVENT_TYPE } from './event_type';
 
 export class SayEvent {
     public type: EVENT_TYPE.SAY = EVENT_TYPE.SAY;
-    public resendBoard = false;
     constructor(private entity: Entity, private message: string) { }
     public getClientJSON() {
         return {

@@ -4,7 +4,6 @@ import { EVENT_TYPE } from './event_type';
 
 export class BackstepEvent {
     public type: EVENT_TYPE.BACKSTEP = EVENT_TYPE.BACKSTEP;
-    public resendBoard = true;
     constructor(private entity: Entity, private direction: DIRECTION) { }
     public getClientJSON() {
         return {
