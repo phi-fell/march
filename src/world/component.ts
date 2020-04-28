@@ -79,7 +79,7 @@ export type ComponentsWith<T extends ComponentName> = Components & {
 };
 
 type ComponentWithName<T extends ComponentName, U extends FullComponents | Components> = U[T];
-type ComponentsWithNames<T extends ComponentName[], U extends FullComponents | Components> =
+export type ComponentsWithNames<T extends ComponentName[], U extends FullComponents | Components> =
     T extends { length: 0 } ? [] :
     T extends { length: 1 } ? [ComponentWithName<T[0], U>] :
     T extends { length: 2 } ? [ComponentWithName<T[0], U>, ComponentWithName<T[1], U>] :

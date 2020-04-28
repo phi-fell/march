@@ -1,9 +1,14 @@
 import * as t from 'io-ts';
 import { Random, UUID } from '../math/random';
 import type { Cell } from './cell';
-import { ComponentName, Components, WithAllCallback, WithCallback } from './component';
+import { ComponentName, Components, ComponentsWith, ComponentsWithNames, WithAllCallback, WithCallback } from './component';
 import { Locatable, locatable_schema } from './locatable';
 import { Location } from './location';
+
+interface EntityWith<T extends ComponentName> extends Entity {
+    getComponent<U extends ComponentName>(name: U): ComponentsWith<T>[U];
+    getComponents<U extends ComponentName[]>(...names: U): ComponentsWithNames<U, ComponentsWith<T>>;
+}
 
 export type EntitySchema = t.TypeOf<typeof Entity.schema>;
 
