@@ -49,6 +49,10 @@ export class AttackAction extends ActionBase {
                 const defender_sheet = ent.getComponent('sheet');
                 if (defender_sheet) {
                     defender_sheet.takeHit(attack_event);
+                    if (defender_sheet.isDead()) {
+                        // TODO: drop inventory e.g. ent.getComponent('inventory')?.dropAll(ent.location);
+                        ent.location.cell.removeLocatable(ent);
+                    }
                 }
             }
             entity.location.cell.emit(attack_event, entity.location, attackLoc);
