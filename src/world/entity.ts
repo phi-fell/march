@@ -15,6 +15,10 @@ const mob_components = ['sheet', 'controller', 'sprite', 'name'] as const;
 type MobComponents = ValueOfArray<typeof mob_components>;
 export type Mob = EntityWith<MobComponents>;
 
+const item_components = ['item_data', 'sprite', 'name'] as const;
+type ItemComponents = ValueOfArray<typeof item_components>;
+export type Item = EntityWith<ItemComponents>;
+
 export type EntitySchema = t.TypeOf<typeof Entity.schema>;
 
 export class Entity extends Locatable {
@@ -44,6 +48,9 @@ export class Entity extends Locatable {
     }
     public isMob(): this is Mob {
         return this.has(...mob_components);
+    }
+    public isItem(): this is Item {
+        return this.has(...item_components);
     }
     public isCollidable(): boolean {
         // TODO: give entities a component that makes them collide?
