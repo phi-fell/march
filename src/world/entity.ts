@@ -1,14 +1,19 @@
 import * as t from 'io-ts';
 import { Random, UUID } from '../math/random';
+import type { ValueOfArray } from '../util/types';
 import type { Cell } from './cell';
 import { ComponentName, Components, ComponentsWith, ComponentsWithNames, WithAllCallback, WithCallback } from './component';
 import { Locatable, locatable_schema } from './locatable';
 import { Location } from './location';
 
-interface EntityWith<T extends ComponentName> extends Entity {
+export interface EntityWith<T extends ComponentName> extends Entity {
     getComponent<U extends ComponentName>(name: U): ComponentsWith<T>[U];
     getComponents<U extends ComponentName[]>(...names: U): ComponentsWithNames<U, ComponentsWith<T>>;
 }
+
+const mob_components = ['sheet', 'controller', 'sprite', 'name'] as const;
+type MobComponents = ValueOfArray<typeof mob_components>;
+export type Mob = EntityWith<MobComponents>;
 
 export type EntitySchema = t.TypeOf<typeof Entity.schema>;
 
@@ -33,6 +38,12 @@ export class Entity extends Locatable {
     }
     public isEntity(): this is Entity {
         return true;
+    }
+    public has<T extends ComponentName[]>(...args: T): this is EntityWith<ValueOfArray<T>> {
+        return Components.hasComponents(this.components, ...args);
+    }
+    public isMob(): this is Mob {
+        return this.has(...mob_components);
     }
     public isCollidable(): boolean {
         // TODO: give entities a component that makes them collide?
