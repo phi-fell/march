@@ -4,6 +4,7 @@ import type { Action } from './action';
 import { CONTROLLER } from './controller/controllers';
 import { InertController } from './controller/inertcontroller';
 import { PlayerController } from './controller/playercontroller';
+import { WanderController } from './controller/wander_controller';
 import type { Event } from './event';
 
 const controller_schema = t.type({
@@ -32,6 +33,7 @@ type ControllerClassArray = {
 const controller: ControllerClassArray = [
     InertController,
     PlayerController,
+    WanderController,
 ];
 
 export const Controller = {
