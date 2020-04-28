@@ -122,8 +122,12 @@ export class Player {
     }
     public getGameData() {
         const ent = this.getEntity();
+        let sheet = ent.getComponent('sheet');
+        if (sheet === undefined) {
+            sheet = this.sheet;
+        }
         return {
-            'player_sheet': this.sheet.getClientJSON(),
+            'player_sheet': sheet.getClientJSON(),
             'player_entity': ent.getClientJSON(),
             'board': ent.location.cell.getClientJSON(ent),
         }
