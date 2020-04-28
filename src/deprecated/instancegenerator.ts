@@ -1,12 +1,3 @@
-import type { Instance } from './old_instance';
-import { generate_SLIME_ABYSS } from '../instance_generation/slime_abyss';
-import { generate_SLIME_CAVE } from '../instance_generation/slime_cave';
-import { generate_SLIME_MAZE } from '../instance_generation/slime_maze.';
-import { getRandomAdjacency } from '../instanceschema';
-import { Location } from './old_location';
-import { Random } from '../math/random';
-import { Portal } from './portal';
-import { getTileFromName } from '../tile';
 
 export enum INSTANCE_GEN_TYPE {
     EMPTY,
@@ -21,6 +12,7 @@ export enum INSTANCE_GEN_TYPE {
     VOLCANIC,
 }
 
+/*
 export class InstanceGenerator {
     public static runGeneration(inst: Instance) {
         Random.reSeed(inst.attributes.seed);
@@ -42,8 +34,6 @@ export class InstanceGenerator {
                         }
                     }
                 }
-                inst.tiles[6][6] = getTileFromName('stone_stairs');
-                inst.portals.push(new Portal(new Location(6, 6, inst.id), 'slime_cave/upper'));
                 break;
             case INSTANCE_GEN_TYPE.MAZE:
                 for (let i = 0; i < inst.attributes.width; i++) {
@@ -284,24 +274,6 @@ function doBASIC_DUNGEON(inst: Instance) {
     for (let _i = 0; _i < count; _i++) {
         doSingleRoom(inst);
     }
-    let stairNum = Math.floor(Random.float() * 3) + 1;
-    while (stairNum > 0) {
-        const sx = Math.floor(Random.float() * inst.attributes.width);
-        const sy = Math.floor(Random.float() * inst.attributes.height);
-        if (inst.tiles[sx][sy] === getTileFromName('stone_floor')) {
-            const loc = new Location(sx, sy, inst.id);
-            let overlap = false;
-            for (const portal of inst.portals) {
-                if (portal.location.equals(loc)) {
-                    overlap = true;
-                }
-            }
-            if (!overlap) {
-                inst.portals.push(new Portal(loc, inst.attributes.schemaID));
-                stairNum--;
-            }
-        }
-    }
     const STRIDE = 2;
     for (let x = 1; x < inst.attributes.width; x += STRIDE) {
         for (let y = 1; y < inst.attributes.height; y += STRIDE) {
@@ -310,9 +282,6 @@ function doBASIC_DUNGEON(inst: Instance) {
     }
     ensureConnectedness(inst);
     prune(inst);
-    for (const portal of inst.portals) {
-        inst.tiles[portal.location.x][portal.location.y] = getTileFromName('stone_stairs');
-    }
 }
 function forestFlood(inst: Instance, vals: boolean[][], x: number, y: number) {
     if (x < 0 || y < 0 || x >= vals.length || y >= vals[0].length || vals[x][y]) {
@@ -355,28 +324,6 @@ function doFOREST(inst: Instance) {
         }
     }
     forestFlood(inst, flood, Math.floor(inst.attributes.width / 2), Math.floor(inst.attributes.height / 2));
-
-    let stairNum = Math.floor(Random.float() * 3) + 2;
-    while (stairNum > 0) {
-        const sx = Math.floor(Random.float() * inst.attributes.width);
-        const sy = Math.floor(Random.float() * inst.attributes.height);
-        if (flood[sx][sy]) {
-            const loc = new Location(sx, sy, inst.id);
-            let overlap = false;
-            for (const portal of inst.portals) {
-                if (portal.location.equals(loc)) {
-                    overlap = true;
-                }
-            }
-            if (!overlap) {
-                inst.portals.push(new Portal(loc, getRandomAdjacency(inst.attributes.schemaID)));
-                stairNum--;
-            }
-        }
-    }
-    for (const portal of inst.portals) {
-        inst.tiles[portal.location.x][portal.location.y] = getTileFromName('stone_stairs');
-    }
 }
 
 function doVOLCANIC(inst: Instance) {
@@ -395,3 +342,4 @@ function doVOLCANIC(inst: Instance) {
         }
     }
 }
+*/

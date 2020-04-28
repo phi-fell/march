@@ -13,6 +13,7 @@ interface PartitionInfo {
 
 export class SlimeCaveGenerator implements CellGenerator {
     private rand: Random = new Random();
+
     public process(cell: GeneratableCell): GeneratableCell {
         const attr = cell.attributes;
         const board = new Board(attr.width, attr.height);
@@ -21,6 +22,7 @@ export class SlimeCaveGenerator implements CellGenerator {
         cell.setBoard(board);
         return cell;
     }
+
     private generate(board: Board) {
         for (let i = 0; i < board.width; i++) {
             for (let j = 0; j < board.height; j++) {
