@@ -11,8 +11,12 @@ export class WaitAction extends ActionBase {
     }
     public type: ACTION_TYPE.WAIT = ACTION_TYPE.WAIT;
     public readonly cost: number = 0;
+    private emitted = false;
     public perform(entity: Entity) {
-        entity.location.cell.emit(new WaitEvent(entity), entity.location)
+        if (!this.emitted) {
+            entity.location.cell.emit(new WaitEvent(entity), entity.location);
+            this.emitted = true;
+        }
         return { 'result': ACTION_RESULT.INSUFFICIENT_AP, 'cost': 0 };
     }
     public toJSON(): object {
