@@ -1,5 +1,18 @@
+import * as t from 'io-ts';
+
+export type WeaponDataSchema = t.TypeOf<typeof WeaponData.schema>;
+
 export class WeaponData {
-    public static fromJSON(json: any) {
+    public static schema = t.type({
+        'one_handed': t.boolean,
+        'piercing': t.number,
+        'sharpness': t.number,
+        'force': t.number,
+        'precision': t.number,
+        'speed': t.number,
+        'attack_animation': t.string,
+    });
+    public static fromJSON(json: WeaponDataSchema) {
         return new WeaponData(
             json.one_handed,
             json.piercing,
@@ -19,7 +32,7 @@ export class WeaponData {
         public speed: number,
         public attack_animation: string,
     ) { }
-    public toJSON() {
+    public toJSON(): WeaponDataSchema {
         return {
             'one_handed': this.one_handed,
             'piercing': this.piercing,
