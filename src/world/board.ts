@@ -6,6 +6,7 @@ import { ACTION_RESULT } from './action/actionresult';
 import type { Cell } from './cell';
 import { Entity } from './entity';
 import type { Event } from './event';
+import { NewRoundEvent } from './event/new_round_event';
 import type { Location } from './location';
 
 export type BoardSchema = t.TypeOf<typeof Board.schema>
@@ -147,6 +148,7 @@ export class Board {
                 controller.newRound();
             }, 'controller');
         }
+        this.emitGlobal(new NewRoundEvent());
     }
     public getEntity(id: UUID): Entity {
         const ret = this.entities.find((ent) => ent.id === id);
