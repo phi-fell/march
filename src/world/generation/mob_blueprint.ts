@@ -42,6 +42,9 @@ export class MobBlueprint extends Resource<MobBlueprintSchema> {
     private race?: string;
     private controller?: CONTROLLER;
     public fromJSON(json: t.TypeOf<MobBlueprintSchema>): void {
+        if (json.extends !== undefined) {
+            this.extends = json.extends
+        }
         if (json.name !== undefined) {
             this.name = json.name;
         }
@@ -57,6 +60,9 @@ export class MobBlueprint extends Resource<MobBlueprintSchema> {
     }
     public toJSON() {
         const ret: t.TypeOf<MobBlueprintSchema> = {};
+        if (this.extends !== undefined) {
+            ret.extends = this.extends;
+        }
         if (this.name !== undefined) {
             ret.name = this.name;
         }
