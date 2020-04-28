@@ -2,7 +2,7 @@ import * as t from 'io-ts';
 import { CharacterSheet } from '../character/charactersheet';
 import { Inventory } from '../item/inventory';
 import { ItemData } from '../item/itemdata';
-import type { ValueOf } from '../util/types';
+import type { ValueOf, ValueOfArray } from '../util/types';
 import { Controller } from './controller';
 import { DIRECTION } from './direction';
 import { VisibilityManager } from './visibilitymanager';
@@ -111,6 +111,16 @@ function withAllComponents<T extends ComponentName[]>(components: Components, fu
     fun(...args);
 }
 
+function hasComponents<T extends ComponentName[]>(components: Components, ...names: T): components is ComponentsWith<ValueOfArray<T>> {
+    const c = getComponents(components, ...names);
+    for (const comp of c) {
+        if (comp === undefined) {
+            return false;
+        }
+    }
+    return true;
+}
+
 type fromJSONFunction<T extends ComponentName> = (json: FullComponentsSchema[T]) => FullComponents[T];
 function getFromJSON<T extends ComponentName>(name: T) {
     return componentwrappers[name].fromJSON as fromJSONFunction<T>;
@@ -146,6 +156,7 @@ export const Components = {
         }
         return ret;
     },
+    hasComponents,
     getComponents,
     withComponents,
     withAllComponents,
