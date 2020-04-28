@@ -1,5 +1,4 @@
 import { getTileProps } from '../../tile';
-import type { ActionClass } from '../action';
 import { ChatDirections, DIRECTION, directionVectors } from '../direction';
 import type { Entity } from '../entity';
 import { MoveEvent } from '../event/move_event';
@@ -7,7 +6,7 @@ import { ActionBase } from './actionbase';
 import { ACTION_RESULT } from './actionresult';
 import { ACTION_TYPE } from './actiontype';
 
-export const MoveAction: ActionClass<ACTION_TYPE.MOVE> = class extends ActionBase {
+export class MoveAction extends ActionBase {
     public static arg_count = 1;
     public static fromArgs(args: string[]) {
         if (args.length < 1) {

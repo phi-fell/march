@@ -1,10 +1,9 @@
-import type { ActionClass } from '../action';
 import type { Entity } from '../entity';
 import { ActionBase } from './actionbase';
 import { ACTION_RESULT } from './actionresult';
 import { ACTION_TYPE } from './actiontype';
 
-export const AsyncAction: ActionClass<ACTION_TYPE.ASYNC> = class extends ActionBase {
+export class AsyncAction extends ActionBase {
     public static arg_count = 0;
     public static fromArgs(args: string[]) {
         return new AsyncAction();

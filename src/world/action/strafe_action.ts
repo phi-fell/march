@@ -1,5 +1,4 @@
 import { getTileProps } from '../../tile';
-import type { ActionClass } from '../action';
 import { ChatDirections, DIRECTION, directionVectors, getRelativeDirection, RELATIVE_DIRECTION } from '../direction';
 import type { Entity } from '../entity';
 import { StrafeEvent } from '../event/strafe_event';
@@ -9,7 +8,7 @@ import { ACTION_TYPE } from './actiontype';
 import { BackstepAction } from './backstep_action';
 import { MoveAction } from './move_action';
 
-export const StrafeAction: ActionClass<ACTION_TYPE.STRAFE> = class extends ActionBase {
+export class StrafeAction extends ActionBase {
     public static arg_count = 1;
     public static fromArgs(args: string[]) {
         if (args.length < 1) {

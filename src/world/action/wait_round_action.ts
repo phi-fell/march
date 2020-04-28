@@ -1,11 +1,10 @@
-import type { ActionClass } from '../action';
 import type { Entity } from '../entity';
 import { WaitRoundEvent } from '../event/wait_round_event';
 import { ActionBase } from './actionbase';
 import { ACTION_RESULT } from './actionresult';
 import { ACTION_TYPE } from './actiontype';
 
-export const WaitRoundAction: ActionClass<ACTION_TYPE.WAIT_ROUND> = class extends ActionBase {
+export class WaitRoundAction extends ActionBase {
     public static arg_count = 0;
     public static fromArgs(args: string[]) {
         return new WaitRoundAction();

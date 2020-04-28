@@ -1,5 +1,4 @@
 import { getTileProps } from '../../tile';
-import type { ActionClass } from '../action';
 import { ChatDirections, DIRECTION, directionVectors, getRelativeDirection, RELATIVE_DIRECTION } from '../direction';
 import type { Entity } from '../entity';
 import { BackstepEvent } from '../event/backstep_event';
@@ -7,7 +6,7 @@ import { ActionBase } from './actionbase';
 import { ACTION_RESULT } from './actionresult';
 import { ACTION_TYPE } from './actiontype';
 
-export const BackstepAction: ActionClass<ACTION_TYPE.BACKSTEP> = class extends ActionBase {
+export class BackstepAction extends ActionBase {
     public static arg_count = 1;
     public static fromArgs(args: string[]) {
         if (args.length < 1) {

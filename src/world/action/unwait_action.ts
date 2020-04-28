@@ -1,10 +1,9 @@
-import type { ActionClass } from '../action';
 import type { Entity } from '../entity';
 import { ActionBase } from './actionbase';
 import { ACTION_RESULT } from './actionresult';
 import { ACTION_TYPE } from './actiontype';
 
-export const UnwaitAction: ActionClass<ACTION_TYPE.UNWAIT> = class extends ActionBase {
+export class UnwaitAction extends ActionBase {
     public static arg_count = 0;
     public static fromArgs(args: string[]) {
         return new UnwaitAction();

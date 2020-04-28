@@ -1,11 +1,10 @@
-import type { ActionClass } from '../action';
 import type { Entity } from '../entity';
 import { SayEvent } from '../event/say_event';
 import { ActionBase } from './actionbase';
 import { ACTION_RESULT } from './actionresult';
 import { ACTION_TYPE } from './actiontype';
 
-export const SayAction: ActionClass<ACTION_TYPE.SAY> = class extends ActionBase {
+export class SayAction extends ActionBase {
     public static arg_count = -1;
     public static fromArgs(args: string[]) {
         return new SayAction(args.join(' '));

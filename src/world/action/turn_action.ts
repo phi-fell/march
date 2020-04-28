@@ -1,4 +1,3 @@
-import type { ActionClass } from '../action';
 import { ChatDirections, DIRECTION } from '../direction';
 import type { Entity } from '../entity';
 import { TurnEvent } from '../event/turn_event';
@@ -6,7 +5,7 @@ import { ActionBase } from './actionbase';
 import { ACTION_RESULT } from './actionresult';
 import { ACTION_TYPE } from './actiontype';
 
-export const TurnAction: ActionClass<ACTION_TYPE.TURN> = class extends ActionBase {
+export class TurnAction extends ActionBase {
     public static arg_count = 1;
     public static fromArgs(args: string[]) {
         if (args.length < 1) {

@@ -1,11 +1,10 @@
-import type { ActionClass } from '../action';
 import type { Entity } from '../entity';
 import { WaitOnceEvent } from '../event/wait_once_event';
 import { ActionBase } from './actionbase';
 import { ACTION_RESULT } from './actionresult';
 import { ACTION_TYPE } from './actiontype';
 
-export const WaitOnceAction: ActionClass<ACTION_TYPE.WAIT_ONCE> = class extends ActionBase {
+export class WaitOnceAction extends ActionBase {
     public static arg_count = 0;
     public static fromArgs(args: string[]) {
         return new WaitOnceAction();

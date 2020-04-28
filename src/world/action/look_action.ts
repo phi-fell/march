@@ -1,4 +1,3 @@
-import type { ActionClass } from '../action';
 import { ChatDirections, DIRECTION } from '../direction';
 import type { Entity } from '../entity';
 import { LookEvent } from '../event/look_event';
@@ -6,7 +5,7 @@ import { ActionBase } from './actionbase';
 import { ACTION_RESULT } from './actionresult';
 import { ACTION_TYPE } from './actiontype';
 
-export const LookAction: ActionClass<ACTION_TYPE.LOOK> = class extends ActionBase {
+export class LookAction extends ActionBase {
     public static arg_count = 1;
     public static fromArgs(args: string[]) {
         if (args.length < 1) {
