@@ -192,12 +192,12 @@ export class Graphics {
                 if (tile === -1) {
                     this.tileContext.push();
                     this.tileContext.color('#000');
-                    this.tileContext.drawRect(x, y, 1, 1);
+                    this.tileContext.fillRect(x, y, 1, 1);
                     this.tileContext.pop();
                 } else if (!this.palette[tile]) {
                     this.tileContext.push();
                     this.tileContext.color('#F0F');
-                    this.tileContext.drawRect(x, y, 1, 1);
+                    this.tileContext.fillRect(x, y, 1, 1);
                     this.tileContext.pop();
                 } else {
                     const sprite = this.palette[tile];

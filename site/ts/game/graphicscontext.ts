@@ -36,11 +36,6 @@ export class GraphicsContext {
         this.context.strokeStyle = stroke;
         this.context.fillStyle = fill;
     }
-    public drawRect(x: number = 0, y: number = 0, w: number = 1, h: number = 1) {
-        this.context.beginPath();
-        this.context.rect(x, y, w, h);
-        this.context.stroke();
-    }
     public fillRect(x: number = 0, y: number = 0, w: number = 1, h: number = 1) {
         this.context.fillRect(x, y, w, h);
     }
