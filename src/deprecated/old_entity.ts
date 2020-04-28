@@ -84,7 +84,7 @@ export class Entity {
         this.lastHitSheet = attacker.charSheet;
         const inst = Instance.getLoadedInstanceById(this.location.instance_id);
         const event = new AttackEvent(false, attacker, this);
-        this.charSheet.takeHit(event);
+        // this.charSheet.takeHit(event);
         if (inst) {
             inst.emit(event, this.location, attacker.location);
         }

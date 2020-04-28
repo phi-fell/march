@@ -5,7 +5,6 @@ import { ACTION_RESULT } from './actionresult';
 import { ACTION_TYPE } from './actiontype';
 
 export class SayAction extends ActionBase {
-    public static arg_count = -1;
     public static fromArgs(args: string[]) {
         return new SayAction(args.join(' '));
     }

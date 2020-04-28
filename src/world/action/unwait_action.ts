@@ -4,7 +4,6 @@ import { ACTION_RESULT } from './actionresult';
 import { ACTION_TYPE } from './actiontype';
 
 export class UnwaitAction extends ActionBase {
-    public static arg_count = 0;
     public static fromArgs(args: string[]) {
         return new UnwaitAction();
     }

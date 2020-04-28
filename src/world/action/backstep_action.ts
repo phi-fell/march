@@ -7,7 +7,6 @@ import { ACTION_RESULT } from './actionresult';
 import { ACTION_TYPE } from './actiontype';
 
 export class BackstepAction extends ActionBase {
-    public static arg_count = 1;
     public static fromArgs(args: string[]) {
         if (args.length < 1) {
             return 'Provide a direction!';

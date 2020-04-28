@@ -9,7 +9,6 @@ import { BackstepAction } from './backstep_action';
 import { MoveAction } from './move_action';
 
 export class StrafeAction extends ActionBase {
-    public static arg_count = 1;
     public static fromArgs(args: string[]) {
         if (args.length < 1) {
             return 'Provide a direction!';

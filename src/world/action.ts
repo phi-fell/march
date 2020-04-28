@@ -2,6 +2,7 @@ import type { ValueOf } from '../util/types';
 import type { ACTION_RESULT } from './action/actionresult';
 import { ACTION_TYPE } from './action/actiontype';
 import { AsyncAction } from './action/async_action';
+import { AttackAction } from './action/attack_action';
 import { BackstepAction } from './action/backstep_action';
 import { LookAction } from './action/look_action';
 import { MoveAction } from './action/move_action';
@@ -21,7 +22,6 @@ export interface Action<T extends ACTION_TYPE = ACTION_TYPE> {
 }
 
 export interface ActionClass<T extends ACTION_TYPE> {
-    arg_count: number;
     fromArgs(args: string[]): Action<T> | string;
     new(...args: any): Action<T>;
 }
@@ -53,6 +53,7 @@ export const ActionClasses: ActionClassArray = [
     StrafeAction,
     BackstepAction,
     TurnAction,
+    AttackAction,
 ];
 
 /*
@@ -74,22 +75,6 @@ return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
 *//*
 }
 return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
-}
-}
-
-class AttackAction {
-public readonly cost: number = 10;
-public perform(world: World, entity: Entity) {
-const inst = Instance.getLoadedInstanceById(entity.location.instance_id)!;
-const vec = directionVectors[entity.direction];
-const attackPos = entity.location.translate(vec.x, vec.y);
-const opponent = inst.getMobInLocation(attackPos.x, attackPos.y);
-if (opponent) {
-// TODO: opponent.hit(entity);
-} else {
-// TODO: inst.emit(new AttackEvent(false, entity, null), entity.location);
-}
-return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
 }
 }
 

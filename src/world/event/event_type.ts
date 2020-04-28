@@ -11,7 +11,7 @@ export enum EVENT_TYPE {
     STRAFE,
     BACKSTEP,
     TURN,
-    // ATTACK,
+    ATTACK,
     // BLEED,
     // HEAL,
     // PICKUP,

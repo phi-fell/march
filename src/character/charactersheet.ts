@@ -1,7 +1,7 @@
 import * as t from 'io-ts';
 import { Damage, DamageMetaData, DAMAGE_TYPE } from '../damage';
-import type { AttackEvent } from '../deprecated/clientevent';
 import { Random } from '../math/random';
+import type { AttackEvent } from '../world/event/attack_event';
 import { ATTRIBUTE, CharacterAttributes } from './characterattributes';
 import { CharacterEquipment } from './characterequipment';
 import type { CharacterFaith } from './characterfaith';
@@ -188,7 +188,13 @@ export class CharacterSheet {
         this._status.endRest();
     }
     public takeHit(event: AttackEvent) {
-        const weapon = event.attacker.charSheet.equipment.weapon;
+        const attacker_sheet = event.attacker.getComponent('sheet');
+        if (attacker_sheet === undefined) {
+            console.log('Attacker has no sheet!');
+            event.success = false;
+            return;
+        }
+        const weapon = attacker_sheet.equipment.weapon;
         // TODO: combat calculations (not complete)
         /*
             chance to dodge: along the lines of hit_success=(1D20 + attacker.DEX) >= (1D20 + defender.AGI) or something
@@ -207,7 +213,7 @@ export class CharacterSheet {
         if (Random.float() >= dodgeChance) {
             event.success = true;
             let armor = 0; // TODO: calculate total armor
-            let blunt = event.attacker.charSheet.getNetAttributeValue(ATTRIBUTE.STRENGTH) + (weapon ? (weapon.weapon_data.force) : 0); // [str]D[force] ?
+            let blunt = attacker_sheet.getNetAttributeValue(ATTRIBUTE.STRENGTH) + (weapon ? (weapon.weapon_data.force) : 0); // [str]D[force] ?
             event.damage.push(new Damage(DAMAGE_TYPE.BLUNT, blunt, new DamageMetaData(blunt, blunt, blunt, armor, 0)));
             if (blunt > armor) {
                 blunt -= armor;

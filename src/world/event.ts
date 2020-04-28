@@ -1,4 +1,5 @@
 import type { ValueOf } from '../util/types';
+import { AttackEvent } from './event/attack_event';
 import { BackstepEvent } from './event/backstep_event';
 import type { EVENT_TYPE } from './event/event_type';
 import { LookEvent } from './event/look_event';
@@ -38,4 +39,5 @@ export const EventClasses: EventClassArray = [
     StrafeEvent,
     BackstepEvent,
     TurnEvent,
+    AttackEvent,
 ];
