@@ -17,12 +17,13 @@ export const WanderController: ControllerClass<CONTROLLER.WANDER> = class extend
     public getNextAction(): Action {
         switch (this.state) {
             case 0:
-                this.state = 1;
                 return new MoveAction(this.dir);
             case 1:
                 this.dir = Random.int(0, 4);
-                this.state = 0;
                 return new TurnAction(this.dir);
         }
+    }
+    public popAction() {
+        this.state = 1 - this.state as 0 | 1;
     }
 }

@@ -111,7 +111,8 @@ export class Board {
             return 0;
         });
         for (const ent of this.entities) {
-            ent.withAll((sheet, controller) => {
+            const [sheet, controller] = ent.getComponents('sheet', 'controller');
+            if (sheet !== undefined && controller !== undefined) {
                 const action = controller.getNextAction();
                 const result = action.perform(ent);
                 sheet.useAP(result.cost);
@@ -121,19 +122,19 @@ export class Board {
                         return; // waiting on player
                     case ACTION_RESULT.FAILURE:
                         controller.popAction();
-                        break;
+                        return;
                     case ACTION_RESULT.INSUFFICIENT_AP:
                         break;
                     case ACTION_RESULT.REDUNDANT:
                         controller.popAction();
-                        break;
+                        return;
                     case ACTION_RESULT.SUCCESS:
                         controller.popAction();
                         return;
                     default:
                         assertUnreachable(result.result);
                 }
-            }, 'sheet', 'controller');
+            }
         }
         this.startNextRound();
     }
