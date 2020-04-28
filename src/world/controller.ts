@@ -40,5 +40,8 @@ export const Controller = {
     'schema': controller_schema,
     'fromJSON': (json: ControllerSchema): Controller => {
         return controller[CONTROLLER[json.type]].fromJSON(json);
+    },
+    'getNewController': (type: CONTROLLER, ...args: any) => {
+        return new controller[type](...args);
     }
 }

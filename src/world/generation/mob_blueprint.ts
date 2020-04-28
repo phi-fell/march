@@ -5,6 +5,7 @@ import { CharacterSheet } from '../../character/charactersheet';
 import { Random } from '../../math/random';
 import { Resource, ResourceManager } from '../../system/resource';
 import { Controller } from '../controller';
+import { CONTROLLER } from '../controller/controllers';
 import { DIRECTION } from '../direction';
 import { Entity } from '../entity';
 import type { Location } from '../location';
@@ -14,7 +15,7 @@ function createBaseMob(loc: Location): Entity {
     ret.setComponent('direction', DIRECTION.NORTH);
     ret.setComponent('name', 'Unnamed');
     ret.setComponent('controller', Controller.fromJSON({
-        'type': 'INERT',
+        'type': 'WANDER',
     }));
     ret.setComponent('sheet', new CharacterSheet());
     return ret;
@@ -28,6 +29,7 @@ export class MobBlueprintManager extends ResourceManager<typeof MobBlueprintMana
         'extends': t.string,
         'name': t.string,
         'sprite': t.string,
+        'controller': t.keyof(CONTROLLER),
         'race': t.string,
         'attributes': t.partial(CharacterAttributes.schema.props),
     });
@@ -38,6 +40,7 @@ export class MobBlueprint extends Resource<MobBlueprintSchema> {
     private name?: string;
     private sprite?: string;
     private race?: string;
+    private controller?: CONTROLLER;
     public fromJSON(json: t.TypeOf<MobBlueprintSchema>): void {
         if (json.name !== undefined) {
             this.name = json.name;
@@ -47,6 +50,9 @@ export class MobBlueprint extends Resource<MobBlueprintSchema> {
         }
         if (json.race !== undefined) {
             this.race = json.race;
+        }
+        if (json.controller !== undefined) {
+            this.controller = CONTROLLER[json.controller];
         }
     }
     public toJSON() {
@@ -59,6 +65,9 @@ export class MobBlueprint extends Resource<MobBlueprintSchema> {
         }
         if (this.race !== undefined) {
             ret.race = this.race;
+        }
+        if (this.controller !== undefined) {
+            ret.controller = CONTROLLER[this.controller] as keyof typeof CONTROLLER;
         }
         return ret;
     }
@@ -80,6 +89,9 @@ export class MobBlueprint extends Resource<MobBlueprintSchema> {
                     ret.setComponent('direction', undefined);
                 }
             }
+        }
+        if (this.controller) {
+            ret.setComponent('controller', Controller.getNewController(this.controller))
         }
         return ret;
     }
