@@ -40,6 +40,7 @@ export const ChatActions: Record<string, ACTION_TYPE | undefined> = {
     'move': ACTION_TYPE.MOVE,
     'strafe': ACTION_TYPE.STRAFE,
     'turn': ACTION_TYPE.TURN,
+    'attack': ACTION_TYPE.ATTACK,
 }
 export const ActionClasses: ActionClassArray = [
     AsyncAction,

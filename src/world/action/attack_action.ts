@@ -41,7 +41,7 @@ export class AttackAction extends ActionBase {
         if (ents.length > 1) {
             console.log('Multiple collidable entities at same location!');
         }
-        const ent = (ents.length > 1) ? (ents[0]) : undefined;
+        const ent = (ents.length >= 1) ? (ents[0]) : undefined;
 
         if (sheet.hasSufficientAP(this.cost)) {
             const attack_event = new AttackEvent(entity, ent);
