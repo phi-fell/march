@@ -1,5 +1,6 @@
 import fs = require('fs');
 import * as t from 'io-ts';
+import { EFFECT } from './effect';
 
 export type CharacterTraitID = string;
 
@@ -14,7 +15,9 @@ export class CharacterTrait {
         'cost': t.number,
         'name': t.string,
         'description': t.string,
-        'effects': t.array(t.string),
+        'effects': t.array(t.type({ // TODO: Effect.schema
+            'type': t.keyof(EFFECT),
+        })),
     });
 
     public static getTraitList() {
@@ -41,7 +44,7 @@ export class CharacterTrait {
         public cost: number,
         public name: string,
         public description: string,
-        public effects: string[],
+        public effects: { 'type': keyof typeof EFFECT }[],
     ) { }
     public getEssenceCost(): number {
         return this.cost;
