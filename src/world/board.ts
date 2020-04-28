@@ -123,7 +123,7 @@ export class Board {
                         return; // waiting on player
                     case ACTION_RESULT.FAILURE:
                         controller.popAction();
-                        return;
+                        break; // TODO: should be return; if there is another way to guarantee stalemates will be avoided
                     case ACTION_RESULT.INSUFFICIENT_AP:
                         break;
                     case ACTION_RESULT.REDUNDANT:
