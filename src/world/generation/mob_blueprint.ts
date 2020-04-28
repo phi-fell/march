@@ -1,5 +1,6 @@
 import * as t from 'io-ts';
 import { CharacterAttributes } from '../../character/characterattributes';
+import { CharacterRace } from '../../character/characterrace';
 import { CharacterSheet } from '../../character/charactersheet';
 import { Random } from '../../math/random';
 import { Resource, ResourceManager } from '../../system/resource';
@@ -36,21 +37,28 @@ export class MobBlueprint extends Resource<MobBlueprintSchema> {
     private extends?: string;
     private name?: string;
     private sprite?: string;
+    private race?: string;
     public fromJSON(json: t.TypeOf<MobBlueprintSchema>): void {
-        if (json.name) {
+        if (json.name !== undefined) {
             this.name = json.name;
         }
-        if (json.sprite) {
+        if (json.sprite !== undefined) {
             this.sprite = json.sprite;
+        }
+        if (json.race !== undefined) {
+            this.race = json.race;
         }
     }
     public toJSON() {
         const ret: t.TypeOf<MobBlueprintSchema> = {};
-        if (this.name) {
+        if (this.name !== undefined) {
             ret.name = this.name;
         }
-        if (this.sprite) {
+        if (this.sprite !== undefined) {
             ret.sprite = this.sprite;
+        }
+        if (this.race !== undefined) {
+            ret.race = this.race;
         }
         return ret;
     }
@@ -63,6 +71,15 @@ export class MobBlueprint extends Resource<MobBlueprintSchema> {
         }
         if (this.sprite) {
             ret.setComponent('sprite', this.sprite);
+        }
+        if (this.race) {
+            const sheet = ret.getComponent('sheet');
+            if (sheet !== undefined) {
+                sheet.race = new CharacterRace(this.race);
+                if (sheet.race.traits.includes('omnidirectional')) {
+                    ret.setComponent('direction', undefined);
+                }
+            }
         }
         return ret;
     }
