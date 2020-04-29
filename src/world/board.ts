@@ -65,27 +65,26 @@ export class Board {
     }
     public emitGlobal(event: Event) {
         for (const ent of this.entities) {
-            ent.withAll((controller) => {
-                controller.sendEvent(event);
-            }, 'controller');
+            if (ent.isMob()) {
+                ent.getComponent('controller').sendEvent(event);
+            }
         }
     }
     public emit(event: Event, ...locations: Location[]) {
         for (const ent of this.entities) {
-            ent.withAll((controller) => {
-                ent.with((visibility_manager) => {
-                    if (visibility_manager === undefined) {
-                        controller.sendEvent(event);
-                        return;
+            if (ent.isMob()) {
+                const visibility_manager = ent.getComponent('visibility_manager');
+                if (visibility_manager === undefined) {
+                    ent.getComponent('controller').sendEvent(event);
+                    return;
+                }
+                for (const loc of locations) {
+                    if (visibility_manager.canSee(loc)) {
+                        ent.getComponent('controller').sendEvent(event);
+                        break;
                     }
-                    for (const loc of locations) {
-                        if (visibility_manager.canSee(loc)) {
-                            controller.sendEvent(event);
-                            break;
-                        }
-                    }
-                }, 'visibility_manager');
-            }, 'controller');
+                }
+            }
         }
     }
     public notifyAsyncEnt(entity_id: UUID) {
@@ -141,12 +140,12 @@ export class Board {
     }
     public startNextRound() {
         for (const ent of this.entities) {
-            ent.withAll((sheet) => {
-                sheet.startNewTurn();
-            }, 'sheet');
-            ent.withAll((controller) => {
-                controller.newRound();
-            }, 'controller');
+            if (ent.has('sheet')) {
+                ent.getComponent('sheet').startNewTurn();
+            }
+            if (ent.has('controller')) {
+                ent.getComponent('controller').newRound();
+            }
         }
         this.emitGlobal(new NewRoundEvent());
     }

@@ -1,7 +1,9 @@
 import * as t from 'io-ts';
 import { CharacterSheet } from '../character/charactersheet';
+import { ArmorData } from '../item/armordata';
 import { Inventory } from '../item/inventory';
 import { ItemData } from '../item/itemdata';
+import { WeaponData } from '../item/weapondata';
 import type { ValueOf, ValueOfArray } from '../util/types';
 import { Controller } from './controller';
 import { DIRECTION } from './direction';
@@ -32,6 +34,16 @@ const componentwrappers = {
         'schema': ItemData.schema,
         'fromJSON': ItemData.fromJSON,
         'toJSON': (component: ItemData) => component.toJSON(),
+    },
+    'armor_data': {
+        'schema': ArmorData.schema,
+        'fromJSON': ArmorData.fromJSON,
+        'toJSON': (component: ArmorData) => component.toJSON(),
+    },
+    'weapon_data': {
+        'schema': WeaponData.schema,
+        'fromJSON': WeaponData.fromJSON,
+        'toJSON': (component: WeaponData) => component.toJSON(),
     },
     'visibility_manager': {
         'schema': VisibilityManager.schema,
@@ -89,26 +101,12 @@ export type ComponentsWithNames<T extends ComponentName[], U extends FullCompone
         ComponentWithName<T[0], U>, ComponentWithName<T[1], U>, ComponentWithName<T[2], U>, ComponentWithName<T[3], U>, ComponentWithName<T[4], U>
     ] :
     never;
-export type WithCallback<T extends ComponentName[]> = (...args: ComponentsWithNames<T, Components>) => void;
-export type WithAllCallback<T extends ComponentName[]> = (...args: ComponentsWithNames<T, FullComponents>) => void;
+
 // names must be a ...rest parameter or typescript will not type it correctly when this is called.
 // passing ['a','b'] to names:[] will pass string[], whereas passing ,'a','b' to ...names:[] will pass ['a','b']
 // as const doesn't work right because of the readonly.
 function getComponents<T extends ComponentName[]>(components: Components, ...names: T): ComponentsWithNames<T, Components> {
     return names.map((name) => components[name]) as ComponentsWithNames<T, Components>;
-}
-function withComponents<T extends ComponentName[]>(components: Components, fun: WithCallback<T>, ...names: T) {
-    fun(...getComponents(components, ...names));
-}
-function withAllComponents<T extends ComponentName[]>(components: Components, fun: WithAllCallback<T>, ...names: T) {
-    const c = getComponents(components, ...names);
-    for (const comp of c) {
-        if (comp === undefined) {
-            return;
-        }
-    }
-    const args = c as ComponentsWithNames<T, FullComponents>;
-    fun(...args);
 }
 
 function hasComponents<T extends ComponentName[]>(components: Components, ...names: T): components is ComponentsWith<ValueOfArray<T>> {
@@ -158,6 +156,4 @@ export const Components = {
     },
     hasComponents,
     getComponents,
-    withComponents,
-    withAllComponents,
 };

@@ -2,7 +2,7 @@ import * as t from 'io-ts';
 import { Random, UUID } from '../math/random';
 import type { ValueOfArray } from '../util/types';
 import type { Cell } from './cell';
-import { ComponentName, Components, ComponentsWith, ComponentsWithNames, WithAllCallback, WithCallback } from './component';
+import { ComponentName, Components, ComponentsWith, ComponentsWithNames } from './component';
 import { Locatable, locatable_schema } from './locatable';
 import { Location } from './location';
 
@@ -18,6 +18,17 @@ export type Mob = EntityWith<MobComponents>;
 const item_components = ['item_data', 'sprite', 'name'] as const;
 type ItemComponents = ValueOfArray<typeof item_components>;
 export type Item = EntityWith<ItemComponents>;
+
+const weapon_components = ['weapon_data'] as const;
+type WeaponComponents = ValueOfArray<typeof weapon_components>;
+export type Weapon = EntityWith<WeaponComponents>;
+
+const armor_components = ['armor_data'] as const;
+type ArmorComponents = ValueOfArray<typeof armor_components>;
+export type Armor = EntityWith<ArmorComponents>;
+
+export type WeaponItem = EntityWith<WeaponComponents | ItemComponents>;
+export type ArmorItem = EntityWith<ArmorComponents | ItemComponents>;
 
 export type EntitySchema = t.TypeOf<typeof Entity.schema>;
 
@@ -40,9 +51,11 @@ export class Entity extends Locatable {
     public constructor(loc: Location, public id: UUID = Random.uuid(), emplaced: boolean = false) {
         super(loc, emplaced);
     }
+
     public isEntity(): this is Entity {
         return true;
     }
+
     public has<T extends ComponentName[]>(...args: T): this is EntityWith<ValueOfArray<T>> {
         return Components.hasComponents(this.components, ...args);
     }
@@ -52,39 +65,34 @@ export class Entity extends Locatable {
     public isItem(): this is Item {
         return this.has(...item_components);
     }
-    public isCollidable(): boolean {
-        // TODO: give entities a component that makes them collide?
-        // i.e. delete this function and add some component that handles that
-        // (even if the component is just a boolean with an entry in component_wrappers)
-        return true;
+    public isWeapon(): this is Weapon {
+        return this.has(...weapon_components);
     }
+    public isWeaponItem(): this is WeaponItem {
+        return this.isWeapon() && this.isItem();
+    }
+    public isArmor(): this is Armor {
+        return this.has(...armor_components);
+    }
+
     public getComponent<T extends ComponentName>(name: T) {
         return this.components[name];
     }
     public getComponents<T extends ComponentName[]>(...names: T) {
         return Components.getComponents(this.components, ...names);
     }
+
     public setComponent<T extends ComponentName>(name: T, component: Components[T]) {
         this.components[name] = component;
     }
-    /**
-     * Calls the passed callbacks with the values of the named components (or undefined for components not present)
-     * @param callback callback to be called (synchronously)
-     * @param names names of components
-     */
-    public with<T extends ComponentName[]>(callback: WithCallback<T>, ...names: T) {
-        return Components.withComponents(this.components, callback, ...names);
+
+    public isCollidable(): boolean {
+        // TODO: give entities a component that makes them collide?
+        // i.e. delete this function and add some component that handles that
+        // (even if the component is just a boolean with an entry in component_wrappers)
+        return true;
     }
-    /**
-     * If all of the named components are present on this entity:
-     *      Calls the passed callbacks with the values of the named components
-     * If any of the named components are not present, does nothing
-     * @param callback callback to be called (synchronously)
-     * @param names names of components
-     */
-    public withAll<T extends ComponentName[]>(callback: WithAllCallback<T>, ...names: T) {
-        return Components.withAllComponents(this.components, callback, ...names);
-    }
+
     public equals(other: Entity): boolean {
         return this.id === other.id;
     }
