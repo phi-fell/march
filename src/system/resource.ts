@@ -7,10 +7,21 @@ export abstract class ResourceManager<S extends t.Any, T extends Resource<S>> {
     private res: { [id: string]: T } = {};
     protected abstract resource_class: ResourceClass<S, T>;
     constructor(private dir: string, private extension: string = '.json') { }
-    public async get(id: string) {
-        if (!this.res[id]) {
-            this.res[id] = new this.resource_class(this.dir + '/' + id + this.extension);
-            await this.res[id].ready();
+    public async get(id: string): Promise<T | undefined> {
+        if (this.res[id] === undefined) {
+            try {
+                this.res[id] = new this.resource_class(this.dir + '/' + id + this.extension);
+                await this.res[id].ready();
+            } catch (err) {
+                console.log(err);
+                return;
+            }
+        } else {
+            try {
+                await this.res[id].ready();
+            } catch (err) {
+                return;
+            }
         }
         return this.res[id];
     }
