@@ -11,11 +11,11 @@ export interface EntityWith<T extends ComponentName> extends Entity {
     getComponents<U extends ComponentName[]>(...names: U): ComponentsWithNames<U, ComponentsWith<T>>;
 }
 
-const mob_components = ['sheet', 'controller', 'sprite', 'name'] as const;
+const mob_components = ['name', 'sprite', 'controller', 'sheet', 'inventory'] as const;
 type MobComponents = ValueOfArray<typeof mob_components>;
 export type Mob = EntityWith<MobComponents>;
 
-const item_components = ['item_data', 'sprite', 'name'] as const;
+const item_components = ['name', 'sprite', 'item_data'] as const;
 type ItemComponents = ValueOfArray<typeof item_components>;
 export type Item = EntityWith<ItemComponents>;
 
