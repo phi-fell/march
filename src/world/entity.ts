@@ -74,6 +74,9 @@ export class Entity extends Locatable {
     public isArmor(): this is Armor {
         return this.has(...armor_components);
     }
+    public isArmorItem(): this is ArmorItem {
+        return this.isArmor() && this.isItem();
+    }
 
     public getComponent<T extends ComponentName>(name: T) {
         return this.components[name];
