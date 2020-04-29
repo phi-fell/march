@@ -1,5 +1,6 @@
 import * as t from 'io-ts';
 import { CharacterSheet } from '../character/charactersheet';
+import { Inventory } from '../item/inventory';
 import { Random } from '../math/random';
 import type { User } from '../net/user';
 import { Action, ActionClasses, ChatActions } from './action';
@@ -8,7 +9,7 @@ import { SayAction } from './action/say_action';
 import type { Cell } from './cell';
 import { PlayerController } from './controller/playercontroller';
 import { DIRECTION } from './direction';
-import { Entity } from './entity';
+import { Entity, Mob } from './entity';
 import type { Event } from './event';
 import type { Instance } from './instance';
 import type { World } from './world';
@@ -45,12 +46,16 @@ export class Player {
         const inst: Instance = await world.createInstance();
         const cell: Cell = await inst.createCell(await user.server.cell_blueprint_manager.get('tutorial/start'), user.server.mob_blueprint_manager);
         const loc = cell.getRandomPassableLocation();
-        const ent = new Entity(loc);
-        ent.setComponent('name', ret.name);
-        ent.setComponent('direction', DIRECTION.NORTH);
-        ent.setComponent('sheet', ret.sheet);
-        ent.setComponent('controller', new PlayerController(ret));
-        ent.setComponent('sprite', 'player');
+        const ent: Mob = (() => {
+            const e: Entity = new Entity(loc);
+            e.setComponent('name', ret.name);
+            e.setComponent('direction', DIRECTION.NORTH);
+            e.setComponent('sheet', ret.sheet);
+            e.setComponent('controller', new PlayerController(ret));
+            e.setComponent('sprite', 'player');
+            e.setComponent('inventory', new Inventory());
+            return e;
+        })();
         ret.entity_ref = {
             'instance_id': inst.id,
             'cell_id': cell.id,
