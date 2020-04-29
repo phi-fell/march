@@ -1,4 +1,5 @@
 {
     "name": "Gold",
+    "sprite": "gold",
     "stackable": true
 }
