@@ -80,7 +80,7 @@ export type ComponentsSchema = t.TypeOf<typeof components_schema>;
 type FullComponentsSchema = t.TypeOf<t.TypeC<ComponentsSchemaEntries>>;
 
 type RetrieveComponent<T> = T extends { 'fromJSON': (...args: any) => infer U } ? U : never
-type FullComponents = {
+export type FullComponents = {
     [P in ComponentName]: RetrieveComponent<ComponentWrappers[P]>;
 }
 

@@ -2,13 +2,15 @@ import * as t from 'io-ts';
 import { Random, UUID } from '../math/random';
 import type { ValueOfArray } from '../util/types';
 import type { Cell } from './cell';
-import { ComponentName, Components, ComponentsWith, ComponentsWithNames } from './component';
+import { ComponentName, Components, ComponentsWith, ComponentsWithNames, FullComponents } from './component';
 import { Locatable, locatable_schema } from './locatable';
 import { Location } from './location';
 
 export interface EntityWith<T extends ComponentName> extends Entity {
     getComponent<U extends ComponentName>(name: U): ComponentsWith<T>[U];
     getComponents<U extends ComponentName[]>(...names: U): ComponentsWithNames<U, ComponentsWith<T>>;
+    setComponent<U extends ComponentName>(name: U, component: FullComponents[U]): asserts this is EntityWith<T | U>;
+    removeComponent<U extends ComponentName>(name: U): asserts this is EntityWith<Exclude<T, U>>;
 }
 
 const mob_components = ['name', 'sprite', 'controller', 'sheet', 'inventory'] as const;
@@ -85,8 +87,12 @@ export class Entity extends Locatable {
         return Components.getComponents(this.components, ...names);
     }
 
-    public setComponent<T extends ComponentName>(name: T, component: Components[T]) {
+    public setComponent<T extends ComponentName>(name: T, component: FullComponents[T]): asserts this is EntityWith<T> {
         this.components[name] = component;
+    }
+
+    public removeComponent<T extends ComponentName>(name: T): asserts this is Entity {
+        this.components[name] = undefined;
     }
 
     public isCollidable(): boolean {
