@@ -7,6 +7,7 @@ import { Locatable, locatable_schema } from './locatable';
 import { Location } from './location';
 
 export interface EntityWith<T extends ComponentName> extends Entity {
+    components: ComponentsWith<T>; // needed or for some reason EntityWith<T> are all assignable (e.g. EntityWith<'direction> = EntityWith<never> is valid)
     getComponent<U extends ComponentName>(name: U): ComponentsWith<T>[U];
     getComponents<U extends ComponentName[]>(...names: U): ComponentsWithNames<U, ComponentsWith<T>>;
     setComponent<U extends ComponentName>(name: U, component: FullComponents[U]): asserts this is EntityWith<T | U>;
@@ -49,7 +50,7 @@ export class Entity extends Locatable {
         return ret;
     }
 
-    private components: Components = {};
+    public components: Components = {};
     public constructor(loc: Location, public id: UUID = Random.uuid(), emplaced: boolean = false) {
         super(loc, emplaced);
     }
