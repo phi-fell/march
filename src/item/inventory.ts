@@ -1,5 +1,5 @@
 import * as t from 'io-ts';
-import type { Item } from '../world/entity';
+import type { Item } from './item';
 
 export type InventorySchema = t.TypeOf<typeof Inventory.schema>;
 

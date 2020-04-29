@@ -28,18 +28,7 @@ export type Mob = EntityWith<MobComponents>;
 
 const item_components = ['name', 'sprite', 'item_data'] as const;
 type ItemComponents = ValueOfArray<typeof item_components>;
-export type Item = EntityWith<ItemComponents>;
-
-const weapon_components = ['weapon_data'] as const;
-type WeaponComponents = ValueOfArray<typeof weapon_components>;
-export type Weapon = EntityWith<WeaponComponents>;
-
-const armor_components = ['armor_data'] as const;
-type ArmorComponents = ValueOfArray<typeof armor_components>;
-export type Armor = EntityWith<ArmorComponents>;
-
-export type WeaponItem = EntityWith<WeaponComponents | ItemComponents>;
-export type ArmorItem = EntityWith<ArmorComponents | ItemComponents>;
+export type ItemEntity = EntityWith<ItemComponents>;
 
 export type EntitySchema = t.TypeOf<typeof Entity.schema>;
 
@@ -73,20 +62,8 @@ export class Entity extends Locatable {
     public isMob(): this is Mob {
         return this.has(...mob_components);
     }
-    public isItem(): this is Item {
+    public isItem(): this is ItemEntity {
         return this.has(...item_components);
-    }
-    public isWeapon(): this is Weapon {
-        return this.has(...weapon_components);
-    }
-    public isWeaponItem(): this is WeaponItem {
-        return this.isWeapon() && this.isItem();
-    }
-    public isArmor(): this is Armor {
-        return this.has(...armor_components);
-    }
-    public isArmorItem(): this is ArmorItem {
-        return this.isArmor() && this.isItem();
     }
 
     public getComponent<T extends ComponentName>(name: T) {

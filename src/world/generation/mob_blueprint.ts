@@ -92,13 +92,13 @@ export class MobBlueprint extends Resource<MobBlueprintSchema> {
             }
             return (blueprint.generateMob(mob_blueprint_manager, loc));
         })();
-        if (this.name) {
+        if (this.name !== undefined) {
             ret.setComponent('name', this.name);
         }
-        if (this.sprite) {
+        if (this.sprite !== undefined) {
             ret.setComponent('sprite', this.sprite);
         }
-        if (this.race) {
+        if (this.race !== undefined) {
             const sheet = ret.getComponent('sheet');
             if (sheet !== undefined) {
                 sheet.race = new CharacterRace(this.race);
@@ -107,7 +107,7 @@ export class MobBlueprint extends Resource<MobBlueprintSchema> {
                 }
             }
         }
-        if (this.controller) {
+        if (this.controller !== undefined) {
             ret.setComponent('controller', Controller.getNewController(this.controller))
         }
         return ret;

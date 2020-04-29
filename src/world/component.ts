@@ -1,9 +1,7 @@
 import * as t from 'io-ts';
 import { CharacterSheet } from '../character/charactersheet';
-import { ArmorData } from '../item/armordata';
 import { Inventory } from '../item/inventory';
-import { ItemData } from '../item/itemdata';
-import { WeaponData } from '../item/weapondata';
+import { Item } from '../item/item';
 import type { ValueOf, ValueOfArray } from '../util/types';
 import { Controller } from './controller';
 import { DIRECTION } from './direction';
@@ -31,19 +29,9 @@ const componentwrappers = {
         'toJSON': (component: Inventory) => component.toJSON(),
     },
     'item_data': {
-        'schema': ItemData.schema,
-        'fromJSON': ItemData.fromJSON,
-        'toJSON': (component: ItemData) => component.toJSON(),
-    },
-    'armor_data': {
-        'schema': ArmorData.schema,
-        'fromJSON': ArmorData.fromJSON,
-        'toJSON': (component: ArmorData) => component.toJSON(),
-    },
-    'weapon_data': {
-        'schema': WeaponData.schema,
-        'fromJSON': WeaponData.fromJSON,
-        'toJSON': (component: WeaponData) => component.toJSON(),
+        'schema': Item.schema,
+        'fromJSON': Item.fromJSON,
+        'toJSON': (component: Item) => component.toJSON(),
     },
     'visibility_manager': {
         'schema': VisibilityManager.schema,
