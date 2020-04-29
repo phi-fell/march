@@ -14,6 +14,8 @@ import type { Event } from './event';
 import type { Instance } from './instance';
 import type { World } from './world';
 
+const starting_cell = 'tutorial/start';
+
 const entity_ref_schema = t.type({
     'instance_id': t.string,
     'cell_id': t.string,
@@ -40,11 +42,15 @@ export class Player {
         return ret;
     }
     public static async createPlayer(user: User, world: World, name: string, sheet: CharacterSheet) {
+        const blueprint = await user.server.cell_blueprint_manager.get(starting_cell);
+        if (blueprint === undefined) {
+            throw new Error(`Could not create player! Starting cell blueprint (${starting_cell}) not found!`);
+        }
         const ret = new Player(user, world);
         ret.name = name;
         ret.sheet = sheet;
         const inst: Instance = await world.createInstance();
-        const cell: Cell = await inst.createCell(await user.server.cell_blueprint_manager.get('tutorial/start'), user.server.mob_blueprint_manager);
+        const cell: Cell = await inst.createCell(blueprint, user.server.mob_blueprint_manager);
         const loc = cell.getRandomPassableLocation();
         const ent: Mob = (() => {
             const e: Entity = new Entity(loc);
@@ -154,8 +160,9 @@ export class Player {
             throw new Error('Player did not have an attached entity!')
         }
         const cell = await this.world.getCell(this.entity_ref.instance_id, this.entity_ref.cell_id);
-        this.entity = cell.getEntity(this.entity_ref.entity_id);
-        this.entity.setComponent('controller', new PlayerController(this));
+        const ent: Entity = cell.getEntity(this.entity_ref.entity_id);
+        ent.setComponent('controller', new PlayerController(this));
+        this.entity = ent;
         this._active = true;
     }
     public setInactive() {

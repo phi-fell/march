@@ -2,22 +2,25 @@ import * as t from 'io-ts';
 import { CharacterAttributes } from '../../character/characterattributes';
 import { CharacterRace } from '../../character/characterrace';
 import { CharacterSheet } from '../../character/charactersheet';
+import { Inventory } from '../../item/inventory';
 import { Random } from '../../math/random';
 import { Resource, ResourceManager } from '../../system/resource';
 import { Controller } from '../controller';
 import { CONTROLLER } from '../controller/controllers';
 import { DIRECTION } from '../direction';
-import { Entity } from '../entity';
+import { Entity, Mob } from '../entity';
 import type { Location } from '../location';
 
-function createBaseMob(loc: Location): Entity {
+function createBaseMob(loc: Location): Mob {
     const ret: Entity = new Entity(loc, Random.uuid(), true);
-    ret.setComponent('direction', DIRECTION.NORTH);
     ret.setComponent('name', 'Unnamed');
+    ret.setComponent('sprite', 'none');
+    ret.setComponent('direction', DIRECTION.NORTH);
     ret.setComponent('controller', Controller.fromJSON({
         'type': 'WANDER',
     }));
     ret.setComponent('sheet', new CharacterSheet());
+    ret.setComponent('inventory', new Inventory());
     return ret;
 }
 
@@ -77,10 +80,18 @@ export class MobBlueprint extends Resource<MobBlueprintSchema> {
         }
         return ret;
     }
-    public async generateMob(mob_blueprint_manager: MobBlueprintManager, loc: Location): Promise<Entity> {
-        const ret = (this.extends === undefined)
-            ? (createBaseMob(loc))
-            : (await (await mob_blueprint_manager.get(this.extends)).generateMob(mob_blueprint_manager, loc));
+    public async generateMob(mob_blueprint_manager: MobBlueprintManager, loc: Location): Promise<Mob> {
+        const ret: Mob = await (async () => {
+            if (this.extends === undefined) {
+                return createBaseMob(loc);
+            }
+            const blueprint = await mob_blueprint_manager.get(this.extends);
+            if (!blueprint) {
+                console.log(`Could not extend nonexistent blueprint: ${this.extends}!`);
+                return createBaseMob(loc);
+            }
+            return (blueprint.generateMob(mob_blueprint_manager, loc));
+        })();
         if (this.name) {
             ret.setComponent('name', this.name);
         }
@@ -92,7 +103,7 @@ export class MobBlueprint extends Resource<MobBlueprintSchema> {
             if (sheet !== undefined) {
                 sheet.race = new CharacterRace(this.race);
                 if (sheet.race.traits.includes('omnidirectional')) {
-                    ret.setComponent('direction', undefined);
+                    ret.removeComponent('direction');
                 }
             }
         }
