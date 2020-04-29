@@ -11,6 +11,14 @@ export interface EntityWith<T extends ComponentName> extends Entity {
     getComponent<U extends ComponentName>(name: U): ComponentsWith<T>[U];
     getComponents<U extends ComponentName[]>(...names: U): ComponentsWithNames<U, ComponentsWith<T>>;
     setComponent<U extends ComponentName>(name: U, component: FullComponents[U]): asserts this is EntityWith<T | U>;
+    /**
+     * Only call on raw Entity.
+     * if you need to call this otherwise, cast to Entity first
+     * asserts so that calling will result in an error
+     *
+     * (changing Entity.removeComponent to an assertion will fix this error but result in improper type assertion)
+     * see https://stackoverflow.com/q/61508583/10039628
+     */
     removeComponent<U extends ComponentName>(name: U): asserts this is EntityWith<Exclude<T, U>>;
 }
 
@@ -92,7 +100,8 @@ export class Entity extends Locatable {
         this.components[name] = component;
     }
 
-    public removeComponent<T extends ComponentName>(name: T): asserts this is Entity {
+    // returns void intentionally see EntityWith<T>
+    public removeComponent<T extends ComponentName>(name: T): void {
         this.components[name] = undefined;
     }
 
