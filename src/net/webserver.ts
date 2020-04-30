@@ -23,6 +23,7 @@ export class WebServerOptions {
     public use_https: boolean = true;
     public unlock_diagnostic: boolean = false;
     public useDebugJS: boolean = false;
+    public static_site: boolean = false;
     public https_key: string = '';
     public https_cert: string = '';
     public clone(): WebServerOptions {
@@ -32,6 +33,7 @@ export class WebServerOptions {
         ret.use_https = this.use_https;
         ret.unlock_diagnostic = this.unlock_diagnostic;
         ret.useDebugJS = this.useDebugJS;
+        ret.static_site = this.static_site
         ret.https_key = this.https_key;
         ret.https_cert = this.https_cert;
         return ret;
@@ -147,24 +149,20 @@ export class WebServer {
             res.sendFile(path.resolve('site/logo/favicon.ico'));
         });
 
-        this.express_app.get('/test', (req: Request, res: Response) => {
-            res.send(pug.renderFile(path.resolve('site/pug/test.pug')));
-        });
-        this.express_app.get('/game', (req: Request, res: Response) => {
-            res.send(pug.renderFile(path.resolve('site/pug/game.pug')));
-        });
-        this.express_app.get('/login', (req: Request, res: Response) => {
-            res.send(pug.renderFile(path.resolve('site/pug/login.pug')));
-        });
-        this.express_app.get('/home', (req: Request, res: Response) => {
-            res.send(pug.renderFile(path.resolve('site/pug/home.pug')));
-        });
-        this.express_app.get('/character_creation', (req: Request, res: Response) => {
-            res.send(pug.renderFile(path.resolve('site/pug/character_creation.pug')));
-        });
-        this.express_app.get('/create', (req: Request, res: Response) => {
-            res.send(pug.renderFile(path.resolve('site/pug/new.pug')));
-        });
+        const html_pages = ['test', 'game', 'login', 'home', 'character_creation', 'create'];
+        if (this.options.static_site) {
+            for (const page of html_pages) {
+                this.express_app.get(`/${page}`, (req: Request, res: Response) => {
+                    res.sendFile(path.resolve(`site/html/${page}.html`));
+                });
+            }
+        } else {
+            for (const page of html_pages) {
+                this.express_app.get(`/${page}`, (req: Request, res: Response) => {
+                    res.send(pug.renderFile(path.resolve(`site/pug/${page}.pug`)));
+                });
+            }
+        }
 
         this.express_app.get('/css/:filename', async (req: Request, res: Response) => {
             try {
