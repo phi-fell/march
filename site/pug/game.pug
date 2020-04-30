@@ -3,11 +3,11 @@ html
     head
         title GotG
         script(src="./socket.io/socket.io.js")
-        script(src="./dependencies/jquery.js")
-        script(src="./dependencies/vue.js")
+        script(src=jquery_path)
+        script(src=vue_path)
         script(type="module" src="./js/game.js")
-        link(rel="stylesheet" type="text/css" href="css/global")
-        link(rel="stylesheet" type="text/css" href="css/game")
+        link(rel="stylesheet" type="text/css" href="./css/global")
+        link(rel="stylesheet" type="text/css" href="./css/game")
 
 body
     #game.all.row

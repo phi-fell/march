@@ -4,12 +4,12 @@ html
     head
         title GotG
         script(src="./socket.io/socket.io.js")
-        script(src="./dependencies/jquery.js")
-        script(src="./dependencies/vue.js")
+        script(src=jquery_path)
+        script(src=vue_path)
         script(type="module" src="./js/index.js")
         link(href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=Open+Sans&display=swap" rel="stylesheet")
-        link(rel="stylesheet" type="text/css" href="css/global")
-        link(rel="stylesheet" type="text/css" href="css/index")
+        link(rel="stylesheet" type="text/css" href="./css/global")
+        link(rel="stylesheet" type="text/css" href="./css/index")
     body
         #index.all
             a.nav_left.round_border.row-r(v-if="!logged_in" href="./create")

@@ -126,16 +126,15 @@ export class WebServer {
         return this.socketIO;
     }
     private attachWebRoutes() {
-        this.express_app.get('/', (req: Request, res: Response) => {
-            res.send(pug.renderFile(path.resolve('site/pug/index.pug')));
-        });
-
         this.express_app.get('/favicon.ico', (req: Request, res: Response) => {
             res.sendFile(path.resolve('site/logo/favicon.ico'));
         });
 
-        const html_pages = ['test', 'game', 'login', 'home', 'character_creation', 'create'];
+        const html_pages = ['test', 'game', 'login', 'home', 'character_creation', 'create'] as const;
         if (this.options.static_site) {
+            this.express_app.get('/', (req: Request, res: Response) => {
+                res.sendFile(path.resolve('site/html/index.html'));
+            });
             for (const page of html_pages) {
                 this.express_app.get(`/${page}`, (req: Request, res: Response) => {
                     res.sendFile(path.resolve(`site/html/${page}.html`));
@@ -145,6 +144,13 @@ export class WebServer {
                 res.send(pug.renderFile(path.resolve(`site/pug/vue${req.path}.pug`)));
             });
         } else {
+            const pug_locals = {
+                'jquery_path': './dependencies/jquery.js',
+                'vue_path': './dependencies/vue.js',
+            };
+            this.express_app.get('/', (req: Request, res: Response) => {
+                res.send(pug.renderFile(path.resolve('site/pug/index.pug'), pug_locals));
+            });
             this.express_app.get('/dependencies/jquery(.js)?', async (req: Request, res: Response) => {
                 if (this.jqueryjs) {
                     res.send(this.jqueryjs);
@@ -161,10 +167,7 @@ export class WebServer {
             });
             for (const page of html_pages) {
                 this.express_app.get(`/${page}`, (req: Request, res: Response) => {
-                    res.send(pug.renderFile(path.resolve(`site/pug/${page}.pug`), {
-                        'jquery_path': './dependencies/jquery.js',
-                        'vue_path': './dependencies/vue.js',
-                    }));
+                    res.send(pug.renderFile(path.resolve(`site/pug/${page}.pug`), pug_locals));
                 });
             }
             this.express_app.use('/vue', (req: Request, res: Response) => {
