@@ -130,21 +130,6 @@ export class WebServer {
             res.send(pug.renderFile(path.resolve('site/pug/index.pug')));
         });
 
-        this.express_app.get('/dependencies/jquery.js', async (req: Request, res: Response) => {
-            if (this.jqueryjs) {
-                res.send(this.jqueryjs);
-            } else {
-                res.sendFile(path.resolve('dev_fallback/jquery.js'));
-            }
-        });
-        this.express_app.get('/dependencies/vue(.js)?', async (req: Request, res: Response) => {
-            if (this.vuejs) {
-                res.type('this.express_application/javascript').send(this.vuejs);
-            } else {
-                res.sendFile(path.resolve('dev_fallback/vue.js'));
-            }
-        });
-
         this.express_app.get('/favicon.ico', (req: Request, res: Response) => {
             res.sendFile(path.resolve('site/logo/favicon.ico'));
         });
@@ -160,9 +145,26 @@ export class WebServer {
                 res.send(pug.renderFile(path.resolve(`site/pug/vue${req.path}.pug`)));
             });
         } else {
+            this.express_app.get('/dependencies/jquery(.js)?', async (req: Request, res: Response) => {
+                if (this.jqueryjs) {
+                    res.send(this.jqueryjs);
+                } else {
+                    res.sendFile(path.resolve('dev_fallback/jquery.js'));
+                }
+            });
+            this.express_app.get('/dependencies/vue(.js)?', async (req: Request, res: Response) => {
+                if (this.vuejs) {
+                    res.type('this.express_application/javascript').send(this.vuejs);
+                } else {
+                    res.sendFile(path.resolve('dev_fallback/vue.js'));
+                }
+            });
             for (const page of html_pages) {
                 this.express_app.get(`/${page}`, (req: Request, res: Response) => {
-                    res.send(pug.renderFile(path.resolve(`site/pug/${page}.pug`)));
+                    res.send(pug.renderFile(path.resolve(`site/pug/${page}.pug`), {
+                        'jquery_path': './dependencies/jquery.js',
+                        'vue_path': './dependencies/vue.js',
+                    }));
                 });
             }
             this.express_app.use('/vue', (req: Request, res: Response) => {
