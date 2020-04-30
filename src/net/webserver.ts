@@ -141,7 +141,7 @@ export class WebServer {
                 });
             }
             this.express_app.use('/vue', (req: Request, res: Response) => {
-                res.send(pug.renderFile(path.resolve(`site/pug/vue${req.path}.pug`)));
+                res.sendFile(path.resolve(`site/html/vue${req.path}.html`));
             });
         } else {
             const pug_locals = {
@@ -171,7 +171,7 @@ export class WebServer {
                 });
             }
             this.express_app.use('/vue', (req: Request, res: Response) => {
-                res.send(pug.renderFile(path.resolve(`site/html/vue${req.path}.html`)));
+                res.send(pug.renderFile(path.resolve(`site/pug/vue${req.path}.pug`)));
             });
         }
 
