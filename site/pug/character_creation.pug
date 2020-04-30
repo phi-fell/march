@@ -2,10 +2,10 @@ doctype html
 html
     head
         title GotG
-        script(src="/socket.io/socket.io.js")
-        script(src="/dependencies/jquery.js")
-        script(src="/dependencies/vue.js")
-        script(type="module" src="/js/character_creation.js")
+        script(src="./socket.io/socket.io.js")
+        script(src="./dependencies/jquery.js")
+        script(src="./dependencies/vue.js")
+        script(type="module" src="./js/character_creation.js")
         link(rel="stylesheet" type="text/css" href="css/global")
         link(rel="stylesheet" type="text/css" href="css/character_creation")
 
@@ -13,7 +13,7 @@ body
     #character_sheet.all
         .outer.col
             .nav.row
-                a.flex_none(href="/home") Back to Home
+                a.flex_none(href="./home") Back to Home
                 button.flex_none(v-on:click="finish()") create
             .char_sheet.col
                 .row
