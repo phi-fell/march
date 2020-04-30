@@ -1,4 +1,4 @@
-import { clearCredentials, loadCredentials } from './auth';
+import { clearCredentials, loadCredentials } from './auth.js';
 
 declare var Vue: any;
 

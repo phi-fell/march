@@ -1,4 +1,4 @@
-import { cacheCredentials, Credentials } from './auth';
+import { cacheCredentials, Credentials } from './auth.js';
 
 $(() => {
     $('form').submit((e) => {

@@ -1,9 +1,9 @@
 import type { VueConstructor } from 'vue';
-import { loadCredentials } from './auth';
-import { Graphics } from './game/graphics';
-import { Input } from './game/input';
-import { registerDirectives } from './vue-directives';
-import { registerComponent } from './vue_component';
+import { loadCredentials } from './auth.js';
+import { Graphics } from './game/graphics.js';
+import { Input } from './game/input.js';
+import { registerDirectives } from './vue-directives.js';
+import { registerComponent } from './vue_component.js';
 
 interface GameEvent {
     type: any;

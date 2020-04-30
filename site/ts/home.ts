@@ -1,5 +1,5 @@
-import { loadCredentials } from './auth';
-import { registerComponent } from './vue_component';
+import { loadCredentials } from './auth.js';
+import { registerComponent } from './vue_component.js';
 
 declare var Vue: any;
 

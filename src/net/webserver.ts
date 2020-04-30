@@ -147,6 +147,7 @@ export class WebServer {
             const pug_locals = {
                 'jquery_path': './dependencies/jquery.js',
                 'vue_path': './dependencies/vue.js',
+                'socket_io_path': './socket.io/socket.io.js',
             };
             this.express_app.get('/', (req: Request, res: Response) => {
                 res.send(pug.renderFile(path.resolve('site/pug/index.pug'), pug_locals));
