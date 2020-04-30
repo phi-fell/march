@@ -1,5 +1,6 @@
 node_modules/*
 build/*
+dist/*
 site/js/*
 site/css/*
 site/html/*
