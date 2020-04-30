@@ -13,7 +13,6 @@ export class ItemBlueprintManager extends ResourceManager<typeof ItemBlueprintMa
         'name': t.string,
         'sprite': t.string,
         'stackable': t.boolean,
-        'count': t.number,
         'weapon_data': WeaponData.schema,
         'armor_data': ArmorData.schema,
     });
@@ -24,7 +23,6 @@ export class ItemBlueprint extends Resource<ItemBlueprintSchema> {
     private name?: string;
     private sprite?: string;
     public stackable?: boolean;
-    public count?: number;
     public weapon_data?: WeaponData;
     public armor_data?: ArmorData;
     public fromJSON(json: t.TypeOf<ItemBlueprintSchema>): void {
@@ -39,9 +37,6 @@ export class ItemBlueprint extends Resource<ItemBlueprintSchema> {
         }
         if (json.stackable !== undefined) {
             this.stackable = json.stackable;
-        }
-        if (json.count !== undefined) {
-            this.count = json.count;
         }
         if (json.weapon_data !== undefined) {
             this.weapon_data = WeaponData.fromJSON(json.weapon_data);
@@ -63,9 +58,6 @@ export class ItemBlueprint extends Resource<ItemBlueprintSchema> {
         }
         if (this.stackable !== undefined) {
             ret.stackable = this.stackable;
-        }
-        if (this.count !== undefined) {
-            ret.count = this.count;
         }
         if (this.weapon_data !== undefined) {
             ret.weapon_data = this.weapon_data.toJSON();
@@ -95,9 +87,6 @@ export class ItemBlueprint extends Resource<ItemBlueprintSchema> {
         }
         if (this.stackable !== undefined) {
             ret.stackable = this.stackable;
-        }
-        if (this.count !== undefined) {
-            ret.count = this.count;
         }
         if (this.weapon_data !== undefined) {
             ret.weapon_data = this.weapon_data.clone();

@@ -1,4 +1,4 @@
 {
-    "name": "Petty Slime",
-    "extends": "slime/base"
+    "extends": "slime/base",
+    "name": "Petty Slime"
 }

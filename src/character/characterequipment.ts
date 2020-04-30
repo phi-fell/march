@@ -1,7 +1,5 @@
 import * as t from 'io-ts';
 import { EQUIPMENT_SLOT } from '../item/equipment_slot';
-import { Inventory } from '../item/inventory';
-
 
 /*
 export enum EQUIPMENT_SLOT {
@@ -69,11 +67,7 @@ export class CharacterEquipment {
         return ret;
     }
     // public shield: Shield | null;
-    public inventory: Inventory;
     private equipment: (Item | undefined)[] = [];
-    constructor() {
-        this.inventory = new Inventory();
-    }
     public get weapon(): any | null {
         const ret = this.equipment[EQUIPMENT_SLOT.WEAPON];
         return ret ? (ret as any) : (null);

@@ -3,8 +3,12 @@ import { CharacterAttributes } from '../../character/characterattributes';
 import { CharacterRace } from '../../character/characterrace';
 import { CharacterSheet } from '../../character/charactersheet';
 import { Inventory } from '../../item/inventory';
+import type { ItemBlueprintManager } from '../../item/item_blueprint';
+import { Chance } from '../../math/chance';
 import { Random } from '../../math/random';
+import { WeightedList } from '../../math/weighted_list';
 import { Resource, ResourceManager } from '../../system/resource';
+import type { Constructed } from '../../util/types';
 import { Controller } from '../controller';
 import { CONTROLLER } from '../controller/controllers';
 import { DIRECTION } from '../direction';
@@ -24,6 +28,9 @@ function createBaseMob(loc: Location): Mob {
     return ret;
 }
 
+const ItemIDList = WeightedList(t.string);
+type ItemIDList = Constructed<typeof ItemIDList>;
+
 type MobBlueprintSchema = typeof MobBlueprintManager.schema;
 
 export class MobBlueprintManager extends ResourceManager<typeof MobBlueprintManager.schema, MobBlueprint> {
@@ -35,6 +42,15 @@ export class MobBlueprintManager extends ResourceManager<typeof MobBlueprintMana
         'controller': t.keyof(CONTROLLER),
         'race': t.string,
         'attributes': t.partial(CharacterAttributes.schema.props),
+        'items': t.array(t.intersection([
+            t.type({
+                'id': ItemIDList.schema,
+                'count': Chance.schema,
+            }),
+            t.partial({
+                'homogenous': t.boolean, // not homogeneous.  item blueprints result in structurally similar but not guaranteed identical entities
+            }),
+        ])),
     });
 }
 
@@ -44,6 +60,7 @@ export class MobBlueprint extends Resource<MobBlueprintSchema> {
     private sprite?: string;
     private race?: string;
     private controller?: CONTROLLER;
+    private items: { id: ItemIDList, count: Chance, homogenous?: boolean }[] = [];
     public fromJSON(json: t.TypeOf<MobBlueprintSchema>): void {
         if (json.extends !== undefined) {
             this.extends = json.extends
@@ -59,6 +76,18 @@ export class MobBlueprint extends Resource<MobBlueprintSchema> {
         }
         if (json.controller !== undefined) {
             this.controller = CONTROLLER[json.controller];
+        }
+        if (json.items) {
+            this.items = json.items.map((el) => {
+                const ret: { id: ItemIDList, count: Chance, homogenous?: boolean } = {
+                    'id': ItemIDList.fromJSON(el.id),
+                    'count': Chance.fromJSON(el.count),
+                };
+                if (el.homogenous) {
+                    ret.homogenous = true;
+                }
+                return ret;
+            });
         }
     }
     public toJSON() {
@@ -78,9 +107,18 @@ export class MobBlueprint extends Resource<MobBlueprintSchema> {
         if (this.controller !== undefined) {
             ret.controller = CONTROLLER[this.controller] as keyof typeof CONTROLLER;
         }
+        if (this.items) {
+            ret.items = this.items.map((el) => {
+                return {
+                    'id': el.id.toJSON(),
+                    'count': el.count.toJSON(),
+                    'homogenous': el.homogenous,
+                };
+            });
+        }
         return ret;
     }
-    public async generateMob(mob_blueprint_manager: MobBlueprintManager, loc: Location): Promise<Mob> {
+    public async generateMob(mob_blueprint_manager: MobBlueprintManager, item_blueprint_manager: ItemBlueprintManager, loc: Location): Promise<Mob> {
         const ret: Mob = await (async () => {
             if (this.extends === undefined) {
                 return createBaseMob(loc);
@@ -90,7 +128,7 @@ export class MobBlueprint extends Resource<MobBlueprintSchema> {
                 console.log(`Could not extend nonexistent blueprint: ${this.extends}!`);
                 return createBaseMob(loc);
             }
-            return (blueprint.generateMob(mob_blueprint_manager, loc));
+            return (blueprint.generateMob(mob_blueprint_manager, item_blueprint_manager, loc));
         })();
         if (this.name !== undefined) {
             ret.setComponent('name', this.name);
@@ -109,6 +147,32 @@ export class MobBlueprint extends Resource<MobBlueprintSchema> {
         }
         if (this.controller !== undefined) {
             ret.setComponent('controller', Controller.getNewController(this.controller))
+        }
+        const inventory = ret.getComponent('inventory');
+        for (const item_entry of this.items) {
+            if (item_entry.homogenous) {
+                const id = item_entry.id.getValue();
+                const blueprint = await item_blueprint_manager.get(id);
+                const count = item_entry.count.getValue();
+                if (blueprint) {
+                    const item = await blueprint.generateItem(item_blueprint_manager);
+                    item.count = count;
+                    inventory.addItem(item);
+                } else {
+                    console.log(`Could not add ${count} items: ${id} - no blueprint found!`);
+                }
+            } else {
+                const count = item_entry.count.getValue();
+                for (let i = 0; i < count; i++) {
+                    const id = item_entry.id.getValue();
+                    const blueprint = await item_blueprint_manager.get(id);
+                    if (blueprint) {
+                        inventory.addItem(await blueprint.generateItem(item_blueprint_manager));
+                    } else {
+                        console.log(`Could not add item: ${id} - no blueprint found!`);
+                    }
+                }
+            }
         }
         return ret;
     }

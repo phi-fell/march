@@ -1,6 +1,4 @@
 import * as t from 'io-ts';
-import { Entity, ItemEntity } from '../world/entity';
-import type { Location } from '../world/location';
 import { ArmorData } from './armordata';
 import { WeaponData } from './weapondata';
 
@@ -41,14 +39,6 @@ export class Item {
         public weapon_data?: WeaponData,
         public armor_data?: ArmorData,
     ) { }
-
-    public createEntity(loc: Location): ItemEntity {
-        const ret: Entity = new Entity(loc);
-        ret.setComponent('item_data', this);
-        ret.setComponent('name', this.name);
-        ret.setComponent('sprite', this.sprite);
-        return ret;
-    }
 
     public toJSON(): ItemSchema {
         const ret: ItemSchema = {

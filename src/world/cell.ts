@@ -1,4 +1,5 @@
 import * as t from 'io-ts';
+import type { ItemBlueprintManager } from '../item/item_blueprint';
 import { Random, UUID } from '../math/random';
 import type { OwnedFile } from '../system/file';
 import { FileBackedData } from '../system/file_backed_data';
@@ -35,6 +36,7 @@ export class Cell extends FileBackedData {
         file: OwnedFile,
         blueprint: CellBlueprint,
         mob_blueprint_manager: MobBlueprintManager,
+        item_blueprint_manager: ItemBlueprintManager,
     ): Promise<Cell> {
         const json: CellSchema = {
             id,
@@ -44,7 +46,7 @@ export class Cell extends FileBackedData {
         file.setJSON(json);
         const cell = new GeneratableCell(instance, file);
         await cell.ready();
-        await blueprint.generateCell(cell, mob_blueprint_manager);
+        await blueprint.generateCell(cell, mob_blueprint_manager, item_blueprint_manager);
         return cell;
     }
 

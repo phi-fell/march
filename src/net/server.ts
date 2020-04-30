@@ -2,6 +2,7 @@ import bcrypt = require('bcrypt');
 import { promises as fs } from 'fs';
 import type { Socket } from 'socket.io';
 import { CharacterSheet } from '../character/charactersheet';
+import { ItemBlueprintManager } from '../item/item_blueprint';
 import { Random } from '../math/random';
 import { File } from '../system/file';
 import { CellBlueprintManager } from '../world/generation/cell_blueprint';
@@ -34,6 +35,7 @@ export class Server {
     private users: { [id: string]: User; } = {};
     public cell_blueprint_manager: CellBlueprintManager = new CellBlueprintManager('res/environment');
     public mob_blueprint_manager: MobBlueprintManager = new MobBlueprintManager('res/mob');
+    public item_blueprint_manager: ItemBlueprintManager = new ItemBlueprintManager('res/item');
     constructor(private _server: SocketIO.Server, public readonly world: World) {
         _server.on('connection', (socket: Socket) => {
             if (this.running) {

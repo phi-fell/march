@@ -1,5 +1,6 @@
 import { promises as fs } from 'fs';
 import * as t from 'io-ts';
+import type { ItemBlueprintManager } from '../item/item_blueprint';
 import { Random, UUID } from '../math/random';
 import { File, OwnedFile } from '../system/file';
 import { FileBackedData } from '../system/file_backed_data';
@@ -66,14 +67,19 @@ export class Instance extends FileBackedData {
         }
         return this.cells[id];
     }
-    public async createCell(blueprint: CellBlueprint, mob_blueprint_manager: MobBlueprintManager): Promise<Cell> {
+    public async createCell(
+        blueprint: CellBlueprint,
+        mob_blueprint_manager: MobBlueprintManager,
+        item_blueprint_manager: ItemBlueprintManager,
+    ): Promise<Cell> {
         const id = Cell.generateNewID();
         const cell: Cell = await Cell.createCell(
             this,
             id,
             await File.acquireFile(`${this.directory}/cell-${id}.json`),
             blueprint,
-            mob_blueprint_manager
+            mob_blueprint_manager,
+            item_blueprint_manager,
         );
         this.cell_refs.push(id);
         this.cells[id] = cell;

@@ -5,7 +5,7 @@
     "height": 30,
     "mobs": [
         {
-            "id": "slime/petty",
+            "id": "slime/lesser",
             "count": 10
         }
     ],

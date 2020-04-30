@@ -1,4 +1,5 @@
 import * as t from 'io-ts';
+import type { ItemBlueprintManager } from '../../item/item_blueprint';
 import { Chance } from '../../math/chance';
 import { Random } from '../../math/random';
 import { WeightedList } from '../../math/weighted_list';
@@ -87,12 +88,14 @@ export class CellBlueprint extends Resource<CellBlueprintSchema> {
                 return {
                     'id': el.id.toJSON(),
                     'count': el.count.toJSON(),
+                    'homogenous': el.homogenous,
                 };
             }),
             'adjacencies': this.adjacencies.map((el) => {
                 return {
                     'id': el.id.toJSON(),
                     'weight': el.weight.toJSON(),
+                    'homogenous': el.homogenous,
                 };
             }),
         };
@@ -100,7 +103,11 @@ export class CellBlueprint extends Resource<CellBlueprintSchema> {
     public getAttributes(seed: string = Random.uuid()): CellAttributes {
         return new CellAttributes(seed, this.generation, this.width, this.height);
     }
-    public async generateCell(cell: GeneratableCell, mob_blueprint_manager: MobBlueprintManager): Promise<void> {
+    public async generateCell(
+        cell: GeneratableCell,
+        mob_blueprint_manager: MobBlueprintManager,
+        item_blueprint_manager: ItemBlueprintManager
+    ): Promise<void> {
         CellGeneration.generateCell(cell);
         const board = cell.getBoard();
         for (const mob_entry of this.mobs) {
@@ -110,7 +117,7 @@ export class CellBlueprint extends Resource<CellBlueprintSchema> {
                 const count = mob_entry.count.getValue();
                 if (blueprint) {
                     for (let i = 0; i < count; i++) {
-                        board.addEntity(await blueprint.generateMob(mob_blueprint_manager, cell.getRandomPassableLocation()));
+                        board.addEntity(await blueprint.generateMob(mob_blueprint_manager, item_blueprint_manager, cell.getRandomPassableLocation()));
                     }
                 } else {
                     console.log(`Could not add ${count} entities: ${id} - no blueprint found!`);
@@ -121,7 +128,7 @@ export class CellBlueprint extends Resource<CellBlueprintSchema> {
                     const id = mob_entry.id.getValue();
                     const blueprint = await mob_blueprint_manager.get(id);
                     if (blueprint) {
-                        board.addEntity(await blueprint.generateMob(mob_blueprint_manager, cell.getRandomPassableLocation()));
+                        board.addEntity(await blueprint.generateMob(mob_blueprint_manager, item_blueprint_manager, cell.getRandomPassableLocation()));
                     } else {
                         console.log(`Could not add entity: ${id} - no blueprint found!`);
                     }
