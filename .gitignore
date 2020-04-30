@@ -2,6 +2,7 @@ node_modules/*
 build/*
 site/js/*
 site/css/*
+site/html/*
 dev_fallback/*
 bugs/*
 users/*
