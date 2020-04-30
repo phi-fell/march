@@ -143,11 +143,16 @@ export class WebServer {
             this.express_app.use('/vue', (req: Request, res: Response) => {
                 res.sendFile(path.resolve(`site/html/vue${req.path}.html`));
             });
+            this.express_app.use('/css', (req: Request, res: Response) => {
+                res.sendFile(path.resolve(`site/css${req.path}${req.path.endsWith('.css') ? '' : '.css'}`));
+            });
         } else {
             const pug_locals = {
                 'jquery_path': './dependencies/jquery.js',
                 'vue_path': './dependencies/vue.js',
                 'socket_io_path': './socket.io/socket.io.js',
+                'github_link': LINKS.github,
+                'bug_link': LINKS.bugs,
             };
             this.express_app.get('/', (req: Request, res: Response) => {
                 res.send(pug.renderFile(path.resolve('site/pug/index.pug'), pug_locals));
@@ -174,31 +179,32 @@ export class WebServer {
             this.express_app.use('/vue', (req: Request, res: Response) => {
                 res.send(pug.renderFile(path.resolve(`site/pug/vue${req.path}.pug`)));
             });
-        }
 
-        this.express_app.get('/css/:filename', async (req: Request, res: Response) => {
-            try {
-                stylus.render(
-                    (await File.getReadOnlyFile(`site/stylus/${req.params.filename}.styl`)).getString(),
-                    {
-                        'filename': req.path,
-                        'paths': ['site/stylus'],
-                    },
-                    (err, css) => {
-                        if (err) {
-                            console.log(err);
-                            res.send(err);
-                        } else {
-                            res.setHeader('Content-Type', 'text/css');
-                            res.send(css);
-                        }
-                    },
-                );
-            } catch (e) {
-                console.log(e);
-                res.sendStatus(404)
-            }
-        });
+            this.express_app.use('/css', async (req: Request, res: Response) => {
+                const filename = req.path.replace('.css', '');
+                try {
+                    stylus.render(
+                        (await File.getReadOnlyFile(`site/stylus/${filename}.styl`)).getString(),
+                        {
+                            'filename': req.path,
+                            'paths': ['site/stylus'],
+                        },
+                        (err, css) => {
+                            if (err) {
+                                console.log(err);
+                                res.send(err);
+                            } else {
+                                res.setHeader('Content-Type', 'text/css');
+                                res.send(css);
+                            }
+                        },
+                    );
+                } catch (e) {
+                    console.log(e);
+                    res.sendStatus(404)
+                }
+            });
+        }
 
         this.express_app.use('/js', (req: Request, res: Response) => {
             res.sendFile(path.resolve(`site/js${req.path}${req.path.endsWith('.js') ? '' : '.js'}`));
