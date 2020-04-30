@@ -136,7 +136,7 @@ export class WebServer {
                 res.sendFile(path.resolve('site/html/index.html'));
             });
             for (const page of html_pages) {
-                this.express_app.get(`/${page}`, (req: Request, res: Response) => {
+                this.express_app.get(`/${page}(.html)?`, (req: Request, res: Response) => {
                     res.sendFile(path.resolve(`site/html/${page}.html`));
                 });
             }
@@ -172,7 +172,7 @@ export class WebServer {
                 }
             });
             for (const page of html_pages) {
-                this.express_app.get(`/${page}`, (req: Request, res: Response) => {
+                this.express_app.get(`/${page}(.html)?`, (req: Request, res: Response) => {
                     res.send(pug.renderFile(path.resolve(`site/pug/${page}.pug`), pug_locals));
                 });
             }
