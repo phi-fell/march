@@ -156,12 +156,18 @@ export class WebServer {
                     res.sendFile(path.resolve(`site/html/${page}.html`));
                 });
             }
+            this.express_app.use('/vue', (req: Request, res: Response) => {
+                res.send(pug.renderFile(path.resolve(`site/pug/vue${req.path}.pug`)));
+            });
         } else {
             for (const page of html_pages) {
                 this.express_app.get(`/${page}`, (req: Request, res: Response) => {
                     res.send(pug.renderFile(path.resolve(`site/pug/${page}.pug`)));
                 });
             }
+            this.express_app.use('/vue', (req: Request, res: Response) => {
+                res.send(pug.renderFile(path.resolve(`site/html/vue${req.path}.html`)));
+            });
         }
 
         this.express_app.get('/css/:filename', async (req: Request, res: Response) => {
@@ -190,9 +196,6 @@ export class WebServer {
 
         this.express_app.use('/js', (req: Request, res: Response) => {
             res.sendFile(path.resolve(`site/js${req.path}${req.path.endsWith('.js') ? '' : '.js'}`));
-        });
-        this.express_app.use('/vue', (req: Request, res: Response) => {
-            res.send(pug.renderFile(path.resolve(`site/vue${req.path}.pug`)));
         });
 
         this.express_app.use('/link/:link', (req: Request, res: Response, next: NextFunction) => {
