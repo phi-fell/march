@@ -9,10 +9,7 @@ export const position_schema = t.type({
 export type PositionSchema = t.TypeOf<typeof position_schema>;
 
 export class Position {
-    public static fromJSON(json: PositionSchema) {
-        return new Position(json.x, json.y);
-    }
-    constructor(private _x: number, private _y: number) {
+    constructor(private readonly _x: number, private readonly _y: number) {
     }
     get x(): number {
         return this._x;
@@ -25,9 +22,6 @@ export class Position {
     }
     public equals(rhs: Position) {
         return this._x === rhs.x && this._y === rhs.y;
-    }
-    public clone() {
-        return new Position(this._x, this._y);
     }
     public toJSON(): PositionSchema {
         return {

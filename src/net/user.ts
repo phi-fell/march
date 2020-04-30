@@ -5,10 +5,11 @@ import { CharacterSheet } from '../character/charactersheet';
 import { Random } from '../math/random';
 import type { OwnedFile } from '../system/file';
 import { FileBackedData } from '../system/file_backed_data';
+import type { Event } from '../world/event';
 import { Player } from '../world/player';
 import type { World } from '../world/world';
 import type { Client } from './client';
-
+import type { Server } from './server';
 
 const TOKEN_LIFESPAN = 1000 * 60 * 60 * 24 * 3; // 3 days in milliseconds
 
@@ -35,17 +36,23 @@ export class User extends FileBackedData {
             'token': t.string,
             'token_creation_time': t.number,
         }),
-        'unfinished_player': CharacterSheet.schema,
+        'unfinished_player': t.type({
+            'name': t.string,
+            'sheet': CharacterSheet.schema,
+        }),
         'players': t.array(Player.schema),
     });
     /** Remember to unload() created users! */
-    public static async createUserFromFile(world: World, file: OwnedFile): Promise<User> {
-        const user = new User(world, file);
+    public static async createUserFromFile(server: Server, world: World, file: OwnedFile): Promise<User> {
+        const user = new User(server, world, file);
         await user.ready();
         return user;
     }
 
-    public unfinished_player: CharacterSheet = new CharacterSheet();
+    public unfinished_player = {
+        'name': '',
+        'sheet': new CharacterSheet()
+    };
     public players: Player[] = [];
     private activePlayer?: Player;
     private active_player_changing = false;
@@ -54,13 +61,29 @@ export class User extends FileBackedData {
     private auth: { hash: string; token: string; token_creation_time: number; } = { 'hash': '', 'token': '', 'token_creation_time': 0 };
     private id: string = '';
 
-    protected constructor(private world: World, file: OwnedFile) {
+    protected constructor(public server: Server, private world: World, file: OwnedFile) {
         super(file);
     }
     public get schema() {
         return User.schema;
     }
     public get name() { return this._name; }
+    public sendChatMessage(msg: string) {
+        this.client?.sendChatMessage(msg);
+        // TODO: maybe buffer unsent messages so they still exist when player is logged off?
+        // TODO: chat history should maybe be stored server side in general anyway, no?
+    }
+    public sendEvent(event: Event) {
+        this.client?.sendEvent(event);
+    }
+    public getActivePlayer(): Player | undefined {
+        if (this.active_player_changing) {
+            return;
+        }
+        if (this.activePlayer) {
+            return this.activePlayer;
+        }
+    }
     public async setActivePlayer(index: number | undefined): Promise<boolean> {
         if (this.active_player_changing) {
             return false;
@@ -123,13 +146,16 @@ export class User extends FileBackedData {
         this.client = undefined;
     }
     public async finishPlayer() {
-        const plr = await Player.createPlayer(this.world, this.unfinished_player);
+        const plr = await Player.createPlayer(this, this.world, this.unfinished_player.name, this.unfinished_player.sheet);
         plr.sheet.status.restoreFully();
-        this.unfinished_player = CharacterSheet.newPlayerSheet();
+        this.unfinished_player = {
+            'name': '',
+            'sheet': CharacterSheet.newPlayerSheet()
+        };
         this.players.push(plr);
         this.save();
     }
-    public async getGameData() {
+    public getGameData() {
         if (!this.activePlayer) {
             console.log('No Active Player!');
             return;
@@ -145,7 +171,10 @@ export class User extends FileBackedData {
                 'token': this.auth.token,
                 'token_creation_time': this.auth.token_creation_time,
             },
-            'unfinished_player': this.unfinished_player.toJSON(),
+            'unfinished_player': {
+                'name': this.unfinished_player.name,
+                'sheet': this.unfinished_player.sheet.toJSON(),
+            },
             'players': this.players.map((player: Player) => player.toJSON()),
         };
     }
@@ -154,9 +183,12 @@ export class User extends FileBackedData {
             this.id = json.id;
             this._name = json.name;
             this.auth = json.auth;
-            this.unfinished_player = CharacterSheet.fromJSON(json.unfinished_player);
+            this.unfinished_player = {
+                'name': json.unfinished_player.name,
+                'sheet': CharacterSheet.fromJSON(json.unfinished_player.sheet),
+            };
             for (const plr of json.players) {
-                this.players.push(await Player.fromJSON(this.world, plr));
+                this.players.push(await Player.fromJSON(this, this.world, plr));
             }
         } else {
             console.log('Invalid User JSON!');

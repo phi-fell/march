@@ -1,29 +1,34 @@
 import * as t from 'io-ts';
-import { CharacterSheet } from '../character/charactersheet';
-import { Inventory } from '../item/inventory';
-import { ArmorData, ItemData, WeaponData } from '../item/itemdata';
 import { Random, UUID } from '../math/random';
-import { Controller } from './controller';
-import { DIRECTION } from './direction';
+import type { ValueOfArray } from '../util/types';
+import type { Cell } from './cell';
+import { ComponentName, Components, ComponentsWith, ComponentsWithNames, FullComponents } from './component';
 import { Locatable, locatable_schema } from './locatable';
 import { Location } from './location';
-import type { World } from './world';
 
-export interface Mob extends Entity {
-    controller: Controller;
-    sheet: CharacterSheet;
-    inventory: Inventory;
+export interface EntityWith<T extends ComponentName> extends Entity {
+    components: ComponentsWith<T>; // needed or for some reason EntityWith<T> are all assignable (e.g. EntityWith<'direction> = EntityWith<never> is valid)
+    getComponent<U extends ComponentName>(name: U): ComponentsWith<T>[U];
+    getComponents<U extends ComponentName[]>(...names: U): ComponentsWithNames<U, ComponentsWith<T>>;
+    setComponent<U extends ComponentName>(name: U, component: FullComponents[U]): asserts this is EntityWith<T | U>;
+    /**
+     * Only call on raw Entity.
+     * if you need to call this otherwise, cast to Entity first
+     * asserts so that calling will result in an error
+     *
+     * (changing Entity.removeComponent to an assertion will fix this error but result in improper type assertion)
+     * see https://stackoverflow.com/q/61508583/10039628
+     */
+    removeComponent<U extends ComponentName>(name: U): asserts this is EntityWith<Exclude<T, U>>;
 }
 
-export interface Item extends Entity {
-    item_data: ItemData;
-}
-export interface Weapon extends Item {
-    item_data: WeaponData;
-}
-export interface Armor extends Item {
-    item_data: ArmorData;
-}
+const mob_components = ['name', 'sprite', 'controller', 'sheet', 'inventory'] as const;
+type MobComponents = ValueOfArray<typeof mob_components>;
+export type Mob = EntityWith<MobComponents>;
+
+const item_components = ['name', 'sprite', 'item_data'] as const;
+type ItemComponents = ValueOfArray<typeof item_components>;
+export type ItemEntity = EntityWith<ItemComponents>;
 
 export type EntitySchema = t.TypeOf<typeof Entity.schema>;
 
@@ -31,80 +36,68 @@ export class Entity extends Locatable {
     public static schema = t.intersection([
         t.type({
             'id': t.string,
-            'direction': t.keyof(DIRECTION),
+            'components': Components.schema,
         }),
         locatable_schema,
-        t.partial({
-            'sheet': CharacterSheet.schema,
-            'controller': Controller.schema,
-            'inventory': Inventory.schema,
-            'item_data': ItemData.schema,
-        }),
     ]);
 
-    /**
-     * Only call if the resulting entity will be placed into a cell/board by the caller
-     * e.g. call this from Board.fromJSON() and probably nowhere else
-     */
-    public static async fromJSON(world: World, json: EntitySchema): Promise<Entity> {
-        const ret = new Entity(world, Location.fromJSON(json.location), json.id, true);
-        ret.direction = DIRECTION[json.direction];
-        if (json.sheet) {
-            ret.sheet = CharacterSheet.fromJSON(json.sheet);
-        }
-        if (json.controller) {
-            ret.controller = Controller.fromJSON(json.controller);
-        }
-        if (json.inventory) {
-            ret.inventory = Inventory.fromJSON(json.inventory);
-        }
-        if (json.item_data) {
-            ret.item_data = ItemData.fromJSON(json.item_data);
-        }
-        await ret.ready();
+    public static fromJSON(cell: Cell, json: EntitySchema, emplaced: boolean = false): Entity {
+        const ret = new Entity(Location.fromJSON(cell, json.location), json.id, emplaced);
+        ret.components = Components.fromJSON(json.components);
         return ret;
     }
 
-    public direction: DIRECTION = DIRECTION.UP;
-    public sheet?: CharacterSheet;
-    public controller?: Controller;
-    public inventory?: Inventory;
-    public item_data?: ItemData;
-    public constructor(world: World, loc: Location, public id: UUID = Random.uuid(), emplaced: boolean = false) {
-        super(world, loc, emplaced);
+    public components: Components = {};
+    public constructor(loc: Location, public id: UUID = Random.uuid(), emplaced: boolean = false) {
+        super(loc, emplaced);
     }
+
     public isEntity(): this is Entity {
         return true;
     }
-    public isMob(): this is Mob {
-        return (
-            this.controller !== undefined &&
-            this.sheet !== undefined &&
-            this.inventory !== undefined
-        );
+
+    public has<T extends ComponentName[]>(...args: T): this is EntityWith<ValueOfArray<T>> {
+        return Components.hasComponents(this.components, ...args);
     }
+    public isMob(): this is Mob {
+        return this.has(...mob_components);
+    }
+    public isItem(): this is ItemEntity {
+        return this.has(...item_components);
+    }
+
+    public getComponent<T extends ComponentName>(name: T) {
+        return this.components[name];
+    }
+    public getComponents<T extends ComponentName[]>(...names: T) {
+        return Components.getComponents(this.components, ...names);
+    }
+
+    public setComponent<T extends ComponentName>(name: T, component: FullComponents[T]): asserts this is EntityWith<T> {
+        this.components[name] = component;
+    }
+
+    // returns void intentionally see EntityWith<T>
+    public removeComponent<T extends ComponentName>(name: T): void {
+        this.components[name] = undefined;
+    }
+
+    public isCollidable(): boolean {
+        // TODO: give entities a component that makes them collide?
+        // i.e. delete this function and add some component that handles that
+        // (even if the component is just a boolean with an entry in component_wrappers)
+        return true;
+    }
+
     public equals(other: Entity): boolean {
         return this.id === other.id;
     }
     public toJSON(): EntitySchema {
-        const ret: EntitySchema = {
+        return {
             'id': this.id,
-            'direction': DIRECTION[this.direction] as keyof typeof DIRECTION,
             'location': this.location.toJSON(),
+            'components': Components.toJSON(this.components),
         }
-        if (this.sheet) {
-            ret.sheet = this.sheet.toJSON();
-        }
-        if (this.controller) {
-            ret.controller = this.controller.toJSON();
-        }
-        if (this.inventory) {
-            ret.inventory = this.inventory.toJSON();
-        }
-        if (this.item_data) {
-            ret.item_data = this.item_data.toJSON();
-        }
-        return ret;
     }
     public getClientJSON() {
         return this.toJSON(); // TODO: reduce info sent

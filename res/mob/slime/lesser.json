@@ -1,0 +1,14 @@
+{
+    "extends": "slime/base",
+    "name": "Lesser Slime",
+    "items": [
+        {
+            "id": "misc/gold",
+            "count": {
+                "type": "range",
+                "min": 1,
+                "max": 5
+            }
+        }
+    ]
+}

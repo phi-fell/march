@@ -1,10 +1,12 @@
 import { promises as fs } from 'fs';
 import * as t from 'io-ts';
+import type { ItemBlueprintManager } from '../item/item_blueprint';
 import { Random, UUID } from '../math/random';
 import { File, OwnedFile } from '../system/file';
 import { FileBackedData } from '../system/file_backed_data';
 import { Cell } from './cell';
-import type { CellAttributes } from './generation/cellattributes';
+import type { CellBlueprint } from './generation/cell_blueprint';
+import type { MobBlueprintManager } from './generation/mob_blueprint';
 import type { World } from './world';
 
 const cell_ref_schema = t.string;
@@ -44,6 +46,9 @@ export class Instance extends FileBackedData {
     protected constructor(public world: World, private directory: string, file: OwnedFile) {
         super(file);
     }
+    public async update(): Promise<void> {
+        await Promise.all(Object.values(this.cells).map((cell: Cell) => cell.update()));
+    }
     public async getCell(id: UUID): Promise<Cell> {
         if (!this.cells[id]) {
             if (this.cell_refs.includes(id)) {
@@ -62,9 +67,20 @@ export class Instance extends FileBackedData {
         }
         return this.cells[id];
     }
-    public async createCell(attributes: CellAttributes): Promise<Cell> {
+    public async createCell(
+        blueprint: CellBlueprint,
+        mob_blueprint_manager: MobBlueprintManager,
+        item_blueprint_manager: ItemBlueprintManager,
+    ): Promise<Cell> {
         const id = Cell.generateNewID();
-        const cell: Cell = await Cell.createCell(this, id, await File.acquireFile(`${this.directory}/cell-${id}.json`), attributes);
+        const cell: Cell = await Cell.createCell(
+            this,
+            id,
+            await File.acquireFile(`${this.directory}/cell-${id}.json`),
+            blueprint,
+            mob_blueprint_manager,
+            item_blueprint_manager,
+        );
         this.cell_refs.push(id);
         this.cells[id] = cell;
         return cell;

@@ -1,26 +1,47 @@
 import * as t from 'io-ts';
+import type { ValueOf } from '../util/types';
 import type { Action } from './action';
 import { CONTROLLER } from './controller/controllers';
 import { InertController } from './controller/inertcontroller';
 import { PlayerController } from './controller/playercontroller';
+import { WanderController } from './controller/wander_controller';
+import type { Event } from './event';
 
-const controller_schema = t.keyof(CONTROLLER);
+const controller_schema = t.type({
+    'type': t.keyof(CONTROLLER),
+});
 export type ControllerSchema = t.TypeOf<typeof controller_schema>;
 
-export interface Controller {
-    type: CONTROLLER;
+export interface Controller<T extends CONTROLLER = CONTROLLER> {
+    type: T;
     getNextAction(): Action;
+    popAction(): void; // Called if action succeeded, failed, or was redundant (e.g. insufficient AP will not call this)
+    newRound(): void;// Called when a new round starts
+    sendEvent(event: Event): void;
     toJSON(): ControllerSchema;
 }
 
-const controller: Record<CONTROLLER, new () => Controller> = [
+export interface ControllerClass<T extends CONTROLLER> {
+    fromJSON(json: any): Controller<T>
+    new(...args: any): Controller<T>
+}
+
+type ControllerClassArray = {
+    [P in ValueOf<typeof CONTROLLER>]: ControllerClass<P>;
+};
+
+const controller: ControllerClassArray = [
     InertController,
-    PlayerController
+    PlayerController,
+    WanderController,
 ];
 
 export const Controller = {
     'schema': controller_schema,
     'fromJSON': (json: ControllerSchema): Controller => {
-        return new controller[CONTROLLER[json]]();
+        return controller[CONTROLLER[json.type]].fromJSON(json);
+    },
+    'getNewController': (type: CONTROLLER, ...args: any) => {
+        return new controller[type](...args);
     }
 }

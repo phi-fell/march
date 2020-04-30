@@ -1,37 +1,5 @@
 .chat-pane.col
-    ul.chat-pane_message-list.flex
-        li Chat Message 1
-        li Chat Message 2
-        li aaaa bbbb cccc dddd eeee ffff gggg hhhh iiii jjjj kkkk llll mmmm nnnn oooo pppp qqqq rrrr ssss tttt uuuu vvvv wwww xxxx yyyy zzzz
-        li aaaabbbbccccddddeeeeffffgggghhhhiiiijjjjkkkkllllmmmmnnnnooooppppqqqqrrrrssssttttuuuuvvvvwwwwxxxxyyyyzzzz
-        li Chat Message 5
-        li 6
-        li 7
-        li 8
-        li 9
-        li 10
-        li 11
-        li 12
-        li 13
-        li 14
-        li 15
-        li 16
-        li 17
-        li 18
-        li 19
-        li 20
-        li 21
-        li 22
-        li 23
-        li 24
-        li 25
-        li 26
-        li 27
-        li 28
-        li 29
-        li 30
-        li 31
-        li 32
-        li Last Message!
+    ul#chat_history.chat-pane_message-list.flex(v-autoscroll="self.autoscroll")
+        li(v-for="message of self.messages") {{message}}
     .chat-pane_input-div.flex_none.row
-        input.chat-pane_input.flex(autocomplete="off")
+        input#chat_input.chat-pane_input.flex(autocomplete="off" :value="self.current_message" @focus="self.typing = true" @blur="self.typing = false" @input="$emit('input', $event.target.value)")

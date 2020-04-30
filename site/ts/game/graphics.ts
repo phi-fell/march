@@ -1,6 +1,19 @@
 import { Animation } from './animation';
 import { GraphicsContext } from './graphicscontext';
 
+interface Entity {
+    id: string;
+    location: {
+        x: number;
+        y: number;
+    };
+    components: {
+        direction?: 'NORTH' | 'EAST' | 'WEST' | 'SOUTH';
+        sheet?: any;
+        sprite?: string;
+    }
+}
+
 interface Board {
     x: number,
     y: number,
@@ -8,6 +21,7 @@ interface Board {
     height: number,
     tiles: number[][],
     tileAdjacencies: number[][],
+    entities: Entity[]
 }
 
 interface TileSprite {
@@ -143,9 +157,24 @@ export class Graphics {
             this.drawTiles();
             this.draw_cache.tiles_stale = false;
         }
+        this.entityContext.clear();
         this.entityContext.push();
+        this.entityContext.translate(this.width / 2, this.height / 2);
         this.entityContext.scale(this.draw_cache.scale, this.draw_cache.scale);
-        // this.getAnimation('mob/slime/idle').draw(this.tileContext, Date.now());
+        this.entityContext.translate(this.board.width / -2, this.board.height / -2);
+        this.entityContext.translate(-this.board.x, -this.board.y);
+        for (const entity of this.board.entities) {
+            this.entityContext.push();
+            this.entityContext.translate(entity.location.x, entity.location.y);
+            const sprite = entity.components.sprite;
+            if (typeof sprite === 'string') {
+                this.getAnimation(`mob/${entity.components.sprite}/idle`).draw(this.entityContext, Date.now());
+            } else {
+                this.entityContext.color('#F0F');
+                this.entityContext.fillRect();
+            }
+            this.entityContext.pop();
+        }
         this.entityContext.pop();
     }
     private drawTiles() {
@@ -163,12 +192,12 @@ export class Graphics {
                 if (tile === -1) {
                     this.tileContext.push();
                     this.tileContext.color('#000');
-                    this.tileContext.drawRect(x, y, 1, 1);
+                    this.tileContext.fillRect(x, y, 1, 1);
                     this.tileContext.pop();
                 } else if (!this.palette[tile]) {
                     this.tileContext.push();
                     this.tileContext.color('#F0F');
-                    this.tileContext.drawRect(x, y, 1, 1);
+                    this.tileContext.fillRect(x, y, 1, 1);
                     this.tileContext.pop();
                 } else {
                     const sprite = this.palette[tile];

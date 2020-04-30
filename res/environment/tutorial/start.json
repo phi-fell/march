@@ -1,0 +1,13 @@
+{
+    "name": "Dungeon",
+    "generation": "SLIME_CAVE",
+    "width": 30,
+    "height": 30,
+    "mobs": [
+        {
+            "id": "slime/lesser",
+            "count": 10
+        }
+    ],
+    "adjacencies": []
+}

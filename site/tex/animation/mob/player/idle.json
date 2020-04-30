@@ -1,0 +1,15 @@
+{
+    "offset": {
+        "x": 0,
+        "y": 0,
+        "rotates": false
+    },
+    "scale": {
+        "x": 1,
+        "y": 1
+    },
+    "delay": 250,
+    "frame_width": 16,
+    "frame_height": 16,
+    "frames": 4
+}

@@ -1,6 +1,5 @@
-import * as t from 'io-ts';
 import { promises as fs } from 'fs';
-
+import * as t from 'io-ts';
 import { Server } from './net/server';
 import { WebServer, WebServerOptions } from './net/webserver';
 import { runCommand } from './system/commandline';
@@ -82,6 +81,7 @@ async function main(process_arguments: string[]) {
     });
 
     web_server.listen();
+    io_server.run();
 
     const stdin = process.openStdin();
     stdin.addListener('data', (d) => { // TODO: swtich to nodejs readline module?

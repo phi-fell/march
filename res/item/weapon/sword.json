@@ -1,5 +1,6 @@
 {
     "name": "Steel Sword",
+    "sprite": "sword",
     "weapon_data": {
         "piercing": 2,
         "one_handed": true,

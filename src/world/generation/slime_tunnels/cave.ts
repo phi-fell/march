@@ -13,6 +13,7 @@ interface PartitionInfo {
 
 export class SlimeCaveGenerator implements CellGenerator {
     private rand: Random = new Random();
+
     public process(cell: GeneratableCell): GeneratableCell {
         const attr = cell.attributes;
         const board = new Board(attr.width, attr.height);
@@ -21,6 +22,7 @@ export class SlimeCaveGenerator implements CellGenerator {
         cell.setBoard(board);
         return cell;
     }
+
     private generate(board: Board) {
         for (let i = 0; i < board.width; i++) {
             for (let j = 0; j < board.height; j++) {
@@ -28,38 +30,6 @@ export class SlimeCaveGenerator implements CellGenerator {
             }
         }
         this.doPartition(board, 1, 1, board.width - 1, board.height - 1);
-        const stairNum = Math.floor(this.rand.float() * 3) + 2;
-        // stairs should be an entity with a stair(?) component
-        /*
-        while (stairNum > 0) {
-            const sx = Math.floor(this.rand.float() * board.width);
-            const sy = Math.floor(this.rand.float() * board.height);
-            if (sx > 0 && sx < board.width - 1 && sy > 0 && sy < board.height - 1) {
-                let sqr = true;
-                for (let a = -1; a <= 1; a++) {
-                    for (let b = -1; b <= 1; b++) {
-                        sqr = sqr && inst.tiles[sx + a][sy + b] === getTileFromName('stone_floor');
-                    }
-                }
-                if (sqr) {
-                    const loc = new Location(sx, sy, inst.id);
-                    let overlap = false;
-                    for (const portal of inst.portals) {
-                        if (portal.location.equals(loc)) {
-                            overlap = true;
-                        }
-                    }
-                    if (!overlap) {
-                        inst.portals.push(new Portal(loc, getRandomAdjacency(inst.attributes.schemaID)));
-                        stairNum--;
-                    }
-                }
-            }
-        }
-        for (const portal of inst.portals) {
-            inst.tiles[portal.location.x][portal.location.y] = getTileFromName('stone_stairs');
-        }
-        */
     }
 
     private doRoom(board: Board, xmin: number, ymin: number, xmax: number, ymax: number): PartitionInfo {

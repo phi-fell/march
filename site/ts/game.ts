@@ -1,14 +1,24 @@
+import type { VueConstructor } from 'vue';
 import { loadCredentials } from './auth';
 import { Graphics } from './game/graphics';
+import { Input } from './game/input';
+import { registerDirectives } from './vue-directives';
 import { registerComponent } from './vue_component';
 
-declare var Vue: any;
+interface GameEvent {
+    type: any;
+    message: string;
+}
+
+declare var Vue: VueConstructor;
 
 let app: any;
 
 let graphics: Graphics | undefined;
+let input: Input | undefined;
 
 $(document).ready(async () => {
+    registerDirectives(Vue);
     await registerComponent(Vue, 'centered-label');
     await registerComponent(Vue, 'game_status-pane');
     await registerComponent(Vue, 'game_sheet-pane');
@@ -43,18 +53,38 @@ $(document).ready(async () => {
                                     'y': 10,
                                 },
                             ],
-                            'chat': {},
+                            'chat': {
+                                'autoscroll': true,
+                                'messages': [] as string[],
+                                'current_message': '',
+                                'typing': false,
+                            },
                             'social': {},
                         },
-                        'mounted': () => {
-                            // TODO
+                        'mounted'() {
+                            $('#chat_history').scroll(() => {
+                                const el = $('#chat_history');
+                                this.chat.autoscroll = Math.ceil((el.scrollTop() || 0) + (el.innerHeight() || 0)) >= el[0].scrollHeight;
+                            });
                         },
+                    });
+                    input = new Input(socket, app.chat);
+                    socket.on('chat', (chat_msg: string) => {
+                        app.chat.messages.push(chat_msg);
+                    });
+                    socket.on('event', (event: GameEvent) => {
+                        app.chat.messages.push(event.message);
+                    });
+                    socket.on('update_data', (json: any) => {
+                        app.player_sheet = json.player_sheet;
+                        app.player_entity = json.player_entity;
+                        graphics?.setBoard(json.board);
                     });
                     socket.on('palette', (palette: any) => {
                         graphics = new Graphics(
                             $('#tileCanvas')[0] as HTMLCanvasElement,
-                            $('#tileCanvas')[0] as HTMLCanvasElement,
-                            $('#tileCanvas')[0] as HTMLCanvasElement,
+                            $('#entityCanvas')[0] as HTMLCanvasElement,
+                            $('#uiCanvas')[0] as HTMLCanvasElement,
                             app.canvas_labels,
                         );
                         graphics.setBoard(msg.board);

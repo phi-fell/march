@@ -1,12 +1,15 @@
 import * as t from 'io-ts';
+import type { ItemBlueprintManager } from '../item/item_blueprint';
 import { Random, UUID } from '../math/random';
 import type { OwnedFile } from '../system/file';
 import { FileBackedData } from '../system/file_backed_data';
 import { getTileProps, NO_TILE, Tile } from '../tile';
 import { Board } from './board';
 import type { Entity } from './entity';
+import type { Event } from './event';
 import { CellAttributes } from './generation/cellattributes';
-import { CellGeneration } from './generation/cellgeneration';
+import type { CellBlueprint } from './generation/cell_blueprint';
+import type { MobBlueprintManager } from './generation/mob_blueprint';
 import type { Instance } from './instance';
 import type { Locatable } from './locatable';
 import { Location } from './location';
@@ -27,16 +30,23 @@ export class Cell extends FileBackedData {
         await cell.ready();
         return cell;
     }
-    public static async createCell(instance: Instance, id: UUID, file: OwnedFile, attributes: CellAttributes): Promise<Cell> {
+    public static async createCell(
+        instance: Instance,
+        id: UUID,
+        file: OwnedFile,
+        blueprint: CellBlueprint,
+        mob_blueprint_manager: MobBlueprintManager,
+        item_blueprint_manager: ItemBlueprintManager,
+    ): Promise<Cell> {
         const json: CellSchema = {
             id,
-            'attributes': attributes.toJSON(),
+            'attributes': blueprint.getAttributes().toJSON(),
             'board': (new Board(0, 0)).toJSON()
         };
         file.setJSON(json);
         const cell = new GeneratableCell(instance, file);
         await cell.ready();
-        CellGeneration.generateCell(cell);
+        await blueprint.generateCell(cell, mob_blueprint_manager, item_blueprint_manager);
         return cell;
     }
 
@@ -51,6 +61,24 @@ export class Cell extends FileBackedData {
     public getEntity(id: UUID): Entity {
         return this.board.getEntity(id);
     }
+    public async update(): Promise<void> {
+        this.board.doNextTurn();
+    }
+    public notifyAsyncEnt(entity_id: UUID) {
+        this.board.notifyAsyncEnt(entity_id);
+    }
+    public emitGlobal(event: Event) {
+        this.board.emitGlobal(event);
+    }
+    public emit(event: Event, ...locations: Location[]) {
+        this.board.emit(event, ...locations);
+    }
+    public getTileAt(x: number, y: number): Tile {
+        return this.board.tiles[x][y];
+    }
+    public getEntitiesAt(x: number, y: number): Entity[] {
+        return this.board.getEntitiesAt(x, y);
+    }
     public getRandomPassableLocation(rand?: Random): Location {
         let x = 0;
         let y = 0;
@@ -58,7 +86,7 @@ export class Cell extends FileBackedData {
         do {
             if (max_iter-- < 0) {
                 console.log('looped too many times!');
-                return new Location(-1, -1, this.instance.id, this.id);
+                return new Location(-1, -1, this);
             }
             if (rand) {
                 x = rand.int(0, this.attributes.width);
@@ -68,7 +96,7 @@ export class Cell extends FileBackedData {
                 y = Random.int(0, this.attributes.height);
             }
         } while (!getTileProps(this.board.tiles[x][y]).passable);
-        return new Location(x, y, this.instance.id, this.id);
+        return new Location(x, y, this);
     }
     public getClientJSON(entity: Entity) {
         const retTiles: Tile[][] = [];
@@ -113,6 +141,7 @@ export class Cell extends FileBackedData {
             'height': (y1 - y0) + 1,
             'tiles': retTiles,
             tileAdjacencies,
+            'entities': this.board.getClientEntitiesJSON(),
         }
     }
     /**
@@ -138,7 +167,7 @@ export class Cell extends FileBackedData {
     protected async fromJSON(json: CellSchema): Promise<void> {
         this.id = json.id;
         this.attributes = CellAttributes.fromJSON(json.attributes);
-        this.board = await Board.fromJSON(this.instance.world, json.board);
+        this.board = Board.fromJSON(this, json.board);
     }
     protected toJSON(): CellSchema {
         return {

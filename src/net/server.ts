@@ -2,8 +2,11 @@ import bcrypt = require('bcrypt');
 import { promises as fs } from 'fs';
 import type { Socket } from 'socket.io';
 import { CharacterSheet } from '../character/charactersheet';
+import { ItemBlueprintManager } from '../item/item_blueprint';
 import { Random } from '../math/random';
 import { File } from '../system/file';
+import { CellBlueprintManager } from '../world/generation/cell_blueprint';
+import { MobBlueprintManager } from '../world/generation/mob_blueprint';
 import type { World } from '../world/world';
 import { Client, CLIENT_CONNECTION_STATE } from './client';
 import { User, UserSchema } from './user';
@@ -27,8 +30,12 @@ interface UserCreationResult {
 
 export class Server {
     private running: boolean = true;
+    private running_promise: Promise<void> | undefined;
     private clients: { [id: string]: Client; } = {};
     private users: { [id: string]: User; } = {};
+    public cell_blueprint_manager: CellBlueprintManager = new CellBlueprintManager('res/environment');
+    public mob_blueprint_manager: MobBlueprintManager = new MobBlueprintManager('res/mob');
+    public item_blueprint_manager: ItemBlueprintManager = new ItemBlueprintManager('res/item');
     constructor(private _server: SocketIO.Server, public readonly world: World) {
         _server.on('connection', (socket: Socket) => {
             if (this.running) {
@@ -36,11 +43,17 @@ export class Server {
             }
         });
     }
+    public async run() {
+        this.running_promise = this.world.update();
+        await this.running_promise;
+        setTimeout(() => this.run(), 10);
+    }
     public get server() {
         return this._server;
     }
     public async shutdown() {
         this.running = false;
+        await this.running_promise;
         Object.values(this.clients).forEach((client: Client) => {
             client.disconnect();
         });
@@ -70,7 +83,7 @@ export class Server {
         if (!this.users[id]) {
             const path = 'users/' + id + '.json';
             const file = await File.acquireFile(path);
-            this.users[id] = await User.createUserFromFile(this.world, file);
+            this.users[id] = await User.createUserFromFile(this, this.world, file);
         }
         return this.users[id];
     }
@@ -109,11 +122,14 @@ export class Server {
                 'token': '',
                 'token_creation_time': 0,
             },
-            'unfinished_player': CharacterSheet.newPlayerSheet().toJSON(),
+            'unfinished_player': {
+                'name': '',
+                'sheet': CharacterSheet.newPlayerSheet().toJSON(),
+            },
             'players': [],
         };
         file.setJSON(user_json);
-        const user = await User.createUserFromFile(this.world, file);
+        const user = await User.createUserFromFile(this, this.world, file);
         this.users[id] = user;
         user.save();
         await setUsername(id, username);

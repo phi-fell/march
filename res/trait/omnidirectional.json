@@ -1,0 +1,12 @@
+{
+    "name": "Omnidirectional",
+    "buyable": false,
+    "cost": 0,
+    "description": "Does not have a front.  Can move, attack and such in any direction around itself",
+    "effects": [
+        {
+            "type": "REMOVE_COMPONENT",
+            "component": "DIRECTION"
+        }
+    ]
+}

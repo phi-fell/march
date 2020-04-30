@@ -1,0 +1,6 @@
+{
+    "name": "Slime",
+    "race": "slime",
+    "sprite": "slime",
+    "controller": "WANDER"
+}
