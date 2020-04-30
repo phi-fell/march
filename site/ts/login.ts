@@ -1,4 +1,5 @@
 import { cacheCredentials, Credentials } from './auth.js';
+import { getSocketDestination } from './socket_destination.js';
 
 $(() => {
     $('form').submit((e) => {
@@ -8,7 +9,7 @@ $(() => {
             'pass': $('#pass').val(),
         };
         console.log('validating credentials...');
-        const socket = io({ 'transports': ['websocket'] });
+        const socket = io(getSocketDestination(), { 'transports': ['websocket'] });
         socket.emit('authorize', creds);
         socket.on('success', (msg: Credentials) => {
             console.log('valid credentials, redirecting to /home');

@@ -2,6 +2,7 @@ import type { VueConstructor } from 'vue';
 import { loadCredentials } from './auth.js';
 import { Graphics } from './game/graphics.js';
 import { Input } from './game/input.js';
+import { getSocketDestination } from './socket_destination.js';
 import { registerDirectives } from './vue-directives.js';
 import { registerComponent } from './vue_component.js';
 
@@ -33,7 +34,7 @@ $(document).ready(async () => {
     const creds = loadCredentials();
     if (creds.user && creds.auth) {
         console.log('logging in...');
-        const socket = io({ 'transports': ['websocket'] });
+        const socket = io(getSocketDestination(), { 'transports': ['websocket'] });
         socket.emit('login', creds);
         socket.on('success', () => {
             console.log('valid credentials, loading');

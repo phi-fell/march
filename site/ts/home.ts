@@ -1,4 +1,5 @@
 import { loadCredentials } from './auth.js';
+import { getSocketDestination } from './socket_destination.js';
 import { registerComponent } from './vue_component.js';
 
 declare var Vue: any;
@@ -10,7 +11,7 @@ $(document).ready(async () => {
     const creds = loadCredentials();
     if (creds.user && creds.auth) {
         console.log('logging in...');
-        const socket = io({ 'transports': ['websocket'] });
+        const socket = io(getSocketDestination(), { 'transports': ['websocket'] });
         socket.emit('login', creds);
         socket.on('success', () => {
             console.log('valid credentials, loading');
