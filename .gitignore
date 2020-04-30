@@ -4,6 +4,7 @@ dist/*
 site/js/*
 site/css/*
 site/html/*
+site/octicon/*
 dev_fallback/*
 bugs/*
 users/*
