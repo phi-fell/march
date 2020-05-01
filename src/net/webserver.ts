@@ -148,7 +148,7 @@ export class WebServer {
                 });
             }
             this.express_app.use('/vue', (req: Request, res: Response) => {
-                res.sendFile(path.resolve(`site/html/vue${req.path}.html`));
+                res.sendFile(path.resolve(`site/html/vue${req.path}${req.path.endsWith('.html') ? '' : '.html'}`));
             });
             this.express_app.use('/css', (req: Request, res: Response) => {
                 res.sendFile(path.resolve(`site/css${req.path}${req.path.endsWith('.css') ? '' : '.css'}`));
@@ -184,7 +184,8 @@ export class WebServer {
                 });
             }
             this.express_app.use('/vue', (req: Request, res: Response) => {
-                res.send(pug.renderFile(path.resolve(`site/pug/vue${req.path}.pug`)));
+                const filename = req.path.replace('.html', '');
+                res.send(pug.renderFile(path.resolve(`site/pug/vue${filename}.pug`)));
             });
 
             this.express_app.use('/css', async (req: Request, res: Response) => {
