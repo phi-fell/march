@@ -1,4 +1,5 @@
-import { cacheCredentials, Credentials } from './auth';
+import { cacheCredentials, Credentials } from './auth.js';
+import { getSocketDestination } from './socket_destination.js';
 
 $(() => {
     $('form').submit((e) => {
@@ -8,16 +9,16 @@ $(() => {
             'pass': $('#pass').val(),
         };
         console.log('validating credentials...');
-        const socket = io({ 'transports': ['websocket'] });
+        const socket = io(getSocketDestination(), { 'transports': ['websocket'] });
         socket.emit('authorize', creds);
         socket.on('success', (msg: Credentials) => {
             console.log('valid credentials, redirecting to /home');
             cacheCredentials(msg);
-            window.location.href = '/home';
+            window.location.href = './home.html';
         });
         socket.on('fail', () => {
             console.log('invalid credentials, redirecting to /login');
-            window.location.href = '/login';
+            window.location.href = './login.html';
         });
         return false;
     });

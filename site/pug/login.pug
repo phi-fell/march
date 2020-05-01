@@ -3,17 +3,17 @@ doctype html
 html
     head
         title GotG
-        script(src="/socket.io/socket.io.js")
-        script(src="/dependencies/jquery.js")
-        script(type="module" src="/js/login.js")
-        link(rel="stylesheet" type="text/css" href="css/global")
-        link(rel="stylesheet" type="text/css" href="css/login")
+        script(src=socket_io_path)
+        script(src=jquery_path)
+        script(type="module" src="./js/login.js")
+        link(rel="stylesheet" type="text/css" href="./css/global.css")
+        link(rel="stylesheet" type="text/css" href="./css/login.css")
 
     body
         #login.all
-            a.nav_left.round_border.row-r(href="/create")
+            a.nav_left.round_border.row-r(href="./create.html")
                 p.flex_none New User
-                img.icon.flex(src="/svg/octicon/person/fill-CCC")
+                img.icon.flex(src="./svg/octicon/person.svg")
             .outer
                 .pad
                 .mid

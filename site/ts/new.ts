@@ -1,4 +1,5 @@
-import { cacheCredentials, Credentials } from './auth';
+import { cacheCredentials, Credentials } from './auth.js';
+import { getSocketDestination } from './socket_destination.js';
 
 $(() => {
     $('form').submit((e) => {
@@ -11,19 +12,19 @@ $(() => {
                 'pass': pass1,
             };
             console.log('Creating user...');
-            const socket = io({ 'transports': ['websocket'] });
+            const socket = io(getSocketDestination(), { 'transports': ['websocket'] });
             socket.emit('create_user', creds);
             socket.on('success', (msg: Credentials) => {
                 console.log('success! redirecting to /home');
                 cacheCredentials(msg);
-                window.location.href = '/home';
+                window.location.href = './home.html';
             });
             socket.on('fail', (msg: any) => {
                 console.log('something went wrong');
                 if (msg.reason) {
                     alert(msg.reason);
                 }
-                window.location.href = '/create';
+                window.location.href = './create.html';
             });
         } else {
             alert('Password fields do not match!');

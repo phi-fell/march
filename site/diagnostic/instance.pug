@@ -84,5 +84,5 @@ html
                     td= mob.name
                     td= mob.location.instance_id === instance.id ? ('(' + mob.location.x + ', ' + mob.location.y + ')') : 'ERROR! WRONG INSTANCE!'
 
-        script(src="/socket.io/socket.io.js")
+        script(src=socket_io_path)
         script(rc="/dependencies/jquery.js")

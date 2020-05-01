@@ -1,9 +1,10 @@
 import type { VueConstructor } from 'vue';
-import { loadCredentials } from './auth';
-import { Graphics } from './game/graphics';
-import { Input } from './game/input';
-import { registerDirectives } from './vue-directives';
-import { registerComponent } from './vue_component';
+import { loadCredentials } from './auth.js';
+import { Graphics } from './game/graphics.js';
+import { Input } from './game/input.js';
+import { getSocketDestination } from './socket_destination.js';
+import { registerDirectives } from './vue-directives.js';
+import { registerComponent } from './vue_component.js';
 
 interface GameEvent {
     type: any;
@@ -33,7 +34,7 @@ $(document).ready(async () => {
     const creds = loadCredentials();
     if (creds.user && creds.auth) {
         console.log('logging in...');
-        const socket = io({ 'transports': ['websocket'] });
+        const socket = io(getSocketDestination(), { 'transports': ['websocket'] });
         socket.emit('login', creds);
         socket.on('success', () => {
             console.log('valid credentials, loading');
@@ -93,21 +94,21 @@ $(document).ready(async () => {
                     });
                 } else {
                     console.log('did not recieve valid game_data!');
-                    window.location.href = '/home';
+                    window.location.href = './home.html';
                 }
             });
             socket.on('game_data_fail', () => {
                 console.log('did not recieve game_data!');
-                window.location.href = '/home';
+                window.location.href = './home.html';
             });
             socket.emit('get', 'game_data');
         });
         socket.on('fail', () => {
             console.log('invalid credentials, redirecting to /login');
-            window.location.href = '/login';
+            window.location.href = './login.html';
         });
     } else {
         console.log('no stored credentials, redirecting to /login');
-        window.location.href = '/login';
+        window.location.href = './login.html';
     }
 });

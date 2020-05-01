@@ -1,4 +1,5 @@
-import { clearCredentials, loadCredentials } from './auth';
+import { clearCredentials, loadCredentials } from './auth.js';
+import { getSocketDestination } from './socket_destination.js';
 
 declare var Vue: any;
 
@@ -6,7 +7,7 @@ $(async () => {
     const creds = loadCredentials();
     if (creds.user && creds.auth) {
         console.log('validating stored credentials...');
-        const socket = io({ 'transports': ['websocket'] });
+        const socket = io(getSocketDestination(), { 'transports': ['websocket'] });
         socket.emit('validate', creds);
         socket.on('success', () => {
             console.log('valid credentials');

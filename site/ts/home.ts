@@ -1,5 +1,6 @@
-import { loadCredentials } from './auth';
-import { registerComponent } from './vue_component';
+import { loadCredentials } from './auth.js';
+import { getSocketDestination } from './socket_destination.js';
+import { registerComponent } from './vue_component.js';
 
 declare var Vue: any;
 
@@ -10,7 +11,7 @@ $(document).ready(async () => {
     const creds = loadCredentials();
     if (creds.user && creds.auth) {
         console.log('logging in...');
-        const socket = io({ 'transports': ['websocket'] });
+        const socket = io(getSocketDestination(), { 'transports': ['websocket'] });
         socket.emit('login', creds);
         socket.on('success', () => {
             console.log('valid credentials, loading');
@@ -29,7 +30,7 @@ $(document).ready(async () => {
                     'mounted': () => {
                         $('#new_player_button').on('click', () => {
                             $('#new_player_button').prop('disabled', true);
-                            window.location.href = '/character_creation';
+                            window.location.href = './character_creation.html';
                         });
                     },
                 });
@@ -38,7 +39,7 @@ $(document).ready(async () => {
                 if (resp) {
                     if (resp.success) {
                         console.log('active player set, redirecting to game');
-                        window.location.href = '/game';
+                        window.location.href = './game.html';
                     } else {
                         console.log(resp.msg);
                         alert('Could not set player!\nServer response: ' + resp.msg + '\nThis is likely a bug, try refreshing the page, and consider submitting an issue on our github page (especially if this happens multiple times).');
@@ -53,10 +54,10 @@ $(document).ready(async () => {
         });
         socket.on('fail', () => {
             console.log('invalid credentials, redirecting to /login');
-            window.location.href = '/login';
+            window.location.href = './login.html';
         });
     } else {
         console.log('no stored credentials, redirecting to /login');
-        window.location.href = '/login';
+        window.location.href = './login.html';
     }
 });

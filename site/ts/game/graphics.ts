@@ -1,5 +1,5 @@
-import { Animation } from './animation';
-import { GraphicsContext } from './graphicscontext';
+import { Animation } from './animation.js';
+import { GraphicsContext } from './graphicscontext.js';
 
 interface Entity {
     id: string;

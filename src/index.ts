@@ -35,6 +35,8 @@ async function main(process_arguments: string[]) {
             web_options.unlock_diagnostic = true;
         } else if (val === '-JS_DEBUG_LIBS') {
             web_options.useDebugJS = true;
+        } else if (val === '-STATIC_SITE') {
+            web_options.static_site = true;
         }
     });
 

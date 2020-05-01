@@ -3,38 +3,38 @@ doctype html
 html
     head
         title GotG
-        script(src="/socket.io/socket.io.js")
-        script(src="/dependencies/jquery.js")
-        script(src="/dependencies/vue.js")
-        script(type="module" src="/js/index.js")
+        script(src=socket_io_path)
+        script(src=jquery_path)
+        script(src=vue_path)
+        script(type="module" src="./js/index.js")
         link(href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=Open+Sans&display=swap" rel="stylesheet")
-        link(rel="stylesheet" type="text/css" href="css/global")
-        link(rel="stylesheet" type="text/css" href="css/index")
+        link(rel="stylesheet" type="text/css" href="./css/global.css")
+        link(rel="stylesheet" type="text/css" href="./css/index.css")
     body
         #index.all
-            a.nav_left.round_border.row-r(v-if="!logged_in" href="/create")
+            a.nav_left.round_border.row-r(v-if="!logged_in" href="./create.html")
                 p.flex_none New User
-                img.icon.flex(src="/svg/octicon/person/fill-CCC")
-            a.nav_right.round_border.row(v-if="!logged_in" href="/login")
+                img.icon.flex(src="./svg/octicon/person.svg")
+            a.nav_right.round_border.row(v-if="!logged_in" href="./login.html")
                 p.flex_none Sign In
-                img.icon.flex(src="/svg/octicon/sign-in/fill-CCC")
+                img.icon.flex(src="./svg/octicon/sign-in.svg")
             a.nav_left.round_border.row-r(v-if="logged_in" href="" @click="clearCredentials")
                 p.flex_none Sign Out
-                img.icon.flex(src="/svg/octicon/sign-out/fill-CCC")
+                img.icon.flex(src="./svg/octicon/sign-out.svg")
             .nav_right.row(v-if="logged_in")
                 p.flex_none.f_end Signed in as {{username}}, 
-                a.round_border.flex.row(href="/home")
+                a.round_border.flex.row(href="./home.html")
                     p.flex_none Play
-                    img.icon.flex(src="/svg/octicon/home/fill-CCC")
+                    img.icon.flex(src="./svg/octicon/home.svg")
             .bottom_left.row
                 .icon_large.flex.row
-                    a.flex.row(href="/link/github")
-                        img.flex(src="/svg/octicon/mark-github/fill-CCC" alt="Github Repo")
+                    a.flex.row(href=github_link target="_blank")
+                        img.flex(src="./svg/octicon/mark-github.svg" alt="Github Repo")
                 .icon_large.flex.row
-                    a.flex.row(href="/link/bugs")
-                        img.flex(src="/svg/octicon/bug/fill-CCC" alt="Issues")
+                    a.flex.row(href=bug_link target="_blank")
+                        img.flex(src="./svg/octicon/bug.svg" alt="Issues")
             .bottom_right.row
-                a.ko-fi_button.row.flex_none(href='https://ko-fi.com/P5P31LH97')
+                a.ko-fi_button.row.flex_none(href='https://ko-fi.com/P5P31LH97' target="_blank")
                     img.ko-fi_cup.flex_shrink(src="https://cdn.ko-fi.com/cdn/cup-border.png")
                     p Buy me a Coffee :)
             .outer
