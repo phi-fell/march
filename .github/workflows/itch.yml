@@ -7,6 +7,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      BUTLER_API_KEY: ${{ secrets.BUTLER_CREDENTIALS }}
     strategy:
       matrix:
         node-version: 12.x
@@ -18,14 +20,6 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
     - run: npm run build-dist
-
-  itch:
-    needs: build
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: 12.x
-    steps:
     - name: Butler Push
       uses: josephbmanley/butler-publish-itchio-action@v1.0.1
       env:
