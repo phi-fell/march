@@ -1,4 +1,4 @@
-import { GraphicsContext } from './graphicscontext';
+import { GraphicsContext } from './graphicscontext.js';
 
 export class Animation {
     private loaded: boolean = false;

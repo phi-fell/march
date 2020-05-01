@@ -1,5 +1,5 @@
+import { GraphicsContext } from './graphicscontext.js';
 
-import { GraphicsContext } from './graphicscontext';
 export class Sprite {
     private loaded: boolean = false;
     private image: HTMLImageElement = new Image();
