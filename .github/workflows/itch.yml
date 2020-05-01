@@ -33,4 +33,4 @@ jobs:
         CHANNEL: html5-release
         ITCH_GAME: gotg
         ITCH_USER: phi-fell
-        PACKAGE: dist.zip
+        PACKAGE: dist
