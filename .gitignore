@@ -1,6 +1,7 @@
 node_modules/*
 build/*
 dist/*
+dist.zip
 site/js/*
 site/css/*
 site/html/*
