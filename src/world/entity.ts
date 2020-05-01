@@ -1,4 +1,5 @@
 import * as t from 'io-ts';
+import type { Item } from '../item/item';
 import { Random, UUID } from '../math/random';
 import type { ValueOfArray } from '../util/types';
 import type { Cell } from './cell';
@@ -44,6 +45,14 @@ export class Entity extends Locatable {
     public static fromJSON(cell: Cell, json: EntitySchema, emplaced: boolean = false): Entity {
         const ret = new Entity(Location.fromJSON(cell, json.location), json.id, emplaced);
         ret.components = Components.fromJSON(json.components);
+        return ret;
+    }
+
+    public static createItemEntity(item: Item, loc: Location) {
+        const ret: Entity = new Entity(loc);
+        ret.setComponent('item_data', item);
+        ret.setComponent('name', item.name);
+        ret.setComponent('sprite', item.sprite);
         return ret;
     }
 

@@ -24,6 +24,12 @@ export class ArmorData {
         public armor: number,
         public slot: EQUIPMENT_SLOT
     ) { }
+    public equals(other: ArmorData) {
+        return this.coverage === other.coverage &&
+            this.resilience === other.resilience &&
+            this.armor === other.armor &&
+            this.slot === other.slot;
+    }
     public toJSON(): ArmorDataSchema {
         return {
             'coverage': this.coverage,
