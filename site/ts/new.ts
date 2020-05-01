@@ -17,14 +17,14 @@ $(() => {
             socket.on('success', (msg: Credentials) => {
                 console.log('success! redirecting to /home');
                 cacheCredentials(msg);
-                window.location.href = '/home';
+                window.location.href = './home';
             });
             socket.on('fail', (msg: any) => {
                 console.log('something went wrong');
                 if (msg.reason) {
                     alert(msg.reason);
                 }
-                window.location.href = '/create';
+                window.location.href = './create';
             });
         } else {
             alert('Password fields do not match!');
