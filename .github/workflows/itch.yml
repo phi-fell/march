@@ -2,7 +2,7 @@ name: Build and Push to Itch.io
 
 on:
   push:
-    branches: [ master, itch-integration ]
+    branches: [ master ]
 
 jobs:
   build:
