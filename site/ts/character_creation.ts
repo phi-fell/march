@@ -77,7 +77,7 @@ $(document).ready(async () => {
                         'mounted': () => {
                             $('#new_player_button').on('click', () => {
                                 $('#new_player_button').prop('disabled', true);
-                                window.location.href = './character_creation';
+                                window.location.href = './character_creation.html';
                             });
                         },
                         'methods': {
@@ -100,7 +100,7 @@ $(document).ready(async () => {
                             'finish': () => {
                                 socket.emit('character_creation', { 'action': 'finish' });
                                 app.button_disable_override = true;
-                                window.location.href = './home';
+                                window.location.href = './home.html';
                             },
                         },
                     });
@@ -149,10 +149,10 @@ $(document).ready(async () => {
         });
         socket.on('fail', () => {
             console.log('invalid credentials, redirecting to /login');
-            window.location.href = './login';
+            window.location.href = './login.html';
         });
     } else {
         console.log('no stored credentials, redirecting to /login');
-        window.location.href = './login';
+        window.location.href = './login.html';
     }
 });

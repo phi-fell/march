@@ -94,21 +94,21 @@ $(document).ready(async () => {
                     });
                 } else {
                     console.log('did not recieve valid game_data!');
-                    window.location.href = './home';
+                    window.location.href = './home.html';
                 }
             });
             socket.on('game_data_fail', () => {
                 console.log('did not recieve game_data!');
-                window.location.href = './home';
+                window.location.href = './home.html';
             });
             socket.emit('get', 'game_data');
         });
         socket.on('fail', () => {
             console.log('invalid credentials, redirecting to /login');
-            window.location.href = './login';
+            window.location.href = './login.html';
         });
     } else {
         console.log('no stored credentials, redirecting to /login');
-        window.location.href = './login';
+        window.location.href = './login.html';
     }
 });

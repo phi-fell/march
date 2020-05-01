@@ -14,11 +14,11 @@ $(() => {
         socket.on('success', (msg: Credentials) => {
             console.log('valid credentials, redirecting to /home');
             cacheCredentials(msg);
-            window.location.href = './home';
+            window.location.href = './home.html';
         });
         socket.on('fail', () => {
             console.log('invalid credentials, redirecting to /login');
-            window.location.href = './login';
+            window.location.href = './login.html';
         });
         return false;
     });
