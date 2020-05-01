@@ -20,6 +20,7 @@ jobs:
     - run: npm run build_dist
 
   itch:
+    needs: build
     runs-on: ubuntu-latest
     strategy:
       matrix:
