@@ -1,0 +1,35 @@
+name: Build and Push to Itch.io
+
+on:
+  push:
+    branches: [ master, itch-integration ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: npm ci
+    - run: npm run build_dist
+
+  itch:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x]
+    steps:
+    - name: Butler Push
+      uses: josephbmanley/butler-publish-itchio-action@v1.0.1
+      env:
+        BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
+        CHANNEL: html5-release
+        ITCH_GAME: gotg
+        ITCH_USER: phi-fell
+        PACKAGE: dist.zip
