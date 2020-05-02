@@ -260,7 +260,10 @@ export class Client {
                 }
             }
         });
-        socket.on('chat_message', (msg: string) => {
+        socket.on('chat_message', (msg: unknown) => {
+            if (typeof msg !== 'string') {
+                return console.log('non string sent as chat message: ' + msg);
+            }
             if (this.user) {
                 const plr = this.user.getActivePlayer();
                 if (plr) {

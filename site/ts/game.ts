@@ -11,6 +11,20 @@ interface GameEvent {
     message: string;
 }
 
+interface Entity {
+    location: {
+        x: number;
+        y: number
+    };
+    components: {
+        item_data?: {
+            name: string;
+            stackable: boolean;
+            count: number;
+        };
+    };
+}
+
 declare var Vue: VueConstructor;
 
 let app: any;
@@ -23,6 +37,7 @@ $(document).ready(async () => {
     await registerComponent(Vue, 'centered-label');
     await registerComponent(Vue, 'game_status-pane');
     await registerComponent(Vue, 'game_sheet-pane');
+    await registerComponent(Vue, 'game_context-pane');
     await registerComponent(Vue, 'game_social-pane');
     await registerComponent(Vue, 'game_chat-pane');
     await registerComponent(Vue, 'game_player-attributes');
@@ -61,12 +76,18 @@ $(document).ready(async () => {
                                 'typing': false,
                             },
                             'social': {},
+                            'context_actions': [],
                         },
                         'mounted'() {
                             $('#chat_history').scroll(() => {
                                 const el = $('#chat_history');
                                 this.chat.autoscroll = Math.ceil((el.scrollTop() || 0) + (el.innerHeight() || 0)) >= el[0].scrollHeight;
                             });
+                        },
+                        'methods': {
+                            'sendChatMessage': (action: string) => {
+                                socket.emit('chat_message', action);
+                            },
                         },
                     });
                     input = new Input(socket, app.chat);
@@ -80,6 +101,9 @@ $(document).ready(async () => {
                         app.player_sheet = json.player_sheet;
                         app.player_entity = json.player_entity;
                         graphics?.setBoard(json.board);
+                        app.context_actions = json.board.entities.filter((ent: Entity) => {
+                            return ent.location.x === app.player_entity.location.x && ent.location.y === app.player_entity.location.y;
+                        }).map(createContextAction).filter((ca: any) => ca !== undefined);
                     });
                     socket.on('palette', (palette: any) => {
                         graphics = new Graphics(
@@ -89,6 +113,9 @@ $(document).ready(async () => {
                             app.canvas_labels,
                         );
                         graphics.setBoard(msg.board);
+                        app.context_actions = msg.board.entities.filter((ent: Entity) => {
+                            return ent.location.x === app.player_entity.location.x && ent.location.y === app.player_entity.location.y;
+                        }).map(createContextAction).filter((ca: any) => ca !== undefined);
                         graphics.setPalette(palette);
                         graphics.startDrawLoop();
                     });
@@ -112,3 +139,15 @@ $(document).ready(async () => {
         window.location.href = './login.html';
     }
 });
+
+function createContextAction(e: Entity) {
+    if (e.components.item_data !== undefined) {
+        const item = e.components.item_data;
+        return {
+            'text': (item.stackable) ? (`${item.count} ${item.name}`) : (item.name),
+            'btn_text': 'Pick Up',
+            'action': `#pickup ${e.components.item_data.name}`,
+        }
+    }
+    return;
+}
