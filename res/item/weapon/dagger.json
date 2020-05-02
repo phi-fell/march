@@ -1,6 +1,6 @@
 {
     "name": "Steel Dagger",
-    "sprite": "dagger",
+    "sprite": "item/weapon/dagger",
     "weapon_data": {
         "piercing": 2,
         "one_handed": true,

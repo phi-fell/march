@@ -58,8 +58,9 @@ export class Player {
             e.setComponent('direction', DIRECTION.NORTH);
             e.setComponent('sheet', ret.sheet);
             e.setComponent('controller', new PlayerController(ret));
-            e.setComponent('sprite', 'player');
+            e.setComponent('sprite', 'mob/player/idle');
             e.setComponent('inventory', new Inventory());
+            e.setComponent('collidable', true);
             return e;
         })();
         ret.entity_ref = {

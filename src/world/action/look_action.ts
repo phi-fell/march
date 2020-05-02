@@ -8,7 +8,7 @@ import { ACTION_TYPE } from './actiontype';
 export class LookAction extends ActionBase {
     public static fromArgs(args: string[]) {
         if (args.length < 1) {
-            return 'Provide a direction!';
+            return new LookAction();
         }
         const chat_dir = args[0];
         const dir = ChatDirections[chat_dir];
@@ -19,17 +19,17 @@ export class LookAction extends ActionBase {
     }
     public type: ACTION_TYPE.LOOK = ACTION_TYPE.LOOK;
     public readonly cost: number = 0;
-    constructor(public direction: DIRECTION) {
+    constructor(public direction?: DIRECTION) {
         super();
     }
     public perform(entity: Entity) {
-        entity.location.cell.emit(new LookEvent(entity, this.direction), entity.location);
+        entity.getComponent('controller')?.sendEvent(new LookEvent(entity, this.direction));
         return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
     }
     public toJSON(): object {
         return {
             'type': ACTION_TYPE[this.type],
-            'direction': DIRECTION[this.direction],
+            'direction': (this.direction === undefined) ? undefined : (DIRECTION[this.direction]),
         };
     }
 }

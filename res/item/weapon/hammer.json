@@ -1,6 +1,6 @@
 {
     "name": "Steel Hammer",
-    "sprite": "hammer",
+    "sprite": "item/weapon/hammer",
     "weapon_data": {
         "piercing": 2,
         "one_handed": true,

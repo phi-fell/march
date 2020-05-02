@@ -40,6 +40,25 @@ export class Item {
         public armor_data?: ArmorData,
     ) { }
 
+    public tryStack(other: Item): boolean {
+        if (this.stackable && this.equals(other)) {
+            this.count += other.count;
+            other.count = 0;
+            return true;
+        }
+        return false;
+    }
+
+    public equals(other: Item) {
+        return this.name === other.name &&
+            this.sprite === other.sprite &&
+            this.stackable === other.stackable &&
+            ((this.weapon_data === undefined && other.weapon_data === undefined) ||
+                (this.weapon_data && other.weapon_data && this.weapon_data.equals(other.weapon_data))) &&
+            ((this.armor_data === undefined && other.armor_data === undefined) ||
+                (this.armor_data && other.armor_data && this.armor_data.equals(other.armor_data)));
+    }
+
     public toJSON(): ItemSchema {
         const ret: ItemSchema = {
             'id': this.id,

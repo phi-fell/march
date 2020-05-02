@@ -87,6 +87,7 @@ export class Graphics {
     }
     public setBoard(board: Board) {
         this.board = board;
+        this.board.entities.reverse();
         this.draw_cache.tiles_stale = true;
     }
     public setPalette(palette: string[]) {
@@ -168,10 +169,10 @@ export class Graphics {
             this.entityContext.translate(entity.location.x, entity.location.y);
             const sprite = entity.components.sprite;
             if (typeof sprite === 'string') {
-                this.getAnimation(`mob/${entity.components.sprite}/idle`).draw(this.entityContext, Date.now());
+                this.getAnimation(sprite).draw(this.entityContext, Date.now());
             } else {
                 this.entityContext.color('#F0F');
-                this.entityContext.fillRect();
+                this.entityContext.fillRect(-.5, -.5);
             }
             this.entityContext.pop();
         }

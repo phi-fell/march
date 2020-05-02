@@ -7,6 +7,14 @@ import { Controller } from './controller';
 import { DIRECTION } from './direction';
 import { VisibilityManager } from './visibilitymanager';
 
+function getPrimitiveComponent<T extends t.Any>(schema: T) {
+    return {
+        schema,
+        'fromJSON': (json: t.TypeOf<T>) => json,
+        'toJSON': (component: t.TypeOf<T>) => component,
+    }
+}
+
 const componentwrappers = {
     'direction': {
         'schema': t.keyof(DIRECTION),
@@ -38,16 +46,9 @@ const componentwrappers = {
         'fromJSON': VisibilityManager.fromJSON,
         'toJSON': (component: VisibilityManager) => component.toJSON(),
     },
-    'sprite': {
-        'schema': t.string,
-        'fromJSON': (json: string) => json,
-        'toJSON': (component: string) => component,
-    },
-    'name': {
-        'schema': t.string,
-        'fromJSON': (json: string) => json,
-        'toJSON': (component: string) => component,
-    }
+    'sprite': getPrimitiveComponent(t.string),
+    'name': getPrimitiveComponent(t.string),
+    'collidable': getPrimitiveComponent(t.boolean),
 } as const;
 
 type ComponentWrappers = typeof componentwrappers;
@@ -113,13 +114,13 @@ function getFromJSON<T extends ComponentName>(name: T) {
 }
 type toJSONFunction<T extends ComponentName> = (component: FullComponents[T]) => FullComponentsSchema[T];
 function getToJSON<T extends ComponentName>(name: T) {
-    return componentwrappers[name].toJSON as toJSONFunction<T>;
+    return componentwrappers[name].toJSON as any as toJSONFunction<T>;
 }
 
 function setComponentFromJSON<T extends ComponentName>(name: T, components: Components, json: ComponentsSchema) {
     const component_json = json[name];
     if (component_json) {
-        components[name] = getFromJSON(name)(component_json);
+        components[name] = getFromJSON(name)(component_json as FullComponentsSchema[T]);
     }
 }
 

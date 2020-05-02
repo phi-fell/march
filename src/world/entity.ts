@@ -1,4 +1,5 @@
 import * as t from 'io-ts';
+import type { Item } from '../item/item';
 import { Random, UUID } from '../math/random';
 import type { ValueOfArray } from '../util/types';
 import type { Cell } from './cell';
@@ -22,7 +23,7 @@ export interface EntityWith<T extends ComponentName> extends Entity {
     removeComponent<U extends ComponentName>(name: U): asserts this is EntityWith<Exclude<T, U>>;
 }
 
-const mob_components = ['name', 'sprite', 'controller', 'sheet', 'inventory'] as const;
+const mob_components = ['name', 'sprite', 'controller', 'sheet', 'inventory', 'collidable'] as const;
 type MobComponents = ValueOfArray<typeof mob_components>;
 export type Mob = EntityWith<MobComponents>;
 
@@ -44,6 +45,14 @@ export class Entity extends Locatable {
     public static fromJSON(cell: Cell, json: EntitySchema, emplaced: boolean = false): Entity {
         const ret = new Entity(Location.fromJSON(cell, json.location), json.id, emplaced);
         ret.components = Components.fromJSON(json.components);
+        return ret;
+    }
+
+    public static createItemEntity(item: Item, loc: Location) {
+        const ret: Entity = new Entity(loc);
+        ret.setComponent('item_data', item);
+        ret.setComponent('name', item.name);
+        ret.setComponent('sprite', item.sprite);
         return ret;
     }
 
@@ -83,10 +92,7 @@ export class Entity extends Locatable {
     }
 
     public isCollidable(): boolean {
-        // TODO: give entities a component that makes them collide?
-        // i.e. delete this function and add some component that handles that
-        // (even if the component is just a boolean with an entry in component_wrappers)
-        return true;
+        return this.has('collidable') && this.components.collidable;
     }
 
     public equals(other: Entity): boolean {

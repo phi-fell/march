@@ -50,7 +50,7 @@ export class AttackAction extends ActionBase {
                 if (defender_sheet) {
                     defender_sheet.takeHit(attack_event);
                     if (defender_sheet.isDead()) {
-                        // TODO: drop inventory e.g. ent.getComponent('inventory')?.dropAll(ent.location);
+                        ent.getComponent('inventory')?.dropAll(ent.location);
                         ent.location.cell.removeLocatable(ent);
                     }
                 }

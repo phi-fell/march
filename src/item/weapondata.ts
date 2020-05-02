@@ -32,6 +32,15 @@ export class WeaponData {
         public speed: number,
         public attack_animation: string,
     ) { }
+    public equals(other: WeaponData) {
+        return this.one_handed === other.one_handed &&
+            this.piercing === other.piercing &&
+            this.sharpness === other.sharpness &&
+            this.force === other.force &&
+            this.precision === other.precision &&
+            this.speed === other.speed &&
+            this.attack_animation === other.attack_animation;
+    }
     public toJSON(): WeaponDataSchema {
         return {
             'one_handed': this.one_handed,
