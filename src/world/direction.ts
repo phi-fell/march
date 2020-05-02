@@ -28,6 +28,10 @@ export const ChatDirections: Record<string, DIRECTION | undefined> = {
     'west': DIRECTION.WEST,
     'south': DIRECTION.SOUTH,
     'east': DIRECTION.EAST,
+    'n': DIRECTION.NORTH,
+    'w': DIRECTION.WEST,
+    's': DIRECTION.SOUTH,
+    'e': DIRECTION.EAST,
 };
 
 export function getRelativeDirection(from: DIRECTION, to: DIRECTION): RELATIVE_DIRECTION {
