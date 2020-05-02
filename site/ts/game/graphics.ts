@@ -87,6 +87,7 @@ export class Graphics {
     }
     public setBoard(board: Board) {
         this.board = board;
+        this.board.entities.reverse();
         this.draw_cache.tiles_stale = true;
     }
     public setPalette(palette: string[]) {
