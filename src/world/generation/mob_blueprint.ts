@@ -25,6 +25,7 @@ function createBaseMob(loc: Location): Mob {
     }));
     ret.setComponent('sheet', new CharacterSheet());
     ret.setComponent('inventory', new Inventory());
+    ret.setComponent('collidable', true);
     return ret;
 }
 

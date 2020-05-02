@@ -23,7 +23,7 @@ export interface EntityWith<T extends ComponentName> extends Entity {
     removeComponent<U extends ComponentName>(name: U): asserts this is EntityWith<Exclude<T, U>>;
 }
 
-const mob_components = ['name', 'sprite', 'controller', 'sheet', 'inventory'] as const;
+const mob_components = ['name', 'sprite', 'controller', 'sheet', 'inventory', 'collidable'] as const;
 type MobComponents = ValueOfArray<typeof mob_components>;
 export type Mob = EntityWith<MobComponents>;
 
@@ -92,10 +92,7 @@ export class Entity extends Locatable {
     }
 
     public isCollidable(): boolean {
-        // TODO: give entities a component that makes them collide?
-        // i.e. delete this function and add some component that handles that
-        // (even if the component is just a boolean with an entry in component_wrappers)
-        return true;
+        return this.has('collidable') && this.components.collidable;
     }
 
     public equals(other: Entity): boolean {
