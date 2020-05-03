@@ -1,22 +1,22 @@
 import type { EventHandler } from './eventhandler';
 
 const MACRO_SHORTCUTS: Record<string, string[]> = {
-    '37': ['#turn left'],
-    '38': ['#turn up'],
-    '39': ['#turn right'],
-    '40': ['#turn down'],
-    '73': ['#strafe up'],
-    '74': ['#strafe left'],
-    '75': ['#strafe down'],
-    '76': ['#strafe right'],
-    '87': ['#turn up', '#move up'],
-    '65': ['#turn left', '#move left'],
-    '83': ['#turn down', '#move down'],
-    '68': ['#turn right', '#move right'],
-    '32': ['#attack'],
-    '88': ['#unwait'],
-    '90': ['#wait'],
-    '190': ['#portal'],
+    '37': ['turn left'],
+    '38': ['turn up'],
+    '39': ['turn right'],
+    '40': ['turn down'],
+    '73': ['strafe up'],
+    '74': ['strafe left'],
+    '75': ['strafe down'],
+    '76': ['strafe right'],
+    '87': ['turn up', 'move up'],
+    '65': ['turn left', 'move left'],
+    '83': ['turn down', 'move down'],
+    '68': ['turn right', 'move right'],
+    '32': ['attack'],
+    '88': ['unwait'],
+    '90': ['wait'],
+    '190': ['portal'],
 };
 
 enum GAME_SHORTCUT {
@@ -111,10 +111,14 @@ export class Input {
             }
         } else if (MACRO_SHORTCUTS[e.keyCode] !== undefined) {
             const msgs = MACRO_SHORTCUTS[e.keyCode];
-            for (const msg of msgs) {
-                if (msg === '#unwait' || !this.event_handler.isProcessingEvents()) {
-                    this.socket.emit('chat_message', msg);
+            if (this.event_handler.isProcessingEvents()) {
+                if (msgs.includes('#unwait')) {
+                    this.socket.emit('chat_message', '#unwait');
                 }
+            } else if (msgs.length > 1) {
+                this.socket.emit('chat_message', `#[${msgs.join(',')}]`);
+            } else {
+                this.socket.emit('chat_message', `#${msgs[0]}`);
             }
         }
     }

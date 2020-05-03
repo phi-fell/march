@@ -74,7 +74,7 @@ export class Player {
     private entity_ref?: EntityRef;
     private entity?: Entity;
     private _active: boolean = false;
-    private queued_action?: Action | undefined;
+    private queued_action?: Action[] | undefined;
     private constructor(private user: User, private world: World, protected _id: string = Random.uuid()) { }
     public get id() {
         return this._id;
@@ -88,26 +88,37 @@ export class Player {
         }
         this.user.sendEvent(event.getClientJSON(this.entity));
     }
-    public doAction(msg: string) {
-        const args = msg.split(' ');
-        const chat_action = args[0];
-        args.shift();
-        const action_type = ChatActions[chat_action];
-        if (action_type !== undefined) {
-            const ent = this.getEntity();
-            const action = ActionClasses[action_type].fromArgs(args);
-            if (typeof action === 'string') {
-                this.sendChatMessage(action);
-                return;
-            }
-
-            if (this.queued_action === undefined) {
-                ent.location.cell.notifyAsyncEnt(ent.id);
-            }
-            this.queued_action = action;
+    public doAction(message: string) {
+        let msgs: string[] = [];
+        if (message.startsWith('[') && message.endsWith(']')) {
+            msgs = message.substring(1, message.length - 1).split(',');
         } else {
-            this.sendChatMessage('Invalid action type!');
+            msgs = [message];
         }
+        const actions: (Action | undefined)[] = msgs.map((msg) => {
+            const args = msg.split(' ');
+            const chat_action = args[0];
+            args.shift();
+            const action_type = ChatActions[chat_action];
+            if (action_type !== undefined) {
+                const action = ActionClasses[action_type].fromArgs(args);
+                if (typeof action === 'string') {
+                    this.sendChatMessage(action);
+                    return;
+                }
+                return action;
+            }
+            this.sendChatMessage(`Invalid action type: ${chat_action}!`);
+
+        });
+        if (actions.includes(undefined)) {
+            return;
+        }
+        const ent = this.getEntity();
+        if (this.queued_action === undefined) {
+            ent.location.cell.notifyAsyncEnt(ent.id);
+        }
+        this.queued_action = actions as Action[];
     }
     public getQuery(query: string) {
         // TODO: handle query
@@ -116,10 +127,16 @@ export class Player {
         // TODO: handle command
     }
     public getNextAction() {
-        return this.queued_action;
+        if (this.queued_action !== undefined) {
+            return this.queued_action[0];
+        }
     }
     public popAction() {
-        this.queued_action = undefined;
+        if (this.queued_action !== undefined && this.queued_action.length > 1) {
+            this.queued_action?.shift();
+        } else {
+            this.queued_action = undefined;
+        }
     }
     public getGameData() {
         const ent = this.getEntity();
