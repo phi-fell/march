@@ -1,4 +1,4 @@
-import type { Board, Entity } from './servertypes';
+import type { Board, DIRECTION, Entity, Location, RELATIVE_DIRECTION } from './servertypes';
 
 type Events = {
     SET_BOARD: {
@@ -39,15 +39,20 @@ type Events = {
     };
     MOVE: {
         type: 'MOVE';
-        message: string;
+        entity_id: string;
+        location: Location;
+        direction: keyof typeof DIRECTION;
     };
     STRAFE: {
         type: 'STRAFE';
-        message: string;
+        entity_id: string;
+        location: Location;
+        rel_dir: keyof typeof RELATIVE_DIRECTION;
     };
     BACKSTEP: {
         type: 'BACKSTEP';
-        message: string;
+        entity_id: string;
+        location: Location;
     };
     TURN: {
         type: 'TURN';
@@ -129,13 +134,31 @@ export class EventHandler {
                 this.chat.messages.push(event.message);
                 break;
             } case 'MOVE': {
-                this.chat.messages.push(event.message);
+                const ent = this.app.board.entities.find((e) => e.id === event.entity_id);
+                if (ent === undefined) {
+                    console.log('Cannot move nonexistent Entity!');
+                } else {
+                    ent.location = event.location
+                    this.chat.messages.push(`${ent.components.name} moves ${event.direction.toLowerCase()}`);
+                }
                 break;
             } case 'STRAFE': {
-                this.chat.messages.push(event.message);
+                const ent = this.app.board.entities.find((e) => e.id === event.entity_id);
+                if (ent === undefined) {
+                    console.log('Cannot move nonexistent Entity!');
+                } else {
+                    ent.location = event.location
+                    this.chat.messages.push(`${ent.components.name} sidesteps ${event.rel_dir.toLowerCase()}`);
+                }
                 break;
             } case 'BACKSTEP': {
-                this.chat.messages.push(event.message);
+                const ent = this.app.board.entities.find((e) => e.id === event.entity_id);
+                if (ent === undefined) {
+                    console.log('Cannot move nonexistent Entity!');
+                } else {
+                    ent.location = event.location
+                    this.chat.messages.push(`${ent.components.name} steps backward`);
+                }
                 break;
             } case 'TURN': {
                 this.chat.messages.push(event.message);

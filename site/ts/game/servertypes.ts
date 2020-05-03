@@ -1,14 +1,30 @@
+export interface Location {
+    x: number;
+    y: number;
+}
+
+export enum DIRECTION {
+    NORTH,
+    WEST,
+    SOUTH,
+    EAST,
+}
+
+export enum RELATIVE_DIRECTION {
+    FORWARD,
+    LEFT,
+    BACKWARD,
+    RIGHT,
+}
 
 export interface Entity {
     id: string;
-    location: {
-        x: number;
-        y: number;
-    };
+    location: Location;
     components: {
-        direction?: 'NORTH' | 'EAST' | 'WEST' | 'SOUTH';
+        direction?: keyof typeof DIRECTION;
         sheet?: any;
         sprite?: string;
+        name?: string;
     }
 }
 
