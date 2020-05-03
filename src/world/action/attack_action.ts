@@ -46,18 +46,18 @@ export class AttackAction extends ActionBase {
 
         if (sheet.hasSufficientAP(this.cost)) {
             const attack_event = new AttackEvent(entity, ent);
-            if (ent !== undefined) {
+            if (ent !== undefined && ent.has('sheet')) {
                 const defender_sheet = ent.getComponent('sheet');
-                if (defender_sheet !== undefined) {
-                    defender_sheet.takeHit(attack_event);
-                    if (defender_sheet.isDead()) {
-                        ent.location.cell.emit(new DeathEvent(ent), ent.location);
-                        ent.getComponent('inventory')?.dropAll(ent.location);
-                        ent.removeFromWorld();
-                    }
+                defender_sheet.takeHit(attack_event);
+                entity.location.cell.emit(attack_event, entity.location, attackLoc);
+                if (defender_sheet.isDead()) {
+                    ent.location.cell.emit(new DeathEvent(ent), ent.location);
+                    ent.getComponent('inventory')?.dropAll(ent.location);
+                    ent.removeFromWorld();
                 }
+            } else {
+                entity.location.cell.emit(attack_event, entity.location, attackLoc);
             }
-            entity.location.cell.emit(attack_event, entity.location, attackLoc);
             return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
         }
         return { 'result': ACTION_RESULT.INSUFFICIENT_AP, 'cost': 0 };
