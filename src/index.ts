@@ -52,7 +52,7 @@ async function main(process_arguments: string[]) {
     const world = World.loadWorldFromFile(worldFile);
 
     if (web_options.use_https) {
-        if (ssl_paths) {
+        if (ssl_paths !== undefined) {
             key = fs.readFile(ssl_paths.root + ssl_paths.key);
             cert = fs.readFile(ssl_paths.root + ssl_paths.cert);
         } else {
