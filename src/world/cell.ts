@@ -160,10 +160,13 @@ export class Cell extends FileBackedData {
     /**
      * Only call this from inside Locatable!
      */
-    public addLocatable(locatable: Locatable) {
+    public addLocatable(locatable: Locatable, emitEvent: boolean = true) {
         if (locatable.isEntity()) {
             this.board.addEntity(locatable);
-            this.emit(new AddEntityEvent(locatable), locatable.location);
+            if (emitEvent) {
+                // emitEvent is set to false when constructing locatable so as to account for partially constructed objects
+                this.emit(new AddEntityEvent(locatable), locatable.location);
+            }
         } else {
             throw new Error('Non-Entity Locatables do not exist?');
         }

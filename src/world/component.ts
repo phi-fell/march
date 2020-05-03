@@ -137,7 +137,7 @@ export const Components = {
         const ret = {} as ComponentsSchema;
         for (const name of ComponentNames) {
             const component = components[name];
-            if (component) {
+            if (component !== undefined) {
                 ret[name] = getToJSON(name)(component);
             }
         }

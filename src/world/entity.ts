@@ -4,6 +4,7 @@ import { Random, UUID } from '../math/random';
 import type { ValueOfArray } from '../util/types';
 import type { Cell } from './cell';
 import { ComponentName, Components, ComponentsWith, ComponentsWithNames, FullComponents } from './component';
+import { AddEntityEvent } from './event/add_entity_event';
 import { Locatable, locatable_schema } from './locatable';
 import { Location } from './location';
 
@@ -53,6 +54,7 @@ export class Entity extends Locatable {
         ret.setComponent('item_data', item);
         ret.setComponent('name', item.name);
         ret.setComponent('sprite', item.sprite);
+        loc.cell.emit(new AddEntityEvent(ret), loc)
         return ret;
     }
 
