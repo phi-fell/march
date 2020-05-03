@@ -1,3 +1,4 @@
+import type { EventHandler } from './eventhandler';
 
 const MACRO_SHORTCUTS: Record<string, string[]> = {
     '37': ['#turn left'],
@@ -47,7 +48,11 @@ let message_cache: string = '';
 let historyPos: number = 0;
 
 export class Input {
-    constructor(private socket: SocketIOClient.Socket, private chat: { messages: string[], current_message: string, typing: boolean }) {
+    constructor(
+        private socket: SocketIOClient.Socket,
+        private event_handler: EventHandler,
+        private chat: { messages: string[], current_message: string, typing: boolean }
+    ) {
         document.addEventListener('keydown', this.keydown.bind(this));
     }
     keydown(e: KeyboardEvent) {
@@ -105,10 +110,11 @@ export class Input {
                     return;
             }
         } else if (MACRO_SHORTCUTS[e.keyCode] !== undefined) {
-            // TODO: do not send action if there are events/animations currently playing (unless action is unwait)
             const msgs = MACRO_SHORTCUTS[e.keyCode];
             for (const msg of msgs) {
-                this.socket.emit('chat_message', msg);
+                if (msg === '#unwait' || !this.event_handler.isProcessingEvents()) {
+                    this.socket.emit('chat_message', msg);
+                }
             }
         }
     }

@@ -102,8 +102,8 @@ $(document).ready(async () => {
                             },
                         },
                     });
-                    input = new Input(socket, app.chat);
                     event_handler = new EventHandler(app, app.chat);
+                    input = new Input(socket, event_handler, app.chat);
                     event_handler.startEventProcessingLoop();
                     socket.on('chat', (chat_msg: string) => {
                         app.chat.messages.push(chat_msg);
