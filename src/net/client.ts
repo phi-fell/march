@@ -268,7 +268,7 @@ export class Client {
                     } else if (msg.startsWith('?')) {
                         plr.getQuery(msg.substring(1));
                     } else {
-                        plr.sayChatMessageAsEntity(msg);
+                        plr.doAction(`say ${msg}`);
                     }
                 } else {
                     console.log(`User [${this.user.name}] without active Player sent: ${msg}`);

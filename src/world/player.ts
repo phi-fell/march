@@ -5,7 +5,6 @@ import { Random } from '../math/random';
 import type { User } from '../net/user';
 import { Action, ActionClasses, ChatActions } from './action';
 import { ACTION_TYPE } from './action/actiontype';
-import { SayAction } from './action/say_action';
 import type { Cell } from './cell';
 import { PlayerController } from './controller/playercontroller';
 import { DIRECTION } from './direction';
@@ -89,9 +88,6 @@ export class Player {
             return console.log('Event could not be sent to player! no attached Entity!')
         }
         this.user.sendEvent(event.getClientJSON(this.entity));
-    }
-    public sayChatMessageAsEntity(msg: string) {
-        this.action_queue.push(new SayAction(msg));
     }
     public doAction(msg: string) {
         const args = msg.split(' ');
