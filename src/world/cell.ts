@@ -90,7 +90,7 @@ export class Cell extends FileBackedData {
                 console.log('looped too many times!');
                 return new Location(-1, -1, this);
             }
-            if (rand) {
+            if (rand !== undefined) {
                 x = rand.int(0, this.attributes.width);
                 y = rand.int(0, this.attributes.height);
             } else {

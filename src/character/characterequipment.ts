@@ -60,7 +60,7 @@ export class CharacterEquipment {
         }
         for (const slot of Object.keys(json)) {
             const item = json[slot as keyof typeof EQUIPMENT_SLOT];
-            if (item) {
+            if (item !== undefined) {
                 ret.equipment[EQUIPMENT_SLOT[slot as keyof typeof EQUIPMENT_SLOT]] = Item.fromJSON(item);
             }
         }

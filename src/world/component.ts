@@ -119,7 +119,7 @@ function getToJSON<T extends ComponentName>(name: T) {
 
 function setComponentFromJSON<T extends ComponentName>(name: T, components: Components, json: ComponentsSchema) {
     const component_json = json[name];
-    if (component_json) {
+    if (component_json !== undefined) {
         components[name] = getFromJSON(name)(component_json as FullComponentsSchema[T]);
     }
 }

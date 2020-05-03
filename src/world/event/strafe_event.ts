@@ -8,7 +8,7 @@ export class StrafeEvent {
     public getClientJSON(viewer: Entity) {
         const direction = this.entity.getComponent('direction');
         let reldir = '';
-        if (direction) {
+        if (direction !== undefined) {
             reldir = ' ' + RELATIVE_DIRECTION[getRelativeDirection(direction, this.direction)].toLowerCase();
         }
         return {

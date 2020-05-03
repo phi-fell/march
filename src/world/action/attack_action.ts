@@ -48,7 +48,7 @@ export class AttackAction extends ActionBase {
             const attack_event = new AttackEvent(entity, ent);
             if (ent !== undefined) {
                 const defender_sheet = ent.getComponent('sheet');
-                if (defender_sheet) {
+                if (defender_sheet !== undefined) {
                     defender_sheet.takeHit(attack_event);
                     if (defender_sheet.isDead()) {
                         ent.location.cell.emit(new DeathEvent(ent), ent.location);

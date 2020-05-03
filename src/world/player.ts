@@ -94,7 +94,7 @@ export class Player {
         const chat_action = args[0];
         args.shift();
         const action_type = ChatActions[chat_action];
-        if (action_type) {
+        if (action_type !== undefined) {
             const ent = this.getEntity();
             const action = ActionClasses[action_type].fromArgs(args);
             if (typeof action === 'string') {

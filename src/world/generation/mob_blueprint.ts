@@ -155,7 +155,7 @@ export class MobBlueprint extends Resource<MobBlueprintSchema> {
                 const id = item_entry.id.getValue();
                 const blueprint = await item_blueprint_manager.get(id);
                 const count = item_entry.count.getValue();
-                if (blueprint) {
+                if (blueprint !== undefined) {
                     const item = await blueprint.generateItem(item_blueprint_manager);
                     item.count = count;
                     inventory.addItem(item);
@@ -167,7 +167,7 @@ export class MobBlueprint extends Resource<MobBlueprintSchema> {
                 for (let i = 0; i < count; i++) {
                     const id = item_entry.id.getValue();
                     const blueprint = await item_blueprint_manager.get(id);
-                    if (blueprint) {
+                    if (blueprint !== undefined) {
                         inventory.addItem(await blueprint.generateItem(item_blueprint_manager));
                     } else {
                         console.log(`Could not add item: ${id} - no blueprint found!`);

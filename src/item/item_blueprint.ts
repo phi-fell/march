@@ -71,7 +71,7 @@ export class ItemBlueprint extends Resource<ItemBlueprintSchema> {
         const ret: Item = await (async () => {
             if (this.extends !== undefined) {
                 const blueprint = await item_blueprint_manager.get(this.extends);
-                if (blueprint) {
+                if (blueprint !== undefined) {
                     return blueprint.generateItem(item_blueprint_manager);
                 }
                 console.log(`Could not extend nonexistent blueprint: ${this.extends}!`);
