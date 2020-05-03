@@ -1,7 +1,7 @@
 export enum EVENT_TYPE {
     NEW_ROUND,
-    // ADD_MOB,
-    // REMOVE_MOB,
+    // ADD_ENTITY,
+    // REMOVE_ENTITY,
     WAIT,
     WAIT_ONCE,
     WAIT_ROUND,

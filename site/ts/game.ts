@@ -1,15 +1,11 @@
 import type { VueConstructor } from 'vue';
 import { loadCredentials } from './auth.js';
+import { EventHandler } from './game/eventhandler.js';
 import { Graphics } from './game/graphics.js';
 import { Input } from './game/input.js';
 import { getSocketDestination } from './socket_destination.js';
 import { registerDirectives } from './vue-directives.js';
 import { registerComponent } from './vue_component.js';
-
-interface GameEvent {
-    type: any;
-    message: string;
-}
 
 interface Entity {
     id: string;
@@ -32,6 +28,7 @@ let app: any;
 
 let graphics: Graphics | undefined;
 let input: Input | undefined;
+let event_handler: EventHandler | undefined;
 
 $(document).ready(async () => {
     registerDirectives(Vue);
@@ -92,11 +89,12 @@ $(document).ready(async () => {
                         },
                     });
                     input = new Input(socket, app.chat);
+                    event_handler = new EventHandler(msg.board, app.chat);
                     socket.on('chat', (chat_msg: string) => {
                         app.chat.messages.push(chat_msg);
                     });
-                    socket.on('event', (event: GameEvent) => {
-                        app.chat.messages.push(event.message);
+                    socket.on('event', (event: any) => {
+                        event_handler?.pushEvent(event);
                     });
                     socket.on('update_data', (json: any) => {
                         app.player_sheet = json.player_sheet;

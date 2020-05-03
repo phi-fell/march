@@ -16,7 +16,6 @@ import { WaitRoundEvent } from './event/wait_round_event';
 
 interface EventClientJSON {
     type: keyof typeof EVENT_TYPE,
-    message: string,
 }
 
 export interface Event<T extends EVENT_TYPE = EVENT_TYPE> {
