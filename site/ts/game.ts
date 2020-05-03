@@ -83,7 +83,7 @@ $(document).ready(async () => {
                             });
                         },
                         'watch': {
-                            'board'(oldBoard: Board, newBoard: Board) {
+                            'board'(newBoard: Board, oldBoard: Board) {
                                 graphics?.setBoard(newBoard);
                             },
                         },
