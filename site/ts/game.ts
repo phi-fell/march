@@ -12,9 +12,10 @@ interface GameEvent {
 }
 
 interface Entity {
+    id: string;
     location: {
         x: number;
-        y: number
+        y: number;
     };
     components: {
         item_data?: {
@@ -146,7 +147,7 @@ function createContextAction(e: Entity) {
         return {
             'text': (item.stackable) ? (`${item.count} ${item.name}`) : (item.name),
             'btn_text': 'Pick Up',
-            'action': `#pickup ${e.components.item_data.name}`,
+            'action': `#pickup ${e.id}`,
         }
     }
     return;

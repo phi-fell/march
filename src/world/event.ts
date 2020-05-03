@@ -1,10 +1,12 @@
 import type { ValueOf } from '../util/types';
 import { AttackEvent } from './event/attack_event';
 import { BackstepEvent } from './event/backstep_event';
+import { DropEvent } from './event/drop_event';
 import type { EVENT_TYPE } from './event/event_type';
 import { LookEvent } from './event/look_event';
 import { MoveEvent } from './event/move_event';
 import { NewRoundEvent } from './event/new_round_event';
+import { PickupEvent } from './event/pickup_event';
 import { SayEvent } from './event/say_event';
 import { StrafeEvent } from './event/strafe_event';
 import { TurnEvent } from './event/turn_event';
@@ -40,4 +42,6 @@ export const EventClasses: EventClassArray = [
     BackstepEvent,
     TurnEvent,
     AttackEvent,
+    PickupEvent,
+    DropEvent,
 ];

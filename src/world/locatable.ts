@@ -45,4 +45,11 @@ export abstract class Locatable {
     public setPosition(pos: Position) {
         this._location = this._location.withPosition(pos);
     }
+    /**
+     * Be careful! only call this when this Locatable will not be used ever again.
+     */
+    public removeFromWorld() {
+        this._location.cell.removeLocatable(this);
+        this._location = undefined as any;
+    }
 }
