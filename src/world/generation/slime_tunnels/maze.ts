@@ -57,6 +57,7 @@ export class SlimeMazeGenerator implements CellGenerator {
                                 board.tiles[x + i][y] = getTileFromName('stone_floor');
                             }
                         }
+                        // TODO: add break statements? (investigate)
                     } case 1: {
                         if (this.maze(board, x, y + STRIDE)) {
                             for (let i = 0; i < STRIDE; i++) {
