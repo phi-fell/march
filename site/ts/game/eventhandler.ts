@@ -1,4 +1,4 @@
-import type { Board } from './servertypes';
+import type { Board, Entity } from './servertypes';
 
 type Events = {
     SET_BOARD: {
@@ -8,6 +8,14 @@ type Events = {
     NEW_ROUND: {
         type: 'NEW_ROUND';
         message: string;
+    };
+    ADD_ENTITY: {
+        type: 'ADD_ENTITY';
+        entity: Entity;
+    };
+    REMOVE_ENTITY: {
+        type: 'REMOVE_ENTITY';
+        id: string;
     };
     WAIT: {
         type: 'WAIT';
@@ -57,6 +65,10 @@ type Events = {
         type: 'DROP';
         message: string;
     };
+    DEATH: {
+        type: 'DEATH';
+        message: string;
+    };
 }
 
 type Event = Events[keyof Events];
@@ -84,50 +96,65 @@ export class EventHandler {
     }
     private async processEvent(event: Event) {
         switch (event.type) {
-            case 'SET_BOARD':
+            case 'SET_BOARD': {
                 this.app.board = event.board;
                 break;
-            case 'NEW_ROUND':
+            } case 'NEW_ROUND': {
                 this.chat.messages.push(event.message);
                 break;
-            case 'WAIT':
+            } case 'ADD_ENTITY': {
+                this.app.board.entities.push(event.entity);
+                break;
+            } case 'REMOVE_ENTITY': {
+                const index = this.app.board.entities.findIndex((ent) => ent.id === event.id);
+                if (index < 0) {
+                    console.log('Cannot remove nonexistent Entity!');
+                } else {
+                    this.app.board.entities.splice(index, 1);
+                }
+                break;
+            } case 'WAIT': {
                 this.chat.messages.push(event.message);
                 break;
-            case 'WAIT_ONCE':
+            } case 'WAIT_ONCE': {
                 this.chat.messages.push(event.message);
                 break;
-            case 'WAIT_ROUND':
+            } case 'WAIT_ROUND': {
                 this.chat.messages.push(event.message);
                 break;
-            case 'SAY':
+            } case 'SAY': {
                 this.chat.messages.push(event.message);
                 break;
-            case 'LOOK':
+            } case 'LOOK': {
                 this.chat.messages.push(event.message);
                 break;
-            case 'MOVE':
+            } case 'MOVE': {
                 this.chat.messages.push(event.message);
                 break;
-            case 'STRAFE':
+            } case 'STRAFE': {
                 this.chat.messages.push(event.message);
                 break;
-            case 'BACKSTEP':
+            } case 'BACKSTEP': {
                 this.chat.messages.push(event.message);
                 break;
-            case 'TURN':
+            } case 'TURN': {
                 this.chat.messages.push(event.message);
                 break;
-            case 'ATTACK':
+            } case 'ATTACK': {
                 this.chat.messages.push(event.message);
                 break;
-            case 'PICKUP':
+            } case 'PICKUP': {
                 this.chat.messages.push(event.message);
                 break;
-            case 'DROP':
+            } case 'DROP': {
                 this.chat.messages.push(event.message);
                 break;
-            default:
+            } case 'DEATH': {
+                this.chat.messages.push(event.message);
+                break;
+            } default: {
                 console.log('Unknown event type: ' + (event as any).type + '!');
+            }
         }
     }
 }
