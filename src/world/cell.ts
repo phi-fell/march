@@ -98,14 +98,14 @@ export class Cell extends FileBackedData {
         } while (!getTileProps(this.board.tiles[x][y]).passable);
         return new Location(x, y, this);
     }
-    public getClientJSON(entity: Entity) {
+    public getClientJSON(viewer: Entity) {
         const retTiles: Tile[][] = [];
         const tileAdjacencies: number[][] = [];
         const MAX_RADIUS = 10;
-        const x0 = entity.location.x - MAX_RADIUS;
-        const y0 = entity.location.y - MAX_RADIUS;
-        const x1 = entity.location.x + MAX_RADIUS;
-        const y1 = entity.location.y + MAX_RADIUS;
+        const x0 = viewer.location.x - MAX_RADIUS;
+        const y0 = viewer.location.y - MAX_RADIUS;
+        const x1 = viewer.location.x + MAX_RADIUS;
+        const y1 = viewer.location.y + MAX_RADIUS;
         for (let x = x0; x <= x1; x++) {
             retTiles[x - x0] = [];
             tileAdjacencies[x - x0] = [];
@@ -141,7 +141,7 @@ export class Cell extends FileBackedData {
             'height': (y1 - y0) + 1,
             'tiles': retTiles,
             tileAdjacencies,
-            'entities': this.board.getClientEntitiesJSON(),
+            'entities': this.board.getClientEntitiesJSON(viewer),
         }
     }
     /**

@@ -5,7 +5,7 @@ import { EVENT_TYPE } from './event_type';
 export class StrafeEvent {
     public type: EVENT_TYPE.STRAFE = EVENT_TYPE.STRAFE;
     constructor(private entity: Entity, private direction: DIRECTION) { }
-    public getClientJSON() {
+    public getClientJSON(viewer: Entity) {
         const direction = this.entity.getComponent('direction');
         let reldir = '';
         if (direction) {

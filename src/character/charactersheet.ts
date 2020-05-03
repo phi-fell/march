@@ -1,6 +1,7 @@
 import * as t from 'io-ts';
 import { Damage, DamageMetaData, DAMAGE_TYPE } from '../damage';
 import { Random } from '../math/random';
+import type { Entity } from '../world/entity';
 import type { AttackEvent } from '../world/event/attack_event';
 import { ATTRIBUTE, CharacterAttributes } from './characterattributes';
 import { CharacterEquipment } from './characterequipment';
@@ -270,7 +271,7 @@ export class CharacterSheet {
             'exp': this._exp,
         };
     }
-    public getClientJSON() {
+    public getClientJSON(viewer: Entity) {
         const attributeLevelupAvailable = Object.fromEntries(
             Object.entries(this._allocatedAttributes.getLevelupCosts().toJSON()).map(
                 ([k, v]) => [k, v >= this._essence]

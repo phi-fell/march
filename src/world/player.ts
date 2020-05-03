@@ -85,7 +85,10 @@ export class Player {
         this.user.sendChatMessage(text);
     }
     public sendEvent(event: Event) {
-        this.user.sendEvent(event);
+        if (this.entity === undefined) {
+            return console.log('Event could not be sent to player! no attached Entity!')
+        }
+        this.user.sendEvent(event.getClientJSON(this.entity));
     }
     public sayChatMessageAsEntity(msg: string) {
         this.action_queue.push(new SayAction(msg));
@@ -139,8 +142,7 @@ export class Player {
             sheet = this.sheet;
         }
         return {
-            'player_sheet': sheet.getClientJSON(),
-            'player_entity': ent.getClientJSON(),
+            'player_entity': ent.id,
             'board': ent.location.cell.getClientJSON(ent),
         }
     }

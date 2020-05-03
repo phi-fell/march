@@ -166,8 +166,8 @@ export class Board {
         }
         this.entities.splice(i, 1);
     }
-    public getClientEntitiesJSON() {
-        return this.entities.map((e) => e.getClientJSON());
+    public getClientEntitiesJSON(viewer: Entity) {
+        return this.entities.map((e) => e.getClientJSON(viewer));
     }
     public toJSON(): BoardSchema {
         return {

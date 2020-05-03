@@ -1,4 +1,5 @@
 export enum EVENT_TYPE {
+    SET_BOARD,
     NEW_ROUND,
     // ADD_ENTITY,
     // REMOVE_ENTITY,

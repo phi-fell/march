@@ -4,7 +4,7 @@ import { ATTRIBUTE } from '../character/characterattributes';
 import { CharacterRace } from '../character/characterrace';
 import { CharacterTrait } from '../character/charactertrait';
 import { getTilePalette } from '../tile';
-import type { Event } from '../world/event';
+import type { EventClientJSON } from '../world/event';
 import type { Server } from './server';
 import type { User } from './user';
 
@@ -166,14 +166,8 @@ export class Client {
     public sendChatMessage(msg: string) {
         this.socket.emit('chat', msg);
     }
-    public sendEvent(event: Event) {
-        this.socket.emit('event', event.getClientJSON());
-        if (this.user === undefined) {
-            //  Client.sendEvent should only be called by User.sendEvent() on it's client, so tis should not happen.
-            console.log('Client.sendEvent() called on client with no attached User! How?');
-            return;
-        }
-        this.socket.emit('update_data', this.user.getGameData());
+    public sendEvent(event_json: EventClientJSON) {
+        this.socket.emit('event', event_json);
     }
     public attachUser(user: User) {
         this.user = user;

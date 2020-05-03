@@ -105,7 +105,7 @@ export class Entity extends Locatable {
             'components': Components.toJSON(this.components),
         }
     }
-    public getClientJSON() {
+    public getClientJSON(viewer: Entity) {
         return this.toJSON(); // TODO: reduce info sent
     }
 }
