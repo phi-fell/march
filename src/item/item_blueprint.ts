@@ -76,9 +76,8 @@ export class ItemBlueprint extends Resource<ItemBlueprintSchema> {
                 }
                 console.log(`Could not extend nonexistent blueprint: ${this.extends}!`);
             }
-            return new Item('ERROR', 'Unnamed', 'none', false, 1);
+            return new Item('Unnamed', 'none', false, 1);
         })();
-        ret.id = this.id;
         if (this.name !== undefined) {
             ret.name = this.name;
         }

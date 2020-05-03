@@ -1,4 +1,5 @@
 import * as t from 'io-ts';
+import { Random, UUID } from '../math/random';
 import { ArmorData } from './armordata';
 import { WeaponData } from './weapondata';
 
@@ -20,7 +21,8 @@ export class Item {
     ]);
 
     public static fromJSON(json: ItemSchema): Item {
-        const ret = new Item(json.id, json.name, json.sprite, json.stackable, json.count);
+        const ret = new Item(json.name, json.sprite, json.stackable, json.count);
+        ret.id = json.id;
         if (json.weapon_data) {
             ret.weapon_data = WeaponData.fromJSON(json.weapon_data);
         }
@@ -30,8 +32,8 @@ export class Item {
         return ret;
     }
 
+    public id: UUID = Random.uuid();
     constructor(
-        public id: string,
         public name: string,
         public sprite: string,
         public stackable: boolean,
