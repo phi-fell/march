@@ -1,6 +1,6 @@
 import { Animation } from './animation.js';
 import { GraphicsContext } from './graphicscontext.js';
-import type { Board } from './servertypes.js';
+import type { Board, Entity } from './servertypes.js';
 
 interface TileSprite {
     sheet: false,
@@ -19,36 +19,32 @@ type Palette = SubPalette[];
 const TILE_SIZE = 32;
 
 export class Graphics {
-    private width: number;
-    private height: number;
+    private width: number = 0;
+    private height: number = 0;
     private tileContext: GraphicsContext;
     private entityContext: GraphicsContext;
     private uiContext: GraphicsContext;
     private animations: Record<string, Animation> = {};
-    private board?: Board;
     private palette: Palette = [];
-    private draw_cache = {
-        'all_stale': true,
-        'tiles_stale': true,
-        'scale': 1,
-    }
+    private draw_scale = 1;
     constructor(
         private tileCanvas: HTMLCanvasElement,
         private entityCanvas: HTMLCanvasElement,
         private uiCanvas: HTMLCanvasElement,
-        private uiLabels: { 'text': string, 'x': number, 'y': number }[],
+        private app: { board: Board, player_entity: Entity, canvas_labels: { 'text': string, 'x': number, 'y': number }[] },
     ) {
-        const w = tileCanvas.clientWidth;
-        const h = tileCanvas.clientHeight;
-        console.log('(' + w + ', ' + h + ')');
-        if (!w) {
+        this.width = this.tileCanvas.clientWidth;
+        this.height = this.tileCanvas.clientHeight;
+        const scaleX = this.width / this.app.board.width;
+        const scaleY = this.height / this.app.board.height;
+        this.draw_scale = Math.max(scaleX, scaleY);
+        console.log('(' + this.width + ', ' + this.height + ')');
+        if (!this.width) {
             throw new Error('invalid canvas width!');
         }
-        if (!h) {
+        if (!this.height) {
             throw new Error('invalid canvas height!');
         }
-        this.width = w;
-        this.height = h;
         this.tileContext = new GraphicsContext(tileCanvas, this.width, this.height);
         this.entityContext = new GraphicsContext(entityCanvas, this.width, this.height);
         this.uiContext = new GraphicsContext(uiCanvas, this.width, this.height);
@@ -63,10 +59,6 @@ export class Graphics {
             this.draw();
             this.startDrawLoop();
         }, 20);
-    }
-    public setBoard(board: Board) {
-        this.board = board;
-        this.draw_cache.tiles_stale = true;
     }
     public setPalette(palette: string[]) {
         this.palette = [];
@@ -98,7 +90,6 @@ export class Graphics {
                         'subtiles': st,
                     };
                 }
-                this.draw_cache.tiles_stale = true;
             }
             image.onerror = () => {
                 console.log('could not load')
@@ -118,31 +109,18 @@ export class Graphics {
         this.tileContext.resize(this.width, this.height);
         this.entityContext.resize(this.width, this.height);
         this.uiContext.resize(this.width, this.height);
-        this.draw_cache.all_stale = true;
+        const scaleX = this.width / this.app.board.width;
+        const scaleY = this.height / this.app.board.height;
+        this.draw_scale = Math.max(scaleX, scaleY);
     }
     private draw() {
-        if (!this.board) {
-            return console.log('Can\'t draw! No board!');
-        }
-        if (this.draw_cache.all_stale) {
-            const scaleX = this.width / this.board.width;
-            const scaleY = this.height / this.board.height;
-            this.draw_cache.scale = Math.max(scaleX, scaleY);
-            // set individual staleness flags
-            this.draw_cache.tiles_stale = true;
-        }
-        this.draw_cache.all_stale = false;
-        if (this.draw_cache.tiles_stale) {
-            this.drawTiles();
-            this.draw_cache.tiles_stale = false;
-        }
+        this.drawTiles();
         this.entityContext.clear();
         this.entityContext.push();
         this.entityContext.translate(this.width / 2, this.height / 2);
-        this.entityContext.scale(this.draw_cache.scale, this.draw_cache.scale);
-        this.entityContext.translate(this.board.width / -2, this.board.height / -2);
-        this.entityContext.translate(-this.board.x, -this.board.y);
-        for (const entity of this.board.entities) {
+        this.entityContext.scale(this.draw_scale, this.draw_scale);
+        this.entityContext.translate(-this.app.player_entity.location.x, -this.app.player_entity.location.y);
+        for (const entity of this.app.board.entities) {
             this.entityContext.push();
             this.entityContext.translate(entity.location.x, entity.location.y);
             const sprite = entity.components.sprite;
@@ -157,17 +135,14 @@ export class Graphics {
         this.entityContext.pop();
     }
     private drawTiles() {
-        if (!this.board) {
-            return console.log('Can\'t draw! No board!');
-        }
         this.tileContext.clear();
         this.tileContext.push();
         this.tileContext.translate(this.width / 2, this.height / 2);
-        this.tileContext.scale(this.draw_cache.scale, this.draw_cache.scale);
-        this.tileContext.translate(this.board.width / -2, this.board.height / -2);
-        for (let x = 0; x < this.board.width; x++) {
-            for (let y = 0; y < this.board.height; y++) {
-                const tile = this.board.tiles[x][y];
+        this.tileContext.scale(this.draw_scale, this.draw_scale)
+        this.tileContext.translate(this.app.board.x - this.app.player_entity.location.x, this.app.board.y - this.app.player_entity.location.y);
+        for (let x = 0; x < this.app.board.width; x++) {
+            for (let y = 0; y < this.app.board.height; y++) {
+                const tile = this.app.board.tiles[x][y];
                 if (tile === -1) {
                     this.tileContext.push();
                     this.tileContext.color('#000');
@@ -186,7 +161,7 @@ export class Graphics {
                             [false, true, false],
                             [false, false, false],
                         ];
-                        let adjSum = this.board.tileAdjacencies[x][y];
+                        let adjSum = this.app.board.tileAdjacencies[x][y];
                         for (let i = -1; i <= 1; i++) {
                             for (let j = -1; j <= 1; j++) {
                                 if (adjSum % 2 === 1) {

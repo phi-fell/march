@@ -78,26 +78,44 @@ type Events = {
 
 type Event = Events[keyof Events];
 
+async function sleep(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export class EventHandler {
     private queuedEvents: Event[] = [];
     constructor(private app: { board: Board }, private chat: { messages: string[] }) { }
     public pushEvent(event: Event) {
         this.queuedEvents.push(event);
-        if (this.queuedEvents.length === 1) {
-            this.startProcessingEvents();
-        }
     }
     public isProcessingEvents() {
         return this.queuedEvents.length > 0;
     }
-    private async startProcessingEvents() {
-        while (this.queuedEvents.length > 0) {
+    public startEventProcessingLoop() {
+        setTimeout(async () => {
+            await this.handleNextEvent();
+            this.startEventProcessingLoop();
+        }, 20);
+    }
+    private async handleNextEvent() {
+        if (this.queuedEvents.length > 0) {
             const event = this.queuedEvents.shift();
             if (event === undefined) {
                 return;
             }
             await this.processEvent(event);
         }
+    }
+    private async glideLoc(from: Location, to: Location, steps = 20, time = 100) {
+        const dx = (to.x - from.x) / steps;
+        const dy = (to.y - from.y) / steps;
+        for (let i = 0; i < steps; i++) {
+            from.x += dx;
+            from.y += dy;
+            await sleep(time / steps);
+        }
+        from.x = to.x;
+        from.y = to.y
     }
     private async processEvent(event: Event) {
         switch (event.type) {
@@ -138,8 +156,8 @@ export class EventHandler {
                 if (ent === undefined) {
                     console.log('Cannot move nonexistent Entity!');
                 } else {
-                    ent.location = event.location
                     this.chat.messages.push(`${ent.components.name} moves ${event.direction.toLowerCase()}`);
+                    await this.glideLoc(ent.location, event.location);
                 }
                 break;
             } case 'STRAFE': {
@@ -147,8 +165,8 @@ export class EventHandler {
                 if (ent === undefined) {
                     console.log('Cannot move nonexistent Entity!');
                 } else {
-                    ent.location = event.location
                     this.chat.messages.push(`${ent.components.name} sidesteps ${event.rel_dir.toLowerCase()}`);
+                    await this.glideLoc(ent.location, event.location);
                 }
                 break;
             } case 'BACKSTEP': {
@@ -156,8 +174,8 @@ export class EventHandler {
                 if (ent === undefined) {
                     console.log('Cannot move nonexistent Entity!');
                 } else {
-                    ent.location = event.location
                     this.chat.messages.push(`${ent.components.name} steps backward`);
+                    await this.glideLoc(ent.location, event.location);
                 }
                 break;
             } case 'TURN': {

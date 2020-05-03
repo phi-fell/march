@@ -82,11 +82,6 @@ $(document).ready(async () => {
                                 this.chat.autoscroll = Math.ceil((el.scrollTop() || 0) + (el.innerHeight() || 0)) >= el[0].scrollHeight;
                             });
                         },
-                        'watch': {
-                            'board'(newBoard: Board, oldBoard: Board) {
-                                graphics?.setBoard(newBoard);
-                            },
-                        },
                         'computed': {
                             'player_entity'() {
                                 return this.board.entities.find((ent) => ent.id === this.player_entity_id);
@@ -109,6 +104,7 @@ $(document).ready(async () => {
                     });
                     input = new Input(socket, app.chat);
                     event_handler = new EventHandler(app, app.chat);
+                    event_handler.startEventProcessingLoop();
                     socket.on('chat', (chat_msg: string) => {
                         app.chat.messages.push(chat_msg);
                     });
@@ -124,9 +120,8 @@ $(document).ready(async () => {
                             $('#tileCanvas')[0] as HTMLCanvasElement,
                             $('#entityCanvas')[0] as HTMLCanvasElement,
                             $('#uiCanvas')[0] as HTMLCanvasElement,
-                            app.canvas_labels,
+                            app,
                         );
-                        graphics.setBoard(app.board);
                         graphics.setPalette(palette);
                         graphics.startDrawLoop();
                     });
