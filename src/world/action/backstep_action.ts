@@ -2,6 +2,7 @@ import { getTileProps } from '../../tile';
 import { ChatDirections, DIRECTION, directionVectors, getRelativeDirection, RELATIVE_DIRECTION } from '../direction';
 import type { Entity } from '../entity';
 import { BackstepEvent } from '../event/backstep_event';
+import { SetBoardEvent } from '../event/set_board_event';
 import { ActionBase } from './actionbase';
 import { ACTION_RESULT } from './actionresult';
 import { ACTION_TYPE } from './actiontype';
@@ -51,6 +52,7 @@ export class BackstepAction extends ActionBase {
             const oldLoc = entity.location;
             entity.setLocation(newLoc);
             entity.location.cell.emit(new BackstepEvent(entity, this.direction), oldLoc, newLoc);
+            entity.getComponent('controller')?.sendEvent(new SetBoardEvent());
             return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
         }
         return { 'result': ACTION_RESULT.INSUFFICIENT_AP, 'cost': 0 };

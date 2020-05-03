@@ -52,6 +52,7 @@ export class Graphics {
         this.tileContext = new GraphicsContext(tileCanvas, this.width, this.height);
         this.entityContext = new GraphicsContext(entityCanvas, this.width, this.height);
         this.uiContext = new GraphicsContext(uiCanvas, this.width, this.height);
+        this.entityContext.drawBehind();
         const g = this;
         $(window).on('resize', () => {
             g.resize();
@@ -65,7 +66,6 @@ export class Graphics {
     }
     public setBoard(board: Board) {
         this.board = board;
-        this.board.entities.reverse();
         this.draw_cache.tiles_stale = true;
     }
     public setPalette(palette: string[]) {

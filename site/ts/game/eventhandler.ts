@@ -1,6 +1,10 @@
 import type { Board } from './servertypes';
 
 type Events = {
+    SET_BOARD: {
+        type: 'SET_BOARD';
+        board: Board;
+    };
     NEW_ROUND: {
         type: 'NEW_ROUND';
         message: string;
@@ -59,7 +63,7 @@ type Event = Events[keyof Events];
 
 export class EventHandler {
     private queuedEvents: Event[] = [];
-    constructor(private board: Board, private chat: { messages: string[] }) { }
+    constructor(private app: { board: Board }, private chat: { messages: string[] }) { }
     public pushEvent(event: Event) {
         this.queuedEvents.push(event);
         if (this.queuedEvents.length === 1) {
@@ -80,6 +84,9 @@ export class EventHandler {
     }
     private async processEvent(event: Event) {
         switch (event.type) {
+            case 'SET_BOARD':
+                this.app.board = event.board;
+                break;
             case 'NEW_ROUND':
                 this.chat.messages.push(event.message);
                 break;

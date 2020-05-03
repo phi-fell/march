@@ -10,6 +10,9 @@ export class GraphicsContext {
         this.context = context;
         this.context.imageSmoothingEnabled = false;
     }
+    public drawBehind() {
+        this.context.globalCompositeOperation = 'destination-over';
+    }
     public resize(w: number, h: number) {
         this.canvas.width = w;
         this.canvas.height = h;

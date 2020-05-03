@@ -3,6 +3,7 @@ import { loadCredentials } from './auth.js';
 import { EventHandler } from './game/eventhandler.js';
 import { Graphics } from './game/graphics.js';
 import { Input } from './game/input.js';
+import type { Board } from './game/servertypes.js';
 import { getSocketDestination } from './socket_destination.js';
 import { registerDirectives } from './vue-directives.js';
 import { registerComponent } from './vue_component.js';
@@ -58,8 +59,8 @@ $(document).ready(async () => {
                         'el': '#game',
                         'data': {
                             'sheet_view': 'attributes',
-                            'player_sheet': msg.player_sheet,
-                            'player_entity': msg.player_entity,
+                            'board': msg.board as Board,
+                            'player_entity_id': msg.player_entity,
                             'canvas_labels': [
                                 {
                                     'text': 'Asdf',
@@ -74,13 +75,31 @@ $(document).ready(async () => {
                                 'typing': false,
                             },
                             'social': {},
-                            'context_actions': [],
                         },
                         'mounted'() {
                             $('#chat_history').scroll(() => {
                                 const el = $('#chat_history');
                                 this.chat.autoscroll = Math.ceil((el.scrollTop() || 0) + (el.innerHeight() || 0)) >= el[0].scrollHeight;
                             });
+                        },
+                        'watch': {
+                            'board'(oldBoard: Board, newBoard: Board) {
+                                graphics?.setBoard(newBoard);
+                            },
+                        },
+                        'computed': {
+                            'player_entity'() {
+                                return this.board.entities.find((ent) => ent.id === this.player_entity_id);
+                            },
+                            'player_sheet'() {
+                                return (this as any).player_entity?.components.sheet;
+                            },
+                            'context_actions'() {
+                                return (this as any).board.entities.filter((ent: Entity) => {
+                                    return ent.location.x === (this as any).player_entity.location.x &&
+                                        ent.location.y === (this as any).player_entity.location.y;
+                                }).map(createContextAction).filter((ca: any) => ca !== undefined);
+                            }
                         },
                         'methods': {
                             'sendChatMessage': (action: string) => {
@@ -89,7 +108,7 @@ $(document).ready(async () => {
                         },
                     });
                     input = new Input(socket, app.chat);
-                    event_handler = new EventHandler(msg.board, app.chat);
+                    event_handler = new EventHandler(app, app.chat);
                     socket.on('chat', (chat_msg: string) => {
                         app.chat.messages.push(chat_msg);
                     });
@@ -97,12 +116,8 @@ $(document).ready(async () => {
                         event_handler?.pushEvent(event);
                     });
                     socket.on('update_data', (json: any) => {
-                        app.player_sheet = json.player_sheet;
-                        app.player_entity = json.player_entity;
-                        graphics?.setBoard(json.board);
-                        app.context_actions = json.board.entities.filter((ent: Entity) => {
-                            return ent.location.x === app.player_entity.location.x && ent.location.y === app.player_entity.location.y;
-                        }).map(createContextAction).filter((ca: any) => ca !== undefined);
+                        console.log('update_data');
+                        app.player_entity_id = json.player_entity;
                     });
                     socket.on('palette', (palette: any) => {
                         graphics = new Graphics(
@@ -111,10 +126,7 @@ $(document).ready(async () => {
                             $('#uiCanvas')[0] as HTMLCanvasElement,
                             app.canvas_labels,
                         );
-                        graphics.setBoard(msg.board);
-                        app.context_actions = msg.board.entities.filter((ent: Entity) => {
-                            return ent.location.x === app.player_entity.location.x && ent.location.y === app.player_entity.location.y;
-                        }).map(createContextAction).filter((ca: any) => ca !== undefined);
+                        graphics.setBoard(app.board);
                         graphics.setPalette(palette);
                         graphics.startDrawLoop();
                     });
