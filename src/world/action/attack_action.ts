@@ -1,6 +1,7 @@
 import { ChatDirections, DIRECTION, directionVectors } from '../direction';
 import type { Entity } from '../entity';
 import { AttackEvent } from '../event/attack_event';
+import { DeathEvent } from '../event/death_event';
 import { ActionBase } from './actionbase';
 import { ACTION_RESULT } from './actionresult';
 import { ACTION_TYPE } from './actiontype';
@@ -50,8 +51,9 @@ export class AttackAction extends ActionBase {
                 if (defender_sheet) {
                     defender_sheet.takeHit(attack_event);
                     if (defender_sheet.isDead()) {
+                        ent.location.cell.emit(new DeathEvent(ent), ent.location);
                         ent.getComponent('inventory')?.dropAll(ent.location);
-                        ent.location.cell.removeLocatable(ent);
+                        ent.removeFromWorld();
                     }
                 }
             }

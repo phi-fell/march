@@ -1,8 +1,8 @@
 export enum EVENT_TYPE {
     SET_BOARD,
     NEW_ROUND,
-    // ADD_ENTITY,
-    // REMOVE_ENTITY,
+    ADD_ENTITY,
+    REMOVE_ENTITY,
     WAIT,
     WAIT_ONCE,
     WAIT_ROUND,
@@ -17,5 +17,5 @@ export enum EVENT_TYPE {
     DROP,
     // BLEED,
     // HEAL,
-    // DEATH,
+    DEATH,
 }

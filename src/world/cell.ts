@@ -7,6 +7,8 @@ import { getTileProps, NO_TILE, Tile } from '../tile';
 import { Board } from './board';
 import type { Entity } from './entity';
 import type { Event } from './event';
+import { AddEntityEvent } from './event/add_entity_event';
+import { RemoveEntityEvent } from './event/remove_entity_event';
 import { CellAttributes } from './generation/cellattributes';
 import type { CellBlueprint } from './generation/cell_blueprint';
 import type { MobBlueprintManager } from './generation/mob_blueprint';
@@ -149,6 +151,7 @@ export class Cell extends FileBackedData {
      */
     public removeLocatable(locatable: Locatable) {
         if (locatable.isEntity()) {
+            this.emit(new RemoveEntityEvent(locatable), locatable.location);
             this.board.removeEntity(locatable);
         } else {
             throw new Error('Non-Entity Locatables do not exist?');
@@ -160,6 +163,7 @@ export class Cell extends FileBackedData {
     public addLocatable(locatable: Locatable) {
         if (locatable.isEntity()) {
             this.board.addEntity(locatable);
+            this.emit(new AddEntityEvent(locatable), locatable.location);
         } else {
             throw new Error('Non-Entity Locatables do not exist?');
         }

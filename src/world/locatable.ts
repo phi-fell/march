@@ -50,6 +50,5 @@ export abstract class Locatable {
      */
     public removeFromWorld() {
         this._location.cell.removeLocatable(this);
-        this._location = undefined as any;
     }
 }
