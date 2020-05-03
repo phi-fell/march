@@ -4,7 +4,6 @@ import { Inventory } from '../item/inventory';
 import { Random } from '../math/random';
 import type { User } from '../net/user';
 import { Action, ActionClasses, ChatActions } from './action';
-import { ACTION_TYPE } from './action/actiontype';
 import type { Cell } from './cell';
 import { PlayerController } from './controller/playercontroller';
 import { DIRECTION } from './direction';
@@ -75,7 +74,7 @@ export class Player {
     private entity_ref?: EntityRef;
     private entity?: Entity;
     private _active: boolean = false;
-    private action_queue: Action[] = [];
+    private queued_action?: Action | undefined;
     private constructor(private user: User, private world: World, protected _id: string = Random.uuid()) { }
     public get id() {
         return this._id;
@@ -101,16 +100,11 @@ export class Player {
                 this.sendChatMessage(action);
                 return;
             }
-            if (action.type === ACTION_TYPE.UNWAIT) {
-                this.action_queue = this.action_queue.filter((actn) => {
-                    return actn.type !== ACTION_TYPE.WAIT && actn.type !== ACTION_TYPE.WAIT_ONCE && actn.type !== ACTION_TYPE.WAIT_ROUND
-                })
-            } else {
-                if (this.action_queue.length === 0) {
-                    ent.location.cell.notifyAsyncEnt(ent.id);
-                }
-                this.action_queue.push(action);
+
+            if (this.queued_action === undefined) {
+                ent.location.cell.notifyAsyncEnt(ent.id);
             }
+            this.queued_action = action;
         } else {
             this.sendChatMessage('Invalid action type!');
         }
@@ -122,14 +116,10 @@ export class Player {
         // TODO: handle command
     }
     public getNextAction() {
-        if (this.action_queue.length > 0) {
-            return this.action_queue[0];
-        }
+        return this.queued_action;
     }
     public popAction() {
-        if (this.action_queue.length > 0) {
-            this.action_queue.shift();
-        }
+        this.queued_action = undefined;
     }
     public getGameData() {
         const ent = this.getEntity();
