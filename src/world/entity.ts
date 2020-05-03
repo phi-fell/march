@@ -110,7 +110,7 @@ export class Entity extends Locatable {
     public getClientJSON(viewer: Entity) {
         return {
             'id': this.id,
-            'location': this.location.getClientJSON(),
+            'location': this.location.getClientJSON(viewer),
             'components': Components.getClientJSON(this.components, viewer),
         }
     }

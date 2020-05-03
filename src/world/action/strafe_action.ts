@@ -56,7 +56,7 @@ export class StrafeAction extends ActionBase {
         if (sheet.hasSufficientAP(this.cost)) {
             const oldLoc = entity.location;
             entity.setLocation(newLoc);
-            entity.location.cell.emit(new StrafeEvent(entity, this.direction), oldLoc, newLoc);
+            entity.location.cell.emit(new StrafeEvent(entity, newLoc, rel_dir), oldLoc, newLoc);
             entity.getComponent('controller')?.sendEvent(new SetBoardEvent());
             return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
         }

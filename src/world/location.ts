@@ -49,7 +49,7 @@ export class Location extends Position {
             'y': this.y,
         };
     }
-    public getClientJSON() {
+    public getClientJSON(viewer: Entity) {
         return {
             'x': this.x,
             'y': this.y,
