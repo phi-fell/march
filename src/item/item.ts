@@ -1,5 +1,6 @@
 import * as t from 'io-ts';
 import { Random, UUID } from '../math/random';
+import type { Entity } from '../world/entity';
 import { ArmorData } from './armordata';
 import { WeaponData } from './weapondata';
 
@@ -76,5 +77,8 @@ export class Item {
             ret.armor_data = this.armor_data.toJSON();
         }
         return ret;
+    }
+    public getClientJSON(viewer: Entity) {
+        return this.toJSON();
     }
 }

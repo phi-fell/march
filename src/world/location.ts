@@ -49,4 +49,10 @@ export class Location extends Position {
             'y': this.y,
         };
     }
+    public getClientJSON() {
+        return {
+            'x': this.x,
+            'y': this.y,
+        };
+    }
 }

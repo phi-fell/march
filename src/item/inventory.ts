@@ -47,4 +47,9 @@ export class Inventory {
     public toJSON(): InventorySchema {
         return this.items.map((item) => item.toJSON());
     }
+    public getClientJSON(viewer: Entity) {
+        if (viewer.getComponent('inventory') === this) {
+            return this.toJSON();
+        }
+    }
 }

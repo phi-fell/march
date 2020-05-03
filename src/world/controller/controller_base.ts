@@ -1,5 +1,6 @@
 import type { Action } from '../action';
 import type { Controller, ControllerSchema } from '../controller';
+import type { Entity } from '../entity';
 import type { Event } from '../event';
 import { CONTROLLER } from './controllers';
 
@@ -18,4 +19,5 @@ export abstract class ControllerBase implements Controller {
     public toJSON(): ControllerSchema {
         return { 'type': CONTROLLER[this.type] as keyof typeof CONTROLLER };
     }
+    public getClientJSON(viewer: Entity): undefined { return; }
 }

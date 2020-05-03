@@ -108,6 +108,10 @@ export class Entity extends Locatable {
         }
     }
     public getClientJSON(viewer: Entity) {
-        return this.toJSON(); // TODO: reduce info sent
+        return {
+            'id': this.id,
+            'location': this.location.getClientJSON(),
+            'components': Components.getClientJSON(this.components, viewer),
+        }
     }
 }

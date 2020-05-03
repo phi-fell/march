@@ -5,6 +5,7 @@ import { CONTROLLER } from './controller/controllers';
 import { InertController } from './controller/inertcontroller';
 import { PlayerController } from './controller/playercontroller';
 import { WanderController } from './controller/wander_controller';
+import type { Entity } from './entity';
 import type { Event } from './event';
 
 const controller_schema = t.type({
@@ -19,6 +20,7 @@ export interface Controller<T extends CONTROLLER = CONTROLLER> {
     newRound(): void;// Called when a new round starts
     sendEvent(event: Event): void;
     toJSON(): ControllerSchema;
+    getClientJSON(viewer: Entity): undefined;
 }
 
 export interface ControllerClass<T extends CONTROLLER> {

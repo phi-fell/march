@@ -1,4 +1,5 @@
 import * as t from 'io-ts';
+import type { Entity } from './entity';
 import type { Location } from './location';
 
 export class VisibilityManager {
@@ -11,5 +12,8 @@ export class VisibilityManager {
     }
     public toJSON() {
         return 'Any';
+    }
+    public getClientJSON(viewer: Entity): undefined {
+        return;
     }
 }
