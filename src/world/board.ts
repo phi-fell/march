@@ -78,8 +78,9 @@ export class Board {
                     ent.getComponent('controller').sendEvent(event);
                     return;
                 }
+                const visible = visibility_manager.getVisibilityMap(ent);
                 for (const loc of locations) {
-                    if (visibility_manager.canSee(loc)) {
+                    if (visible[loc.x][loc.y]) {
                         ent.getComponent('controller').sendEvent(event);
                         break;
                     }

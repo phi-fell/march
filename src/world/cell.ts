@@ -108,11 +108,12 @@ export class Cell extends FileBackedData {
         const y0 = viewer.location.y - MAX_RADIUS;
         const x1 = viewer.location.x + MAX_RADIUS;
         const y1 = viewer.location.y + MAX_RADIUS;
+        const visible = viewer.getComponent('visibility_manager')?.getVisibilityMap(viewer);
         for (let x = x0; x <= x1; x++) {
             retTiles[x - x0] = [];
             tileAdjacencies[x - x0] = [];
             for (let y = y0; y <= y1; y++) {
-                if (x < 0 || y < 0 || x >= this.attributes.width || y >= this.attributes.height /* || !entity.canSee(i, j)*/) {
+                if (x < 0 || y < 0 || x >= this.attributes.width || y >= this.attributes.height || (visible !== undefined && !visible[x][y])) {
                     retTiles[x - x0][y - y0] = NO_TILE;
                     tileAdjacencies[x - x0][y - y0] = 0;
                 } else {

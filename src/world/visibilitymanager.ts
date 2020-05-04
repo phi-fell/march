@@ -20,8 +20,9 @@ export class VisibilityManager {
     public getClientJSON(viewer: Entity): undefined {
         return;
     }
-    public canSee(loc: Location) {
-        return this.visible[loc.x][loc.y];
+    public getVisibilityMap(entity: Entity) {
+        this.calculateVisibility(entity);
+        return this.visible;
     }
     private calculateVisibility(entity: Entity) {
         if (this.loc_cache !== undefined && entity.location.equals(this.loc_cache)) {
