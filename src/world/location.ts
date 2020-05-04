@@ -1,5 +1,5 @@
 import * as t from 'io-ts';
-import type { Tile } from '../tile';
+import { getTileProps, Tile } from '../tile';
 import type { Cell } from './cell';
 import type { Entity } from './entity';
 import { Position } from './position';
@@ -28,6 +28,9 @@ export class Location extends Position {
     }
     public getTileAt(): Tile {
         return this.cell.getTileAt(this.x, this.y);
+    }
+    public getTileProps() {
+        return getTileProps(this.getTileAt());
     }
     public getEntitiesAt(): Entity[] {
         return this.cell.getEntitiesAt(this.x, this.y)
