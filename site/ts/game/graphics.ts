@@ -127,7 +127,7 @@ export class Graphics {
     private drawFog() {
         this.fogContext.clear();
         this.fogContext.push();
-        this.fogContext.filter(`opacity(100%) blur(${this.draw_scale / 2}px)`);
+        this.fogContext.filter(`opacity(100%) blur(${this.draw_scale / 2}px)`); // TODO: change to 75% opacity once cells remember which tiles have yet to be seen
         this.fogContext.translate(this.width / 2, this.height / 2);
         this.fogContext.scale(this.draw_scale, this.draw_scale)
         this.fogContext.translate(-.5, -.5);
