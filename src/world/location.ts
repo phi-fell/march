@@ -3,6 +3,7 @@ import { getTileProps, Tile } from '../tile';
 import type { Cell } from './cell';
 import type { Entity } from './entity';
 import { Position } from './position';
+import type { World } from './world';
 
 export type LocationSchema = t.TypeOf<typeof Location.schema>;
 
@@ -14,8 +15,11 @@ export class Location extends Position {
         'y': t.number,
     });
 
-    public static fromJSON(cell: Cell, json: LocationSchema) {
+    public static fromJSONWithCell(cell: Cell, json: LocationSchema) {
         return new Location(json.x, json.y, cell);
+    }
+    public static async fromJSONWithWorld(world: World, json: LocationSchema) {
+        return new Location(json.x, json.y, await world.getCell(json.instance_id, json.cell_id));
     }
     constructor(x: number, y: number, public readonly cell: Cell) {
         super(x, y);

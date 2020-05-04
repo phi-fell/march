@@ -44,7 +44,7 @@ export class Entity extends Locatable {
     ]);
 
     public static fromJSON(cell: Cell, json: EntitySchema, emplaced: boolean = false): Entity {
-        const ret = new Entity(Location.fromJSON(cell, json.location), json.id, emplaced);
+        const ret = new Entity(Location.fromJSONWithCell(cell, json.location), json.id, emplaced);
         ret.components = Components.fromJSON(json.components);
         return ret;
     }
