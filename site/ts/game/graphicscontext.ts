@@ -13,6 +13,9 @@ export class GraphicsContext {
     public drawBehind() {
         this.context.globalCompositeOperation = 'destination-over';
     }
+    public filter(f: string) {
+        this.context.filter = f;
+    }
     public resize(w: number, h: number) {
         this.canvas.width = w;
         this.canvas.height = h;
@@ -39,7 +42,16 @@ export class GraphicsContext {
         this.context.strokeStyle = stroke;
         this.context.fillStyle = fill;
     }
+    public startDraw() {
+        this.context.beginPath();
+    }
+    public finalizeDraw() {
+        this.context.fill();
+    }
     public fillRect(x: number = 0, y: number = 0, w: number = 1, h: number = 1) {
         this.context.fillRect(x, y, w, h);
+    }
+    public addRect(x: number = 0, y: number = 0, w: number = 1, h: number = 1) {
+        this.context.rect(x, y, w, h);
     }
 }

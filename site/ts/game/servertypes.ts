@@ -29,11 +29,16 @@ export interface Entity {
 }
 
 export interface Board {
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-    tiles: number[][],
-    tileAdjacencies: number[][],
-    entities: Entity[]
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    tiles: number[][];
+    tileAdjacencies: number[][];
+    fog_of_war: {
+        width: number;
+        height: number;
+        visible: boolean[][];
+    };
+    entities: Entity[];
 }

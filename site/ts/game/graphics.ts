@@ -23,6 +23,7 @@ export class Graphics {
     private height: number = 0;
     private tileContext: GraphicsContext;
     private entityContext: GraphicsContext;
+    private fogContext: GraphicsContext;
     private uiContext: GraphicsContext;
     private animations: Record<string, Animation> = {};
     private palette: Palette = [];
@@ -30,6 +31,7 @@ export class Graphics {
     constructor(
         private tileCanvas: HTMLCanvasElement,
         private entityCanvas: HTMLCanvasElement,
+        private fogCanvas: HTMLCanvasElement,
         private uiCanvas: HTMLCanvasElement,
         private app: { board: Board, player_entity: Entity, canvas_labels: { 'text': string, 'x': number, 'y': number }[] },
     ) {
@@ -47,6 +49,7 @@ export class Graphics {
         }
         this.tileContext = new GraphicsContext(tileCanvas, this.width, this.height);
         this.entityContext = new GraphicsContext(entityCanvas, this.width, this.height);
+        this.fogContext = new GraphicsContext(fogCanvas, this.width, this.height);
         this.uiContext = new GraphicsContext(uiCanvas, this.width, this.height);
         this.entityContext.drawBehind();
         const g = this;
@@ -108,6 +111,7 @@ export class Graphics {
         this.height = this.tileCanvas.clientHeight;
         this.tileContext.resize(this.width, this.height);
         this.entityContext.resize(this.width, this.height);
+        this.fogContext.resize(this.width, this.height);
         this.uiContext.resize(this.width, this.height);
         const scaleX = this.width / this.app.board.width;
         const scaleY = this.height / this.app.board.height;
@@ -115,6 +119,32 @@ export class Graphics {
     }
     private draw() {
         this.drawTiles();
+        this.drawEntities();
+        this.drawFog();
+    }
+    private drawFog() {
+        this.fogContext.clear();
+        this.fogContext.push();
+        this.fogContext.filter(`opacity(100%) blur(${this.draw_scale / 2}px)`);
+        this.fogContext.translate(this.width / 2, this.height / 2);
+        this.fogContext.scale(this.draw_scale, this.draw_scale)
+        this.fogContext.translate(- this.app.player_entity.location.x, - this.app.player_entity.location.y);
+        const visible = this.app.board.fog_of_war.visible
+        const xmax = Math.min(this.app.board.x + this.app.board.width, this.app.board.fog_of_war.width);
+        const ymax = Math.min(this.app.board.y + this.app.board.height, this.app.board.fog_of_war.height);
+        this.fogContext.color('#000');
+        this.fogContext.startDraw();
+        for (let x = this.app.board.x; x < xmax; x++) {
+            for (let y = this.app.board.y; y < ymax; y++) {
+                if (!visible[x][y]) {
+                    this.fogContext.addRect(x, y, 1, 1);
+                }
+            }
+        }
+        this.fogContext.finalizeDraw();
+        this.fogContext.pop();
+    }
+    private drawEntities() {
         this.entityContext.clear();
         this.entityContext.push();
         this.entityContext.translate(this.width / 2, this.height / 2);

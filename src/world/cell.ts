@@ -113,7 +113,7 @@ export class Cell extends FileBackedData {
             retTiles[x - x0] = [];
             tileAdjacencies[x - x0] = [];
             for (let y = y0; y <= y1; y++) {
-                if (x < 0 || y < 0 || x >= this.attributes.width || y >= this.attributes.height || (visible !== undefined && !visible[x][y])) {
+                if (x < 0 || y < 0 || x >= this.attributes.width || y >= this.attributes.height /*|| (visible !== undefined && !visible[x][y])*/) {
                     retTiles[x - x0][y - y0] = NO_TILE;
                     tileAdjacencies[x - x0][y - y0] = 0;
                 } else {
@@ -144,6 +144,7 @@ export class Cell extends FileBackedData {
             'height': (y1 - y0) + 1,
             'tiles': retTiles,
             tileAdjacencies,
+            'fog_of_war': { 'width': this.attributes.width, 'height': this.attributes.height, visible },
             'entities': this.board.getClientEntitiesJSON(viewer),
         }
     }

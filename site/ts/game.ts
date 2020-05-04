@@ -119,6 +119,7 @@ $(document).ready(async () => {
                         graphics = new Graphics(
                             $('#tileCanvas')[0] as HTMLCanvasElement,
                             $('#entityCanvas')[0] as HTMLCanvasElement,
+                            $('#fogCanvas')[0] as HTMLCanvasElement,
                             $('#uiCanvas')[0] as HTMLCanvasElement,
                             app,
                         );
