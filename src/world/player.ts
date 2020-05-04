@@ -10,6 +10,7 @@ import { DIRECTION } from './direction';
 import { Entity, Mob } from './entity';
 import type { Event } from './event';
 import type { Instance } from './instance';
+import { VisibilityManager } from './visibilitymanager';
 import type { World } from './world';
 
 const starting_cell = 'tutorial/start';
@@ -59,6 +60,7 @@ export class Player {
             e.setComponent('sprite', 'mob/player/idle');
             e.setComponent('inventory', new Inventory());
             e.setComponent('collidable', true);
+            e.setComponent('visibility_manager', new VisibilityManager());
             return e;
         })();
         ret.entity_ref = {
