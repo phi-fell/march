@@ -103,7 +103,7 @@ export class Cell extends FileBackedData {
     public getClientJSON(viewer: Entity) {
         const retTiles: Tile[][] = [];
         const tileAdjacencies: number[][] = [];
-        const MAX_RADIUS = 10;
+        const MAX_RADIUS = 12;
         const x0 = viewer.location.x - MAX_RADIUS;
         const y0 = viewer.location.y - MAX_RADIUS;
         const x1 = viewer.location.x + MAX_RADIUS;

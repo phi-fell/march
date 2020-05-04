@@ -54,7 +54,7 @@ export class Animation {
                 }
             } else {
                 context.color('#F0F');
-                context.fillRect(-1 / 2, -1 / 2, 1, 1);
+                context.fillRect(0, 0, 1, 1);
             }
         } finally {
             context.pop();

@@ -3,7 +3,7 @@ import { getTileProps } from '../tile';
 import type { Entity } from './entity';
 import type { Location } from './location';
 
-const MAX_VISION_RADIUS = 10;
+const MAX_VISION_RADIUS = 15;
 
 export class VisibilityManager {
     public static schema = t.any;

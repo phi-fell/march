@@ -18,6 +18,8 @@ type Palette = SubPalette[];
 
 const TILE_SIZE = 32;
 
+const CANVAS_OVERFLOW = 1;
+
 export class Graphics {
     private width: number = 0;
     private height: number = 0;
@@ -37,8 +39,8 @@ export class Graphics {
     ) {
         this.width = this.tileCanvas.clientWidth;
         this.height = this.tileCanvas.clientHeight;
-        const scaleX = this.width / this.app.board.width;
-        const scaleY = this.height / this.app.board.height;
+        const scaleX = this.width / (this.app.board.width - (CANVAS_OVERFLOW * 2));
+        const scaleY = this.height / (this.app.board.height - (CANVAS_OVERFLOW * 2));
         this.draw_scale = Math.max(scaleX, scaleY);
         console.log('(' + this.width + ', ' + this.height + ')');
         if (!this.width) {
@@ -113,8 +115,8 @@ export class Graphics {
         this.entityContext.resize(this.width, this.height);
         this.fogContext.resize(this.width, this.height);
         this.uiContext.resize(this.width, this.height);
-        const scaleX = this.width / this.app.board.width;
-        const scaleY = this.height / this.app.board.height;
+        const scaleX = this.width / (this.app.board.width - (CANVAS_OVERFLOW * 2));
+        const scaleY = this.height / (this.app.board.height - (CANVAS_OVERFLOW * 2));
         this.draw_scale = Math.max(scaleX, scaleY);
     }
     private draw() {
@@ -128,15 +130,14 @@ export class Graphics {
         this.fogContext.filter(`opacity(100%) blur(${this.draw_scale / 2}px)`);
         this.fogContext.translate(this.width / 2, this.height / 2);
         this.fogContext.scale(this.draw_scale, this.draw_scale)
+        this.fogContext.translate(-.5, -.5);
         this.fogContext.translate(- this.app.player_entity.location.x, - this.app.player_entity.location.y);
         const visible = this.app.board.fog_of_war.visible
-        const xmax = Math.min(this.app.board.x + this.app.board.width, this.app.board.fog_of_war.width);
-        const ymax = Math.min(this.app.board.y + this.app.board.height, this.app.board.fog_of_war.height);
         this.fogContext.color('#000');
         this.fogContext.startDraw();
-        for (let x = this.app.board.x; x < xmax; x++) {
-            for (let y = this.app.board.y; y < ymax; y++) {
-                if (!visible[x][y]) {
+        for (let x = this.app.board.x - 1; x < this.app.board.x + this.app.board.width + 1; x++) {
+            for (let y = this.app.board.y - 1; y < this.app.board.y + this.app.board.height + 1; y++) {
+                if (x < 0 || y < 0 || x >= this.app.board.fog_of_war.width || y >= this.app.board.fog_of_war.height || !visible[x][y]) {
                     this.fogContext.addRect(x, y, 1, 1);
                 }
             }
@@ -149,6 +150,7 @@ export class Graphics {
         this.entityContext.push();
         this.entityContext.translate(this.width / 2, this.height / 2);
         this.entityContext.scale(this.draw_scale, this.draw_scale);
+        this.entityContext.translate(-.5, -.5);
         this.entityContext.translate(-this.app.player_entity.location.x, -this.app.player_entity.location.y);
         for (const entity of this.app.board.entities) {
             this.entityContext.push();
@@ -158,7 +160,7 @@ export class Graphics {
                 this.getAnimation(sprite).draw(this.entityContext, Date.now());
             } else {
                 this.entityContext.color('#F0F');
-                this.entityContext.fillRect(-.5, -.5);
+                this.entityContext.fillRect();
             }
             this.entityContext.pop();
         }
@@ -169,6 +171,7 @@ export class Graphics {
         this.tileContext.push();
         this.tileContext.translate(this.width / 2, this.height / 2);
         this.tileContext.scale(this.draw_scale, this.draw_scale)
+        this.tileContext.translate(-.5, -.5);
         this.tileContext.translate(this.app.board.x - this.app.player_entity.location.x, this.app.board.y - this.app.player_entity.location.y);
         for (let x = 0; x < this.app.board.width; x++) {
             for (let y = 0; y < this.app.board.height; y++) {
