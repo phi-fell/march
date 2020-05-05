@@ -123,7 +123,7 @@ function hasComponents<T extends ComponentName[]>(components: Components, ...nam
     return true;
 }
 
-type fromJSONFunction<T extends ComponentName> = (json: FullComponentsSchema[T]) => FullComponents[T];
+type fromJSONFunction<T extends ComponentName> = (json: FullComponentsSchema[T], entity: Entity) => FullComponents[T];
 function getFromJSON<T extends ComponentName>(name: T) {
     return componentwrappers[name].fromJSON as fromJSONFunction<T>;
 }
@@ -136,19 +136,19 @@ function getGetClientJSON<T extends ComponentName>(name: T) {
     return componentwrappers[name].getClientJSON as any as getClientJSONFunction<T>;
 }
 
-function setComponentFromJSON<T extends ComponentName>(name: T, components: Components, json: ComponentsSchema) {
+function setComponentFromJSON<T extends ComponentName>(name: T, components: Components, json: ComponentsSchema, entity: Entity) {
     const component_json = json[name];
     if (component_json !== undefined) {
-        components[name] = getFromJSON(name)(component_json as FullComponentsSchema[T]);
+        components[name] = getFromJSON(name)(component_json as FullComponentsSchema[T], entity);
     }
 }
 
 export const Components = {
     'schema': components_schema,
-    'fromJSON': (json: ComponentsSchema) => {
+    'fromJSON': (json: ComponentsSchema, entity: Entity) => {
         const ret = {} as Components;
         for (const name of ComponentNames) {
-            setComponentFromJSON(name, ret, json);
+            setComponentFromJSON(name, ret, json, entity);
         }
         return ret;
     },

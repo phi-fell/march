@@ -13,7 +13,7 @@ export class Portal {
         'destination': t.union([Location.schema, t.undefined]),
     });
 
-    public static fromJSON(entity: Entity, json: PortalSchema): Portal {
+    public static fromJSON(json: PortalSchema, entity: Entity): Portal {
         const ret = new Portal(entity.location, json.blueprint);
         ret.reified = json.reified;
         ret.destination = json.destination;
