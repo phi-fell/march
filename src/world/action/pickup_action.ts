@@ -29,8 +29,9 @@ export class PickupAction extends ActionBase {
                 console.log('Entities with same ID exist!')
             }
             const item = ents[0].getComponent('item_data');
-            entity.location.cell.emit(new PickupEvent(entity, item), entity.location);
-            entity.getComponent('inventory').addItem(item);
+            const inventory = entity.getComponent('inventory');
+            entity.location.cell.emit(new PickupEvent(entity, item, inventory), entity.location);
+            inventory.addItem(item);
             ents[0].removeFromWorld();
             return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
         }

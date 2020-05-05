@@ -30,7 +30,7 @@ export class DropAction extends ActionBase {
                 return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
             }
             Entity.createItemEntity(item, entity.location);
-            entity.location.cell.emit(new DropEvent(entity, item), entity.location);
+            entity.location.cell.emit(new DropEvent(entity, item, inventory), entity.location);
             return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
         }
         return { 'result': ACTION_RESULT.INSUFFICIENT_AP, 'cost': 0 }
