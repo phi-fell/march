@@ -16,7 +16,7 @@ const MACRO_SHORTCUTS: Record<string, string[]> = {
     '32': ['attack'],
     '88': ['unwait'],
     '90': ['wait'],
-    '190': ['portal'],
+    '190': ['use_portal'],
 };
 
 enum GAME_SHORTCUT {
