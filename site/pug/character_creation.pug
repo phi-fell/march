@@ -81,15 +81,16 @@ body
                             p.flex-none Not yet editable at character creation
                 .section.col
                     p.flex_none Skills are not currently enabled in the live version, sorry!
-                    table.table.flex
-                        tr
-                            th
-                                p Skill
-                            th
-                                p Maximum
-                        tr(v-for="skill in sheet.skills")
-                            td
-                                p="{{skill.name.split('_').map((w)=>{return w.charAt(0).toUpperCase() + w.substring(1).toLowerCase()}).join(' ')  + ':'}}"
-                            td
-                                cnum(v-bind:self="skill" v-bind:override="true")
-                                    //- when enabled change true to "button_disable_override")
+                    .flex
+                        table.table
+                            tr
+                                th
+                                    p Skill
+                                th
+                                    p Maximum
+                            tr(v-for="skill in sheet.skills")
+                                td
+                                    p="{{skill.name.split('_').map((w)=>{return w.charAt(0).toUpperCase() + w.substring(1).toLowerCase()}).join(' ')  + ':'}}"
+                                td
+                                    cnum(v-bind:self="skill" v-bind:override="true")
+                                        //- when enabled change true to "button_disable_override")
