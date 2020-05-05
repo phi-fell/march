@@ -14,4 +14,4 @@
         game_player-race(v-else-if="self.sheet_view==='race'" v-bind:self="self.player_sheet.race")
         game_player-skills(v-else-if="self.sheet_view==='skills'" v-bind:self="self.player_sheet.skills")
         game_player-equipment(v-else-if="self.sheet_view==='equipment'" v-bind:self="self.player_sheet.equipment.equipped")
-        game_player-inventory(v-else-if="self.sheet_view==='inventory'" v-bind:self="self.player_entity.components.inventory")
+        game_player-inventory(v-else-if="self.sheet_view==='inventory'" v-bind:self="{'inventory':self.player_entity.components.inventory,'sendChatMessage':self.sendChatMessage}")
