@@ -1,5 +1,6 @@
 import type { Entity, PortalEntity } from '../entity';
 import { MessageEvent } from '../event/message_event';
+import { SetBoardEvent } from '../event/set_board_event';
 import { UsePortalEvent } from '../event/use_portal_event';
 import { ActionBase } from './actionbase';
 import { ACTION_RESULT } from './actionresult';
@@ -44,6 +45,7 @@ export class UsePortalAction extends ActionBase {
             entity.location.cell.emit(new UsePortalEvent(entity), entity.location);
             try {
                 entity.setLocation(await portal.getDestination(entity.location.cell.instance.world))
+                entity.getComponent('controller').sendEvent(new SetBoardEvent());
             } catch (err) {
                 const msg = 'BUG: An error occured while generating the instance.  This is almost certainly an issue with the instance blueprint.';
                 console.log(msg);

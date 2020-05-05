@@ -1,6 +1,10 @@
 import type { Board, DIRECTION, Entity, Inventory, Item, Location, RELATIVE_DIRECTION } from './servertypes';
 
 type Events = {
+    MESSAGE: {
+        type: 'MESSAGE';
+        message: string;
+    }
     SET_BOARD: {
         type: 'SET_BOARD';
         board: Board;
@@ -75,6 +79,10 @@ type Events = {
         item: Item;
         inventory: Inventory;
     };
+    USE_PORTAL: {
+        type: 'USE_PORTAL';
+        entity_id: string;
+    }
     DEATH: {
         type: 'DEATH';
         message: string;
@@ -89,7 +97,7 @@ async function sleep(ms: number) {
 
 export class EventHandler {
     private queuedEvents: Event[] = [];
-    constructor(private app: { board: Board }, private chat: { messages: string[] }) { }
+    constructor(private app: { player_entity_id: string, board: Board }, private chat: { messages: string[] }) { }
     public pushEvent(event: Event) {
         this.queuedEvents.push(event);
     }
@@ -124,6 +132,10 @@ export class EventHandler {
     }
     private async processEvent(event: Event) {
         switch (event.type) {
+            case 'MESSAGE': {
+                this.chat.messages.push(event.message);
+                break;
+            }
             case 'SET_BOARD': {
                 this.app.board = event.board;
                 break;
@@ -134,11 +146,13 @@ export class EventHandler {
                 this.app.board.entities.push(event.entity);
                 break;
             } case 'REMOVE_ENTITY': {
-                const index = this.app.board.entities.findIndex((ent) => ent.id === event.id);
-                if (index < 0) {
-                    console.log('Cannot remove nonexistent Entity!');
-                } else {
-                    this.app.board.entities.splice(index, 1);
+                if (event.id !== this.app.player_entity_id) {
+                    const index = this.app.board.entities.findIndex((ent) => ent.id === event.id);
+                    if (index < 0) {
+                        console.log('Cannot remove nonexistent Entity!');
+                    } else {
+                        this.app.board.entities.splice(index, 1);
+                    }
                 }
                 break;
             } case 'WAIT': {
@@ -205,6 +219,14 @@ export class EventHandler {
                 } else {
                     ent.components.inventory = event.inventory;
                     this.chat.messages.push(`${ent.components.name} drops the ${event.item.name}`);
+                }
+                break;
+            } case 'USE_PORTAL': {
+                const ent = this.app.board.entities.find((e) => e.id === event.entity_id);
+                if (ent === undefined) {
+                    console.log('Cannot drop item with nonexistent Entity!');
+                } else {
+                    this.chat.messages.push(`${ent.components.name} traverses the stairs`);
                 }
                 break;
             } case 'DEATH': {
