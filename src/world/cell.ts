@@ -98,6 +98,25 @@ export class Cell extends FileBackedData {
         } while (!getTileProps(this.board.tiles[x][y]).passable);
         return new Location(x, y, this);
     }
+    public getRandomEmptyLocation(rand?: Random): Location {
+        let x = 0;
+        let y = 0;
+        let max_iter = 10000;
+        do {
+            if (max_iter-- < 0) {
+                console.log('looped too many times!');
+                return new Location(-1, -1, this);
+            }
+            if (rand !== undefined) {
+                x = rand.int(0, this.attributes.width);
+                y = rand.int(0, this.attributes.height);
+            } else {
+                x = Random.int(0, this.attributes.width);
+                y = Random.int(0, this.attributes.height);
+            }
+        } while (!getTileProps(this.board.tiles[x][y]).passable || this.board.getEntitiesAt(x, y).length > 0);
+        return new Location(x, y, this);
+    }
     public getClientJSON(viewer: Entity) {
         const retTiles: Tile[][] = [];
         const tileAdjacencies: number[][] = [];
