@@ -1,2 +1,5 @@
 .player-inventory
-    p {{self}}
+    ul.col
+        li.flex_none.row(v-for="item in self")
+            img.flex_none(v-bind:src="'./tex/sprite/'+item.sprite+'.png'")
+            p.flex_none {{item.name}} x {{item.count}}
