@@ -5,15 +5,15 @@
     "height": 50,
     "mobs": [
         {
-            "id": "slime_petty",
+            "id": "slime/petty",
             "count": 10
         },
         {
-            "id": "slime_lesser",
+            "id": "slime/lesser",
             "count": 15
         },
         {
-            "id": "slime_common",
+            "id": "slime/common",
             "count": 4
         }
     ],
