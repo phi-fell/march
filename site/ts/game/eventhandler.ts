@@ -111,7 +111,7 @@ export class EventHandler {
             await this.processEvent(event);
         }
     }
-    private async glideLoc(from: Location, to: Location, steps = 20, time = 100) {
+    private async glideLoc(from: Location, to: Location, steps = 10, time = 100) {
         const dx = (to.x - from.x) / steps;
         const dy = (to.y - from.y) / steps;
         for (let i = 0; i < steps; i++) {
