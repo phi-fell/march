@@ -30,8 +30,8 @@ export class PickupAction extends ActionBase {
             }
             const item = ents[0].getComponent('item_data');
             const inventory = entity.getComponent('inventory');
-            entity.location.cell.emit(new PickupEvent(entity, item, inventory), entity.location);
             inventory.addItem(item);
+            entity.location.cell.emit(new PickupEvent(entity, item, inventory), entity.location);
             ents[0].removeFromWorld();
             return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
         }

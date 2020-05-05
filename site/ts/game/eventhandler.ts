@@ -1,4 +1,4 @@
-import type { Board, DIRECTION, Entity, Location, RELATIVE_DIRECTION } from './servertypes';
+import type { Board, DIRECTION, Entity, Inventory, Item, Location, RELATIVE_DIRECTION } from './servertypes';
 
 type Events = {
     SET_BOARD: {
@@ -64,11 +64,16 @@ type Events = {
     };
     PICKUP: {
         type: 'PICKUP';
-        message: string;
+        entity_id: string;
+        item: Item;
+        inventory: Inventory;
     };
     DROP: {
         type: 'DROP';
         message: string;
+        entity_id: string;
+        item: Item;
+        inventory: Inventory;
     };
     DEATH: {
         type: 'DEATH';
@@ -185,10 +190,22 @@ export class EventHandler {
                 this.chat.messages.push(event.message);
                 break;
             } case 'PICKUP': {
-                this.chat.messages.push(event.message);
+                const ent = this.app.board.entities.find((e) => e.id === event.entity_id);
+                if (ent === undefined) {
+                    console.log('Cannot pickup item with nonexistent Entity!');
+                } else {
+                    ent.components.inventory = event.inventory;
+                    this.chat.messages.push(`${ent.components.name} picks up the ${event.item.name}`);
+                }
                 break;
             } case 'DROP': {
-                this.chat.messages.push(event.message);
+                const ent = this.app.board.entities.find((e) => e.id === event.entity_id);
+                if (ent === undefined) {
+                    console.log('Cannot drop item with nonexistent Entity!');
+                } else {
+                    ent.components.inventory = event.inventory;
+                    this.chat.messages.push(`${ent.components.name} drops the ${event.item.name}`);
+                }
                 break;
             } case 'DEATH': {
                 this.chat.messages.push(event.message);

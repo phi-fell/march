@@ -9,7 +9,8 @@ export class DropEvent {
     public getClientJSON(viewer: Entity) {
         return {
             'type': EVENT_TYPE[this.type] as keyof typeof EVENT_TYPE,
-            'message': `${this.entity.getComponent('name')} drops the ${this.item.name}`,
+            'entity_id': this.entity.id,
+            'item': this.item.getClientJSON(viewer),
             'inventory': this.inventory.getClientJSON(viewer),
         };
     }

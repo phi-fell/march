@@ -17,6 +17,15 @@ export enum RELATIVE_DIRECTION {
     RIGHT,
 }
 
+export interface Item {
+    id: string;
+    name: string;
+    sprite: string;
+    count: number;
+}
+
+export type Inventory = Item[];
+
 export interface Entity {
     id: string;
     location: Location;
@@ -25,6 +34,7 @@ export interface Entity {
         sheet?: any;
         sprite?: string;
         name?: string;
+        inventory?: Inventory;
     }
 }
 
