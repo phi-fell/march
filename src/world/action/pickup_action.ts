@@ -16,7 +16,7 @@ export class PickupAction extends ActionBase {
     constructor(public item_id: string) {
         super();
     }
-    public perform(entity: Entity) {
+    public async perform(entity: Entity) {
         if (!entity.isMob()) {
             return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
         }

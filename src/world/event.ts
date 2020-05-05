@@ -7,6 +7,7 @@ import { DeathEvent } from './event/death_event';
 import { DropEvent } from './event/drop_event';
 import type { EVENT_TYPE } from './event/event_type';
 import { LookEvent } from './event/look_event';
+import { MessageEvent } from './event/message_event';
 import { MoveEvent } from './event/move_event';
 import { NewRoundEvent } from './event/new_round_event';
 import { PickupEvent } from './event/pickup_event';
@@ -15,6 +16,7 @@ import { SayEvent } from './event/say_event';
 import { SetBoardEvent } from './event/set_board_event';
 import { StrafeEvent } from './event/strafe_event';
 import { TurnEvent } from './event/turn_event';
+import { UsePortalEvent } from './event/use_portal_event';
 import { WaitEvent } from './event/wait_event';
 import { WaitOnceEvent } from './event/wait_once_event';
 import { WaitRoundEvent } from './event/wait_round_event';
@@ -35,6 +37,7 @@ type EventClassArray = {
 };
 
 export const EventClasses: EventClassArray = [
+    MessageEvent,
     SetBoardEvent,
     NewRoundEvent,
     AddEntityEvent,
@@ -51,5 +54,6 @@ export const EventClasses: EventClassArray = [
     AttackEvent,
     PickupEvent,
     DropEvent,
+    UsePortalEvent,
     DeathEvent,
 ];

@@ -24,7 +24,7 @@ export class MoveAction extends ActionBase {
     constructor(public direction: DIRECTION) {
         super();
     }
-    public perform(entity: Entity) {
+    public async perform(entity: Entity) {
         const [direction, sheet] = entity.getComponents('direction', 'sheet');
         if (direction !== undefined && direction !== this.direction) {
             return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
@@ -47,7 +47,7 @@ export class MoveAction extends ActionBase {
         }
         if (sheet.hasSufficientAP(this.cost)) {
             const oldLoc = entity.location;
-            entity.setLocation(newLoc);
+            entity.setPosition(newLoc.getPosition());
             entity.location.cell.emit(new MoveEvent(entity, newLoc, this.direction), oldLoc, newLoc);
             entity.getComponent('controller')?.sendEvent(new SetBoardEvent());
             return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };

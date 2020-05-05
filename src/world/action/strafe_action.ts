@@ -26,7 +26,7 @@ export class StrafeAction extends ActionBase {
     constructor(public direction: DIRECTION) {
         super();
     }
-    public perform(entity: Entity) {
+    public async perform(entity: Entity) {
         const vec = directionVectors[this.direction];
         const newLoc = entity.location.translate(vec.x, vec.y);
 
@@ -55,7 +55,7 @@ export class StrafeAction extends ActionBase {
         }
         if (sheet.hasSufficientAP(this.cost)) {
             const oldLoc = entity.location;
-            entity.setLocation(newLoc);
+            entity.setPosition(newLoc.getPosition());
             entity.location.cell.emit(new StrafeEvent(entity, newLoc, rel_dir), oldLoc, newLoc);
             entity.getComponent('controller')?.sendEvent(new SetBoardEvent());
             return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };

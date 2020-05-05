@@ -62,7 +62,7 @@ export class Cell extends FileBackedData {
         return this.board.getEntity(id);
     }
     public async update(): Promise<void> {
-        this.board.doNextTurn();
+        await this.board.doNextTurn();
     }
     public notifyAsyncEnt(entity_id: UUID) {
         this.board.notifyAsyncEnt(entity_id);

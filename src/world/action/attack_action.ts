@@ -23,7 +23,7 @@ export class AttackAction extends ActionBase {
     constructor(public direction?: DIRECTION) {
         super();
     }
-    public perform(entity: Entity) {
+    public async perform(entity: Entity) {
         const [direction, sheet] = entity.getComponents('direction', 'sheet');
         if (sheet === undefined) {
             return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };

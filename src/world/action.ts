@@ -12,6 +12,7 @@ import { SayAction } from './action/say_action';
 import { StrafeAction } from './action/strafe_action';
 import { TurnAction } from './action/turn_action';
 import { UnwaitAction } from './action/unwait_action';
+import { UsePortalAction } from './action/use_portal_action';
 import { WaitAction } from './action/wait_action';
 import { WaitOnceAction } from './action/wait_once_action';
 import { WaitRoundAction } from './action/wait_round_action';
@@ -19,7 +20,7 @@ import type { Entity } from './entity';
 
 export interface Action<T extends ACTION_TYPE = ACTION_TYPE> {
     type: T;
-    perform(entity: Entity): { result: ACTION_RESULT, cost: number };
+    perform(entity: Entity): Promise<{ result: ACTION_RESULT, cost: number }>;
     toJSON(): object;
 }
 
@@ -45,6 +46,7 @@ export const ChatActions: Record<string, ACTION_TYPE | undefined> = {
     'attack': ACTION_TYPE.ATTACK,
     'pickup': ACTION_TYPE.PICKUP,
     'drop': ACTION_TYPE.DROP,
+    'use_portal': ACTION_TYPE.USE_PORTAL,
 }
 export const ActionClasses: ActionClassArray = [
     AsyncAction,
@@ -61,29 +63,10 @@ export const ActionClasses: ActionClassArray = [
     AttackAction,
     PickupAction,
     DropAction,
+    UsePortalAction,
 ];
 
 /*
-class UsePortalAction {
-    public readonly cost: number = 5;
-    public perform(world: World, entity: Entity) {
-        const inst = Instance.getLoadedInstanceById(entity.location.instance_id)!;
-        for (const portal of inst.portals) {
-            *//* TODO:
-if (portal.location.equals(entity.location)) {
-portal.reify((err, dest) => {
-if (err || !dest) {
-return console.log('Error: ' + err);
-}
-// TODO: entity.location = dest;
-});
-return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
-}
-*//*
-}
-return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
-}
-}
 
 class EquipAction {
 public readonly cost: number = 12;

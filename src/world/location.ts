@@ -30,6 +30,9 @@ export class Location extends Position {
     get cell_id(): string {
         return this.cell.id;
     }
+    public getPosition(): Position {
+        return new Position(this.x, this.y);
+    }
     public getTileAt(): Tile {
         return this.cell.getTileAt(this.x, this.y);
     }

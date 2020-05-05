@@ -13,7 +13,7 @@ export class SayAction extends ActionBase {
     constructor(public message: string) {
         super();
     }
-    public perform(entity: Entity) {
+    public async perform(entity: Entity) {
         entity.location.cell.emit(new SayEvent(entity, this.message), entity.location);
         return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
     }

@@ -22,7 +22,7 @@ export class TurnAction extends ActionBase {
     constructor(public direction: DIRECTION) {
         super();
     }
-    public perform(entity: Entity) {
+    public async perform(entity: Entity) {
         const [direction, sheet] = entity.getComponents('direction', 'sheet');
         if (direction === undefined) {
             return { 'result': ACTION_RESULT.REDUNDANT, 'cost': 0 };

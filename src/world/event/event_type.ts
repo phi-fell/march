@@ -1,4 +1,5 @@
 export enum EVENT_TYPE {
+    MESSAGE,
     SET_BOARD,
     NEW_ROUND,
     ADD_ENTITY,
@@ -15,6 +16,7 @@ export enum EVENT_TYPE {
     ATTACK,
     PICKUP,
     DROP,
+    USE_PORTAL,
     // BLEED,
     // HEAL,
     DEATH,

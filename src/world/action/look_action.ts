@@ -22,7 +22,7 @@ export class LookAction extends ActionBase {
     constructor(public direction?: DIRECTION) {
         super();
     }
-    public perform(entity: Entity) {
+    public async perform(entity: Entity) {
         entity.getComponent('controller')?.sendEvent(new LookEvent(entity, this.direction));
         return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
     }

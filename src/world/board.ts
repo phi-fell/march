@@ -93,7 +93,7 @@ export class Board {
             this.waitingOnAsyncEntityID = undefined;
         }
     }
-    public doNextTurn() {
+    public async doNextTurn() {
         if (this.waitingOnAsyncEntityID !== undefined) {
             return;
         }
@@ -115,7 +115,7 @@ export class Board {
             const [sheet, controller] = ent.getComponents('sheet', 'controller');
             if (sheet !== undefined && controller !== undefined) {
                 const action = controller.getNextAction();
-                const result = action.perform(ent);
+                const result = await action.perform(ent);
                 sheet.useAP(result.cost);
                 switch (result.result) {
                     case ACTION_RESULT.ASYNC:

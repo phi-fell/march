@@ -13,7 +13,7 @@ export enum ACTION_TYPE {
     ATTACK,
     PICKUP,
     DROP,
-    // USE_PORTAL,
+    USE_PORTAL,
     // EQUIP,
     // UNEQUIP,
 }
