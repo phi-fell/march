@@ -146,6 +146,9 @@ export class User extends FileBackedData {
         this.client = undefined;
     }
     public async finishPlayer() {
+        if (!this.unfinished_player.sheet.race.playable) {
+            return;
+        }
         const plr = await Player.createPlayer(this, this.world, this.unfinished_player.name, this.unfinished_player.sheet);
         plr.sheet.status.restoreFully();
         this.unfinished_player = {

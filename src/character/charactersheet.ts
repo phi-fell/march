@@ -38,6 +38,7 @@ export class CharacterSheet {
 
     public static newPlayerSheet() {
         const ret = new CharacterSheet();
+        ret.race = new CharacterRace('avrilen');
         ret._essence = STARTING_ESSENCE;
         return ret;
     }
