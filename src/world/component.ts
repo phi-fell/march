@@ -6,6 +6,7 @@ import type { ValueOf, ValueOfArray } from '../util/types';
 import { Controller } from './controller';
 import { DIRECTION } from './direction';
 import type { Entity } from './entity';
+import { Portal } from './portal';
 import { VisibilityManager } from './visibilitymanager';
 
 function getPrimitiveComponent<T extends t.Any>(schema: T) {
@@ -53,6 +54,12 @@ const componentwrappers = {
         'fromJSON': VisibilityManager.fromJSON,
         'toJSON': (component: VisibilityManager) => component.toJSON(),
         'getClientJSON': (component: VisibilityManager, viewer: Entity) => component.getClientJSON(viewer),
+    },
+    'portal': {
+        'schema': Portal.schema,
+        'fromJSON': Portal.fromJSON,
+        'toJSON': (component: Portal) => component.toJSON(),
+        'getClientJSON': (component: Portal, viewer: Entity) => component.getClientJSON(viewer),
     },
     'sprite': getPrimitiveComponent(t.string),
     'name': getPrimitiveComponent(t.string),
