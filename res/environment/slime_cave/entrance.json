@@ -16,11 +16,11 @@
     "adjacencies": [
         {
             "id": "forest",
-            "weight": 1
+            "count": 1
         },
         {
             "id": "slime_cave/upper",
-            "weight": 1
+            "count": 1
         }
     ]
 }

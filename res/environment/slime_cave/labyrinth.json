@@ -12,15 +12,15 @@
     "adjacencies": [
         {
             "id": "slime_cave/labyrinth",
-            "weight": 20
+            "count": 20
         },
         {
             "id": "slime_cave/abyss",
-            "weight": 5
+            "count": 5
         },
         {
             "id": "slime_cave/depths",
-            "weight": 1
+            "count": 1
         }
     ]
 }

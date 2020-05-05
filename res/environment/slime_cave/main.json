@@ -20,15 +20,15 @@
     "adjacencies": [
         {
             "id": "slime_cave/upper",
-            "weight": 1
+            "count": 1
         },
         {
             "id": "slime_cave/main",
-            "weight": 3
+            "count": 3
         },
         {
             "id": "slime_cave/depths",
-            "weight": 1
+            "count": 1
         }
     ]
 }

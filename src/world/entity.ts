@@ -32,7 +32,7 @@ const item_components = ['name', 'sprite', 'item_data'] as const;
 type ItemComponents = ValueOfArray<typeof item_components>;
 export type ItemEntity = EntityWith<ItemComponents>;
 
-const portal_components = ['portal'] as const;
+const portal_components = ['sprite', 'portal'] as const;
 type PortalComponents = ValueOfArray<typeof portal_components>;
 export type PortalEntity = EntityWith<PortalComponents>;
 
@@ -53,7 +53,7 @@ export class Entity extends Locatable {
         return ret;
     }
 
-    public static createItemEntity(item: Item, loc: Location) {
+    public static createItemEntity(item: Item, loc: Location): ItemEntity {
         const ret: Entity = new Entity(loc);
         ret.setComponent('item_data', item);
         ret.setComponent('name', item.name);

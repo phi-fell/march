@@ -9,5 +9,10 @@
             "count": 10
         }
     ],
-    "adjacencies": []
+    "adjacencies": [
+        {
+            "id": "slime_cave/upper",
+            "count": 3
+        }
+    ]
 }
