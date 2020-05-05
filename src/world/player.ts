@@ -50,7 +50,7 @@ export class Player {
         ret.sheet = sheet;
         const inst: Instance = await world.createInstance();
         const cell: Cell = await inst.createCell(blueprint, user.server.globals);
-        const loc = cell.getRandomPassableLocation();
+        const loc = cell.getRandomEmptyLocation();
         const ent: Mob = (() => {
             const e: Entity = new Entity(loc);
             e.setComponent('name', ret.name);

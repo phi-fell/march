@@ -79,25 +79,6 @@ export class Cell extends FileBackedData {
     public getEntitiesAt(x: number, y: number): Entity[] {
         return this.board.getEntitiesAt(x, y);
     }
-    public getRandomPassableLocation(rand?: Random): Location {
-        let x = 0;
-        let y = 0;
-        let max_iter = 10000;
-        do {
-            if (max_iter-- < 0) {
-                console.log('looped too many times!');
-                return new Location(-1, -1, this);
-            }
-            if (rand !== undefined) {
-                x = rand.int(0, this.attributes.width);
-                y = rand.int(0, this.attributes.height);
-            } else {
-                x = Random.int(0, this.attributes.width);
-                y = Random.int(0, this.attributes.height);
-            }
-        } while (!getTileProps(this.board.tiles[x][y]).passable);
-        return new Location(x, y, this);
-    }
     public getRandomEmptyLocation(rand?: Random): Location {
         let x = 0;
         let y = 0;
