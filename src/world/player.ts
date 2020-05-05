@@ -41,7 +41,7 @@ export class Player {
         return ret;
     }
     public static async createPlayer(user: User, world: World, name: string, sheet: CharacterSheet) {
-        const blueprint = await user.server.cell_blueprint_manager.get(starting_cell);
+        const blueprint = await world.globals.cell_blueprint_manager.get(starting_cell);
         if (blueprint === undefined) {
             throw new Error(`Could not create player! Starting cell blueprint (${starting_cell}) not found!`);
         }
@@ -49,7 +49,7 @@ export class Player {
         ret.name = name;
         ret.sheet = sheet;
         const inst: Instance = await world.createInstance();
-        const cell: Cell = await inst.createCell(blueprint, user.server.mob_blueprint_manager, user.server.item_blueprint_manager);
+        const cell: Cell = await inst.createCell(blueprint, user.server.globals);
         const loc = cell.getRandomPassableLocation();
         const ent: Mob = (() => {
             const e: Entity = new Entity(loc);
