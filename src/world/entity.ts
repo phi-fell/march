@@ -32,6 +32,10 @@ const item_components = ['name', 'sprite', 'item_data'] as const;
 type ItemComponents = ValueOfArray<typeof item_components>;
 export type ItemEntity = EntityWith<ItemComponents>;
 
+const portal_components = ['portal'] as const;
+type PortalComponents = ValueOfArray<typeof portal_components>;
+export type PortalEntity = EntityWith<PortalComponents>;
+
 export type EntitySchema = t.TypeOf<typeof Entity.schema>;
 
 export class Entity extends Locatable {
@@ -75,6 +79,9 @@ export class Entity extends Locatable {
     }
     public isItem(): this is ItemEntity {
         return this.has(...item_components);
+    }
+    public isPortal(): this is PortalEntity {
+        return this.has(...portal_components);
     }
 
     public getComponent<T extends ComponentName>(name: T) {
