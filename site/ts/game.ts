@@ -56,7 +56,7 @@ $(document).ready(async () => {
                             ],
                             'chat': {
                                 'autoscroll': true,
-                                'messages': [] as string[],
+                                'messages': msg.messages as string[],
                                 'current_message': '',
                                 'typing': false,
                             },
