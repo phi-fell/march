@@ -35,6 +35,12 @@ export interface Entity {
         sprite?: string;
         name?: string;
         inventory?: Inventory;
+        portal?: unknown;
+        item_data?: {
+            name: string;
+            stackable: boolean;
+            count: number;
+        };
     }
 }
 

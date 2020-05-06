@@ -3,25 +3,10 @@ import { loadCredentials } from './auth.js';
 import { EventHandler } from './game/eventhandler.js';
 import { Graphics } from './game/graphics.js';
 import { Input } from './game/input.js';
-import type { Board } from './game/servertypes.js';
+import type { Board, Entity } from './game/servertypes.js';
 import { getSocketDestination } from './socket_destination.js';
 import { registerDirectives } from './vue-directives.js';
 import { registerComponent } from './vue_component.js';
-
-interface Entity {
-    id: string;
-    location: {
-        x: number;
-        y: number;
-    };
-    components: {
-        item_data?: {
-            name: string;
-            stackable: boolean;
-            count: number;
-        };
-    };
-}
 
 declare var Vue: VueConstructor;
 
@@ -148,6 +133,13 @@ $(document).ready(async () => {
 });
 
 function createContextAction(e: Entity) {
+    if (e.components.portal !== undefined) {
+        return {
+            'text': 'Stairs',
+            'btn_text': 'Climb',
+            'action': `#use_portal ${e.id}`,
+        }
+    }
     if (e.components.item_data !== undefined) {
         const item = e.components.item_data;
         return {
