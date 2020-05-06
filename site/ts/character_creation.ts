@@ -98,9 +98,13 @@ $(document).ready(async () => {
                                 socket.emit('get', 'unfinished_player');
                             },
                             'finish': () => {
-                                socket.emit('character_creation', { 'action': 'finish' });
-                                app.button_disable_override = true;
-                                window.location.href = './home.html';
+                                if ($('#name').text().length < 3) {
+                                    alert('Name is too short!');
+                                } else {
+                                    socket.emit('character_creation', { 'action': 'finish' });
+                                    app.button_disable_override = true;
+                                    window.location.href = './home.html';
+                                }
                             },
                         },
                     });

@@ -146,6 +146,9 @@ export class User extends FileBackedData {
         this.client = undefined;
     }
     public async finishPlayer() {
+        if (this.unfinished_player.name.length < 3) {
+            return;
+        }
         if (!this.unfinished_player.sheet.race.playable) {
             return;
         }
