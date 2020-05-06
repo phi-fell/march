@@ -60,6 +60,9 @@ export class Board {
             }
         }
     }
+    public getAllEntities() {
+        return this.entities;
+    }
     public getEntitiesAt(x: number, y: number): Entity[] {
         return this.entities.filter((e) => { return e.location.x === x && e.location.y === y });
     }
@@ -78,11 +81,43 @@ export class Board {
                     ent.getComponent('controller').sendEvent(event);
                     return;
                 }
-                const visible = visibility_manager.getVisibilityMap(ent);
+                const visible = visibility_manager.getVisibilityMap();
                 for (const loc of locations) {
                     if (visible[loc.x][loc.y]) {
                         ent.getComponent('controller').sendEvent(event);
                         break;
+                    }
+                }
+            }
+        }
+    }
+    /**
+     * emits event to entities only if at least 1 of the locs in whitelist is visible and NONE of the locs in blacklist are visible
+     * @param event event to possibly emit
+     * @param whitelist list of locations, at least 1 of which must be visible for an entity to recieve the event
+     * @param blacklist list of locations, all of which must NOT be visible for an entity to recieve the event
+     */
+    public emitWB(event: Event, whitelist: Location[], blacklist: Location[]) {
+        for (const ent of this.entities) {
+            const visibility_manager = ent.getComponent('visibility_manager');
+            if (ent.isMob() && visibility_manager !== undefined) {
+                const visible = visibility_manager.getVisibilityMap();
+                let w = false;
+                let b = false;
+                for (const loc of whitelist) {
+                    if (visible[loc.x][loc.y]) {
+                        w = true;
+                        break;
+                    }
+                }
+                if (w) {
+                    for (const loc of blacklist) {
+                        if (visible[loc.x][loc.y]) {
+                            b = true;
+                        }
+                    }
+                    if (!b) {
+                        ent.getComponent('controller').sendEvent(event);
                     }
                 }
             }
@@ -168,6 +203,10 @@ export class Board {
         this.entities.splice(i, 1);
     }
     public getClientEntitiesJSON(viewer: Entity) {
+        const visibility_manager = viewer.getComponent('visibility_manager');
+        if (visibility_manager !== undefined) {
+            return visibility_manager.getVisibleEntities().map((e) => e.getClientJSON(viewer));
+        }
         return this.entities.map((e) => e.getClientJSON(viewer));
     }
     public toJSON(): BoardSchema {

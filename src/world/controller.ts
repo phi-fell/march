@@ -24,7 +24,7 @@ export interface Controller<T extends CONTROLLER = CONTROLLER> {
 }
 
 export interface ControllerClass<T extends CONTROLLER> {
-    fromJSON(json: any): Controller<T>
+    fromJSON(json: any, entity: Entity): Controller<T>
     new(...args: any): Controller<T>
 }
 
@@ -40,8 +40,8 @@ const controller: ControllerClassArray = [
 
 export const Controller = {
     'schema': controller_schema,
-    'fromJSON': (json: ControllerSchema): Controller => {
-        return controller[CONTROLLER[json.type]].fromJSON(json);
+    'fromJSON': (json: ControllerSchema, entity: Entity): Controller => {
+        return controller[CONTROLLER[json.type]].fromJSON(json, entity);
     },
     'getNewController': (type: CONTROLLER, ...args: any) => {
         return new controller[type](...args);

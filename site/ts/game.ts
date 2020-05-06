@@ -45,13 +45,14 @@ $(document).ready(async () => {
                         'data': {
                             'sheet_view': 'attributes',
                             'board': msg.board as Board,
+                            'entities': msg.entities as Entity[],
                             'player_entity_id': msg.player_entity,
-                            'canvas_labels': [
+                            'canvas_labels': [/*
                                 {
                                     'text': 'Asdf',
                                     'x': 50,
                                     'y': 10,
-                                },
+                                },*/
                             ],
                             'chat': {
                                 'autoscroll': true,
@@ -69,13 +70,13 @@ $(document).ready(async () => {
                         },
                         'computed': {
                             'player_entity'() {
-                                return this.board.entities.find((ent) => ent.id === this.player_entity_id);
+                                return this.entities.find((ent) => ent.id === this.player_entity_id);
                             },
                             'player_sheet'() {
                                 return (this as any).player_entity?.components.sheet;
                             },
                             'context_actions'() {
-                                return (this as any).board.entities.filter((ent: Entity) => {
+                                return this.entities.filter((ent: Entity) => {
                                     return ent.location.x === (this as any).player_entity.location.x &&
                                         ent.location.y === (this as any).player_entity.location.y;
                                 }).map(createContextAction).filter((ca: any) => ca !== undefined);
@@ -95,10 +96,6 @@ $(document).ready(async () => {
                     });
                     socket.on('event', (event: any) => {
                         event_handler?.pushEvent(event);
-                    });
-                    socket.on('update_data', (json: any) => {
-                        console.log('update_data');
-                        app.player_entity_id = json.player_entity;
                     });
                     socket.on('palette', (palette: any) => {
                         graphics = new Graphics(

@@ -22,7 +22,7 @@ function createBaseMob(loc: Location): Mob {
     ret.setComponent('direction', DIRECTION.NORTH);
     ret.setComponent('controller', Controller.fromJSON({
         'type': 'WANDER',
-    }));
+    }, ret));
     ret.setComponent('sheet', new CharacterSheet());
     ret.setComponent('inventory', new Inventory());
     ret.setComponent('collidable', true);

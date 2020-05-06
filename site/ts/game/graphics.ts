@@ -35,7 +35,7 @@ export class Graphics {
         private entityCanvas: HTMLCanvasElement,
         private fogCanvas: HTMLCanvasElement,
         private uiCanvas: HTMLCanvasElement,
-        private app: { board: Board, player_entity: Entity, canvas_labels: { 'text': string, 'x': number, 'y': number }[] },
+        private app: { board: Board, entities: Entity[], player_entity: Entity, canvas_labels: { 'text': string, 'x': number, 'y': number }[] },
     ) {
         this.width = this.tileCanvas.clientWidth;
         this.height = this.tileCanvas.clientHeight;
@@ -120,6 +120,9 @@ export class Graphics {
         this.draw_scale = Math.max(scaleX, scaleY);
     }
     private draw() {
+        if (this.app.player_entity === undefined) {
+            return;
+        }
         this.drawTiles();
         this.drawEntities();
         this.drawFog();
@@ -127,7 +130,7 @@ export class Graphics {
     private drawFog() {
         this.fogContext.clear();
         this.fogContext.push();
-        this.fogContext.filter(`opacity(100%) blur(${this.draw_scale / 2}px)`); // TODO: change to 75% opacity once cells remember which tiles have yet to be seen
+        this.fogContext.filter(`opacity(75%) blur(${this.draw_scale / 2}px)`); // TODO: change to 75% opacity once cells remember which tiles have yet to be seen
         this.fogContext.translate(this.width / 2, this.height / 2);
         this.fogContext.scale(this.draw_scale, this.draw_scale)
         this.fogContext.translate(-.5, -.5);
@@ -152,7 +155,7 @@ export class Graphics {
         this.entityContext.scale(this.draw_scale, this.draw_scale);
         this.entityContext.translate(-.5, -.5);
         this.entityContext.translate(-this.app.player_entity.location.x, -this.app.player_entity.location.y);
-        for (const entity of this.app.board.entities) {
+        for (const entity of this.app.entities) {
             this.entityContext.push();
             this.entityContext.translate(entity.location.x, entity.location.y);
             const sprite = entity.components.sprite;

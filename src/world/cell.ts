@@ -73,11 +73,17 @@ export class Cell extends FileBackedData {
     public emit(event: Event, ...locations: Location[]) {
         this.board.emit(event, ...locations);
     }
+    public emitWB(event: Event, whitelist: Location[], blacklist: Location[]) {
+        this.board.emitWB(event, whitelist, blacklist);
+    }
     public getTileAt(x: number, y: number): Tile {
         return this.board.tiles[x][y];
     }
     public getEntitiesAt(x: number, y: number): Entity[] {
         return this.board.getEntitiesAt(x, y);
+    }
+    public getAllEntities() {
+        return this.board.getAllEntities();
     }
     public getRandomEmptyLocation(rand?: Random): Location {
         let x = 0;
@@ -98,6 +104,9 @@ export class Cell extends FileBackedData {
         } while (!getTileProps(this.board.tiles[x][y]).passable || this.board.getEntitiesAt(x, y).length > 0);
         return new Location(x, y, this);
     }
+    public getClientEntitiesJSON(viewer: Entity) {
+        return this.board.getClientEntitiesJSON(viewer)
+    }
     public getClientJSON(viewer: Entity) {
         const retTiles: Tile[][] = [];
         const tileAdjacencies: number[][] = [];
@@ -106,7 +115,8 @@ export class Cell extends FileBackedData {
         const y0 = viewer.location.y - MAX_RADIUS;
         const x1 = viewer.location.x + MAX_RADIUS;
         const y1 = viewer.location.y + MAX_RADIUS;
-        const visible = viewer.getComponent('visibility_manager')?.getVisibilityMap(viewer);
+        const visibility_manager = viewer.getComponent('visibility_manager');
+        const visible = visibility_manager?.getVisibilityMap();
         for (let x = x0; x <= x1; x++) {
             retTiles[x - x0] = [];
             tileAdjacencies[x - x0] = [];
@@ -143,7 +153,6 @@ export class Cell extends FileBackedData {
             'tiles': retTiles,
             tileAdjacencies,
             'fog_of_war': { 'width': this.attributes.width, 'height': this.attributes.height, visible },
-            'entities': this.board.getClientEntitiesJSON(viewer),
         }
     }
     /**

@@ -56,5 +56,4 @@ export interface Board {
         height: number;
         visible: boolean[][];
     };
-    entities: Entity[];
 }

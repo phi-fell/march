@@ -97,7 +97,7 @@ async function sleep(ms: number) {
 
 export class EventHandler {
     private queuedEvents: Event[] = [];
-    constructor(private app: { player_entity_id: string, board: Board }, private chat: { messages: string[] }) { }
+    constructor(private app: { player_entity_id: string, board: Board, entities: Entity[] }, private chat: { messages: string[] }) { }
     public pushEvent(event: Event) {
         this.queuedEvents.push(event);
     }
@@ -143,15 +143,15 @@ export class EventHandler {
                 this.chat.messages.push(event.message);
                 break;
             } case 'ADD_ENTITY': {
-                this.app.board.entities.push(event.entity);
+                this.app.entities.push(event.entity);
                 break;
             } case 'REMOVE_ENTITY': {
                 if (event.id !== this.app.player_entity_id) {
-                    const index = this.app.board.entities.findIndex((ent) => ent.id === event.id);
+                    const index = this.app.entities.findIndex((ent) => ent.id === event.id);
                     if (index < 0) {
                         console.log('Cannot remove nonexistent Entity!');
                     } else {
-                        this.app.board.entities.splice(index, 1);
+                        this.app.entities.splice(index, 1);
                     }
                 }
                 break;
@@ -171,7 +171,7 @@ export class EventHandler {
                 this.chat.messages.push(event.message);
                 break;
             } case 'MOVE': {
-                const ent = this.app.board.entities.find((e) => e.id === event.entity_id);
+                const ent = this.app.entities.find((e) => e.id === event.entity_id);
                 if (ent === undefined) {
                     console.log('Cannot move nonexistent Entity!');
                 } else {
@@ -180,7 +180,7 @@ export class EventHandler {
                 }
                 break;
             } case 'STRAFE': {
-                const ent = this.app.board.entities.find((e) => e.id === event.entity_id);
+                const ent = this.app.entities.find((e) => e.id === event.entity_id);
                 if (ent === undefined) {
                     console.log('Cannot move nonexistent Entity!');
                 } else {
@@ -189,7 +189,7 @@ export class EventHandler {
                 }
                 break;
             } case 'BACKSTEP': {
-                const ent = this.app.board.entities.find((e) => e.id === event.entity_id);
+                const ent = this.app.entities.find((e) => e.id === event.entity_id);
                 if (ent === undefined) {
                     console.log('Cannot move nonexistent Entity!');
                 } else {
@@ -204,7 +204,7 @@ export class EventHandler {
                 this.chat.messages.push(event.message);
                 break;
             } case 'PICKUP': {
-                const ent = this.app.board.entities.find((e) => e.id === event.entity_id);
+                const ent = this.app.entities.find((e) => e.id === event.entity_id);
                 if (ent === undefined) {
                     console.log('Cannot pickup item with nonexistent Entity!');
                 } else {
@@ -213,7 +213,7 @@ export class EventHandler {
                 }
                 break;
             } case 'DROP': {
-                const ent = this.app.board.entities.find((e) => e.id === event.entity_id);
+                const ent = this.app.entities.find((e) => e.id === event.entity_id);
                 if (ent === undefined) {
                     console.log('Cannot drop item with nonexistent Entity!');
                 } else {
@@ -222,7 +222,7 @@ export class EventHandler {
                 }
                 break;
             } case 'USE_PORTAL': {
-                const ent = this.app.board.entities.find((e) => e.id === event.entity_id);
+                const ent = this.app.entities.find((e) => e.id === event.entity_id);
                 if (ent === undefined) {
                     console.log('Cannot drop item with nonexistent Entity!');
                 } else {

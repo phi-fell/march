@@ -1,39 +1,85 @@
 import * as t from 'io-ts';
 import { getTileProps } from '../tile';
 import type { Entity } from './entity';
+import { AddEntityEvent } from './event/add_entity_event';
+import { RemoveEntityEvent } from './event/remove_entity_event';
 import type { Location } from './location';
 
 const MAX_VISION_RADIUS = 15;
 
 export class VisibilityManager {
     public static schema = t.any;
-    public static fromJSON(json: any) {
-        return new VisibilityManager();
+    public static fromJSON(json: any, entity: Entity) {
+        return new VisibilityManager(entity);
     }
     private width: number = 0;
     private height: number = 0;
     private visible: boolean[][] = [];
     private loc_cache?: Location | undefined;
+    private ent_cache: Entity[] = [];
+    constructor(private parent: Entity) { }
     public toJSON() {
         return 'Any';
     }
     public getClientJSON(viewer: Entity): undefined {
         return;
     }
-    public getVisibilityMap(entity: Entity) {
-        this.calculateVisibility(entity);
-        return this.visible;
+    public getVisibleEntities() {
+        return this.ent_cache;
     }
-    private calculateVisibility(entity: Entity) {
-        if (this.loc_cache !== undefined && entity.location.equals(this.loc_cache)) {
+    public addEntity(ent: Entity) {
+        if (this.ent_cache.find((e) => e.id === ent.id) !== undefined) {
+            console.log('ERROR! Entity already known to be visible!');
             return;
         }
-        this.loc_cache = entity.location
-        this.width = entity.location.cell.attributes.width;
-        this.height = entity.location.cell.attributes.height;
-        this.visible = this.getTileVisibility(entity.location, MAX_VISION_RADIUS, entity)
+        if (!(this.getVisibilityMap()[ent.location.x][ent.location.y])) {
+            console.log('ERROR! Entity is not visible!');
+            return;
+        }
+        this.ent_cache.push(ent);
     }
-    private getTileVisibility(loc: Location, RADIUS: number, ent: Entity): boolean[][] {
+    public removeEntity(ent: Entity) {
+        const index = this.ent_cache.findIndex((e) => e.id === ent.id)
+        if (index === -1) {
+            console.log('ERROR! Entity already known to not be visible!');
+            return;
+        }
+        if (this.getVisibilityMap()[ent.location.x][ent.location.y]) {
+            console.log('ERROR! Entity is visible!');
+            return;
+        }
+        this.ent_cache.splice(index, 1);
+    }
+    public recalculateAllVisibleEntities() {
+        const ents = this.parent.location.cell.getAllEntities();
+        const visible = this.getVisibilityMap();
+        for (const ent of ents) {
+            const index = this.ent_cache.findIndex((e) => e.id === ent.id);
+            if (index === -1) {
+                if (visible[ent.location.x][ent.location.y]) {
+                    // this.ent_cache.push(ent);
+                    this.parent.getComponent('controller')?.sendEvent(new AddEntityEvent(ent));
+                }
+            } else if (!visible[ent.location.x][ent.location.y]) {
+                // this.ent_cache.splice(index, 1);
+                this.parent.getComponent('controller')?.sendEvent(new RemoveEntityEvent(ent));
+            }
+        }
+    }
+    public getVisibilityMap() {
+        this.calculateVisibility();
+        return this.visible;
+    }
+    private calculateVisibility() {
+        if (this.loc_cache !== undefined && this.parent.location.equals(this.loc_cache)) {
+            return;
+        }
+        this.loc_cache = this.parent.location
+        this.width = this.parent.location.cell.attributes.width;
+        this.height = this.parent.location.cell.attributes.height;
+        this.visible = this.getTileVisibility(this.parent.location, MAX_VISION_RADIUS);
+    }
+    private getTileVisibility(loc: Location, RADIUS: number): boolean[][] {
         const visible: boolean[][] = [];
         for (let i = 0; i < this.width; i++) {
             visible[i] = [];
@@ -49,10 +95,10 @@ export class VisibilityManager {
                 }
             }
         }
-        this.shadowCast(ent, visible, loc.x, loc.y, RADIUS, 1, true);
-        this.shadowCast(ent, visible, loc.x, loc.y, RADIUS, -1, true);
-        this.shadowCast(ent, visible, loc.x, loc.y, RADIUS, 1, false);
-        this.shadowCast(ent, visible, loc.x, loc.y, RADIUS, -1, false);
+        this.shadowCast(visible, loc.x, loc.y, RADIUS, 1, true);
+        this.shadowCast(visible, loc.x, loc.y, RADIUS, -1, true);
+        this.shadowCast(visible, loc.x, loc.y, RADIUS, 1, false);
+        this.shadowCast(visible, loc.x, loc.y, RADIUS, -1, false);
         return visible;
     }
     private addShadow(shadows: any, start: number, end: number) {
@@ -99,7 +145,7 @@ export class VisibilityManager {
             'end': end,
         });
     }
-    private shadowCast(ent: Entity, visible: boolean[][], px: number, py: number, radius: number, sign: number, vertical: boolean) {
+    private shadowCast(visible: boolean[][], px: number, py: number, radius: number, sign: number, vertical: boolean) {
         const COVERAGE_THRESHOLD = 0.99;
         const pa = vertical ? px : py;
         const pb = vertical ? py : px;
@@ -131,7 +177,7 @@ export class VisibilityManager {
             for (let a = pa - r; a <= pa + r; a++) {
                 const x = vertical ? a : b;
                 const y = vertical ? b : a;
-                if (x >= 0 && y >= 0 && x < this.width && y < this.height && getTileProps(ent.location.cell.getTileAt(x, y)).obstruction) {
+                if (x >= 0 && y >= 0 && x < this.width && y < this.height && getTileProps(this.parent.location.cell.getTileAt(x, y)).obstruction) {
                     const start = (a - (pa - r)) / (r + r + 1);
                     const end = ((a + 1) - (pa - r)) / (r + r + 1);
                     this.addShadow(shadows, start, end);
@@ -143,7 +189,8 @@ export class VisibilityManager {
                 for (let a_prev = pa - r_prev; a_prev <= pa + r_prev; a_prev++) {
                     const x = vertical ? a_prev : b_prev;
                     const y = vertical ? b_prev : a_prev;
-                    if (x >= 0 && y >= 0 && x < this.width && y < this.height && getTileProps(ent.location.cell.getTileAt(x, y)).obstruction) {
+                    if (x >= 0 && y >= 0 && x < this.width && y < this.height
+                        && getTileProps(this.parent.location.cell.getTileAt(x, y)).obstruction) {
                         const start = (a_prev - (pa - r)) / (r + r + 1);
                         const end = ((a_prev + 1) - (pa - r)) / (r + r + 1);
                         this.addShadow(shadows, start, end);

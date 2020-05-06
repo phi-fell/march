@@ -1,7 +1,9 @@
 import { getTileProps } from '../../tile';
 import { ChatDirections, DIRECTION, directionVectors } from '../direction';
 import type { Entity } from '../entity';
+import { AddEntityEvent } from '../event/add_entity_event';
 import { MoveEvent } from '../event/move_event';
+import { RemoveEntityEvent } from '../event/remove_entity_event';
 import { SetBoardEvent } from '../event/set_board_event';
 import { ActionBase } from './actionbase';
 import { ACTION_RESULT } from './actionresult';
@@ -47,9 +49,12 @@ export class MoveAction extends ActionBase {
         }
         if (sheet.hasSufficientAP(this.cost)) {
             const oldLoc = entity.location;
+            entity.location.cell.emitWB(new AddEntityEvent(entity), [newLoc], [oldLoc]);
             entity.setPosition(newLoc.getPosition());
             entity.location.cell.emit(new MoveEvent(entity, newLoc, this.direction), oldLoc, newLoc);
+            entity.location.cell.emitWB(new RemoveEntityEvent(entity), [oldLoc], [newLoc]);
             entity.getComponent('controller')?.sendEvent(new SetBoardEvent());
+            entity.getComponent('visibility_manager')?.recalculateAllVisibleEntities();
             return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
         }
         return { 'result': ACTION_RESULT.INSUFFICIENT_AP, 'cost': 0 };

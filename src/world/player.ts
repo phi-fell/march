@@ -60,7 +60,7 @@ export class Player {
             e.setComponent('sprite', 'mob/player/idle');
             e.setComponent('inventory', new Inventory());
             e.setComponent('collidable', true);
-            e.setComponent('visibility_manager', new VisibilityManager());
+            e.setComponent('visibility_manager', new VisibilityManager(e));
             return e;
         })();
         ret.entity_ref = {
@@ -149,6 +149,7 @@ export class Player {
         return {
             'player_entity': ent.id,
             'board': ent.location.cell.getClientJSON(ent),
+            'entities': ent.location.cell.getClientEntitiesJSON(ent),
         }
     }
     public getEntity(): Entity {
@@ -169,8 +170,9 @@ export class Player {
         }
         const cell = await this.world.getCell(this.entity_ref.instance_id, this.entity_ref.cell_id);
         const ent: Entity = cell.getEntity(this.entity_ref.entity_id);
-        ent.setComponent('controller', new PlayerController(this));
+        ent.setComponent('controller', new PlayerController(ent, this));
         this.entity = ent;
+        ent.getComponent('visibility_manager')?.recalculateAllVisibleEntities();
         this._active = true;
     }
     public setInactive() {

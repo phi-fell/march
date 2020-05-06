@@ -3,7 +3,7 @@ import { EVENT_TYPE } from './event_type';
 
 export class AddEntityEvent {
     public type: EVENT_TYPE.ADD_ENTITY = EVENT_TYPE.ADD_ENTITY;
-    constructor(private entity: Entity) { }
+    constructor(public entity: Entity) { }
     public getClientJSON(viewer: Entity) {
         return {
             'type': EVENT_TYPE[this.type] as keyof typeof EVENT_TYPE,
