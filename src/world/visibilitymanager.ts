@@ -32,20 +32,12 @@ export class VisibilityManager {
             console.log('ERROR! Entity already known to be visible!');
             return;
         }
-        if (!(this.getVisibilityMap()[ent.location.x][ent.location.y])) {
-            console.log('ERROR! Entity is not visible!');
-            return;
-        }
         this.ent_cache.push(ent);
     }
     public removeEntity(ent: Entity) {
         const index = this.ent_cache.findIndex((e) => e.id === ent.id)
         if (index === -1) {
             console.log('ERROR! Entity already known to not be visible!');
-            return;
-        }
-        if (this.getVisibilityMap()[ent.location.x][ent.location.y]) {
-            console.log('ERROR! Entity is visible!');
             return;
         }
         this.ent_cache.splice(index, 1);
