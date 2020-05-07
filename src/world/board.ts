@@ -79,13 +79,13 @@ export class Board {
                 const visibility_manager = ent.getComponent('visibility_manager');
                 if (visibility_manager === undefined) {
                     ent.getComponent('controller').sendEvent(event);
-                    return;
-                }
-                const visible = visibility_manager.getVisibilityMap();
-                for (const loc of locations) {
-                    if (visible[loc.x][loc.y]) {
-                        ent.getComponent('controller').sendEvent(event);
-                        break;
+                } else {
+                    const visible = visibility_manager.getVisibilityMap();
+                    for (const loc of locations) {
+                        if (visible[loc.x][loc.y]) {
+                            ent.getComponent('controller').sendEvent(event);
+                            break;
+                        }
                     }
                 }
             }

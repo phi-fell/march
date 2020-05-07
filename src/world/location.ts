@@ -48,6 +48,9 @@ export class Location extends Position {
     public withPosition(pos: Position): Location {
         return new Location(pos.x, pos.y, this.cell);
     }
+    public inSameCellAs(other: Location) {
+        return this.instance_id === other.instance_id && this.cell_id === other.cell_id;
+    }
     public equals(rhs: Location) {
         return this.x === rhs.x && this.y === rhs.y && this.cell === rhs.cell;
     }

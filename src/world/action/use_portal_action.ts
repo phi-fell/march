@@ -46,6 +46,7 @@ export class UsePortalAction extends ActionBase {
             try {
                 entity.setLocation(await portal.getDestination(entity.location.cell.instance.world))
                 entity.getComponent('controller').sendEvent(new SetBoardEvent());
+                entity.getComponent('visibility_manager')?.recalculateAllVisibleEntities();
             } catch (err) {
                 const msg = 'BUG: An error occured while generating the instance.  This is almost certainly an issue with the instance blueprint.';
                 console.log(msg);

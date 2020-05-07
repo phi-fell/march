@@ -15,9 +15,12 @@ export class VisibilityManager {
     private width: number = 0;
     private height: number = 0;
     private visible: boolean[][] = [];
-    private loc_cache?: Location | undefined;
+    private fresh: boolean = false;
+    private loc_cache: Location;
     private ent_cache: Entity[] = [];
-    constructor(private parent: Entity) { }
+    constructor(private parent: Entity) {
+        this.loc_cache = parent.location;
+    }
     public toJSON() {
         return 'Any';
     }
@@ -45,31 +48,33 @@ export class VisibilityManager {
     public recalculateAllVisibleEntities() {
         const ents = this.parent.location.cell.getAllEntities();
         const visible = this.getVisibilityMap();
-        for (const ent of ents) {
-            const index = this.ent_cache.findIndex((e) => e.id === ent.id);
-            if (index === -1) {
-                if (visible[ent.location.x][ent.location.y]) {
-                    // this.ent_cache.push(ent);
-                    this.parent.getComponent('controller')?.sendEvent(new AddEntityEvent(ent));
-                }
-            } else if (!visible[ent.location.x][ent.location.y]) {
-                // this.ent_cache.splice(index, 1);
+        for (const ent of this.ent_cache) {
+            if (!this.loc_cache.inSameCellAs(ent.location) || !visible[ent.location.x][ent.location.y]) {
                 this.parent.getComponent('controller')?.sendEvent(new RemoveEntityEvent(ent));
+            }
+        }
+        for (const ent of ents) {
+            if (
+                this.ent_cache.findIndex((e) => e.id === ent.id) === -1 &&
+                this.loc_cache.inSameCellAs(ent.location) &&
+                visible[ent.location.x][ent.location.y]
+            ) {
+                this.parent.getComponent('controller')?.sendEvent(new AddEntityEvent(ent));
             }
         }
     }
     public getVisibilityMap() {
-        this.calculateVisibility();
+        if (!this.fresh || !this.parent.location.equals(this.loc_cache)) {
+            this.calculateVisibility();
+        }
         return this.visible;
     }
     private calculateVisibility() {
-        if (this.loc_cache !== undefined && this.parent.location.equals(this.loc_cache)) {
-            return;
-        }
         this.loc_cache = this.parent.location
         this.width = this.parent.location.cell.attributes.width;
         this.height = this.parent.location.cell.attributes.height;
         this.visible = this.getTileVisibility(this.parent.location, MAX_VISION_RADIUS);
+        this.fresh = true;
     }
     private getTileVisibility(loc: Location, RADIUS: number): boolean[][] {
         const visible: boolean[][] = [];
