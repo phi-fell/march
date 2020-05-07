@@ -42,6 +42,7 @@ export interface Entity {
             count: number;
         };
     }
+    animation_playing?: string;
 }
 
 export interface Board {

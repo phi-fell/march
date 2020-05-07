@@ -161,6 +161,8 @@ export class Graphics {
             const sprite = entity.components.sprite;
             if (typeof sprite === 'string') {
                 this.getAnimation(sprite).draw(this.entityContext, Date.now());
+                // this.getAnimation('mob/player/attack').draw(this.entityContext, Date.now());
+                // this.getAnimation('attack/swing').draw(this.entityContext, Date.now());
             } else {
                 this.entityContext.color('#F0F');
                 this.entityContext.fillRect();
