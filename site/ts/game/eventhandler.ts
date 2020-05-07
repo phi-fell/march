@@ -146,13 +146,11 @@ export class EventHandler {
                 this.app.entities.push(event.entity);
                 break;
             } case 'REMOVE_ENTITY': {
-                if (event.id !== this.app.player_entity_id) {
-                    const index = this.app.entities.findIndex((ent) => ent.id === event.id);
-                    if (index < 0) {
-                        console.log('Cannot remove nonexistent Entity!');
-                    } else {
-                        this.app.entities.splice(index, 1);
-                    }
+                const index = this.app.entities.findIndex((ent) => ent.id === event.id);
+                if (index < 0) {
+                    console.log('Cannot remove nonexistent Entity!');
+                } else {
+                    this.app.entities.splice(index, 1);
                 }
                 break;
             } case 'WAIT': {

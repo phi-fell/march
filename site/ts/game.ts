@@ -76,6 +76,9 @@ $(document).ready(async () => {
                                 return (this as any).player_entity?.components.sheet;
                             },
                             'context_actions'() {
+                                if ((this as any).player_entity === undefined) {
+                                    return [];
+                                }
                                 return this.entities.filter((ent: Entity) => {
                                     return ent.location.x === (this as any).player_entity.location.x &&
                                         ent.location.y === (this as any).player_entity.location.y;
