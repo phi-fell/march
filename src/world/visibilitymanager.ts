@@ -49,7 +49,7 @@ export class VisibilityManager {
         const ents = this.parent.location.cell.getAllEntities();
         const visible = this.getVisibilityMap();
         for (const ent of this.ent_cache) {
-            if (!this.loc_cache.inSameCellAs(ent.location) || !visible[ent.location.x][ent.location.y]) {
+            if (!this.loc_cache.inSameCellAs(ent.location) || !visible[ent.location.x][ent.location.y] || !ents.includes(ent)) {
                 this.parent.getComponent('controller')?.sendEvent(new RemoveEntityEvent(ent));
             }
         }
