@@ -35,6 +35,9 @@ export class GraphicsContext {
     public scale(x: number, y: number) {
         this.context.scale(x, y);
     }
+    public rotate(angle: number) {
+        this.context.rotate(angle);
+    }
     public drawImage(image: HTMLCanvasElement | HTMLImageElement, dx: number = 0, dy: number = 0, dw: number = 1, dh: number = 1) {
         this.context.drawImage(image, dx, dy, dw, dh);
     }

@@ -11,6 +11,7 @@ export class Animation {
     private offset: { x: number, y: number } = { 'x': 0, 'y': 0 };
     private scale: { x: number, y: number } = { 'x': 1, 'y': 1 };
     private frames: HTMLCanvasElement[] = [];
+    private weapon_anchor?: { x: number, y: number, rot: number }[];
     constructor(id: string) {
         this.image.onload = () => {
             $.getJSON('tex/sprite/' + id + '.json', (json) => {
@@ -20,6 +21,54 @@ export class Animation {
                 this.delay = json.delay;
                 this.offset = json.offset;
                 this.scale = json.scale;
+                if (json.weapon_anchor) {
+                    const anchor_image = new Image();
+                    anchor_image.onload = () => {
+                        this.weapon_anchor = [];
+                        for (let i = 0; i < json.frames; i++) {
+                            const frame = document.createElement('canvas');
+                            const context = frame.getContext('2d');
+                            if (!context) {
+                                throw new Error('Could not create animation anchor context!');
+                            }
+                            frame.width = this.frame_width;
+                            frame.height = this.frame_height;
+                            context.drawImage(
+                                anchor_image,
+                                i * this.frame_width, 0, this.frame_width, this.frame_height, // src(x y w h)
+                                0, 0, this.frame_width, this.frame_height, // dest(x y w h)
+                            );
+                            this.weapon_anchor.push((() => {
+                                let red = false;
+                                let green = false;
+                                let redx = 0;
+                                let redy = 0;
+                                let greenx = 0;
+                                let greeny = 0;
+                                for (let x = 0; x < this.frame_width; x++) {
+                                    for (let y = 0; y < this.frame_height; y++) {
+                                        if (!red && context.getImageData(x, y, 1, 1).data[0] > 0.5) {
+                                            redx = x;
+                                            redy = y;
+                                            red = true;
+                                        }
+                                        if (!green && context.getImageData(x, y, 1, 1).data[1] > 0.5) {
+                                            greenx = x;
+                                            greeny = y;
+                                            green = true;
+                                        }
+                                    }
+                                }
+                                return {
+                                    'x': redx / this.frame_width,
+                                    'y': redy / this.frame_width,
+                                    'rot': Math.atan2(greeny - redy, greenx - redx),
+                                };
+                            })());
+                        }
+                    };
+                    anchor_image.src = 'tex/sprite/' + json.weapon_anchor + '.png';
+                }
                 for (let i = 0; i < json.frames; i++) {
                     this.frames[i] = document.createElement('canvas');
                     const context = this.frames[i].getContext('2d');
@@ -40,7 +89,7 @@ export class Animation {
         };
         this.image.src = 'tex/sprite/' + id + '.png';
     }
-    public draw(context: GraphicsContext, time: number) {
+    public draw(context: GraphicsContext, time: number, anchored?: Animation) {
         context.push();
         try {
             if (this.loaded) {
@@ -48,6 +97,14 @@ export class Animation {
                     const frame = Math.floor((time / this.delay) % this.frame_count); // TODO: add Math.max and Math.min to ensure within array bounds?
                     context.translate(this.offset.x, this.offset.y);
                     context.scale(this.scale.x, this.scale.y);
+                    if (this.weapon_anchor !== undefined && anchored !== undefined) {
+                        context.push();
+                        context.translate(this.weapon_anchor[frame].x, this.weapon_anchor[frame].y)
+                        context.rotate(this.weapon_anchor[frame].rot);
+                        context.translate(0, -0.5);
+                        anchored.draw(context, time);
+                        context.pop();
+                    }
                     context.drawImage(this.frames[frame]);
                 } else {
                     context.drawImage(this.image);
