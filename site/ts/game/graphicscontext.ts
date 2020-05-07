@@ -17,6 +17,8 @@ export class GraphicsContext {
         this.context.filter = f;
     }
     public resize(w: number, h: number) {
+        this.width = w;
+        this.height = h;
         this.canvas.width = w;
         this.canvas.height = h;
     }
