@@ -1,3 +1,4 @@
+import { Graphics } from './graphics';
 import type { Board, DIRECTION, Entity, Inventory, Item, Location, RELATIVE_DIRECTION } from './servertypes';
 
 type Events = {
@@ -64,6 +65,8 @@ type Events = {
     };
     ATTACK: {
         type: 'ATTACK';
+        entity_id: string;
+        direction: keyof typeof DIRECTION;
         message: string;
     };
     PICKUP: {
@@ -97,7 +100,11 @@ async function sleep(ms: number) {
 
 export class EventHandler {
     private queuedEvents: Event[] = [];
-    constructor(private app: { player_entity_id: string, board: Board, entities: Entity[] }, private chat: { messages: string[] }) { }
+    constructor(
+        private graphics: Graphics,
+        private app: { player_entity_id: string, board: Board, entities: Entity[] },
+        private chat: { messages: string[] }
+    ) { }
     public pushEvent(event: Event) {
         this.queuedEvents.push(event);
     }
@@ -119,7 +126,7 @@ export class EventHandler {
             await this.processEvent(event);
         }
     }
-    private async glideLoc(from: Location, to: Location, steps = 10, time = 100) {
+    private async glideLoc(from: Location, to: Location, steps = 5, time = 100) {
         const dx = (to.x - from.x) / steps;
         const dy = (to.y - from.y) / steps;
         for (let i = 0; i < steps; i++) {
@@ -129,6 +136,16 @@ export class EventHandler {
         }
         from.x = to.x;
         from.y = to.y
+    }
+    private async playAnimation(ent: Entity, animation: string) {
+        let sprite = ent.components.sprite;
+        if (typeof sprite === 'string') {
+            sprite = sprite + '/' + animation;
+            ent.animation_playing = sprite;
+            ent.animation_start_time = Date.now();
+            await sleep(this.graphics.getAnimation(sprite).duration);
+            ent.animation_playing = undefined;
+        }
     }
     private async processEvent(event: Event) {
         switch (event.type) {
@@ -199,7 +216,13 @@ export class EventHandler {
                 this.chat.messages.push(event.message);
                 break;
             } case 'ATTACK': {
-                this.chat.messages.push(event.message);
+                const ent = this.app.entities.find((e) => e.id === event.entity_id);
+                if (ent === undefined) {
+                    console.log('Cannot attack with nonexistent Entity!');
+                } else {
+                    this.chat.messages.push(event.message);
+                    await this.playAnimation(ent, 'attack');
+                }
                 break;
             } case 'PICKUP': {
                 const ent = this.app.entities.find((e) => e.id === event.entity_id);

@@ -58,6 +58,13 @@ export class Graphics {
         $(window).on('resize', () => {
             g.resize();
         });
+        // load animations:
+        for (const sprite of ['player', 'slime']) {
+            for (const anim of ['idle', 'attack']) {
+                this.getAnimation('mob/' + sprite + '/' + anim);
+            }
+        }
+        this.getAnimation('attack/swing');
     }
     public startDrawLoop() {
         setTimeout(() => {
@@ -102,7 +109,7 @@ export class Graphics {
             image.src = `tex/tiles/${name}.png`;
         });
     }
-    private getAnimation(id: string) {
+    public getAnimation(id: string) {
         if (!this.animations[id]) {
             this.animations[id] = new Animation(id);
         }
@@ -159,10 +166,18 @@ export class Graphics {
             this.entityContext.push();
             this.entityContext.translate(entity.location.x, entity.location.y);
             const sprite = entity.components.sprite;
-            if (typeof sprite === 'string') {
-                this.getAnimation(sprite).draw(this.entityContext, Date.now());
-                // this.getAnimation('mob/player/attack').draw(this.entityContext, Date.now(), this.getAnimation('test'));
-                // this.getAnimation('attack/swing').draw(this.entityContext, Date.now());
+            const anim = entity.animation_playing;
+            const anim_start = entity.animation_start_time;
+            if (anim !== undefined && anim_start !== undefined) {
+                this.getAnimation(anim).draw(this.entityContext, Date.now() - anim_start);
+            } else if (typeof sprite === 'string') {
+                if (entity.components.sheet) {
+                    this.getAnimation(sprite + '/idle').draw(this.entityContext, Date.now());
+                    // this.getAnimation('mob/player/attack').draw(this.entityContext, Date.now(), this.getAnimation('test'));
+                    // this.getAnimation('attack/swing').draw(this.entityContext, Date.now());
+                } else {
+                    this.getAnimation(sprite).draw(this.entityContext, Date.now());
+                }
             } else {
                 this.entityContext.color('#F0F');
                 this.entityContext.fillRect();

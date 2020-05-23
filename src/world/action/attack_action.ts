@@ -45,7 +45,7 @@ export class AttackAction extends ActionBase {
         const ent = (ents.length >= 1) ? (ents[0]) : undefined;
 
         if (sheet.hasSufficientAP(this.cost)) {
-            const attack_event = new AttackEvent(entity, ent);
+            const attack_event = new AttackEvent(entity, dir, ent);
             if (ent !== undefined && ent.has('sheet')) {
                 const defender_sheet = ent.getComponent('sheet');
                 defender_sheet.takeHit(attack_event);

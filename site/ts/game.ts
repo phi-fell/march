@@ -39,7 +39,6 @@ $(document).ready(async () => {
             console.log('valid credentials, loading');
             socket.on('game_data', (msg: any) => {
                 if (msg) {
-                    socket.emit('get', 'palette');
                     app = new Vue({
                         'el': '#game',
                         'data': {
@@ -91,7 +90,16 @@ $(document).ready(async () => {
                             },
                         },
                     });
-                    event_handler = new EventHandler(app, app.chat);
+                    graphics = new Graphics(
+                        $('#tileCanvas')[0] as HTMLCanvasElement,
+                        $('#entityCanvas')[0] as HTMLCanvasElement,
+                        $('#fogCanvas')[0] as HTMLCanvasElement,
+                        $('#uiCanvas')[0] as HTMLCanvasElement,
+                        app,
+                    );
+                    graphics.setPalette(msg.palette);
+                    graphics.startDrawLoop();
+                    event_handler = new EventHandler(graphics, app, app.chat);
                     input = new Input(socket, event_handler, app.chat);
                     event_handler.startEventProcessingLoop();
                     socket.on('chat', (chat_msg: string) => {
@@ -99,17 +107,6 @@ $(document).ready(async () => {
                     });
                     socket.on('event', (event: any) => {
                         event_handler?.pushEvent(event);
-                    });
-                    socket.on('palette', (palette: any) => {
-                        graphics = new Graphics(
-                            $('#tileCanvas')[0] as HTMLCanvasElement,
-                            $('#entityCanvas')[0] as HTMLCanvasElement,
-                            $('#fogCanvas')[0] as HTMLCanvasElement,
-                            $('#uiCanvas')[0] as HTMLCanvasElement,
-                            app,
-                        );
-                        graphics.setPalette(palette);
-                        graphics.startDrawLoop();
                     });
                 } else {
                     console.log('did not recieve valid game_data!');

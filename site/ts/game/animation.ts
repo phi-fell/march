@@ -89,6 +89,9 @@ export class Animation {
         };
         this.image.src = 'tex/sprite/' + id + '.png';
     }
+    public get duration() {
+        return this.frame_count * this.delay;
+    }
     public draw(context: GraphicsContext, time: number, anchored?: Animation) {
         context.push();
         try {

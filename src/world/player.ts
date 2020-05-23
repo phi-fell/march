@@ -3,6 +3,7 @@ import { CharacterSheet } from '../character/charactersheet';
 import { Inventory } from '../item/inventory';
 import { Random } from '../math/random';
 import type { User } from '../net/user';
+import { getTilePalette } from '../tile';
 import { version } from '../version';
 import { Action, ActionClasses, ChatActions } from './action';
 import type { Cell } from './cell';
@@ -154,6 +155,7 @@ export class Player {
         return {
             'player_entity': ent.id,
             'board': ent.location.cell.getClientJSON(ent),
+            'palette': getTilePalette(),
             'entities': ent.location.cell.getClientEntitiesJSON(ent),
             'messages': [
                 `Gods of the Graemarch Prototype V${version}`,

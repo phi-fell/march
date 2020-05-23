@@ -43,6 +43,7 @@ export interface Entity {
         };
     }
     animation_playing?: string;
+    animation_start_time?: number;
 }
 
 export interface Board {
