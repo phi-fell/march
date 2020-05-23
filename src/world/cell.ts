@@ -50,6 +50,7 @@ export class Cell extends FileBackedData {
         return cell;
     }
 
+    private active_players: number = 0;
     protected board: Board = new Board(0, 0);
     public attributes: CellAttributes = new CellAttributes('', 0, 0, 0);
     protected constructor(public instance: Instance, file: OwnedFile, public id: string = '') {
@@ -58,11 +59,19 @@ export class Cell extends FileBackedData {
     public get schema() {
         return Cell.schema;
     }
+    public addActivePlayer() {
+        this.active_players++;
+    }
+    public removeActivePlayer() {
+        this.active_players--;
+    }
     public getEntity(id: UUID): Entity {
         return this.board.getEntity(id);
     }
     public async update(): Promise<void> {
-        await this.board.doNextTurn();
+        if (this.active_players > 0) {
+            await this.board.doNextTurn();
+        }
     }
     public notifyAsyncEnt(entity_id: UUID) {
         this.board.notifyAsyncEnt(entity_id);
@@ -160,6 +169,9 @@ export class Cell extends FileBackedData {
      */
     public removeLocatable(locatable: Locatable) {
         if (locatable.isEntity()) {
+            if (locatable.isActivePlayer()) {
+                this.removeActivePlayer();
+            }
             this.emit(new RemoveEntityEvent(locatable), locatable.location);
             this.board.removeEntity(locatable);
         } else {
@@ -169,12 +181,16 @@ export class Cell extends FileBackedData {
     /**
      * Only call this from inside Locatable!
      */
-    public addLocatable(locatable: Locatable, emitEvent: boolean = true) {
+    public addLocatable(locatable: Locatable, constructed: boolean = true) {
         if (locatable.isEntity()) {
             this.board.addEntity(locatable);
-            if (emitEvent) {
-                // emitEvent is set to false when constructing locatable so as to account for partially constructed objects
+            if (constructed) {
+                // constructed is set to false when called in the Locatable constructor to account for partially constructed objects
+                //      (which do not have components yet and are not valid Entities)
                 this.emit(new AddEntityEvent(locatable), locatable.location);
+                if (locatable.isActivePlayer()) {
+                    this.addActivePlayer();
+                }
             }
         } else {
             throw new Error('Non-Entity Locatables do not exist?');

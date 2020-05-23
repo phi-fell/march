@@ -8,7 +8,7 @@ import { Action, ActionClasses, ChatActions } from './action';
 import type { Cell } from './cell';
 import { PlayerController } from './controller/playercontroller';
 import { DIRECTION } from './direction';
-import { Entity, Mob } from './entity';
+import { Entity, PlayerEntity } from './entity';
 import type { Event } from './event';
 import type { Instance } from './instance';
 import { VisibilityManager } from './visibilitymanager';
@@ -52,16 +52,17 @@ export class Player {
         const inst: Instance = await world.createInstance();
         const cell: Cell = await inst.createCell(blueprint, user.server.globals);
         const loc = cell.getRandomEmptyLocation();
-        const ent: Mob = (() => {
+        const ent: PlayerEntity = (() => {
             const e: Entity = new Entity(loc);
+            e.setComponent('player', ret);
             e.setComponent('name', ret.name);
             e.setComponent('direction', DIRECTION.NORTH);
             e.setComponent('sheet', ret.sheet);
-            e.setComponent('controller', new PlayerController(ret));
-            e.setComponent('sprite', 'mob/player/idle');
+            e.setComponent('sprite', 'mob/player');
             e.setComponent('inventory', new Inventory());
             e.setComponent('collidable', true);
             e.setComponent('visibility_manager', new VisibilityManager(e));
+            e.setComponent('controller', new PlayerController(e));
             return e;
         })();
         ret.entity_ref = {
@@ -81,6 +82,9 @@ export class Player {
     private constructor(private user: User, private world: World, protected _id: string = Random.uuid()) { }
     public get id() {
         return this._id;
+    }
+    public get active() {
+        return this._active;
     }
     public sendChatMessage(text: string) {
         this.user.sendChatMessage(text);
@@ -174,9 +178,10 @@ export class Player {
         }
         const cell = await this.world.getCell(this.entity_ref.instance_id, this.entity_ref.cell_id);
         const ent: Entity = cell.getEntity(this.entity_ref.entity_id);
-        ent.setComponent('controller', new PlayerController(ent, this));
+        ent.setComponent('player', this);
         this.entity = ent;
         ent.getComponent('visibility_manager')?.recalculateAllVisibleEntities();
+        this.entity.location.cell.addActivePlayer();
         this._active = true;
     }
     public setInactive() {
@@ -186,6 +191,8 @@ export class Player {
         if (this.entity === undefined) {
             throw new Error('Active player did not have a loaded EntityRef!')
         }
+        this.entity.location.cell.removeActivePlayer();
+        this.entity.removeComponent('player');
         this.entity_ref = {
             'instance_id': this.entity.location.instance_id,
             'cell_id': this.entity.location.cell_id,

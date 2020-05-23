@@ -6,6 +6,7 @@ import type { ValueOf, ValueOfArray } from '../util/types';
 import { Controller } from './controller';
 import { DIRECTION } from './direction';
 import type { Entity } from './entity';
+import type { Player } from './player';
 import { Portal } from './portal';
 import { VisibilityManager } from './visibilitymanager';
 
@@ -19,6 +20,12 @@ function getPrimitiveComponent<T extends t.Any>(schema: T) {
 }
 
 const componentwrappers = {
+    'player': {
+        'schema': t.any,
+        'fromJSON': () => undefined as any as Player,
+        'toJSON': () => undefined,
+        'getClientJSON': () => undefined,
+    },
     'direction': {
         'schema': t.keyof(DIRECTION),
         'fromJSON': (d: keyof typeof DIRECTION) => DIRECTION[d],
@@ -103,6 +110,22 @@ export type ComponentsWithNames<T extends ComponentName[], U extends FullCompone
     T extends { length: 4 } ? [ComponentWithName<T[0], U>, ComponentWithName<T[1], U>, ComponentWithName<T[2], U>, ComponentWithName<T[3], U>] :
     T extends { length: 5 } ? [
         ComponentWithName<T[0], U>, ComponentWithName<T[1], U>, ComponentWithName<T[2], U>, ComponentWithName<T[3], U>, ComponentWithName<T[4], U>
+    ] :
+    T extends { length: 6 } ? [
+        ComponentWithName<T[0], U>, ComponentWithName<T[1], U>, ComponentWithName<T[2], U>, ComponentWithName<T[3], U>, ComponentWithName<T[4], U>,
+        ComponentWithName<T[5], U>
+    ] :
+    T extends { length: 7 } ? [
+        ComponentWithName<T[0], U>, ComponentWithName<T[1], U>, ComponentWithName<T[2], U>, ComponentWithName<T[3], U>, ComponentWithName<T[4], U>,
+        ComponentWithName<T[5], U>, ComponentWithName<T[6], U>
+    ] :
+    T extends { length: 8 } ? [
+        ComponentWithName<T[0], U>, ComponentWithName<T[1], U>, ComponentWithName<T[2], U>, ComponentWithName<T[3], U>, ComponentWithName<T[4], U>,
+        ComponentWithName<T[5], U>, ComponentWithName<T[6], U>, ComponentWithName<T[7], U>
+    ] :
+    T extends { length: 9 } ? [
+        ComponentWithName<T[0], U>, ComponentWithName<T[1], U>, ComponentWithName<T[2], U>, ComponentWithName<T[3], U>, ComponentWithName<T[4], U>,
+        ComponentWithName<T[5], U>, ComponentWithName<T[6], U>, ComponentWithName<T[7], U>, ComponentWithName<T[8], U>
     ] :
     never;
 

@@ -28,6 +28,10 @@ const mob_components = ['name', 'sprite', 'controller', 'sheet', 'inventory', 'c
 type MobComponents = ValueOfArray<typeof mob_components>;
 export type Mob = EntityWith<MobComponents>;
 
+const player_components = ['player'] as const;
+type PlayerComponents = ValueOfArray<typeof player_components>;
+export type PlayerEntity = EntityWith<PlayerComponents>;
+
 const item_components = ['name', 'sprite', 'item_data'] as const;
 type ItemComponents = ValueOfArray<typeof item_components>;
 export type ItemEntity = EntityWith<ItemComponents>;
@@ -73,6 +77,9 @@ export class Entity extends Locatable {
 
     public has<T extends ComponentName[]>(...args: T): this is EntityWith<ValueOfArray<T>> {
         return Components.hasComponents(this.components, ...args);
+    }
+    public isActivePlayer(): this is PlayerEntity {
+        return this.has(...player_components);
     }
     public isMob(): this is Mob {
         return this.has(...mob_components);
