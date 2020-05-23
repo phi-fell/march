@@ -22,6 +22,7 @@
     "build": " npm run build-server && npm run build-client",
     "predev": "npm run build-server && npm run build-client-js",
     "dev": "node build/index.js -NO_HTTPS -PUBLISH_DIAGNOSTIC_DATA -UNLOCK_DIAGNOSTIC -JS_DEBUG_LIBS",
+    "devp": "node --prof build/index.js -NO_HTTPS -PUBLISH_DIAGNOSTIC_DATA -UNLOCK_DIAGNOSTIC -JS_DEBUG_LIBS",
     "predev_static": "npm run build",
     "dev_static": "node build/index.js -NO_HTTPS -PUBLISH_DIAGNOSTIC_DATA -UNLOCK_DIAGNOSTIC -JS_DEBUG_LIBS -STATIC_SITE",
     "dev_no_build": "node build/index.js -NO_HTTPS -PUBLISH_DIAGNOSTIC_DATA -UNLOCK_DIAGNOSTIC -JS_DEBUG_LIBS",
