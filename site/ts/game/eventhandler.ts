@@ -1,6 +1,6 @@
-import { Graphics } from './graphics';
-import { DIRECTION } from './servertypes';
+import { Graphics } from './graphics.js';
 import type { Board, Entity, Inventory, Item, Location, RELATIVE_DIRECTION } from './servertypes';
+import { DIRECTION } from './servertypes.js';
 
 type Events = {
     MESSAGE: {
