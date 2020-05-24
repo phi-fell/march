@@ -1,7 +1,9 @@
 import * as t from 'io-ts';
 import { Random, UUID } from '../math/random';
 import type { Entity } from '../world/entity';
+import type { Armor } from './armor';
 import { ArmorData } from './armordata';
+import type { Weapon } from './weapon';
 import { WeaponData } from './weapondata';
 
 export type ItemSchema = t.TypeOf<typeof Item.schema>;
@@ -42,6 +44,14 @@ export class Item {
         public weapon_data?: WeaponData,
         public armor_data?: ArmorData,
     ) { }
+
+    public isWeapon(): this is Weapon {
+        return this.weapon_data !== undefined;
+    }
+
+    public isArmor(): this is Armor {
+        return this.armor_data !== undefined;
+    }
 
     public tryStack(other: Item): boolean {
         if (this.stackable && this.equals(other)) {
