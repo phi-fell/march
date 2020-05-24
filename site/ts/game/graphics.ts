@@ -1,6 +1,7 @@
 import { Animation } from './animation.js';
 import { GraphicsContext } from './graphicscontext.js';
-import type { Board, Entity } from './servertypes.js';
+import { DIRECTION } from './servertypes.js';
+import type { Board, Entity, Location } from './servertypes.js';
 
 interface TileSprite {
     sheet: false,
@@ -30,6 +31,7 @@ export class Graphics {
     private animations: Record<string, Animation> = {};
     private palette: Palette = [];
     private draw_scale = 1;
+    private playing_animations: { anim: Animation, loc: Location, dir: DIRECTION, start_time: number }[] = [];
     constructor(
         private tileCanvas: HTMLCanvasElement,
         private entityCanvas: HTMLCanvasElement,
@@ -115,6 +117,14 @@ export class Graphics {
         }
         return this.animations[id];
     }
+    public playAnimation(id: string, loc: Location, dir: DIRECTION = DIRECTION.NORTH) {
+        this.playing_animations.push({
+            'anim': this.getAnimation(id),
+            loc,
+            dir,
+            'start_time': Date.now(),
+        });
+    }
     private resize() {
         this.width = this.tileCanvas.clientWidth;
         this.height = this.tileCanvas.clientHeight;
@@ -162,6 +172,18 @@ export class Graphics {
         this.entityContext.scale(this.draw_scale, this.draw_scale);
         this.entityContext.translate(-.5, -.5);
         this.entityContext.translate(-this.app.player_entity.location.x, -this.app.player_entity.location.y);
+        this.playing_animations = this.playing_animations.filter((a) => {
+            return Date.now() < a.start_time + a.anim.duration;
+        })
+        for (const animation of this.playing_animations) {
+            this.entityContext.push();
+            this.entityContext.translate(animation.loc.x, animation.loc.y);
+            this.entityContext.translate(0.5, 0.5);
+            this.entityContext.rotate(animation.dir * Math.PI / -2)
+            this.entityContext.translate(-0.5, -0.5);
+            animation.anim.draw(this.entityContext, Date.now() - animation.start_time);
+            this.entityContext.pop();
+        }
         for (const entity of this.app.entities) {
             this.entityContext.push();
             this.entityContext.translate(entity.location.x, entity.location.y);
@@ -169,18 +191,29 @@ export class Graphics {
             const anim = entity.animation_playing;
             const anim_start = entity.animation_start_time;
             if (anim !== undefined && anim_start !== undefined) {
-                this.getAnimation(anim).draw(this.entityContext, Date.now() - anim_start);
+                this.getAnimation(anim).draw(this.entityContext, Date.now() - anim_start, {
+                    'weapon': this.getAnimation('test'),
+                    'helmet': this.getAnimation('item/armor/helmet'),
+                });
             } else if (typeof sprite === 'string') {
                 if (entity.components.sheet) {
-                    this.getAnimation(sprite + '/idle').draw(this.entityContext, Date.now());
-                    // this.getAnimation('mob/player/attack').draw(this.entityContext, Date.now(), this.getAnimation('test'));
-                    // this.getAnimation('attack/swing').draw(this.entityContext, Date.now());
+                    this.getAnimation(sprite + '/idle').draw(this.entityContext, Date.now(), {
+                        'weapon': this.getAnimation('test'),
+                        'helmet': this.getAnimation('item/armor/helmet'),
+                    });
                 } else {
                     this.getAnimation(sprite).draw(this.entityContext, Date.now());
                 }
             } else {
                 this.entityContext.color('#F0F');
                 this.entityContext.fillRect();
+            }
+            const dir = entity.components.direction;
+            if (dir !== undefined) {
+                this.entityContext.translate(0.5, 0.5);
+                this.entityContext.rotate(DIRECTION[dir] * Math.PI / -2)
+                this.entityContext.translate(-0.5, -0.5);
+                this.getAnimation('arrow').draw(this.entityContext, 0);
             }
             this.entityContext.pop();
         }

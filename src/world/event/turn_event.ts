@@ -21,6 +21,8 @@ export class TurnEvent {
         })();
         return {
             'type': EVENT_TYPE[this.type] as keyof typeof EVENT_TYPE,
+            'entity_id': this.entity.id,
+            'direction': DIRECTION[this.to],
             'message': `${this.entity.getComponent('name')} ${message}`,
         };
     }

@@ -1,5 +1,6 @@
 import { Graphics } from './graphics';
-import type { Board, DIRECTION, Entity, Inventory, Item, Location, RELATIVE_DIRECTION } from './servertypes';
+import { DIRECTION } from './servertypes';
+import type { Board, Entity, Inventory, Item, Location, RELATIVE_DIRECTION } from './servertypes';
 
 type Events = {
     MESSAGE: {
@@ -61,6 +62,8 @@ type Events = {
     };
     TURN: {
         type: 'TURN';
+        entity_id: string;
+        direction: keyof typeof DIRECTION;
         message: string;
     };
     ATTACK: {
@@ -213,7 +216,13 @@ export class EventHandler {
                 }
                 break;
             } case 'TURN': {
-                this.chat.messages.push(event.message);
+                const ent = this.app.entities.find((e) => e.id === event.entity_id);
+                if (ent === undefined) {
+                    console.log('Cannot turn nonexistent Entity!');
+                } else {
+                    this.chat.messages.push(event.message);
+                    ent.components.direction = event.direction;
+                }
                 break;
             } case 'ATTACK': {
                 const ent = this.app.entities.find((e) => e.id === event.entity_id);
@@ -221,6 +230,7 @@ export class EventHandler {
                     console.log('Cannot attack with nonexistent Entity!');
                 } else {
                     this.chat.messages.push(event.message);
+                    this.graphics.playAnimation('attack/swing', ent.location, DIRECTION[event.direction]);
                     await this.playAnimation(ent, 'attack');
                 }
                 break;
