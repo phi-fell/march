@@ -13,7 +13,9 @@ export enum ACTION_TYPE {
     ATTACK,
     PICKUP,
     DROP,
+    EQUIP_ARMOR,
+    UNEQUIP_ARMOR,
+    EQUIP_WEAPON,
+    UNEQUIP_WEAPON,
     USE_PORTAL,
-    // EQUIP,
-    // UNEQUIP,
 }

@@ -5,12 +5,16 @@ import { AsyncAction } from './action/async_action';
 import { AttackAction } from './action/attack_action';
 import { BackstepAction } from './action/backstep_action';
 import { DropAction } from './action/drop_action';
+import { EquipArmorAction } from './action/equip_armor_action';
+import { EquipWeaponAction } from './action/equip_weapon_action';
 import { LookAction } from './action/look_action';
 import { MoveAction } from './action/move_action';
 import { PickupAction } from './action/pickup_action';
 import { SayAction } from './action/say_action';
 import { StrafeAction } from './action/strafe_action';
 import { TurnAction } from './action/turn_action';
+import { UnequipArmorAction } from './action/unequip_armor_action';
+import { UnequipWeaponAction } from './action/unequip_weapon_action';
 import { UnwaitAction } from './action/unwait_action';
 import { UsePortalAction } from './action/use_portal_action';
 import { WaitAction } from './action/wait_action';
@@ -63,6 +67,10 @@ export const ActionClasses: ActionClassArray = [
     AttackAction,
     PickupAction,
     DropAction,
+    EquipArmorAction,
+    UnequipArmorAction,
+    EquipWeaponAction,
+    UnequipWeaponAction,
     UsePortalAction,
 ];
 
