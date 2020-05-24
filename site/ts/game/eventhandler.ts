@@ -1,5 +1,5 @@
 import { Graphics } from './graphics.js';
-import type { Board, CharacterStatus, Entity, Inventory, Item, Location, RELATIVE_DIRECTION } from './servertypes';
+import type { Board, CharacterEquipment, CharacterStatus, Entity, Inventory, Item, Location, RELATIVE_DIRECTION } from './servertypes';
 import { DIRECTION } from './servertypes.js';
 
 type Events = {
@@ -89,6 +89,34 @@ type Events = {
         entity_id: string;
         item: Item;
         inventory: Inventory;
+    };
+    EQUIP_ARMOR: {
+        type: 'EQUIP_ARMOR',
+        entity_id: string;
+        item: Item;
+        equipment: CharacterEquipment;
+        inventory: Inventory,
+    };
+    UNEQUIP_ARMOR: {
+        type: 'UNEQUIP_ARMOR',
+        entity_id: string;
+        item: Item;
+        equipment: CharacterEquipment;
+        inventory: Inventory,
+    };
+    EQUIP_WEAPON: {
+        type: 'EQUIP_WEAPON',
+        entity_id: string;
+        item: Item;
+        equipment: CharacterEquipment;
+        inventory: Inventory,
+    };
+    UNEQUIP_WEAPON: {
+        type: 'UNEQUIP_WEAPON',
+        entity_id: string;
+        item: Item;
+        equipment: CharacterEquipment;
+        inventory: Inventory,
     };
     USE_PORTAL: {
         type: 'USE_PORTAL';
@@ -265,6 +293,46 @@ export class EventHandler {
                 } else {
                     ent.components.inventory = event.inventory;
                     this.chat.messages.push(`${ent.components.name} drops the ${event.item.name}`);
+                }
+                break;
+            } case 'EQUIP_ARMOR': {
+                const ent = this.app.entities.find((e) => e.id === event.entity_id);
+                if (ent === undefined) {
+                    console.log('Cannot equip armor with nonexistent Entity!');
+                } else {
+                    ent.components.inventory = event.inventory;
+                    ent.components.sheet.equipment = event.equipment;
+                    this.chat.messages.push(`${ent.components.name} puts on their ${event.item.name}`);
+                }
+                break;
+            } case 'UNEQUIP_ARMOR': {
+                const ent = this.app.entities.find((e) => e.id === event.entity_id);
+                if (ent === undefined) {
+                    console.log('Cannot equip armor with nonexistent Entity!');
+                } else {
+                    ent.components.inventory = event.inventory;
+                    ent.components.sheet.equipment = event.equipment;
+                    this.chat.messages.push(`${ent.components.name} takes off their ${event.item.name}`);
+                }
+                break;
+            } case 'EQUIP_WEAPON': {
+                const ent = this.app.entities.find((e) => e.id === event.entity_id);
+                if (ent === undefined) {
+                    console.log('Cannot equip armor with nonexistent Entity!');
+                } else {
+                    ent.components.inventory = event.inventory;
+                    ent.components.sheet.equipment = event.equipment;
+                    this.chat.messages.push(`${ent.components.name} takes out their ${event.item.name}`);
+                }
+                break;
+            } case 'UNEQUIP_WEAPON': {
+                const ent = this.app.entities.find((e) => e.id === event.entity_id);
+                if (ent === undefined) {
+                    console.log('Cannot equip armor with nonexistent Entity!');
+                } else {
+                    ent.components.inventory = event.inventory;
+                    ent.components.sheet.equipment = event.equipment;
+                    this.chat.messages.push(`${ent.components.name} puts away their ${event.item.name}`);
                 }
                 break;
             } case 'USE_PORTAL': {
