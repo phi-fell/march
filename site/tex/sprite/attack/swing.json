@@ -1,0 +1,16 @@
+{
+    "offset": {
+        "x": -0.25,
+        "y": 0.125,
+        "rotates": true
+    },
+    "scale": {
+        "x": 1.25,
+        "y": 1.25
+    },
+    "angle": 3.14159265359,
+    "delay": 83,
+    "frame_width": 40,
+    "frame_height": 40,
+    "frames": 12
+}

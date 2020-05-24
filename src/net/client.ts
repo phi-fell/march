@@ -3,8 +3,7 @@ import type { Socket } from 'socket.io';
 import { ATTRIBUTE } from '../character/characterattributes';
 import { CharacterRace } from '../character/characterrace';
 import { CharacterTrait } from '../character/charactertrait';
-import { getTilePalette } from '../tile';
-import type { Event } from '../world/event';
+import type { EventClientJSON } from '../world/event';
 import type { Server } from './server';
 import type { User } from './user';
 
@@ -166,14 +165,8 @@ export class Client {
     public sendChatMessage(msg: string) {
         this.socket.emit('chat', msg);
     }
-    public sendEvent(event: Event) {
-        this.socket.emit('event', event.getClientJSON());
-        if (this.user === undefined) {
-            //  Client.sendEvent should only be called by User.sendEvent() on it's client, so tis should not happen.
-            console.log('Client.sendEvent() called on client with no attached User! How?');
-            return;
-        }
-        this.socket.emit('update_data', this.user.getGameData());
+    public sendEvent(event_json: EventClientJSON) {
+        this.socket.emit('event', event_json);
     }
     public attachUser(user: User) {
         this.user = user;
@@ -202,8 +195,6 @@ export class Client {
                     this.socket.emit('available_races', CharacterRace.getPlayableRaces());
                 } else if (msg === 'available_traits') {
                     this.socket.emit('available_traits', CharacterTrait.getBuyableTraits());
-                } else if (msg === 'palette') {
-                    this.socket.emit('palette', getTilePalette());
                 } else if (msg === 'game_data') {
                     const data = this.user.getGameData();
                     if (data) {
@@ -260,7 +251,10 @@ export class Client {
                 }
             }
         });
-        socket.on('chat_message', (msg: string) => {
+        socket.on('chat_message', (msg: unknown) => {
+            if (typeof msg !== 'string') {
+                return console.log('non string sent as chat message: ' + msg);
+            }
             if (this.user) {
                 const plr = this.user.getActivePlayer();
                 if (plr) {
@@ -271,7 +265,7 @@ export class Client {
                     } else if (msg.startsWith('?')) {
                         plr.getQuery(msg.substring(1));
                     } else {
-                        plr.sayChatMessageAsEntity(msg);
+                        plr.doAction(`say ${msg}`);
                     }
                 } else {
                     console.log(`User [${this.user.name}] without active Player sent: ${msg}`);

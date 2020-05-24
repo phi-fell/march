@@ -11,7 +11,7 @@ export class WaitRoundAction extends ActionBase {
     public type: ACTION_TYPE.WAIT_ROUND = ACTION_TYPE.WAIT_ROUND;
     public readonly cost: number = 0;
     private emitted = false;
-    public perform(entity: Entity) {
+    public async perform(entity: Entity) {
         if (!this.emitted) {
             entity.location.cell.emit(new WaitRoundEvent(entity), entity.location);
             this.emitted = true;

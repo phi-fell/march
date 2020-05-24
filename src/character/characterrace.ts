@@ -1,6 +1,5 @@
 import fs = require('fs');
 import * as t from 'io-ts';
-
 import { CharacterAttributes } from './characterattributes';
 import { CharacterTrait } from './charactertrait';
 
@@ -113,6 +112,9 @@ export class CharacterRace {
         return new CharacterRace(json.raceID);
     }
     constructor(private raceID: CharacterRaceID = NO_RACE) {
+    }
+    get playable() {
+        return characterRaceProps[this.raceID].playable;
     }
     get name() {
         return characterRaceProps[this.raceID].name;

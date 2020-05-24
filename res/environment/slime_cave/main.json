@@ -5,30 +5,30 @@
     "height": 100,
     "mobs": [
         {
-            "id": "slime_lesser",
+            "id": "slime/lesser",
             "count": 37
         },
         {
-            "id": "slime_common",
+            "id": "slime/common",
             "count": 72
         },
         {
-            "id": "slime_greater",
+            "id": "slime/greater",
             "count": 11
         }
     ],
     "adjacencies": [
         {
             "id": "slime_cave/upper",
-            "weight": 1
+            "count": 1
         },
         {
             "id": "slime_cave/main",
-            "weight": 3
+            "count": 3
         },
         {
             "id": "slime_cave/depths",
-            "weight": 1
+            "count": 1
         }
     ]
 }

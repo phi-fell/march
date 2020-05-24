@@ -1,19 +1,17 @@
-import { DIRECTION, getRelativeDirection, RELATIVE_DIRECTION } from '../direction';
+import { RELATIVE_DIRECTION } from '../direction';
 import type { Entity } from '../entity';
+import type { Location } from '../location';
 import { EVENT_TYPE } from './event_type';
 
 export class StrafeEvent {
     public type: EVENT_TYPE.STRAFE = EVENT_TYPE.STRAFE;
-    constructor(private entity: Entity, private direction: DIRECTION) { }
-    public getClientJSON() {
-        const direction = this.entity.getComponent('direction');
-        let reldir = '';
-        if (direction) {
-            reldir = ' ' + RELATIVE_DIRECTION[getRelativeDirection(direction, this.direction)].toLowerCase();
-        }
+    constructor(private entity: Entity, private toLoc: Location, private rel_dir: RELATIVE_DIRECTION) { }
+    public getClientJSON(viewer: Entity) {
         return {
             'type': EVENT_TYPE[this.type] as keyof typeof EVENT_TYPE,
-            'message': `${this.entity.getComponent('name')} sidesteps${reldir}`,
+            'entity_id': this.entity.id,
+            'location': this.toLoc.getClientJSON(viewer),
+            'rel_dir': RELATIVE_DIRECTION[this.rel_dir],
         };
     }
 }

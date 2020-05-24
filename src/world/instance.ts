@@ -1,12 +1,11 @@
 import { promises as fs } from 'fs';
 import * as t from 'io-ts';
-import type { ItemBlueprintManager } from '../item/item_blueprint';
+import type { Globals } from '../globals';
 import { Random, UUID } from '../math/random';
 import { File, OwnedFile } from '../system/file';
 import { FileBackedData } from '../system/file_backed_data';
 import { Cell } from './cell';
 import type { CellBlueprint } from './generation/cell_blueprint';
-import type { MobBlueprintManager } from './generation/mob_blueprint';
 import type { World } from './world';
 
 const cell_ref_schema = t.string;
@@ -69,8 +68,7 @@ export class Instance extends FileBackedData {
     }
     public async createCell(
         blueprint: CellBlueprint,
-        mob_blueprint_manager: MobBlueprintManager,
-        item_blueprint_manager: ItemBlueprintManager,
+        globals: Globals,
     ): Promise<Cell> {
         const id = Cell.generateNewID();
         const cell: Cell = await Cell.createCell(
@@ -78,8 +76,7 @@ export class Instance extends FileBackedData {
             id,
             await File.acquireFile(`${this.directory}/cell-${id}.json`),
             blueprint,
-            mob_blueprint_manager,
-            item_blueprint_manager,
+            globals
         );
         this.cell_refs.push(id);
         this.cells[id] = cell;

@@ -10,7 +10,15 @@ export class GraphicsContext {
         this.context = context;
         this.context.imageSmoothingEnabled = false;
     }
+    public drawBehind() {
+        this.context.globalCompositeOperation = 'destination-over';
+    }
+    public filter(f: string) {
+        this.context.filter = f;
+    }
     public resize(w: number, h: number) {
+        this.width = w;
+        this.height = h;
         this.canvas.width = w;
         this.canvas.height = h;
     }
@@ -29,6 +37,9 @@ export class GraphicsContext {
     public scale(x: number, y: number) {
         this.context.scale(x, y);
     }
+    public rotate(angle: number) {
+        this.context.rotate(angle);
+    }
     public drawImage(image: HTMLCanvasElement | HTMLImageElement, dx: number = 0, dy: number = 0, dw: number = 1, dh: number = 1) {
         this.context.drawImage(image, dx, dy, dw, dh);
     }
@@ -36,7 +47,16 @@ export class GraphicsContext {
         this.context.strokeStyle = stroke;
         this.context.fillStyle = fill;
     }
+    public startDraw() {
+        this.context.beginPath();
+    }
+    public finalizeDraw() {
+        this.context.fill();
+    }
     public fillRect(x: number = 0, y: number = 0, w: number = 1, h: number = 1) {
         this.context.fillRect(x, y, w, h);
+    }
+    public addRect(x: number = 0, y: number = 0, w: number = 1, h: number = 1) {
+        this.context.rect(x, y, w, h);
     }
 }

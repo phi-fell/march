@@ -1,6 +1,6 @@
 {
     "name": "Slime",
     "race": "slime",
-    "sprite": "mob/slime/idle",
+    "sprite": "mob/slime",
     "controller": "WANDER"
 }

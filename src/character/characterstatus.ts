@@ -1,5 +1,4 @@
 import * as t from 'io-ts';
-
 import { Random } from '../math/random';
 import { CharacterResource, RESOURCE } from './characterresource';
 
@@ -31,7 +30,7 @@ export class CharacterStatus {
         ret.action_point_recovery = json.action_point_recovery;
         for (const pool of ret.pools) {
             const json_pool = json.pools[RESOURCE[pool.resource_type] as keyof typeof RESOURCE];
-            if (json_pool) {
+            if (json_pool !== undefined) {
                 pool.quantity = json_pool.quantity;
                 pool.capacity = json_pool.capacity;
             }

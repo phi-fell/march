@@ -2,8 +2,8 @@ import * as t from 'io-ts';
 import { CharacterAttributes } from '../../character/characterattributes';
 import { CharacterRace } from '../../character/characterrace';
 import { CharacterSheet } from '../../character/charactersheet';
+import type { Globals } from '../../globals';
 import { Inventory } from '../../item/inventory';
-import type { ItemBlueprintManager } from '../../item/item_blueprint';
 import { Chance } from '../../math/chance';
 import { Random } from '../../math/random';
 import { WeightedList } from '../../math/weighted_list';
@@ -22,7 +22,7 @@ function createBaseMob(loc: Location): Mob {
     ret.setComponent('direction', DIRECTION.NORTH);
     ret.setComponent('controller', Controller.fromJSON({
         'type': 'WANDER',
-    }));
+    }, ret));
     ret.setComponent('sheet', new CharacterSheet());
     ret.setComponent('inventory', new Inventory());
     ret.setComponent('collidable', true);
@@ -119,17 +119,17 @@ export class MobBlueprint extends Resource<MobBlueprintSchema> {
         }
         return ret;
     }
-    public async generateMob(mob_blueprint_manager: MobBlueprintManager, item_blueprint_manager: ItemBlueprintManager, loc: Location): Promise<Mob> {
+    public async generateMob(globals: Globals, loc: Location): Promise<Mob> {
         const ret: Mob = await (async () => {
             if (this.extends === undefined) {
                 return createBaseMob(loc);
             }
-            const blueprint = await mob_blueprint_manager.get(this.extends);
+            const blueprint = await globals.mob_blueprint_manager.get(this.extends);
             if (!blueprint) {
                 console.log(`Could not extend nonexistent blueprint: ${this.extends}!`);
                 return createBaseMob(loc);
             }
-            return (blueprint.generateMob(mob_blueprint_manager, item_blueprint_manager, loc));
+            return (blueprint.generateMob(globals, loc));
         })();
         if (this.name !== undefined) {
             ret.setComponent('name', this.name);
@@ -153,10 +153,10 @@ export class MobBlueprint extends Resource<MobBlueprintSchema> {
         for (const item_entry of this.items) {
             if (item_entry.homogenous) {
                 const id = item_entry.id.getValue();
-                const blueprint = await item_blueprint_manager.get(id);
+                const blueprint = await globals.item_blueprint_manager.get(id);
                 const count = item_entry.count.getValue();
-                if (blueprint) {
-                    const item = await blueprint.generateItem(item_blueprint_manager);
+                if (blueprint !== undefined) {
+                    const item = await blueprint.generateItem(globals.item_blueprint_manager);
                     item.count = count;
                     inventory.addItem(item);
                 } else {
@@ -166,9 +166,9 @@ export class MobBlueprint extends Resource<MobBlueprintSchema> {
                 const count = item_entry.count.getValue();
                 for (let i = 0; i < count; i++) {
                     const id = item_entry.id.getValue();
-                    const blueprint = await item_blueprint_manager.get(id);
-                    if (blueprint) {
-                        inventory.addItem(await blueprint.generateItem(item_blueprint_manager));
+                    const blueprint = await globals.item_blueprint_manager.get(id);
+                    if (blueprint !== undefined) {
+                        inventory.addItem(await blueprint.generateItem(globals.item_blueprint_manager));
                     } else {
                         console.log(`Could not add item: ${id} - no blueprint found!`);
                     }

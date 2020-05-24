@@ -1,5 +1,6 @@
 import { promises as fs } from 'fs';
 import * as t from 'io-ts';
+import { Globals } from './globals';
 import { Server } from './net/server';
 import { WebServer, WebServerOptions } from './net/webserver';
 import { runCommand } from './system/commandline';
@@ -40,6 +41,8 @@ async function main(process_arguments: string[]) {
         }
     });
 
+    const globals = new Globals();
+
     const worldFilePath = 'world/world.json';
     const worldFile = await File.acquireFile(worldFilePath);
     if (!await File.exists(worldFilePath)) {
@@ -49,10 +52,10 @@ async function main(process_arguments: string[]) {
         };
         worldFile.setJSON(json);
     }
-    const world = World.loadWorldFromFile(worldFile);
+    const world = World.loadWorldFromFile(worldFile, globals);
 
     if (web_options.use_https) {
-        if (ssl_paths) {
+        if (ssl_paths !== undefined) {
             key = fs.readFile(ssl_paths.root + ssl_paths.key);
             cert = fs.readFile(ssl_paths.root + ssl_paths.cert);
         } else {
@@ -63,7 +66,7 @@ async function main(process_arguments: string[]) {
     web_options.https_key = (await key).toString();
     web_options.https_cert = (await cert).toString();
     const web_server = new WebServer(web_options);
-    const io_server = new Server(web_server.getSocketIO(), await world);
+    const io_server = new Server(web_server.getSocketIO(), await world, globals);
 
     const graceful_exit = async () => {
         process.stdout.write('Shutting down...\n');

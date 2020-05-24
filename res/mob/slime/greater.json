@@ -1,0 +1,20 @@
+{
+    "extends": "slime/base",
+    "name": "Greater Slime",
+    "attributes": {
+        "STRENGTH": 15,
+        "VITALITY": 15,
+        "SPEED": 10
+    },
+    "skills": {},
+    "items": [
+        {
+            "id": "misc/gold",
+            "count": {
+                "type": "range",
+                "min": 10,
+                "max": 40
+            }
+        }
+    ]
+}

@@ -1,28 +1,7 @@
 import { Animation } from './animation.js';
 import { GraphicsContext } from './graphicscontext.js';
-
-interface Entity {
-    id: string;
-    location: {
-        x: number;
-        y: number;
-    };
-    components: {
-        direction?: 'NORTH' | 'EAST' | 'WEST' | 'SOUTH';
-        sheet?: any;
-        sprite?: string;
-    }
-}
-
-interface Board {
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-    tiles: number[][],
-    tileAdjacencies: number[][],
-    entities: Entity[]
-}
+import { DIRECTION } from './servertypes.js';
+import type { Board, Entity, Location } from './servertypes.js';
 
 interface TileSprite {
     sheet: false,
@@ -40,55 +19,60 @@ type Palette = SubPalette[];
 
 const TILE_SIZE = 32;
 
+const CANVAS_OVERFLOW = 1;
+
 export class Graphics {
-    private width: number;
-    private height: number;
+    private width: number = 0;
+    private height: number = 0;
     private tileContext: GraphicsContext;
     private entityContext: GraphicsContext;
+    private fogContext: GraphicsContext;
     private uiContext: GraphicsContext;
     private animations: Record<string, Animation> = {};
-    private board?: Board;
     private palette: Palette = [];
-    private draw_cache = {
-        'all_stale': true,
-        'tiles_stale': true,
-        'scale': 1,
-    }
+    private draw_scale = 1;
+    private playing_animations: { anim: Animation, loc: Location, dir: DIRECTION, start_time: number }[] = [];
     constructor(
         private tileCanvas: HTMLCanvasElement,
         private entityCanvas: HTMLCanvasElement,
+        private fogCanvas: HTMLCanvasElement,
         private uiCanvas: HTMLCanvasElement,
-        private uiLabels: { 'text': string, 'x': number, 'y': number }[],
+        private app: { board: Board, entities: Entity[], player_entity: Entity, canvas_labels: { 'text': string, 'x': number, 'y': number }[] },
     ) {
-        const w = tileCanvas.clientWidth;
-        const h = tileCanvas.clientHeight;
-        console.log('(' + w + ', ' + h + ')');
-        if (!w) {
+        this.width = this.tileCanvas.clientWidth;
+        this.height = this.tileCanvas.clientHeight;
+        const scaleX = this.width / (this.app.board.width - (CANVAS_OVERFLOW * 2));
+        const scaleY = this.height / (this.app.board.height - (CANVAS_OVERFLOW * 2));
+        this.draw_scale = Math.max(scaleX, scaleY);
+        console.log('(' + this.width + ', ' + this.height + ')');
+        if (!this.width) {
             throw new Error('invalid canvas width!');
         }
-        if (!h) {
+        if (!this.height) {
             throw new Error('invalid canvas height!');
         }
-        this.width = w;
-        this.height = h;
         this.tileContext = new GraphicsContext(tileCanvas, this.width, this.height);
         this.entityContext = new GraphicsContext(entityCanvas, this.width, this.height);
+        this.fogContext = new GraphicsContext(fogCanvas, this.width, this.height);
         this.uiContext = new GraphicsContext(uiCanvas, this.width, this.height);
+        this.entityContext.drawBehind();
         const g = this;
         $(window).on('resize', () => {
             g.resize();
         });
+        // load animations:
+        for (const sprite of ['player', 'slime']) {
+            for (const anim of ['idle', 'attack']) {
+                this.getAnimation('mob/' + sprite + '/' + anim);
+            }
+        }
+        this.getAnimation('attack/swing');
     }
     public startDrawLoop() {
         setTimeout(() => {
             this.draw();
             this.startDrawLoop();
         }, 20);
-    }
-    public setBoard(board: Board) {
-        this.board = board;
-        this.board.entities.reverse();
-        this.draw_cache.tiles_stale = true;
     }
     public setPalette(palette: string[]) {
         this.palette = [];
@@ -120,7 +104,6 @@ export class Graphics {
                         'subtiles': st,
                     };
                 }
-                this.draw_cache.tiles_stale = true;
             }
             image.onerror = () => {
                 console.log('could not load')
@@ -128,68 +111,124 @@ export class Graphics {
             image.src = `tex/tiles/${name}.png`;
         });
     }
-    private getAnimation(id: string) {
+    public getAnimation(id: string) {
         if (!this.animations[id]) {
             this.animations[id] = new Animation(id);
         }
         return this.animations[id];
+    }
+    public playAnimation(id: string, loc: Location, dir: DIRECTION = DIRECTION.NORTH) {
+        this.playing_animations.push({
+            'anim': this.getAnimation(id),
+            loc,
+            dir,
+            'start_time': Date.now(),
+        });
     }
     private resize() {
         this.width = this.tileCanvas.clientWidth;
         this.height = this.tileCanvas.clientHeight;
         this.tileContext.resize(this.width, this.height);
         this.entityContext.resize(this.width, this.height);
+        this.fogContext.resize(this.width, this.height);
         this.uiContext.resize(this.width, this.height);
-        this.draw_cache.all_stale = true;
+        const scaleX = this.width / (this.app.board.width - (CANVAS_OVERFLOW * 2));
+        const scaleY = this.height / (this.app.board.height - (CANVAS_OVERFLOW * 2));
+        this.draw_scale = Math.max(scaleX, scaleY);
     }
     private draw() {
-        if (!this.board) {
-            return console.log('Can\'t draw! No board!');
+        if (this.app.player_entity === undefined) {
+            return;
         }
-        if (this.draw_cache.all_stale) {
-            const scaleX = this.width / this.board.width;
-            const scaleY = this.height / this.board.height;
-            this.draw_cache.scale = Math.max(scaleX, scaleY);
-            // set individual staleness flags
-            this.draw_cache.tiles_stale = true;
+        this.drawTiles();
+        this.drawEntities();
+        this.drawFog();
+    }
+    private drawFog() {
+        this.fogContext.clear();
+        this.fogContext.push();
+        this.fogContext.filter(`opacity(75%) blur(${this.draw_scale / 2}px)`); // TODO: change to 75% opacity once cells remember which tiles have yet to be seen
+        this.fogContext.translate(this.width / 2, this.height / 2);
+        this.fogContext.scale(this.draw_scale, this.draw_scale)
+        this.fogContext.translate(-.5, -.5);
+        this.fogContext.translate(- this.app.player_entity.location.x, - this.app.player_entity.location.y);
+        const visible = this.app.board.fog_of_war.visible
+        this.fogContext.color('#000');
+        this.fogContext.startDraw();
+        for (let x = this.app.board.x - 1; x < this.app.board.x + this.app.board.width + 1; x++) {
+            for (let y = this.app.board.y - 1; y < this.app.board.y + this.app.board.height + 1; y++) {
+                if (x < 0 || y < 0 || x >= this.app.board.fog_of_war.width || y >= this.app.board.fog_of_war.height || !visible[x][y]) {
+                    this.fogContext.addRect(x, y, 1, 1);
+                }
+            }
         }
-        this.draw_cache.all_stale = false;
-        if (this.draw_cache.tiles_stale) {
-            this.drawTiles();
-            this.draw_cache.tiles_stale = false;
-        }
+        this.fogContext.finalizeDraw();
+        this.fogContext.pop();
+    }
+    private drawEntities() {
         this.entityContext.clear();
         this.entityContext.push();
         this.entityContext.translate(this.width / 2, this.height / 2);
-        this.entityContext.scale(this.draw_cache.scale, this.draw_cache.scale);
-        this.entityContext.translate(this.board.width / -2, this.board.height / -2);
-        this.entityContext.translate(-this.board.x, -this.board.y);
-        for (const entity of this.board.entities) {
+        this.entityContext.scale(this.draw_scale, this.draw_scale);
+        this.entityContext.translate(-.5, -.5);
+        this.entityContext.translate(-this.app.player_entity.location.x, -this.app.player_entity.location.y);
+        this.playing_animations = this.playing_animations.filter((a) => {
+            return Date.now() < a.start_time + a.anim.duration;
+        })
+        for (const animation of this.playing_animations) {
+            this.entityContext.push();
+            this.entityContext.translate(animation.loc.x, animation.loc.y);
+            this.entityContext.translate(0.5, 0.5);
+            this.entityContext.rotate(animation.dir * Math.PI / -2)
+            this.entityContext.translate(-0.5, -0.5);
+            animation.anim.draw(this.entityContext, Date.now() - animation.start_time);
+            this.entityContext.pop();
+        }
+        for (const entity of this.app.entities) {
             this.entityContext.push();
             this.entityContext.translate(entity.location.x, entity.location.y);
             const sprite = entity.components.sprite;
-            if (typeof sprite === 'string') {
-                this.getAnimation(sprite).draw(this.entityContext, Date.now());
+            const anim = entity.animation_playing;
+            const anim_start = entity.animation_start_time;
+            if (anim !== undefined && anim_start !== undefined) {
+                this.getAnimation(anim).draw(this.entityContext, Date.now() - anim_start, {
+                    'weapon': this.getAnimation('test'),
+                    'helmet': this.getAnimation('item/armor/helmet'),
+                });
+            } else if (typeof sprite === 'string') {
+                if (entity.components.sheet) {
+                    this.getAnimation(sprite + '/idle').draw(this.entityContext, Date.now(), {
+                        'weapon': this.getAnimation('test'),
+                        'helmet': this.getAnimation('item/armor/helmet'),
+                    });
+                } else {
+                    this.getAnimation(sprite).draw(this.entityContext, Date.now());
+                }
             } else {
                 this.entityContext.color('#F0F');
-                this.entityContext.fillRect(-.5, -.5);
+                this.entityContext.fillRect();
+            }
+            const dir = entity.components.direction;
+            if (dir !== undefined) {
+                this.entityContext.translate(0.5, 0.5);
+                this.entityContext.rotate(DIRECTION[dir] * Math.PI / -2)
+                this.entityContext.translate(-0.5, -0.5);
+                this.getAnimation('arrow').draw(this.entityContext, 0);
             }
             this.entityContext.pop();
         }
         this.entityContext.pop();
     }
     private drawTiles() {
-        if (!this.board) {
-            return console.log('Can\'t draw! No board!');
-        }
         this.tileContext.clear();
         this.tileContext.push();
         this.tileContext.translate(this.width / 2, this.height / 2);
-        this.tileContext.scale(this.draw_cache.scale, this.draw_cache.scale);
-        this.tileContext.translate(this.board.width / -2, this.board.height / -2);
-        for (let x = 0; x < this.board.width; x++) {
-            for (let y = 0; y < this.board.height; y++) {
-                const tile = this.board.tiles[x][y];
+        this.tileContext.scale(this.draw_scale, this.draw_scale)
+        this.tileContext.translate(-.5, -.5);
+        this.tileContext.translate(this.app.board.x - this.app.player_entity.location.x, this.app.board.y - this.app.player_entity.location.y);
+        for (let x = 0; x < this.app.board.width; x++) {
+            for (let y = 0; y < this.app.board.height; y++) {
+                const tile = this.app.board.tiles[x][y];
                 if (tile === -1) {
                     this.tileContext.push();
                     this.tileContext.color('#000');
@@ -208,7 +247,7 @@ export class Graphics {
                             [false, true, false],
                             [false, false, false],
                         ];
-                        let adjSum = this.board.tileAdjacencies[x][y];
+                        let adjSum = this.app.board.tileAdjacencies[x][y];
                         for (let i = -1; i <= 1; i++) {
                             for (let j = -1; j <= 1; j++) {
                                 if (adjSum % 2 === 1) {

@@ -2,11 +2,9 @@ import bcrypt = require('bcrypt');
 import { promises as fs } from 'fs';
 import type { Socket } from 'socket.io';
 import { CharacterSheet } from '../character/charactersheet';
-import { ItemBlueprintManager } from '../item/item_blueprint';
+import type { Globals } from '../globals';
 import { Random } from '../math/random';
 import { File } from '../system/file';
-import { CellBlueprintManager } from '../world/generation/cell_blueprint';
-import { MobBlueprintManager } from '../world/generation/mob_blueprint';
 import type { World } from '../world/world';
 import { Client, CLIENT_CONNECTION_STATE } from './client';
 import { User, UserSchema } from './user';
@@ -33,10 +31,7 @@ export class Server {
     private running_promise: Promise<void> | undefined;
     private clients: { [id: string]: Client; } = {};
     private users: { [id: string]: User; } = {};
-    public cell_blueprint_manager: CellBlueprintManager = new CellBlueprintManager('res/environment');
-    public mob_blueprint_manager: MobBlueprintManager = new MobBlueprintManager('res/mob');
-    public item_blueprint_manager: ItemBlueprintManager = new ItemBlueprintManager('res/item');
-    constructor(private _server: SocketIO.Server, public readonly world: World) {
+    constructor(private _server: SocketIO.Server, public readonly world: World, public globals: Globals) {
         _server.on('connection', (socket: Socket) => {
             if (this.running) {
                 this.clients[socket.id] = new Client(this, socket.id, socket);
@@ -46,7 +41,9 @@ export class Server {
     public async run() {
         this.running_promise = this.world.update();
         await this.running_promise;
-        setTimeout(() => this.run(), 10);
+        if (this.running) {
+            setTimeout(() => this.run(), 10);
+        }
     }
     public get server() {
         return this._server;

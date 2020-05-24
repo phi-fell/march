@@ -1,13 +1,17 @@
 {
     "extends": "slime/base",
     "name": "Lesser Slime",
+    "attributes": {
+        "STRENGTH": 5,
+        "VITALITY": 5
+    },
     "items": [
         {
             "id": "misc/gold",
             "count": {
                 "type": "range",
                 "min": 1,
-                "max": 5
+                "max": 9
             }
         }
     ]

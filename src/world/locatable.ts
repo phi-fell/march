@@ -19,7 +19,7 @@ export abstract class Locatable {
     protected constructor(loc: Location, emplaced: boolean = false) {
         this._location = loc;
         if (!emplaced) {
-            this._location.cell.addLocatable(this);
+            this._location.cell.addLocatable(this, false);
         }
     }
     public isEntity(): this is Entity {
@@ -44,5 +44,11 @@ export abstract class Locatable {
     }
     public setPosition(pos: Position) {
         this._location = this._location.withPosition(pos);
+    }
+    /**
+     * Be careful! only call this when this Locatable will not be used ever again.
+     */
+    public removeFromWorld() {
+        this._location.cell.removeLocatable(this);
     }
 }

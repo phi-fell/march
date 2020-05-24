@@ -1,14 +1,15 @@
 import * as t from 'io-ts';
-import type { ItemBlueprintManager } from '../../item/item_blueprint';
+import type { Globals } from '../../globals';
 import { Chance } from '../../math/chance';
 import { Random } from '../../math/random';
 import { WeightedList } from '../../math/weighted_list';
 import { Resource, ResourceManager } from '../../system/resource';
 import type { Constructed } from '../../util/types';
 import type { GeneratableCell } from '../cell';
+import { Entity } from '../entity';
+import { Portal } from '../portal';
 import { CellAttributes } from './cellattributes';
 import { CellGeneration, CELL_GENERATION } from './cellgeneration';
-import type { MobBlueprintManager } from './mob_blueprint';
 
 const MobIDList = WeightedList(t.string);
 type MobIDList = Constructed<typeof MobIDList>;
@@ -36,7 +37,7 @@ export class CellBlueprintManager extends ResourceManager<typeof CellBlueprintMa
         'adjacencies': t.array(t.intersection([
             t.type({
                 'id': AdjacencyIDList.schema,
-                'weight': Chance.schema,
+                'count': Chance.schema,
             }),
             t.partial({
                 'homogenous': t.boolean, // not homogeneous. instances are almost never identical but are struturally similar.
@@ -51,7 +52,7 @@ export class CellBlueprint extends Resource<CellBlueprintSchema> {
     private width: number = 0;
     private height: number = 0;
     private mobs: { id: MobIDList, count: Chance, homogenous?: boolean }[] = [];
-    private adjacencies: { id: AdjacencyIDList, weight: Chance, homogenous?: boolean }[] = [];
+    private adjacencies: { id: AdjacencyIDList, count: Chance, homogenous?: boolean }[] = [];
     public fromJSON(json: t.TypeOf<CellBlueprintSchema>): void {
         this.name = json.name;
         this.generation = CELL_GENERATION[json.generation];
@@ -68,9 +69,9 @@ export class CellBlueprint extends Resource<CellBlueprintSchema> {
             return ret;
         });
         this.adjacencies = json.adjacencies.map((el) => {
-            const ret: { id: AdjacencyIDList, weight: Chance, homogenous?: boolean } = {
+            const ret: { id: AdjacencyIDList, count: Chance, homogenous?: boolean } = {
                 'id': AdjacencyIDList.fromJSON(el.id),
-                'weight': Chance.fromJSON(el.weight),
+                'count': Chance.fromJSON(el.count),
             }
             if (el.homogenous) {
                 ret.homogenous = true;
@@ -94,7 +95,7 @@ export class CellBlueprint extends Resource<CellBlueprintSchema> {
             'adjacencies': this.adjacencies.map((el) => {
                 return {
                     'id': el.id.toJSON(),
-                    'weight': el.weight.toJSON(),
+                    'count': el.count.toJSON(),
                     'homogenous': el.homogenous,
                 };
             }),
@@ -105,30 +106,52 @@ export class CellBlueprint extends Resource<CellBlueprintSchema> {
     }
     public async generateCell(
         cell: GeneratableCell,
-        mob_blueprint_manager: MobBlueprintManager,
-        item_blueprint_manager: ItemBlueprintManager
+        globals: Globals,
     ): Promise<void> {
         CellGeneration.generateCell(cell);
         const board = cell.getBoard();
+        for (const adjacency of this.adjacencies) {
+            const count = adjacency.count.getValue();
+            if (adjacency.homogenous) {
+                const id = adjacency.id.getValue();
+                for (let i = 0; i < count; i++) {
+                    const loc = cell.getRandomEmptyLocation();
+                    const portal = new Portal(loc, id);
+                    const ent: Entity = new Entity(loc, Random.uuid(), true);
+                    ent.setComponent('portal', portal);
+                    ent.setComponent('sprite', 'portal/stone_stairs');
+                    board.addEntity(ent);
+                }
+            } else {
+                for (let i = 0; i < count; i++) {
+                    const id = adjacency.id.getValue();
+                    const loc = cell.getRandomEmptyLocation();
+                    const portal = new Portal(loc, id);
+                    const ent: Entity = new Entity(loc, Random.uuid(), true);
+                    ent.setComponent('portal', portal);
+                    ent.setComponent('sprite', 'portal/stone_stairs');
+                    board.addEntity(ent);
+                }
+            }
+        }
         for (const mob_entry of this.mobs) {
+            const count = mob_entry.count.getValue();
             if (mob_entry.homogenous) {
                 const id = mob_entry.id.getValue();
-                const blueprint = await mob_blueprint_manager.get(id);
-                const count = mob_entry.count.getValue();
-                if (blueprint) {
+                const blueprint = await globals.mob_blueprint_manager.get(id);
+                if (blueprint !== undefined) {
                     for (let i = 0; i < count; i++) {
-                        board.addEntity(await blueprint.generateMob(mob_blueprint_manager, item_blueprint_manager, cell.getRandomPassableLocation()));
+                        board.addEntity(await blueprint.generateMob(globals, cell.getRandomEmptyLocation()));
                     }
                 } else {
                     console.log(`Could not add ${count} entities: ${id} - no blueprint found!`);
                 }
             } else {
-                const count = mob_entry.count.getValue();
                 for (let i = 0; i < count; i++) {
                     const id = mob_entry.id.getValue();
-                    const blueprint = await mob_blueprint_manager.get(id);
-                    if (blueprint) {
-                        board.addEntity(await blueprint.generateMob(mob_blueprint_manager, item_blueprint_manager, cell.getRandomPassableLocation()));
+                    const blueprint = await globals.mob_blueprint_manager.get(id);
+                    if (blueprint !== undefined) {
+                        board.addEntity(await blueprint.generateMob(globals, cell.getRandomEmptyLocation()));
                     } else {
                         console.log(`Could not add entity: ${id} - no blueprint found!`);
                     }

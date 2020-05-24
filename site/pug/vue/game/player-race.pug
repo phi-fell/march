@@ -1,2 +1,5 @@
-.player-race
-    p {{self}}
+.player-race.col(v-if='self !== undefined')
+    p.flex_none {{self.name}}
+    p.flex_none {{self.description}}
+    p.flex_none(v-for='trait in self.traits') {{trait}}
+    p.flex_none(v-for='(val, attr) in self.baseAttributes') {{attr.split('_').map((w)=>{return w.charAt(0).toUpperCase() + w.substring(1).toLowerCase()}).join(' ')}}: {{val}}

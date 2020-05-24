@@ -23,10 +23,12 @@ canvas,#canvasText
     z-index 0
 #entityCanvas
     z-index 1
-#uiCanvas
+#fogCanvas
     z-index 2
-#canvasText
+#uiCanvas
     z-index 3
+#canvasText
+    z-index 4
 
 .chat-pane_message-list
     overflow-y scroll
@@ -48,4 +50,13 @@ canvas,#canvasText
     border 0
     margin 1px
     padding 5px
+ul
+    margin 0
+    padding 0
+ li
+    align-items center
+.context-pane li *
+    margin 10px
 
+.player-inventory li *
+    margin 4px

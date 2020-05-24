@@ -10,7 +10,7 @@ export class WaitOnceAction extends ActionBase {
     }
     public type: ACTION_TYPE.WAIT_ONCE = ACTION_TYPE.WAIT_ONCE;
     public readonly cost: number = 0;
-    public perform(entity: Entity) {
+    public async perform(entity: Entity) {
         entity.location.cell.emit(new WaitOnceEvent(entity), entity.location)
         return { 'result': ACTION_RESULT.INSUFFICIENT_AP, 'cost': 0 };
     }

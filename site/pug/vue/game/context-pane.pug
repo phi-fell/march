@@ -1,0 +1,5 @@
+.context-pane.col
+    ul.col.flex_none
+        li.row.flex(v-for='action in self.context_actions')
+            p.flex_none {{action.text}}
+            button.flex_none(@click='self.sendChatMessage(action.action)') {{action.btn_text}}

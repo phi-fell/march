@@ -1,6 +1,7 @@
 import { ChatDirections, DIRECTION, directionVectors } from '../direction';
 import type { Entity } from '../entity';
 import { AttackEvent } from '../event/attack_event';
+import { DeathEvent } from '../event/death_event';
 import { ActionBase } from './actionbase';
 import { ACTION_RESULT } from './actionresult';
 import { ACTION_TYPE } from './actiontype';
@@ -22,7 +23,7 @@ export class AttackAction extends ActionBase {
     constructor(public direction?: DIRECTION) {
         super();
     }
-    public perform(entity: Entity) {
+    public async perform(entity: Entity) {
         const [direction, sheet] = entity.getComponents('direction', 'sheet');
         if (sheet === undefined) {
             return { 'result': ACTION_RESULT.FAILURE, 'cost': 0 };
@@ -44,18 +45,19 @@ export class AttackAction extends ActionBase {
         const ent = (ents.length >= 1) ? (ents[0]) : undefined;
 
         if (sheet.hasSufficientAP(this.cost)) {
-            const attack_event = new AttackEvent(entity, ent);
-            if (ent !== undefined) {
+            const attack_event = new AttackEvent(entity, dir, ent);
+            if (ent !== undefined && ent.has('sheet')) {
                 const defender_sheet = ent.getComponent('sheet');
-                if (defender_sheet) {
-                    defender_sheet.takeHit(attack_event);
-                    if (defender_sheet.isDead()) {
-                        ent.getComponent('inventory')?.dropAll(ent.location);
-                        ent.location.cell.removeLocatable(ent);
-                    }
+                defender_sheet.takeHit(attack_event);
+                entity.location.cell.emit(attack_event, entity.location, attackLoc);
+                if (defender_sheet.isDead()) {
+                    ent.location.cell.emit(new DeathEvent(ent), ent.location);
+                    ent.getComponent('inventory')?.dropAll(ent.location);
+                    ent.removeFromWorld();
                 }
+            } else {
+                entity.location.cell.emit(attack_event, entity.location, attackLoc);
             }
-            entity.location.cell.emit(attack_event, entity.location, attackLoc);
             return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
         }
         return { 'result': ACTION_RESULT.INSUFFICIENT_AP, 'cost': 0 };

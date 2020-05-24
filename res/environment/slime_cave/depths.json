@@ -5,34 +5,34 @@
     "height": 100,
     "mobs": [
         {
-            "id": "slime_common",
+            "id": "slime/common",
             "count": 15
         },
         {
-            "id": "slime_greater",
+            "id": "slime/greater",
             "count": 64
         },
         {
-            "id": "slime_grand",
+            "id": "slime/grand",
             "count": 1
         }
     ],
     "adjacencies": [
         {
             "id": "slime_cave/main",
-            "weight": 10
+            "count": 10
         },
         {
             "id": "slime_cave/depths",
-            "weight": 30
+            "count": 30
         },
         {
             "id": "slime_cave/abyss",
-            "weight": 1
+            "count": 1
         },
         {
             "id": "slime_cave/labyrinth",
-            "weight": 1
+            "count": 1
         }
     ]
 }

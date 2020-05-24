@@ -1,21 +1,22 @@
+import type { EventHandler } from './eventhandler';
 
 const MACRO_SHORTCUTS: Record<string, string[]> = {
-    '37': ['#turn left'],
-    '38': ['#turn up'],
-    '39': ['#turn right'],
-    '40': ['#turn down'],
-    '73': ['#strafe up'],
-    '74': ['#strafe left'],
-    '75': ['#strafe down'],
-    '76': ['#strafe right'],
-    '87': ['#turn up', '#move up'],
-    '65': ['#turn left', '#move left'],
-    '83': ['#turn down', '#move down'],
-    '68': ['#turn right', '#move right'],
-    '32': ['#attack'],
-    '88': ['#unwait'],
-    '90': ['#wait'],
-    '190': ['#portal'],
+    '37': ['turn left'],
+    '38': ['turn up'],
+    '39': ['turn right'],
+    '40': ['turn down'],
+    '73': ['strafe up'],
+    '74': ['strafe left'],
+    '75': ['strafe down'],
+    '76': ['strafe right'],
+    '87': ['turn up', 'move up'],
+    '65': ['turn left', 'move left'],
+    '83': ['turn down', 'move down'],
+    '68': ['turn right', 'move right'],
+    '32': ['attack'],
+    '88': ['unwait'],
+    '90': ['wait'],
+    '190': ['use_portal'],
 };
 
 enum GAME_SHORTCUT {
@@ -47,7 +48,11 @@ let message_cache: string = '';
 let historyPos: number = 0;
 
 export class Input {
-    constructor(private socket: SocketIOClient.Socket, private chat: { messages: string[], current_message: string, typing: boolean }) {
+    constructor(
+        private socket: SocketIOClient.Socket,
+        private event_handler: EventHandler,
+        private chat: { messages: string[], current_message: string, typing: boolean }
+    ) {
         document.addEventListener('keydown', this.keydown.bind(this));
     }
     keydown(e: KeyboardEvent) {
@@ -105,10 +110,15 @@ export class Input {
                     return;
             }
         } else if (MACRO_SHORTCUTS[e.keyCode] !== undefined) {
-            // TODO: do not send action if there are events/animations currently playing (unless action is unwait)
             const msgs = MACRO_SHORTCUTS[e.keyCode];
-            for (const msg of msgs) {
-                this.socket.emit('chat_message', msg);
+            if (this.event_handler.isProcessingEvents()) {
+                if (msgs.includes('#unwait')) {
+                    this.socket.emit('chat_message', '#unwait');
+                }
+            } else if (msgs.length > 1) {
+                this.socket.emit('chat_message', `#[${msgs.join(',')}]`);
+            } else {
+                this.socket.emit('chat_message', `#${msgs[0]}`);
             }
         }
     }

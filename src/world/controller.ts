@@ -5,6 +5,7 @@ import { CONTROLLER } from './controller/controllers';
 import { InertController } from './controller/inertcontroller';
 import { PlayerController } from './controller/playercontroller';
 import { WanderController } from './controller/wander_controller';
+import type { Entity } from './entity';
 import type { Event } from './event';
 
 const controller_schema = t.type({
@@ -19,10 +20,11 @@ export interface Controller<T extends CONTROLLER = CONTROLLER> {
     newRound(): void;// Called when a new round starts
     sendEvent(event: Event): void;
     toJSON(): ControllerSchema;
+    getClientJSON(viewer: Entity): undefined;
 }
 
 export interface ControllerClass<T extends CONTROLLER> {
-    fromJSON(json: any): Controller<T>
+    fromJSON(json: any, entity: Entity): Controller<T>
     new(...args: any): Controller<T>
 }
 
@@ -38,8 +40,8 @@ const controller: ControllerClassArray = [
 
 export const Controller = {
     'schema': controller_schema,
-    'fromJSON': (json: ControllerSchema): Controller => {
-        return controller[CONTROLLER[json.type]].fromJSON(json);
+    'fromJSON': (json: ControllerSchema, entity: Entity): Controller => {
+        return controller[CONTROLLER[json.type]].fromJSON(json, entity);
     },
     'getNewController': (type: CONTROLLER, ...args: any) => {
         return new controller[type](...args);

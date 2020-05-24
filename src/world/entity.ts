@@ -4,6 +4,7 @@ import { Random, UUID } from '../math/random';
 import type { ValueOfArray } from '../util/types';
 import type { Cell } from './cell';
 import { ComponentName, Components, ComponentsWith, ComponentsWithNames, FullComponents } from './component';
+import { AddEntityEvent } from './event/add_entity_event';
 import { Locatable, locatable_schema } from './locatable';
 import { Location } from './location';
 
@@ -27,9 +28,17 @@ const mob_components = ['name', 'sprite', 'controller', 'sheet', 'inventory', 'c
 type MobComponents = ValueOfArray<typeof mob_components>;
 export type Mob = EntityWith<MobComponents>;
 
+const player_components = ['player'] as const;
+type PlayerComponents = ValueOfArray<typeof player_components>;
+export type PlayerEntity = EntityWith<PlayerComponents>;
+
 const item_components = ['name', 'sprite', 'item_data'] as const;
 type ItemComponents = ValueOfArray<typeof item_components>;
 export type ItemEntity = EntityWith<ItemComponents>;
+
+const portal_components = ['sprite', 'portal'] as const;
+type PortalComponents = ValueOfArray<typeof portal_components>;
+export type PortalEntity = EntityWith<PortalComponents>;
 
 export type EntitySchema = t.TypeOf<typeof Entity.schema>;
 
@@ -43,16 +52,17 @@ export class Entity extends Locatable {
     ]);
 
     public static fromJSON(cell: Cell, json: EntitySchema, emplaced: boolean = false): Entity {
-        const ret = new Entity(Location.fromJSON(cell, json.location), json.id, emplaced);
-        ret.components = Components.fromJSON(json.components);
+        const ret = new Entity(Location.fromJSONWithCell(cell, json.location), json.id, emplaced);
+        ret.components = Components.fromJSON(json.components, ret);
         return ret;
     }
 
-    public static createItemEntity(item: Item, loc: Location) {
+    public static createItemEntity(item: Item, loc: Location): ItemEntity {
         const ret: Entity = new Entity(loc);
         ret.setComponent('item_data', item);
         ret.setComponent('name', item.name);
         ret.setComponent('sprite', item.sprite);
+        loc.cell.emit(new AddEntityEvent(ret), loc)
         return ret;
     }
 
@@ -68,11 +78,17 @@ export class Entity extends Locatable {
     public has<T extends ComponentName[]>(...args: T): this is EntityWith<ValueOfArray<T>> {
         return Components.hasComponents(this.components, ...args);
     }
+    public isActivePlayer(): this is PlayerEntity {
+        return this.has(...player_components);
+    }
     public isMob(): this is Mob {
         return this.has(...mob_components);
     }
     public isItem(): this is ItemEntity {
         return this.has(...item_components);
+    }
+    public isPortal(): this is PortalEntity {
+        return this.has(...portal_components);
     }
 
     public getComponent<T extends ComponentName>(name: T) {
@@ -105,7 +121,11 @@ export class Entity extends Locatable {
             'components': Components.toJSON(this.components),
         }
     }
-    public getClientJSON() {
-        return this.toJSON(); // TODO: reduce info sent
+    public getClientJSON(viewer: Entity) {
+        return {
+            'id': this.id,
+            'location': this.location.getClientJSON(viewer),
+            'components': Components.getClientJSON(this.components, viewer),
+        }
     }
 }

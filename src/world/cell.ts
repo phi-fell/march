@@ -1,5 +1,5 @@
 import * as t from 'io-ts';
-import type { ItemBlueprintManager } from '../item/item_blueprint';
+import type { Globals } from '../globals';
 import { Random, UUID } from '../math/random';
 import type { OwnedFile } from '../system/file';
 import { FileBackedData } from '../system/file_backed_data';
@@ -7,9 +7,10 @@ import { getTileProps, NO_TILE, Tile } from '../tile';
 import { Board } from './board';
 import type { Entity } from './entity';
 import type { Event } from './event';
+import { AddEntityEvent } from './event/add_entity_event';
+import { RemoveEntityEvent } from './event/remove_entity_event';
 import { CellAttributes } from './generation/cellattributes';
 import type { CellBlueprint } from './generation/cell_blueprint';
-import type { MobBlueprintManager } from './generation/mob_blueprint';
 import type { Instance } from './instance';
 import type { Locatable } from './locatable';
 import { Location } from './location';
@@ -35,8 +36,7 @@ export class Cell extends FileBackedData {
         id: UUID,
         file: OwnedFile,
         blueprint: CellBlueprint,
-        mob_blueprint_manager: MobBlueprintManager,
-        item_blueprint_manager: ItemBlueprintManager,
+        globals: Globals,
     ): Promise<Cell> {
         const json: CellSchema = {
             id,
@@ -46,10 +46,11 @@ export class Cell extends FileBackedData {
         file.setJSON(json);
         const cell = new GeneratableCell(instance, file);
         await cell.ready();
-        await blueprint.generateCell(cell, mob_blueprint_manager, item_blueprint_manager);
+        await blueprint.generateCell(cell, globals);
         return cell;
     }
 
+    private active_players: number = 0;
     protected board: Board = new Board(0, 0);
     public attributes: CellAttributes = new CellAttributes('', 0, 0, 0);
     protected constructor(public instance: Instance, file: OwnedFile, public id: string = '') {
@@ -58,11 +59,19 @@ export class Cell extends FileBackedData {
     public get schema() {
         return Cell.schema;
     }
+    public addActivePlayer() {
+        this.active_players++;
+    }
+    public removeActivePlayer() {
+        this.active_players--;
+    }
     public getEntity(id: UUID): Entity {
         return this.board.getEntity(id);
     }
     public async update(): Promise<void> {
-        this.board.doNextTurn();
+        if (this.active_players > 0) {
+            await this.board.doNextTurn();
+        }
     }
     public notifyAsyncEnt(entity_id: UUID) {
         this.board.notifyAsyncEnt(entity_id);
@@ -73,13 +82,19 @@ export class Cell extends FileBackedData {
     public emit(event: Event, ...locations: Location[]) {
         this.board.emit(event, ...locations);
     }
+    public emitWB(event: Event, whitelist: Location[], blacklist: Location[]) {
+        this.board.emitWB(event, whitelist, blacklist);
+    }
     public getTileAt(x: number, y: number): Tile {
         return this.board.tiles[x][y];
     }
     public getEntitiesAt(x: number, y: number): Entity[] {
         return this.board.getEntitiesAt(x, y);
     }
-    public getRandomPassableLocation(rand?: Random): Location {
+    public getAllEntities() {
+        return this.board.getAllEntities();
+    }
+    public getRandomEmptyLocation(rand?: Random): Location {
         let x = 0;
         let y = 0;
         let max_iter = 10000;
@@ -88,29 +103,34 @@ export class Cell extends FileBackedData {
                 console.log('looped too many times!');
                 return new Location(-1, -1, this);
             }
-            if (rand) {
+            if (rand !== undefined) {
                 x = rand.int(0, this.attributes.width);
                 y = rand.int(0, this.attributes.height);
             } else {
                 x = Random.int(0, this.attributes.width);
                 y = Random.int(0, this.attributes.height);
             }
-        } while (!getTileProps(this.board.tiles[x][y]).passable);
+        } while (!getTileProps(this.board.tiles[x][y]).passable || this.board.getEntitiesAt(x, y).length > 0);
         return new Location(x, y, this);
     }
-    public getClientJSON(entity: Entity) {
+    public getClientEntitiesJSON(viewer: Entity) {
+        return this.board.getClientEntitiesJSON(viewer)
+    }
+    public getClientJSON(viewer: Entity) {
         const retTiles: Tile[][] = [];
         const tileAdjacencies: number[][] = [];
-        const MAX_RADIUS = 10;
-        const x0 = entity.location.x - MAX_RADIUS;
-        const y0 = entity.location.y - MAX_RADIUS;
-        const x1 = entity.location.x + MAX_RADIUS;
-        const y1 = entity.location.y + MAX_RADIUS;
+        const MAX_RADIUS = 12;
+        const x0 = viewer.location.x - MAX_RADIUS;
+        const y0 = viewer.location.y - MAX_RADIUS;
+        const x1 = viewer.location.x + MAX_RADIUS;
+        const y1 = viewer.location.y + MAX_RADIUS;
+        const visibility_manager = viewer.getComponent('visibility_manager');
+        const visible = visibility_manager?.getVisibilityMap();
         for (let x = x0; x <= x1; x++) {
             retTiles[x - x0] = [];
             tileAdjacencies[x - x0] = [];
             for (let y = y0; y <= y1; y++) {
-                if (x < 0 || y < 0 || x >= this.attributes.width || y >= this.attributes.height /* || !entity.canSee(i, j)*/) {
+                if (x < 0 || y < 0 || x >= this.attributes.width || y >= this.attributes.height /*|| (visible !== undefined && !visible[x][y])*/) {
                     retTiles[x - x0][y - y0] = NO_TILE;
                     tileAdjacencies[x - x0][y - y0] = 0;
                 } else {
@@ -141,7 +161,7 @@ export class Cell extends FileBackedData {
             'height': (y1 - y0) + 1,
             'tiles': retTiles,
             tileAdjacencies,
-            'entities': this.board.getClientEntitiesJSON(),
+            'fog_of_war': { 'width': this.attributes.width, 'height': this.attributes.height, visible },
         }
     }
     /**
@@ -149,6 +169,10 @@ export class Cell extends FileBackedData {
      */
     public removeLocatable(locatable: Locatable) {
         if (locatable.isEntity()) {
+            if (locatable.isActivePlayer()) {
+                this.removeActivePlayer();
+            }
+            this.emit(new RemoveEntityEvent(locatable), locatable.location);
             this.board.removeEntity(locatable);
         } else {
             throw new Error('Non-Entity Locatables do not exist?');
@@ -157,9 +181,17 @@ export class Cell extends FileBackedData {
     /**
      * Only call this from inside Locatable!
      */
-    public addLocatable(locatable: Locatable) {
+    public addLocatable(locatable: Locatable, constructed: boolean = true) {
         if (locatable.isEntity()) {
             this.board.addEntity(locatable);
+            if (constructed) {
+                // constructed is set to false when called in the Locatable constructor to account for partially constructed objects
+                //      (which do not have components yet and are not valid Entities)
+                this.emit(new AddEntityEvent(locatable), locatable.location);
+                if (locatable.isActivePlayer()) {
+                    this.addActivePlayer();
+                }
+            }
         } else {
             throw new Error('Non-Entity Locatables do not exist?');
         }

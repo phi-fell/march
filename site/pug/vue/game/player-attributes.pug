@@ -1,2 +1,2 @@
-.player-attributes
-    p {{self}}
+.player-attributes.col
+    p.flex_none(v-for='(val, attr) in self') {{attr.split('_').map((w)=>{return w.charAt(0).toUpperCase() + w.substring(1).toLowerCase()}).join(' ')}}: {{val}}

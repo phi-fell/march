@@ -1,6 +1,9 @@
 import { getTileProps } from '../../tile';
 import { ChatDirections, DIRECTION, directionVectors, getRelativeDirection, RELATIVE_DIRECTION } from '../direction';
 import type { Entity } from '../entity';
+import { AddEntityEvent } from '../event/add_entity_event';
+import { RemoveEntityEvent } from '../event/remove_entity_event';
+import { SetBoardEvent } from '../event/set_board_event';
 import { StrafeEvent } from '../event/strafe_event';
 import { ActionBase } from './actionbase';
 import { ACTION_RESULT } from './actionresult';
@@ -25,7 +28,7 @@ export class StrafeAction extends ActionBase {
     constructor(public direction: DIRECTION) {
         super();
     }
-    public perform(entity: Entity) {
+    public async perform(entity: Entity) {
         const vec = directionVectors[this.direction];
         const newLoc = entity.location.translate(vec.x, vec.y);
 
@@ -54,8 +57,12 @@ export class StrafeAction extends ActionBase {
         }
         if (sheet.hasSufficientAP(this.cost)) {
             const oldLoc = entity.location;
-            entity.setLocation(newLoc);
-            entity.location.cell.emit(new StrafeEvent(entity, this.direction), oldLoc, newLoc);
+            entity.location.cell.emitWB(new AddEntityEvent(entity), [newLoc], [oldLoc]);
+            entity.setPosition(newLoc.getPosition());
+            entity.location.cell.emit(new StrafeEvent(entity, newLoc, rel_dir), oldLoc, newLoc);
+            entity.location.cell.emitWB(new RemoveEntityEvent(entity), [oldLoc], [newLoc]);
+            entity.getComponent('controller')?.sendEvent(new SetBoardEvent());
+            entity.getComponent('visibility_manager')?.recalculateAllVisibleEntities();
             return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
         }
         return { 'result': ACTION_RESULT.INSUFFICIENT_AP, 'cost': 0 };

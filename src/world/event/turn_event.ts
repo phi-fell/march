@@ -5,7 +5,7 @@ import { EVENT_TYPE } from './event_type';
 export class TurnEvent {
     public type: EVENT_TYPE.TURN = EVENT_TYPE.TURN;
     constructor(private entity: Entity, private from: DIRECTION, private to: DIRECTION) { }
-    public getClientJSON() {
+    public getClientJSON(viewer: Entity) {
         const rel_dir = getRelativeDirection(this.from, this.to);
         const message: string = (() => {
             switch (rel_dir) {
@@ -21,6 +21,8 @@ export class TurnEvent {
         })();
         return {
             'type': EVENT_TYPE[this.type] as keyof typeof EVENT_TYPE,
+            'entity_id': this.entity.id,
+            'direction': DIRECTION[this.to],
             'message': `${this.entity.getComponent('name')} ${message}`,
         };
     }

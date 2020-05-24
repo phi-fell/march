@@ -1,4 +1,5 @@
 import * as t from 'io-ts';
+import type { Globals } from '../globals';
 import type { UUID } from '../math/random';
 import { File, OwnedFile } from '../system/file';
 import { FileBackedData } from '../system/file_backed_data';
@@ -16,8 +17,8 @@ export class World extends FileBackedData {
         'instances': t.array(instance_ref_schema),
     });
 
-    public static async loadWorldFromFile(file: OwnedFile): Promise<World> {
-        const world = new World(file);
+    public static async loadWorldFromFile(file: OwnedFile, globals: Globals): Promise<World> {
+        const world = new World(file, globals);
         await world.ready();
         return world;
     }
@@ -25,7 +26,7 @@ export class World extends FileBackedData {
     private _instances: Record<UUID, Instance> = {};
     private _instances_loading: Record<UUID, Promise<Instance>> = {};
     private _instance_refs: t.TypeOf<typeof instance_ref_schema>[] = [];
-    protected constructor(file: OwnedFile) {
+    protected constructor(file: OwnedFile, public globals: Globals) {
         super(file);
     }
     public async update(): Promise<void> {

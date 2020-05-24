@@ -10,76 +10,78 @@ html
         link(rel="stylesheet" type="text/css" href="./css/character_creation.css")
 
 body
-    #character_sheet.all
-        .outer.col
-            .nav.row
-                a.flex_none(href="./home.html") Back to Home
-                button.flex_none(v-on:click="finish()") create
-            .char_sheet.col
-                .row
-                    .section.row.flex_none
-                        p.flex_none='Name: '
-                        span.input.flex#name(contenteditable="true" v-on:input="refreshName" v-text="sheet.name")
-                    .section.row
-                        p='Race: '
-                        select(@change="setRace" v-model="sheet.race.raceID")
-                            option(v-for="race in races" :value="race[0]") {{race[1].name}}
-                    .section.row
-                        p Essence: 
-                        p {{sheet.essence}}
-                .row
-                    .col
-                        .row
-                            .section
-                                table.table
-                                    tr(v-for="(pool,name) in sheet.status.pools" v-bind:key="name")
-                                        td
-                                            p="{{name.split('_').map((w)=>{return w.charAt(0).toUpperCase() + w.substring(1).toLowerCase()}).join(' ')  + ':'}}:"
-                                        td
-                                            p {{pool.capacity}}
-                                    tr
-                                        td
-                                            p Action Points:
-                                        td
-                                            p /{{sheet.status.max_action_points}} (+{{sheet.status.action_point_recovery}})
-                                    tr
-                                        td
-                                            p Initiative:
-                                        td
-                                            p='AP + {{sheet.attributes.find((a) => a.name === "PERCEPTION").value}}'
-                            .section.col
-                                p Traits:
-                                ul
-                                    li(v-for="trait in sheet.race.traits")
-                                        span(:title='trait.description')
-                                            b [{{trait.name}}]
-                                    li(v-for="(trait, index) in sheet.traits")
-                                        span(:title='trait.description')
-                                            b [{{trait.name}}] 
-                                        button(@click="removeTrait(index)") -
-                                .flex_none
-                                    select(v-model='trait_choice')
-                                        option(v-for="trait in traits" :value="trait[0]") {{trait[1].name}} ({{trait[1].cost}})
-                                    button(@click="addTrait()") +
+    #character_sheet.all.col
+        .nav.row
+            a.flex_none(href="./home.html") Back to Home
+            button.flex_none(v-on:click="finish()") create
+        .char_sheet.col
+            .row
+                .section.row.flex_none
+                    p.flex_none='Name: '
+                    span.input.flex#name(contenteditable="true" v-on:input="refreshName" v-text="sheet.name")
+                .section.row
+                    p='Race: '
+                    select(@change="setRace" v-model="sheet.race.raceID")
+                        option(v-for="race in races" :value="race[0]") {{race[1].name}}
+                .section.row
+                    p Essence: 
+                    p {{sheet.essence}}
+            .row
+                .col
+                    .row
                         .section
                             table.table
+                                tr(v-for="(pool,name) in sheet.status.pools" v-bind:key="name")
+                                    td
+                                        p="{{name.split('_').map((w)=>{return w.charAt(0).toUpperCase() + w.substring(1).toLowerCase()}).join(' ')  + ':'}}:"
+                                    td
+                                        p {{pool.capacity}}
                                 tr
-                                    th
-                                        p Attribute
-                                    th
-                                        p Value
-                                tr(v-for="attribute in sheet.attributes")
                                     td
-                                        p="{{attribute.name.split('_').map((w)=>{return w.charAt(0).toUpperCase() + w.substring(1).toLowerCase()}).join(' ')  + ':'}}"
+                                        p Action Points:
                                     td
-                                        cnum(v-bind:self="attribute" v-bind:override="button_disable_override")
-                        .row
-                            .section
-                                p="Inventory: "
-                            .section.row
-                                p="Gold: "
-                                p(id="gold")
+                                        p /{{sheet.status.max_action_points}} (+{{sheet.status.action_point_recovery}})
+                                tr
+                                    td
+                                        p Initiative:
+                                    td
+                                        p='AP + {{sheet.attributes.find((a) => a.name === "PERCEPTION").value}}'
+                        .section.col
+                            p Traits:
+                            ul
+                                li(v-for="trait in sheet.race.traits")
+                                    span(:title='trait.description')
+                                        b [{{trait.name}}]
+                                li(v-for="(trait, index) in sheet.traits")
+                                    span(:title='trait.description')
+                                        b [{{trait.name}}] 
+                                    button(@click="removeTrait(index)") -
+                            //-.flex_none
+                                select(v-model='trait_choice')
+                                    option(v-for="trait in traits" :value="trait[0]") {{trait[1].name}} ({{trait[1].cost}})
+                                button(@click="addTrait()") +
                     .section
+                        table.table
+                            tr
+                                th
+                                    p Attribute
+                                th
+                                    p Value
+                            tr(v-for="attribute in sheet.attributes")
+                                td
+                                    p="{{attribute.name.split('_').map((w)=>{return w.charAt(0).toUpperCase() + w.substring(1).toLowerCase()}).join(' ')  + ':'}}"
+                                td
+                                    cnum(v-bind:self="attribute" v-bind:override="button_disable_override")
+                    .row
+                        .section.row
+                            p.flex-none="Inventory: "
+                            p.flex-none Not yet editable at character creation
+                        .section.row
+                            p.flex-none="Gold: "
+                            p.flex-none Not yet editable at character creation
+                .section.col
+                    p.flex_none Skills are not currently enabled in the live version, sorry!
+                    .flex
                         table.table
                             tr
                                 th
@@ -90,5 +92,5 @@ body
                                 td
                                     p="{{skill.name.split('_').map((w)=>{return w.charAt(0).toUpperCase() + w.substring(1).toLowerCase()}).join(' ')  + ':'}}"
                                 td
-                                    cnum(v-bind:self="skill" v-bind:override="button_disable_override")
-
+                                    cnum(v-bind:self="skill" v-bind:override="true")
+                                        //- when enabled change true to "button_disable_override")

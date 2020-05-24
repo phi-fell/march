@@ -5,7 +5,7 @@ import { CharacterSheet } from '../character/charactersheet';
 import { Random } from '../math/random';
 import type { OwnedFile } from '../system/file';
 import { FileBackedData } from '../system/file_backed_data';
-import type { Event } from '../world/event';
+import type { EventClientJSON } from '../world/event';
 import { Player } from '../world/player';
 import type { World } from '../world/world';
 import type { Client } from './client';
@@ -73,7 +73,7 @@ export class User extends FileBackedData {
         // TODO: maybe buffer unsent messages so they still exist when player is logged off?
         // TODO: chat history should maybe be stored server side in general anyway, no?
     }
-    public sendEvent(event: Event) {
+    public sendEvent(event: EventClientJSON) {
         this.client?.sendEvent(event);
     }
     public getActivePlayer(): Player | undefined {
@@ -146,6 +146,12 @@ export class User extends FileBackedData {
         this.client = undefined;
     }
     public async finishPlayer() {
+        if (this.unfinished_player.name.length < 3) {
+            return;
+        }
+        if (!this.unfinished_player.sheet.race.playable) {
+            return;
+        }
         const plr = await Player.createPlayer(this, this.world, this.unfinished_player.name, this.unfinished_player.sheet);
         plr.sheet.status.restoreFully();
         this.unfinished_player = {

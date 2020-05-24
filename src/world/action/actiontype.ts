@@ -11,9 +11,9 @@ export enum ACTION_TYPE {
     BACKSTEP,
     TURN,
     ATTACK,
-    // USE_PORTAL,
-    // PICKUP,
-    // DROP,
+    PICKUP,
+    DROP,
+    USE_PORTAL,
     // EQUIP,
     // UNEQUIP,
 }

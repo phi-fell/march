@@ -5,22 +5,22 @@
     "height": 30,
     "mobs": [
         {
-            "id": "slime_petty",
+            "id": "slime/petty",
             "count": 8
         },
         {
-            "id": "slime_lesser",
+            "id": "slime/lesser",
             "count": 2
         }
     ],
     "adjacencies": [
         {
             "id": "forest",
-            "weight": 1
+            "count": 1
         },
         {
             "id": "slime_cave/upper",
-            "weight": 1
+            "count": 1
         }
     ]
 }
