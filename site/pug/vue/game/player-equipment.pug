@@ -1,2 +1,13 @@
-.player_equipment
-    p {{self}}
+.player-equipment
+    ul.col
+        li.flex_none.row
+            p.flex_none(v-if="self.equipment.weapon !== undefined") Weapon:
+            img.flex_none(v-if="self.equipment.weapon !== undefined" v-bind:src="'./tex/sprite/'+self.equipment.weapon.sprite+'.png'")
+            p(v-if="self.equipment.weapon !== undefined") {{self.equipment.weapon.name}}
+            p(v-else) Weapon: None
+
+        li.flex_none.row(v-for="(item, slot) in self.equipment.armor")
+            p.flex_none {{slot.split('_').map((w)=>{return w.charAt(0).toUpperCase() + w.substring(1).toLowerCase()}).join(' ')}}: 
+            img.flex_none(v-bind:src="'./tex/sprite/'+item.sprite+'.png'")
+            p.flex_none {{item.name}}
+            button.flex_none(@click='self.sendChatMessage("#unwear " + item.armor_data.slot)') Unequip
