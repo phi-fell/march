@@ -77,16 +77,16 @@ export class Animation {
                                     red_y = red_y / red_count;
                                     if (green_count === 0) {
                                         return {
-                                            'x': red_x / this.frame_width,
-                                            'y': red_y / this.frame_width,
+                                            'x': (red_x / this.frame_width) - 0.5,
+                                            'y': (red_y / this.frame_width) - 0.5,
                                             'rot': 0,
                                         };
                                     }
                                     green_x = green_x / green_count;
                                     green_y = green_y / green_count;
                                     return {
-                                        'x': red_x / this.frame_width,
-                                        'y': red_y / this.frame_width,
+                                        'x': (red_x / this.frame_width) - 0.5,
+                                        'y': (red_y / this.frame_width) - 0.5,
                                         'rot': Math.atan2(green_y - red_y, green_x - red_x),
                                     };
                                 })());
@@ -126,9 +126,7 @@ export class Animation {
                 if (this.animation) {
                     const frame = Math.floor((time / this.delay) % this.frame_count); // TODO: add Math.max and Math.min to ensure within array bounds?
                     if (this.angle !== 0) {
-                        context.translate(0.5, 0.5);
                         context.rotate(this.angle);
-                        context.translate(-0.5, -0.5);
                     }
                     context.translate(this.offset.x, this.offset.y);
                     context.scale(this.scale.x, this.scale.y);
@@ -152,7 +150,7 @@ export class Animation {
                 }
             } else {
                 context.color('#F0F');
-                context.fillRect(0, 0, 1, 1);
+                context.fillRect();
             }
         } finally {
             context.pop();

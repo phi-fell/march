@@ -40,7 +40,7 @@ export class GraphicsContext {
     public rotate(angle: number) {
         this.context.rotate(angle);
     }
-    public drawImage(image: HTMLCanvasElement | HTMLImageElement, dx: number = 0, dy: number = 0, dw: number = 1, dh: number = 1) {
+    public drawImage(image: HTMLCanvasElement | HTMLImageElement, dx: number = -0.5, dy: number = -0.5, dw: number = 1, dh: number = 1) {
         this.context.drawImage(image, dx, dy, dw, dh);
     }
     public color(stroke: string, fill: string = stroke) {
@@ -53,10 +53,10 @@ export class GraphicsContext {
     public finalizeDraw() {
         this.context.fill();
     }
-    public fillRect(x: number = 0, y: number = 0, w: number = 1, h: number = 1) {
+    public fillRect(x: number = -0.5, y: number = -0.5, w: number = 1, h: number = 1) {
         this.context.fillRect(x, y, w, h);
     }
-    public addRect(x: number = 0, y: number = 0, w: number = 1, h: number = 1) {
+    public addRect(x: number = -0.5, y: number = -0.5, w: number = 1, h: number = 1) {
         this.context.rect(x, y, w, h);
     }
 }

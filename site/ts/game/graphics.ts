@@ -170,7 +170,6 @@ export class Graphics {
         this.entityContext.push();
         this.entityContext.translate(this.width / 2, this.height / 2);
         this.entityContext.scale(this.draw_scale, this.draw_scale);
-        this.entityContext.translate(-.5, -.5);
         this.entityContext.translate(-this.app.player_entity.location.x, -this.app.player_entity.location.y);
         this.playing_animations = this.playing_animations.filter((a) => {
             return Date.now() < a.start_time + a.anim.duration;
@@ -178,9 +177,7 @@ export class Graphics {
         for (const animation of this.playing_animations) {
             this.entityContext.push();
             this.entityContext.translate(animation.loc.x, animation.loc.y);
-            this.entityContext.translate(0.5, 0.5);
             this.entityContext.rotate(animation.dir * Math.PI / -2)
-            this.entityContext.translate(-0.5, -0.5);
             animation.anim.draw(this.entityContext, Date.now() - animation.start_time);
             this.entityContext.pop();
         }
@@ -210,9 +207,7 @@ export class Graphics {
             }
             const dir = entity.components.direction;
             if (dir !== undefined) {
-                this.entityContext.translate(0.5, 0.5);
                 this.entityContext.rotate(DIRECTION[dir] * Math.PI / -2)
-                this.entityContext.translate(-0.5, -0.5);
                 this.getAnimation('arrow').draw(this.entityContext, 0);
             }
             this.entityContext.pop();
