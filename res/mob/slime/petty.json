@@ -1,4 +1,10 @@
 {
     "extends": "slime/base",
-    "name": "Petty Slime"
+    "name": "Petty Slime",
+    "items": [
+        {
+            "id": "apparel/helmet",
+            "count": 1
+        }
+    ]
 }
