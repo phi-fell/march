@@ -1,5 +1,5 @@
 import { Graphics } from './graphics.js';
-import type { Board, Entity, Inventory, Item, Location, RELATIVE_DIRECTION } from './servertypes';
+import type { Board, CharacterStatus, Entity, Inventory, Item, Location, RELATIVE_DIRECTION } from './servertypes';
 import { DIRECTION } from './servertypes.js';
 
 type Events = {
@@ -23,6 +23,11 @@ type Events = {
         type: 'REMOVE_ENTITY';
         id: string;
     };
+    STATUS_CHANGE: {
+        type: 'STATUS_CHANGE';
+        entity_id: string;
+        status: CharacterStatus;
+    }
     WAIT: {
         type: 'WAIT';
         message: string;
@@ -171,6 +176,16 @@ export class EventHandler {
                     console.log('Cannot remove nonexistent Entity!');
                 } else {
                     this.app.entities.splice(index, 1);
+                }
+                break;
+            } case 'STATUS_CHANGE': {
+                const ent = this.app.entities.find((e) => e.id === event.entity_id);
+                if (ent === undefined) {
+                    console.log('Cannot set status of nonexistent Entity!');
+                } else if (ent.components.sheet === undefined) {
+                    console.log('Cannot set status entity that has no sheet!');
+                } else {
+                    ent.components.sheet.status = event.status;
                 }
                 break;
             } case 'WAIT': {

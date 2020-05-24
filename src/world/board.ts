@@ -7,6 +7,7 @@ import type { Cell } from './cell';
 import { Entity } from './entity';
 import type { Event } from './event';
 import { NewRoundEvent } from './event/new_round_event';
+import { StatusChangeEvent } from './event/status_change_event';
 import type { Location } from './location';
 
 export type BoardSchema = t.TypeOf<typeof Board.schema>
@@ -152,6 +153,9 @@ export class Board {
                 const action = controller.getNextAction();
                 const result = await action.perform(ent);
                 sheet.useAP(result.cost);
+                if (result.cost && ent.isMob()) {
+                    controller.sendEvent(new StatusChangeEvent(ent));
+                }
                 switch (result.result) {
                     case ACTION_RESULT.ASYNC:
                         this.waitingOnAsyncEntityID = ent.id;

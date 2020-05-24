@@ -4,6 +4,7 @@ export enum EVENT_TYPE {
     NEW_ROUND,
     ADD_ENTITY,
     REMOVE_ENTITY,
+    STATUS_CHANGE,
     WAIT,
     WAIT_ONCE,
     WAIT_ROUND,

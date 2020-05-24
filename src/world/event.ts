@@ -14,6 +14,7 @@ import { PickupEvent } from './event/pickup_event';
 import { RemoveEntityEvent } from './event/remove_entity_event';
 import { SayEvent } from './event/say_event';
 import { SetBoardEvent } from './event/set_board_event';
+import { StatusChangeEvent } from './event/status_change_event';
 import { StrafeEvent } from './event/strafe_event';
 import { TurnEvent } from './event/turn_event';
 import { UsePortalEvent } from './event/use_portal_event';
@@ -42,6 +43,7 @@ export const EventClasses: EventClassArray = [
     NewRoundEvent,
     AddEntityEvent,
     RemoveEntityEvent,
+    StatusChangeEvent,
     WaitEvent,
     WaitOnceEvent,
     WaitRoundEvent,

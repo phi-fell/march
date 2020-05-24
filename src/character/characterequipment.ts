@@ -1,5 +1,6 @@
 import * as t from 'io-ts';
 import { EQUIPMENT_SLOT } from '../item/equipment_slot';
+import { Item } from '../item/item';
 
 /*
 export enum EQUIPMENT_SLOT {
@@ -30,16 +31,6 @@ export enum EQUIPMENT_SLOT {
     LEFT_SHIN_ARMOR, RIGHT_SHIN_ARMOR,
     LEFT_FOOT, RIGHT_FOOT,
 }*/
-
-class Item {
-    public static schema = t.any;
-    public static fromJSON(json: any) {
-        return new Item();
-    }
-    public toJSON() {
-        return {};
-    }
-}
 
 const equipment_schema = t.partial(Object.keys(EQUIPMENT_SLOT).reduce((all, equip) => {
     if (isNaN(Number(equip))) {
