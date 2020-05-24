@@ -50,6 +50,10 @@ export const ChatActions: Record<string, ACTION_TYPE | undefined> = {
     'attack': ACTION_TYPE.ATTACK,
     'pickup': ACTION_TYPE.PICKUP,
     'drop': ACTION_TYPE.DROP,
+    'wear': ACTION_TYPE.EQUIP_ARMOR,
+    'unwear': ACTION_TYPE.UNEQUIP_ARMOR,
+    'wield': ACTION_TYPE.EQUIP_WEAPON,
+    'unweild': ACTION_TYPE.UNEQUIP_WEAPON,
     'use_portal': ACTION_TYPE.USE_PORTAL,
 }
 export const ActionClasses: ActionClassArray = [
