@@ -185,6 +185,9 @@ export class Board {
             }
             if (ent.has('controller')) {
                 ent.getComponent('controller').newRound();
+                if (ent.isMob()) {
+                    ent.getComponent('controller').sendEvent(new StatusChangeEvent(ent));
+                }
             }
         }
         this.emitGlobal(new NewRoundEvent());
