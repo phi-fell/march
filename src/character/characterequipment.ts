@@ -1,6 +1,8 @@
 import * as t from 'io-ts';
-import { EQUIPMENT_SLOT } from '../item/equipment_slot';
-import { Item } from '../item/item';
+import { Armor } from '../item/armor';
+import { ARMOR_SLOT } from '../item/armor_slot';
+import type { Inventory } from '../item/inventory';
+import { Weapon } from '../item/weapon';
 
 /*
 export enum EQUIPMENT_SLOT {
@@ -32,71 +34,77 @@ export enum EQUIPMENT_SLOT {
     LEFT_FOOT, RIGHT_FOOT,
 }*/
 
-const equipment_schema = t.partial(Object.keys(EQUIPMENT_SLOT).reduce((all, equip) => {
+const armor_set_schema = t.partial(Object.keys(ARMOR_SLOT).reduce((all, equip) => {
     if (isNaN(Number(equip))) {
-        all[equip as keyof typeof EQUIPMENT_SLOT] = Item.schema;
+        all[equip as keyof typeof ARMOR_SLOT] = Armor.schema;
     }
     return all;
-}, {} as Record<keyof typeof EQUIPMENT_SLOT, typeof Item.schema>));
-type EquipmentSchema = t.TypeOf<typeof equipment_schema>;
+}, {} as Record<keyof typeof ARMOR_SLOT, typeof Armor.schema>));
+type ArmorSetSchema = t.TypeOf<typeof armor_set_schema>;
 
 export type CharacterEquipmentSchema = t.TypeOf<typeof CharacterEquipment.schema>;
 
 export class CharacterEquipment {
-    public static schema = equipment_schema;
+    public static schema = t.type({
+        'armor': armor_set_schema,
+        'weapon': t.union([Weapon.schema, t.undefined]),
+    });
     public static fromJSON(json: CharacterEquipmentSchema) {
         const ret = new CharacterEquipment();
         if (!json) {
             return ret;
         }
+        if (json.weapon !== undefined) {
+            ret.weapon = Weapon.fromJSON(json.weapon);
+        }
         for (const slot of Object.keys(json)) {
-            const item = json[slot as keyof typeof EQUIPMENT_SLOT];
+            const item = json.armor[slot as keyof typeof ARMOR_SLOT];
             if (item !== undefined) {
-                ret.equipment[EQUIPMENT_SLOT[slot as keyof typeof EQUIPMENT_SLOT]] = Item.fromJSON(item);
+                ret.armor[ARMOR_SLOT[slot as keyof typeof ARMOR_SLOT]] = Armor.fromJSON(item);
             }
         }
         return ret;
     }
-    // public shield: Shield | null;
-    private equipment: (Item | undefined)[] = [];
-    public get weapon(): any | null {
-        const ret = this.equipment[EQUIPMENT_SLOT.WEAPON];
-        return ret ? (ret as any) : (null);
+    private armor: (Armor | undefined)[] = [];
+    private weapon: Weapon | undefined;
+    public getWeapon(): Weapon | undefined {
+        return this.weapon;
     }
-    public set weapon(weapon: any | null) {
-        this.equipment[EQUIPMENT_SLOT.WEAPON] = weapon || undefined;
+    public getArmor(slot: ARMOR_SLOT): Armor | undefined {
+        return this.armor[slot];
     }
-    public getEquipment(slot: EQUIPMENT_SLOT): Item | null {
-        return this.equipment[slot] || null;
+    public equipWeapon(weapon: Weapon, inventory: Inventory) {
+        this.unequipWeapon(inventory);
+        this.weapon = weapon;
     }
-    public equipWeapon(weapon: any | null) {
-        if (!weapon) {
-            return;
+    public equipArmor(armor: Armor, inventory: Inventory) {
+        this.unequipArmor(armor.armor_data.slot, inventory);
+        this.armor[armor.armor_data.slot] = armor;
+    }
+    public unequipArmor(slot: ARMOR_SLOT, inventory: Inventory) {
+        const armor = this.armor[slot];
+        if (armor !== undefined) {
+            inventory.addItem(armor);
+            this.armor[slot] = undefined;
         }
-        this.equipment[EQUIPMENT_SLOT.WEAPON] = weapon;
     }
-    public equipArmor(armor: any | null) {
-        if (!armor) {
-            return;
+    public unequipWeapon(inventory: Inventory) {
+        const weapon = this.weapon;
+        if (weapon !== undefined) {
+            inventory.addItem(weapon);
+            this.weapon = undefined;
         }
-        this.unequip(armor.armor_data.slot);
-        this.equipment[armor.armor_data.slot] = armor;
-    }
-    public unequip(slot: EQUIPMENT_SLOT): boolean {
-        let ret = false;
-        if (this.equipment[slot]) {
-            ret = true;
-        }
-        this.equipment[slot] = undefined;
-        return ret;
     }
     public toJSON(): CharacterEquipmentSchema {
-        return this.equipment.reduce(
-            (equipped: EquipmentSchema, item: Item | undefined, slot: EQUIPMENT_SLOT): EquipmentSchema => {
-                equipped[EQUIPMENT_SLOT[slot] as keyof typeof EQUIPMENT_SLOT] = item?.toJSON();
-                return equipped;
-            },
-            {} as EquipmentSchema,
-        );
+        return {
+            'weapon': this.weapon?.toJSON(),
+            'armor': this.armor.reduce(
+                (equipped: ArmorSetSchema, item: Armor | undefined, slot: ARMOR_SLOT): ArmorSetSchema => {
+                    equipped[ARMOR_SLOT[slot] as keyof typeof ARMOR_SLOT] = item?.toJSON();
+                    return equipped;
+                },
+                {} as ArmorSetSchema,
+            ),
+        }
     }
 }
