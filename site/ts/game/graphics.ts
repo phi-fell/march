@@ -61,8 +61,8 @@ export class Graphics {
             g.resize();
         });
         // load animations:
-        for (const sprite of ['player', 'slime']) {
-            for (const anim of ['idle', 'attack']) {
+        for (const sprite of ['player/A', 'slime']) {
+            for (const anim of ['idle', 'attack', 'damaged']) {
                 this.getAnimation('mob/' + sprite + '/' + anim);
             }
         }
@@ -216,8 +216,13 @@ export class Graphics {
             }
             const dir = entity.components.direction;
             if (dir !== undefined) {
+                this.entityContext.push();
                 this.entityContext.rotate(DIRECTION[dir] * Math.PI / -2)
                 this.getAnimation('arrow').draw(this.entityContext, 0);
+                this.entityContext.pop();
+            }
+            if (sprite?.startsWith('mob/player')) {
+                this.getAnimation('shadow').draw(this.entityContext, 0);
             }
             this.entityContext.pop();
         }

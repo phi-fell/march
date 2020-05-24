@@ -276,11 +276,10 @@ export class EventHandler {
                     this.chat.messages.push(event.message);
                     this.graphics.playAnimation('attack/swing', attacker.location, DIRECTION[event.direction]);
                     const defender = this.app.entities.find((e) => e.id === event.defender_id);
-                    const proms = [this.playAnimation(attacker, 'attack')];
+                    await this.playAnimation(attacker, 'attack');
                     if (defender !== undefined) {
-                        proms.push(this.playAnimation(defender, 'damaged'));
+                        await this.playAnimation(defender, 'damaged');
                     }
-                    await Promise.all(proms);
                 }
                 break;
             } case 'PICKUP': {
