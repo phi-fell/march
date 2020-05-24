@@ -31,6 +31,9 @@ export class Inventory {
     public hasItemByID(item_id: UUID): boolean {
         return this.items.find((item) => item.id === item_id) !== undefined;
     }
+    public accessItemByID(item_id: UUID): Item | undefined {
+        return this.items.find((item) => item.id === item_id);
+    }
     public removeAndReturnItemByID(item_id: UUID): Item | undefined {
         const index = this.items.findIndex((item) => item.id === item_id);
         if (index < 0) {

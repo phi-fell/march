@@ -196,7 +196,7 @@ export class CharacterSheet {
             event.success = false;
             return;
         }
-        const weapon = attacker_sheet.equipment.weapon;
+        const weapon = attacker_sheet.equipment.getWeapon();
         // TODO: combat calculations (not complete)
         /*
             chance to dodge: along the lines of hit_success=(1D20 + attacker.DEX) >= (1D20 + defender.AGI) or something

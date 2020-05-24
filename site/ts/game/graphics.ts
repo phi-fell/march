@@ -61,8 +61,8 @@ export class Graphics {
             g.resize();
         });
         // load animations:
-        for (const sprite of ['player', 'slime']) {
-            for (const anim of ['idle', 'attack']) {
+        for (const sprite of ['player/A', 'slime']) {
+            for (const anim of ['idle', 'attack', 'damaged']) {
                 this.getAnimation('mob/' + sprite + '/' + anim);
             }
         }
@@ -170,7 +170,6 @@ export class Graphics {
         this.entityContext.push();
         this.entityContext.translate(this.width / 2, this.height / 2);
         this.entityContext.scale(this.draw_scale, this.draw_scale);
-        this.entityContext.translate(-.5, -.5);
         this.entityContext.translate(-this.app.player_entity.location.x, -this.app.player_entity.location.y);
         this.playing_animations = this.playing_animations.filter((a) => {
             return Date.now() < a.start_time + a.anim.duration;
@@ -178,9 +177,7 @@ export class Graphics {
         for (const animation of this.playing_animations) {
             this.entityContext.push();
             this.entityContext.translate(animation.loc.x, animation.loc.y);
-            this.entityContext.translate(0.5, 0.5);
             this.entityContext.rotate(animation.dir * Math.PI / -2)
-            this.entityContext.translate(-0.5, -0.5);
             animation.anim.draw(this.entityContext, Date.now() - animation.start_time);
             this.entityContext.pop();
         }
@@ -190,17 +187,26 @@ export class Graphics {
             const sprite = entity.components.sprite;
             const anim = entity.animation_playing;
             const anim_start = entity.animation_start_time;
+            const gear: { [id: string]: Animation } = {};
+            const sheet = entity.components.sheet;
+            if (sheet !== undefined) {
+                const equipment = sheet.equipment;
+                const weapon = equipment.weapon;
+                if (weapon !== undefined) {
+                    gear.weapon = this.getAnimation(weapon.sprite);
+                }
+                for (const entry of Object.entries(equipment.armor)) {
+                    const [slot, item] = entry;
+                    if (item !== undefined) {
+                        gear[slot.toLowerCase()] = this.getAnimation(item.sprite);
+                    }
+                }
+            }
             if (anim !== undefined && anim_start !== undefined) {
-                this.getAnimation(anim).draw(this.entityContext, Date.now() - anim_start, {
-                    'weapon': this.getAnimation('test'),
-                    'helmet': this.getAnimation('item/armor/helmet'),
-                });
+                this.getAnimation(anim).draw(this.entityContext, Date.now() - anim_start, gear);
             } else if (typeof sprite === 'string') {
                 if (entity.components.sheet) {
-                    this.getAnimation(sprite + '/idle').draw(this.entityContext, Date.now(), {
-                        'weapon': this.getAnimation('test'),
-                        'helmet': this.getAnimation('item/armor/helmet'),
-                    });
+                    this.getAnimation(sprite + '/idle').draw(this.entityContext, Date.now(), gear);
                 } else {
                     this.getAnimation(sprite).draw(this.entityContext, Date.now());
                 }
@@ -210,10 +216,13 @@ export class Graphics {
             }
             const dir = entity.components.direction;
             if (dir !== undefined) {
-                this.entityContext.translate(0.5, 0.5);
+                this.entityContext.push();
                 this.entityContext.rotate(DIRECTION[dir] * Math.PI / -2)
-                this.entityContext.translate(-0.5, -0.5);
                 this.getAnimation('arrow').draw(this.entityContext, 0);
+                this.entityContext.pop();
+            }
+            if (sprite?.startsWith('mob/player')) {
+                this.getAnimation('shadow').draw(this.entityContext, 0);
             }
             this.entityContext.pop();
         }

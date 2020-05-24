@@ -1,0 +1,11 @@
+{
+    "name": "Steel Helmet",
+    "sprite": "item/armor/helmet",
+    "stackable": false,
+    "armor_data": {
+        "coverage": 2,
+        "resilience": 3,
+        "armor": 3,
+        "slot": "HELMET"
+    }
+}

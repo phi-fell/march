@@ -5,6 +5,8 @@ import { AttackEvent } from './event/attack_event';
 import { BackstepEvent } from './event/backstep_event';
 import { DeathEvent } from './event/death_event';
 import { DropEvent } from './event/drop_event';
+import { EquipArmorEvent } from './event/equip_armor_event';
+import { EquipWeaponEvent } from './event/equip_weapon_event';
 import type { EVENT_TYPE } from './event/event_type';
 import { LookEvent } from './event/look_event';
 import { MessageEvent } from './event/message_event';
@@ -14,8 +16,11 @@ import { PickupEvent } from './event/pickup_event';
 import { RemoveEntityEvent } from './event/remove_entity_event';
 import { SayEvent } from './event/say_event';
 import { SetBoardEvent } from './event/set_board_event';
+import { StatusChangeEvent } from './event/status_change_event';
 import { StrafeEvent } from './event/strafe_event';
 import { TurnEvent } from './event/turn_event';
+import { UnequipArmorEvent } from './event/unequip_armor_event';
+import { UnequipWeaponEvent } from './event/unequip_weapon_event';
 import { UsePortalEvent } from './event/use_portal_event';
 import { WaitEvent } from './event/wait_event';
 import { WaitOnceEvent } from './event/wait_once_event';
@@ -42,6 +47,7 @@ export const EventClasses: EventClassArray = [
     NewRoundEvent,
     AddEntityEvent,
     RemoveEntityEvent,
+    StatusChangeEvent,
     WaitEvent,
     WaitOnceEvent,
     WaitRoundEvent,
@@ -54,6 +60,10 @@ export const EventClasses: EventClassArray = [
     AttackEvent,
     PickupEvent,
     DropEvent,
+    EquipArmorEvent,
+    UnequipArmorEvent,
+    EquipWeaponEvent,
+    UnequipWeaponEvent,
     UsePortalEvent,
     DeathEvent,
 ];

@@ -1,5 +1,5 @@
 import { Graphics } from './graphics.js';
-import type { Board, Entity, Inventory, Item, Location, RELATIVE_DIRECTION } from './servertypes';
+import type { Board, CharacterEquipment, CharacterStatus, Entity, Inventory, Item, Location, RELATIVE_DIRECTION } from './servertypes';
 import { DIRECTION } from './servertypes.js';
 
 type Events = {
@@ -23,6 +23,11 @@ type Events = {
         type: 'REMOVE_ENTITY';
         id: string;
     };
+    STATUS_CHANGE: {
+        type: 'STATUS_CHANGE';
+        entity_id: string;
+        status: CharacterStatus;
+    }
     WAIT: {
         type: 'WAIT';
         message: string;
@@ -68,7 +73,8 @@ type Events = {
     };
     ATTACK: {
         type: 'ATTACK';
-        entity_id: string;
+        attacker_id: string;
+        defender_id?: string | undefined;
         direction: keyof typeof DIRECTION;
         message: string;
     };
@@ -84,6 +90,34 @@ type Events = {
         entity_id: string;
         item: Item;
         inventory: Inventory;
+    };
+    EQUIP_ARMOR: {
+        type: 'EQUIP_ARMOR',
+        entity_id: string;
+        item: Item;
+        equipment: CharacterEquipment;
+        inventory: Inventory,
+    };
+    UNEQUIP_ARMOR: {
+        type: 'UNEQUIP_ARMOR',
+        entity_id: string;
+        item: Item;
+        equipment: CharacterEquipment;
+        inventory: Inventory,
+    };
+    EQUIP_WEAPON: {
+        type: 'EQUIP_WEAPON',
+        entity_id: string;
+        item: Item;
+        equipment: CharacterEquipment;
+        inventory: Inventory,
+    };
+    UNEQUIP_WEAPON: {
+        type: 'UNEQUIP_WEAPON',
+        entity_id: string;
+        item: Item;
+        equipment: CharacterEquipment;
+        inventory: Inventory,
     };
     USE_PORTAL: {
         type: 'USE_PORTAL';
@@ -173,6 +207,16 @@ export class EventHandler {
                     this.app.entities.splice(index, 1);
                 }
                 break;
+            } case 'STATUS_CHANGE': {
+                const ent = this.app.entities.find((e) => e.id === event.entity_id);
+                if (ent === undefined) {
+                    console.log('Cannot set status of nonexistent Entity!');
+                } else if (ent.components.sheet === undefined) {
+                    console.log('Cannot set status entity that has no sheet!');
+                } else {
+                    ent.components.sheet.status = event.status;
+                }
+                break;
             } case 'WAIT': {
                 this.chat.messages.push(event.message);
                 break;
@@ -225,13 +269,17 @@ export class EventHandler {
                 }
                 break;
             } case 'ATTACK': {
-                const ent = this.app.entities.find((e) => e.id === event.entity_id);
-                if (ent === undefined) {
+                const attacker = this.app.entities.find((e) => e.id === event.attacker_id);
+                if (attacker === undefined) {
                     console.log('Cannot attack with nonexistent Entity!');
                 } else {
                     this.chat.messages.push(event.message);
-                    this.graphics.playAnimation('attack/swing', ent.location, DIRECTION[event.direction]);
-                    await this.playAnimation(ent, 'attack');
+                    this.graphics.playAnimation('attack/swing', attacker.location, DIRECTION[event.direction]);
+                    const defender = this.app.entities.find((e) => e.id === event.defender_id);
+                    await this.playAnimation(attacker, 'attack');
+                    if (defender !== undefined) {
+                        await this.playAnimation(defender, 'damaged');
+                    }
                 }
                 break;
             } case 'PICKUP': {
@@ -250,6 +298,58 @@ export class EventHandler {
                 } else {
                     ent.components.inventory = event.inventory;
                     this.chat.messages.push(`${ent.components.name} drops the ${event.item.name}`);
+                }
+                break;
+            } case 'EQUIP_ARMOR': {
+                const ent = this.app.entities.find((e) => e.id === event.entity_id);
+                if (ent === undefined) {
+                    console.log('Cannot equip armor with nonexistent Entity!');
+                } else {
+                    ent.components.inventory = event.inventory;
+                    const sheet = ent.components.sheet;
+                    if (sheet !== undefined) {
+                        sheet.equipment = event.equipment;
+                    }
+                    this.chat.messages.push(`${ent.components.name} puts on their ${event.item.name}`);
+                }
+                break;
+            } case 'UNEQUIP_ARMOR': {
+                const ent = this.app.entities.find((e) => e.id === event.entity_id);
+                if (ent === undefined) {
+                    console.log('Cannot equip armor with nonexistent Entity!');
+                } else {
+                    ent.components.inventory = event.inventory;
+                    const sheet = ent.components.sheet;
+                    if (sheet !== undefined) {
+                        sheet.equipment = event.equipment;
+                    }
+                    this.chat.messages.push(`${ent.components.name} takes off their ${event.item.name}`);
+                }
+                break;
+            } case 'EQUIP_WEAPON': {
+                const ent = this.app.entities.find((e) => e.id === event.entity_id);
+                if (ent === undefined) {
+                    console.log('Cannot equip armor with nonexistent Entity!');
+                } else {
+                    ent.components.inventory = event.inventory;
+                    const sheet = ent.components.sheet;
+                    if (sheet !== undefined) {
+                        sheet.equipment = event.equipment;
+                    }
+                    this.chat.messages.push(`${ent.components.name} takes out their ${event.item.name}`);
+                }
+                break;
+            } case 'UNEQUIP_WEAPON': {
+                const ent = this.app.entities.find((e) => e.id === event.entity_id);
+                if (ent === undefined) {
+                    console.log('Cannot equip armor with nonexistent Entity!');
+                } else {
+                    ent.components.inventory = event.inventory;
+                    const sheet = ent.components.sheet;
+                    if (sheet !== undefined) {
+                        sheet.equipment = event.equipment;
+                    }
+                    this.chat.messages.push(`${ent.components.name} puts away their ${event.item.name}`);
                 }
                 break;
             } case 'USE_PORTAL': {

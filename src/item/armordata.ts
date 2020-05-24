@@ -1,5 +1,5 @@
 import * as t from 'io-ts';
-import { EQUIPMENT_SLOT } from './equipment_slot';
+import { ARMOR_SLOT } from './armor_slot';
 
 export type ArmorDataSchema = t.TypeOf<typeof ArmorData.schema>;
 
@@ -8,21 +8,21 @@ export class ArmorData {
         'coverage': t.number,
         'resilience': t.number,
         'armor': t.number,
-        'slot': t.keyof(EQUIPMENT_SLOT),
+        'slot': t.keyof(ARMOR_SLOT),
     });
     public static fromJSON(json: ArmorDataSchema) {
         return new ArmorData(
             json.coverage,
             json.resilience,
             json.armor,
-            EQUIPMENT_SLOT[json.slot as keyof typeof EQUIPMENT_SLOT]
+            ARMOR_SLOT[json.slot as keyof typeof ARMOR_SLOT]
         );
     }
     constructor(
         public coverage: number,
         public resilience: number,
         public armor: number,
-        public slot: EQUIPMENT_SLOT
+        public slot: ARMOR_SLOT
     ) { }
     public equals(other: ArmorData) {
         return this.coverage === other.coverage &&
@@ -35,7 +35,7 @@ export class ArmorData {
             'coverage': this.coverage,
             'resilience': this.resilience,
             'armor': this.armor,
-            'slot': EQUIPMENT_SLOT[this.slot] as keyof typeof EQUIPMENT_SLOT,
+            'slot': ARMOR_SLOT[this.slot] as keyof typeof ARMOR_SLOT,
         };
     }
     public clone(): ArmorData {

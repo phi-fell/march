@@ -1,6 +1,7 @@
 {
     "anchors": [
-        "weapon"
+        "weapon",
+        "helmet"
     ],
     "offset": {
         "x": 0,
