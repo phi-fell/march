@@ -86,17 +86,15 @@ export enum RESOURCE {
 }
 
 export enum EQUIPMENT_SLOT {
-    WEAPON = 0,
-    SHIELD = 1,
-    HELMET = 2,
-    CHEST_ARMOR = 3,
-    LEG_ARMOR = 4,
-    BOOTS = 5,
-    GLOVES = 6,
-    BELT = 7,
-    NECKLACE = 8,
-    RING = 9,
-    RING_ALT = 10,
+    HELMET,
+    CHEST_ARMOR,
+    LEG_ARMOR,
+    BOOTS,
+    GLOVES,
+    BELT,
+    NECKLACE,
+    RING,
+    RING_ALT,
 }
 
 export interface ArmorData {
@@ -126,13 +124,24 @@ export interface Item {
     weapon_data?: WeaponData;
 }
 
-export type Inventory = Item[];
+export interface Armor extends Item {
+    armor_data: ArmorData;
+}
+export interface Weapon extends Item {
+    weapon_data: WeaponData;
+}
 
-export type CharacterEquipment = Record<keyof typeof EQUIPMENT_SLOT, Item>;
+export type Inventory = Item[];
 
 export type CharacterAttributes = Record<keyof typeof ATTRIBUTE, number>;
 
 export type CharacterSkills = Record<keyof typeof SKILL, number>;
+
+
+export interface CharacterEquipment {
+    weapon?: Weapon | undefined;
+    armor: Record<keyof typeof EQUIPMENT_SLOT, Armor | undefined>;
+}
 
 export interface CharacterTrait {
     id: string;
@@ -178,7 +187,7 @@ export interface Entity {
     location: Location;
     components: {
         direction?: keyof typeof DIRECTION;
-        sheet?: any;
+        sheet?: CharacterSheet;
         sprite?: string;
         name?: string;
         inventory?: Inventory;

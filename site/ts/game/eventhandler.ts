@@ -301,7 +301,10 @@ export class EventHandler {
                     console.log('Cannot equip armor with nonexistent Entity!');
                 } else {
                     ent.components.inventory = event.inventory;
-                    ent.components.sheet.equipment = event.equipment;
+                    const sheet = ent.components.sheet;
+                    if (sheet !== undefined) {
+                        sheet.equipment = event.equipment;
+                    }
                     this.chat.messages.push(`${ent.components.name} puts on their ${event.item.name}`);
                 }
                 break;
@@ -311,7 +314,10 @@ export class EventHandler {
                     console.log('Cannot equip armor with nonexistent Entity!');
                 } else {
                     ent.components.inventory = event.inventory;
-                    ent.components.sheet.equipment = event.equipment;
+                    const sheet = ent.components.sheet;
+                    if (sheet !== undefined) {
+                        sheet.equipment = event.equipment;
+                    }
                     this.chat.messages.push(`${ent.components.name} takes off their ${event.item.name}`);
                 }
                 break;
@@ -321,7 +327,10 @@ export class EventHandler {
                     console.log('Cannot equip armor with nonexistent Entity!');
                 } else {
                     ent.components.inventory = event.inventory;
-                    ent.components.sheet.equipment = event.equipment;
+                    const sheet = ent.components.sheet;
+                    if (sheet !== undefined) {
+                        sheet.equipment = event.equipment;
+                    }
                     this.chat.messages.push(`${ent.components.name} takes out their ${event.item.name}`);
                 }
                 break;
@@ -331,7 +340,10 @@ export class EventHandler {
                     console.log('Cannot equip armor with nonexistent Entity!');
                 } else {
                     ent.components.inventory = event.inventory;
-                    ent.components.sheet.equipment = event.equipment;
+                    const sheet = ent.components.sheet;
+                    if (sheet !== undefined) {
+                        sheet.equipment = event.equipment;
+                    }
                     this.chat.messages.push(`${ent.components.name} puts away their ${event.item.name}`);
                 }
                 break;
