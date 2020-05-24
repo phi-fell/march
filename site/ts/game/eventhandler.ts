@@ -73,7 +73,8 @@ type Events = {
     };
     ATTACK: {
         type: 'ATTACK';
-        entity_id: string;
+        attacker_id: string;
+        defender_id?: string | undefined;
         direction: keyof typeof DIRECTION;
         message: string;
     };
@@ -268,13 +269,18 @@ export class EventHandler {
                 }
                 break;
             } case 'ATTACK': {
-                const ent = this.app.entities.find((e) => e.id === event.entity_id);
-                if (ent === undefined) {
+                const attacker = this.app.entities.find((e) => e.id === event.attacker_id);
+                if (attacker === undefined) {
                     console.log('Cannot attack with nonexistent Entity!');
                 } else {
                     this.chat.messages.push(event.message);
-                    this.graphics.playAnimation('attack/swing', ent.location, DIRECTION[event.direction]);
-                    await this.playAnimation(ent, 'attack');
+                    this.graphics.playAnimation('attack/swing', attacker.location, DIRECTION[event.direction]);
+                    const defender = this.app.entities.find((e) => e.id === event.defender_id);
+                    const proms = [this.playAnimation(attacker, 'attack')];
+                    if (defender !== undefined) {
+                        proms.push(this.playAnimation(defender, 'damaged'));
+                    }
+                    await Promise.all(proms);
                 }
                 break;
             } case 'PICKUP': {

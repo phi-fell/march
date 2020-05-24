@@ -59,7 +59,7 @@ export class Player {
             e.setComponent('name', ret.name);
             e.setComponent('direction', DIRECTION.NORTH);
             e.setComponent('sheet', ret.sheet);
-            e.setComponent('sprite', 'mob/player');
+            e.setComponent('sprite', 'mob/player/A');
             e.setComponent('inventory', new Inventory());
             e.setComponent('collidable', true);
             e.setComponent('visibility_manager', new VisibilityManager(e));
@@ -180,6 +180,9 @@ export class Player {
         }
         const cell = await this.world.getCell(this.entity_ref.instance_id, this.entity_ref.cell_id);
         const ent: Entity = cell.getEntity(this.entity_ref.entity_id);
+        if (ent.getComponent('sprite') === 'mob/player') {
+            ent.setComponent('sprite', 'mob/player/A');
+        }
         ent.setComponent('player', this);
         this.entity = ent;
         ent.getComponent('visibility_manager')?.recalculateAllVisibleEntities();

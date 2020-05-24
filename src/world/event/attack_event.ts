@@ -21,7 +21,8 @@ export class AttackEvent {
         }
         return {
             'type': EVENT_TYPE[this.type] as keyof typeof EVENT_TYPE,
-            'entity_id': this.attacker.id,
+            'attacker_id': this.attacker.id,
+            'defender_id': this.defender?.id,
             'direction': DIRECTION[this.direction],
             'message': msg,
         };

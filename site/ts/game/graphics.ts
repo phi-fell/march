@@ -187,17 +187,26 @@ export class Graphics {
             const sprite = entity.components.sprite;
             const anim = entity.animation_playing;
             const anim_start = entity.animation_start_time;
+            const gear: { [id: string]: Animation } = {};
+            const sheet = entity.components.sheet;
+            if (sheet !== undefined) {
+                const equipment = sheet.equipment;
+                const weapon = equipment.weapon;
+                if (weapon !== undefined) {
+                    gear.weapon = this.getAnimation(weapon.sprite);
+                }
+                for (const entry of Object.entries(equipment.armor)) {
+                    const [slot, item] = entry;
+                    if (item !== undefined) {
+                        gear[slot.toLowerCase()] = this.getAnimation(item.sprite);
+                    }
+                }
+            }
             if (anim !== undefined && anim_start !== undefined) {
-                this.getAnimation(anim).draw(this.entityContext, Date.now() - anim_start, {
-                    'weapon': this.getAnimation('test'),
-                    'helmet': this.getAnimation('item/armor/helmet'),
-                });
+                this.getAnimation(anim).draw(this.entityContext, Date.now() - anim_start, gear);
             } else if (typeof sprite === 'string') {
                 if (entity.components.sheet) {
-                    this.getAnimation(sprite + '/idle').draw(this.entityContext, Date.now(), {
-                        'weapon': this.getAnimation('test'),
-                        'helmet': this.getAnimation('item/armor/helmet'),
-                    });
+                    this.getAnimation(sprite + '/idle').draw(this.entityContext, Date.now(), gear);
                 } else {
                     this.getAnimation(sprite).draw(this.entityContext, Date.now());
                 }
