@@ -118,6 +118,7 @@ export class CellBlueprint extends Resource<CellBlueprintSchema> {
                     const loc = cell.getRandomEmptyLocation();
                     const portal = new Portal(loc, id);
                     const ent: Entity = new Entity(loc, Random.uuid(), true);
+                    ent.setComponent('name', 'stairs');
                     ent.setComponent('portal', portal);
                     ent.setComponent('sprite', 'portal/stone_stairs');
                     board.addEntity(ent);
@@ -128,6 +129,7 @@ export class CellBlueprint extends Resource<CellBlueprintSchema> {
                     const loc = cell.getRandomEmptyLocation();
                     const portal = new Portal(loc, id);
                     const ent: Entity = new Entity(loc, Random.uuid(), true);
+                    ent.setComponent('name', 'stairs');
                     ent.setComponent('portal', portal);
                     ent.setComponent('sprite', 'portal/stone_stairs');
                     board.addEntity(ent);

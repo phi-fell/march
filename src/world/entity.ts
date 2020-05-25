@@ -41,7 +41,7 @@ const item_components = ['name', 'sprite', 'item_data'] as const;
 type ItemComponents = ValueOfArray<typeof item_components>;
 export type ItemEntity = EntityWith<ItemComponents>;
 
-const portal_components = ['sprite', 'portal'] as const;
+const portal_components = ['name', 'sprite', 'portal'] as const;
 type PortalComponents = ValueOfArray<typeof portal_components>;
 export type PortalEntity = EntityWith<PortalComponents>;
 
@@ -74,7 +74,7 @@ export class Entity extends Locatable {
         const loc = mob.location;
         const ret: Entity = new Entity(loc);
         ret.setComponent('corpse_data', new CorpseData());
-        ret.setComponent('name', mob.getComponent('name'));
+        ret.setComponent('name', 'Corpse of ' + mob.getComponent('name'));
         ret.setComponent('sprite', mob.getComponent('sprite'));
         loc.cell.emit(new AddEntityEvent(ret), loc)
         return ret;
