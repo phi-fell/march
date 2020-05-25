@@ -4,6 +4,7 @@ import { Random, UUID } from '../math/random';
 import type { ValueOfArray } from '../util/types';
 import type { Cell } from './cell';
 import { ComponentName, Components, ComponentsWith, ComponentsWithNames, FullComponents } from './component';
+import { CorpseData } from './corpse_data';
 import { AddEntityEvent } from './event/add_entity_event';
 import { Locatable, locatable_schema } from './locatable';
 import { Location } from './location';
@@ -27,6 +28,10 @@ export interface EntityWith<T extends ComponentName> extends Entity {
 const mob_components = ['name', 'sprite', 'controller', 'sheet', 'inventory', 'collidable'] as const;
 type MobComponents = ValueOfArray<typeof mob_components>;
 export type Mob = EntityWith<MobComponents>;
+
+const corpse_components = ['name', 'sprite', 'corpse_data'] as const;
+type CorpseComponents = ValueOfArray<typeof corpse_components>;
+export type Corpse = EntityWith<CorpseComponents>;
 
 const player_components = ['player'] as const;
 type PlayerComponents = ValueOfArray<typeof player_components>;
@@ -65,6 +70,15 @@ export class Entity extends Locatable {
         loc.cell.emit(new AddEntityEvent(ret), loc)
         return ret;
     }
+    public static spawnCorpse(mob: Mob): Corpse {
+        const loc = mob.location;
+        const ret: Entity = new Entity(loc);
+        ret.setComponent('corpse_data', new CorpseData());
+        ret.setComponent('name', mob.getComponent('name'));
+        ret.setComponent('sprite', mob.getComponent('sprite'));
+        loc.cell.emit(new AddEntityEvent(ret), loc)
+        return ret;
+    }
 
     public components: Components = {};
     public constructor(loc: Location, public id: UUID = Random.uuid(), emplaced: boolean = false) {
@@ -83,6 +97,9 @@ export class Entity extends Locatable {
     }
     public isMob(): this is Mob {
         return this.has(...mob_components);
+    }
+    public isCorpse(): this is Corpse {
+        return this.has(...corpse_components);
     }
     public isItem(): this is ItemEntity {
         return this.has(...item_components);

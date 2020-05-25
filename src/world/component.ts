@@ -4,6 +4,7 @@ import { Inventory } from '../item/inventory';
 import { Item } from '../item/item';
 import type { ValueOf, ValueOfArray } from '../util/types';
 import { Controller } from './controller';
+import { CorpseData } from './corpse_data';
 import { DIRECTION } from './direction';
 import type { Entity } from './entity';
 import type { Player } from './player';
@@ -55,6 +56,12 @@ const componentwrappers = {
         'fromJSON': Item.fromJSON,
         'toJSON': (component: Item) => component.toJSON(),
         'getClientJSON': (component: Item, viewer: Entity) => component.getClientJSON(viewer),
+    },
+    'corpse_data': {
+        'schema': CorpseData.schema,
+        'fromJSON': CorpseData.fromJSON,
+        'toJSON': (component: CorpseData) => component.toJSON(),
+        'getClientJSON': (component: CorpseData, viewer: Entity) => component.getClientJSON(viewer),
     },
     'visibility_manager': {
         'schema': VisibilityManager.schema,

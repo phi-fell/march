@@ -1,5 +1,5 @@
 import { ChatDirections, DIRECTION, directionVectors } from '../direction';
-import type { Entity } from '../entity';
+import { Entity } from '../entity';
 import { AttackEvent } from '../event/attack_event';
 import { DeathEvent } from '../event/death_event';
 import { ActionBase } from './actionbase';
@@ -46,13 +46,16 @@ export class AttackAction extends ActionBase {
 
         if (sheet.hasSufficientAP(this.cost)) {
             const attack_event = new AttackEvent(entity, dir, ent);
-            if (ent !== undefined && ent.has('sheet')) {
+            if (ent !== undefined && ent.isMob()) {
                 const defender_sheet = ent.getComponent('sheet');
                 defender_sheet.takeHit(attack_event);
                 entity.location.cell.emit(attack_event, entity.location, attackLoc);
                 if (defender_sheet.isDead()) {
                     ent.location.cell.emit(new DeathEvent(ent), ent.location);
                     ent.getComponent('inventory')?.dropAll(ent.location);
+                    // spawn corpse:
+                    Entity.spawnCorpse(ent);
+                    // remove entity:
                     ent.removeFromWorld();
                 }
             } else {
