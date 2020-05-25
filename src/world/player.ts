@@ -180,9 +180,6 @@ export class Player {
         }
         const cell = await this.world.getCell(this.entity_ref.instance_id, this.entity_ref.cell_id);
         const ent: Entity = cell.getEntity(this.entity_ref.entity_id);
-        if (ent.getComponent('sprite') === 'mob/player') {
-            ent.setComponent('sprite', 'mob/player/A');
-        }
         ent.setComponent('player', this);
         this.entity = ent;
         ent.getComponent('visibility_manager')?.recalculateAllVisibleEntities();
