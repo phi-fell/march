@@ -62,7 +62,7 @@ export class Graphics {
         });
         // load animations:
         for (const sprite of ['player/A', 'slime']) {
-            for (const anim of ['idle', 'attack', 'damaged']) {
+            for (const anim of ['idle', 'attack', 'damaged', 'death']) {
                 this.getAnimation('mob/' + sprite + '/' + anim);
             }
         }

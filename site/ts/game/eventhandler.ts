@@ -125,6 +125,7 @@ type Events = {
     }
     DEATH: {
         type: 'DEATH';
+        entity_id: string;
         message: string;
     };
 }
@@ -361,7 +362,13 @@ export class EventHandler {
                 }
                 break;
             } case 'DEATH': {
-                this.chat.messages.push(event.message);
+                const ent = this.app.entities.find((e) => e.id === event.entity_id);
+                if (ent === undefined) {
+                    console.log('Cannot kill nonexistent Entity!');
+                } else {
+                    this.chat.messages.push(event.message);
+                    await this.playAnimation(ent, 'death');
+                }
                 break;
             } default: {
                 console.log('Unknown event type: ' + (event as any).type + '!');
