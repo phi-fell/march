@@ -62,7 +62,7 @@ export class Graphics {
         });
         // load animations:
         for (const sprite of ['player/A', 'slime']) {
-            for (const anim of ['idle', 'attack', 'damaged', 'death']) {
+            for (const anim of ['idle', 'attack', 'damaged', 'death', 'corpse']) {
                 this.getAnimation('mob/' + sprite + '/' + anim);
             }
         }
@@ -207,6 +207,8 @@ export class Graphics {
             } else if (typeof sprite === 'string') {
                 if (entity.components.sheet) {
                     this.getAnimation(sprite + '/idle').draw(this.entityContext, Date.now(), gear);
+                } else if (entity.components.corpse_data !== undefined) {
+                    this.getAnimation(sprite + '/corpse').draw(this.entityContext, Date.now());
                 } else {
                     this.getAnimation(sprite).draw(this.entityContext, Date.now());
                 }
