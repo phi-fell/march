@@ -1,5 +1,7 @@
 {
-    "name": "Steel Cuirass",
+    "name": "Steel Breastplate",
+    "sprite": "item/armor/breastplate",
+    "stackable": false,
     "armor_data": {
         "coverage": 2,
         "resilience": 3,

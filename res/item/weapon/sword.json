@@ -1,6 +1,6 @@
 {
     "name": "Steel Sword",
-    "sprite": "item/weapon/sword",
+    "sprite": "item/weapon/s1",
     "weapon_data": {
         "piercing": 2,
         "one_handed": true,
@@ -8,6 +8,6 @@
         "force": 1,
         "precision": 1,
         "speed": 10,
-        "attack_animation": "weapon/sword"
+        "attack_animation": "swing"
     }
 }

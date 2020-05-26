@@ -1,18 +1,18 @@
 {
     "name": "Forest",
     "generation": "FOREST",
-    "width": 100,
-    "height": 100,
+    "width": 40,
+    "height": 40,
     "mobs": [
         {
-            "id": "slime_petty",
-            "count": 50
+            "id": "slime/petty",
+            "count": 5
         }
     ],
     "adjacencies": [
         {
             "id": "slime_cave/entrance",
-            "count": 1
+            "count": 3
         }
     ]
 }
