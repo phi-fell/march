@@ -1,6 +1,8 @@
 export enum EVENT_TYPE {
     MESSAGE,
     SET_BOARD,
+    START_LOAD,
+    END_LOAD,
     NEW_ROUND,
     ADD_ENTITY,
     REMOVE_ENTITY,
