@@ -57,7 +57,7 @@ export class CharacterEquipment {
         if (json.weapon !== undefined) {
             ret.weapon = Weapon.fromJSON(json.weapon);
         }
-        for (const slot of Object.keys(json)) {
+        for (const slot of Object.keys(json.armor)) {
             const item = json.armor[slot as keyof typeof ARMOR_SLOT];
             if (item !== undefined) {
                 ret.armor[ARMOR_SLOT[slot as keyof typeof ARMOR_SLOT]] = Armor.fromJSON(item);
