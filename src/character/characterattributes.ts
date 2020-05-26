@@ -38,6 +38,13 @@ export class CharacterAttributes {
         }
         return ret;
     }
+    public static fromPartialJSON(json: Partial<CharacterAttributesSchema>) {
+        const ret = new CharacterAttributes();
+        for (let i = 0; i < ATTRIBUTE_COUNT; i++) {
+            ret.values[i] = json[ATTRIBUTE[i] as keyof typeof ATTRIBUTE] || 0;
+        }
+        return ret;
+    }
 
     private values: number[];
     constructor() {
