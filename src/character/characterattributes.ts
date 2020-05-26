@@ -21,7 +21,7 @@ export enum ATTRIBUTE {
 
 const ATTRIBUTE_COUNT: number = ATTRIBUTE.LUCK + 1;
 
-type CharacterAttributesSchema = t.TypeOf<typeof CharacterAttributes.schema>;
+export type CharacterAttributesSchema = t.TypeOf<typeof CharacterAttributes.schema>;
 
 export class CharacterAttributes {
     public static schema = t.type(Object.keys(ATTRIBUTE).reduce((all, attr) => {

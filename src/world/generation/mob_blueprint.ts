@@ -1,5 +1,5 @@
 import * as t from 'io-ts';
-import { CharacterAttributes } from '../../character/characterattributes';
+import { CharacterAttributes, CharacterAttributesSchema } from '../../character/characterattributes';
 import { CharacterRace } from '../../character/characterrace';
 import { CharacterSheet } from '../../character/charactersheet';
 import type { Globals } from '../../globals';
@@ -59,8 +59,9 @@ export class MobBlueprint extends Resource<MobBlueprintSchema> {
     private extends?: string;
     private name?: string;
     private sprite?: string;
-    private race?: string;
     private controller?: CONTROLLER;
+    private race?: string;
+    private attributes?: Partial<CharacterAttributesSchema>;
     private items: { id: ItemIDList, count: Chance, homogenous?: boolean }[] = [];
     public fromJSON(json: t.TypeOf<MobBlueprintSchema>): void {
         if (json.extends !== undefined) {
@@ -72,11 +73,14 @@ export class MobBlueprint extends Resource<MobBlueprintSchema> {
         if (json.sprite !== undefined) {
             this.sprite = json.sprite;
         }
+        if (json.controller !== undefined) {
+            this.controller = CONTROLLER[json.controller];
+        }
         if (json.race !== undefined) {
             this.race = json.race;
         }
-        if (json.controller !== undefined) {
-            this.controller = CONTROLLER[json.controller];
+        if (json.attributes !== undefined) {
+            this.attributes = json.attributes;
         }
         if (json.items) {
             this.items = json.items.map((el) => {
@@ -102,11 +106,14 @@ export class MobBlueprint extends Resource<MobBlueprintSchema> {
         if (this.sprite !== undefined) {
             ret.sprite = this.sprite;
         }
+        if (this.controller !== undefined) {
+            ret.controller = CONTROLLER[this.controller] as keyof typeof CONTROLLER;
+        }
         if (this.race !== undefined) {
             ret.race = this.race;
         }
-        if (this.controller !== undefined) {
-            ret.controller = CONTROLLER[this.controller] as keyof typeof CONTROLLER;
+        if (this.attributes !== undefined) {
+            ret.attributes = this.attributes;
         }
         if (this.items) {
             ret.items = this.items.map((el) => {
@@ -137,17 +144,19 @@ export class MobBlueprint extends Resource<MobBlueprintSchema> {
         if (this.sprite !== undefined) {
             ret.setComponent('sprite', this.sprite);
         }
-        if (this.race !== undefined) {
-            const sheet = ret.getComponent('sheet');
-            if (sheet !== undefined) {
-                sheet.race = new CharacterRace(this.race);
-                if (sheet.race.traits.includes('omnidirectional')) {
-                    ret.removeComponent('direction');
-                }
-            }
-        }
         if (this.controller !== undefined) {
             ret.setComponent('controller', Controller.getNewController(this.controller))
+        }
+        if (this.race !== undefined) {
+            const sheet = ret.getComponent('sheet');
+            sheet.race = new CharacterRace(this.race);
+            if (sheet.race.traits.includes('omnidirectional')) {
+                ret.removeComponent('direction');
+            }
+        }
+        if (this.attributes !== undefined) {
+            const sheet = ret.getComponent('sheet');
+            sheet.allocatedAttributes = CharacterAttributes.fromPartialJSON(this.attributes);
         }
         const inventory = ret.getComponent('inventory');
         for (const item_entry of this.items) {
