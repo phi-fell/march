@@ -1,7 +1,7 @@
 @require 'util'
 
 #game
-    background-gradient()
+    background-color $background_color_vivid
 
 p
     margin-bottom 2px
@@ -29,6 +29,19 @@ canvas,#canvasText
     z-index 3
 #canvasText
     z-index 4
+
+.view_button
+    color $content_color_faded
+    border-style outset
+    border-color $border_color_faded
+    border-bottom-style none
+
+.view_button.active
+    background-color rgba(0,0,0,0)
+    color $content_color_faded
+    border-bottom-color rgba(0,0,0,0)
+    outline none
+    box-shadow none
 
 .chat-pane_message-list
     overflow-y scroll

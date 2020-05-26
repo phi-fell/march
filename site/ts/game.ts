@@ -85,6 +85,9 @@ $(document).ready(async () => {
                             }
                         },
                         'methods': {
+                            'setSheetView'(view: string) {
+                                this.sheet_view = view;
+                            },
                             'sendChatMessage': (action: string) => {
                                 socket.emit('chat_message', action);
                             },
