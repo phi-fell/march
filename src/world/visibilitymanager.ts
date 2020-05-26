@@ -1,6 +1,7 @@
 import * as t from 'io-ts';
 import { getTileProps } from '../tile';
 import type { Entity } from './entity';
+import type { Event } from './event';
 import { AddEntityEvent } from './event/add_entity_event';
 import { RemoveEntityEvent } from './event/remove_entity_event';
 import type { Location } from './location';
@@ -48,11 +49,15 @@ export class VisibilityManager {
     public recalculateAllVisibleEntities() {
         const ents = this.parent.location.cell.getAllEntities();
         const visible = this.getVisibilityMap();
+        const remove_events: Event[] = [];
         for (const ent of this.ent_cache) {
             if (!this.loc_cache.inSameCellAs(ent.location) || !visible[ent.location.x][ent.location.y] || !ents.includes(ent)) {
-                this.parent.getComponent('controller')?.sendEvent(new RemoveEntityEvent(ent));
+                remove_events.push(new RemoveEntityEvent(ent));
             }
         }
+        remove_events.forEach((event) => {
+            this.parent.getComponent('controller')?.sendEvent(event);
+        })
         for (const ent of ents) {
             if (
                 this.ent_cache.findIndex((e) => e.id === ent.id) === -1 &&
