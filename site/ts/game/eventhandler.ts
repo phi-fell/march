@@ -1,3 +1,4 @@
+import { sleep } from '../util.js';
 import { Graphics } from './graphics.js';
 import type { Board, CharacterEquipment, CharacterStatus, Entity, Inventory, Item, Location, RELATIVE_DIRECTION } from './servertypes';
 import { DIRECTION } from './servertypes.js';
@@ -10,6 +11,12 @@ type Events = {
     SET_BOARD: {
         type: 'SET_BOARD';
         board: Board;
+    };
+    START_LOAD: {
+        type: 'START_LOAD';
+    };
+    END_LOAD: {
+        type: 'END_LOAD';
     };
     NEW_ROUND: {
         type: 'NEW_ROUND';
@@ -132,15 +139,11 @@ type Events = {
 
 type Event = Events[keyof Events];
 
-async function sleep(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 export class EventHandler {
     private queuedEvents: Event[] = [];
     constructor(
         private graphics: Graphics,
-        private app: { player_entity_id: string, board: Board, entities: Entity[] },
+        private app: { player_entity_id: string, board: Board, entities: Entity[], startLoad: () => void, endLoad: () => Promise<void> },
         private chat: { messages: string[] }
     ) { }
     public pushEvent(event: Event) {
@@ -190,9 +193,14 @@ export class EventHandler {
             case 'MESSAGE': {
                 this.chat.messages.push(event.message);
                 break;
-            }
-            case 'SET_BOARD': {
+            } case 'SET_BOARD': {
                 this.app.board = event.board;
+                break;
+            } case 'START_LOAD': {
+                this.app.startLoad();
+                break;
+            } case 'END_LOAD': {
+                await this.app.endLoad();
                 break;
             } case 'NEW_ROUND': {
                 this.chat.messages.push(event.message);

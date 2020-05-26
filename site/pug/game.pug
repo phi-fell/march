@@ -10,7 +10,16 @@ html
         link(rel="stylesheet" type="text/css" href="./css/game.css")
 
 body
-    #game.all.row
+    #loading_screen.all(v-visible="loading")  
+        .outer
+            .pad
+            .mid
+                .pad
+                .inner
+                    h1.loading_screen_text LOADING...
+                .pad
+            .pad
+    #game.all.row(v-visible="!loading" v-cloak)
         .flex.col.maxw25.border_sides
             game_status-pane.flex.pane.maxh50.border_bottom(v-bind:self="{player_sheet, player_entity}")
             game_sheet-pane.flex.maxh50(v-bind:self="{player_entity,player_sheet,sheet_view,setSheetView,sendChatMessage}")
