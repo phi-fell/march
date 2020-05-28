@@ -1,6 +1,6 @@
 import bcrypt = require('bcrypt');
 import crypto = require('crypto');
-import * as t from 'io-ts';
+import type * as t from 'io-ts';
 import { CharacterSheet } from '../character/charactersheet';
 import { Random } from '../math/random';
 import type { OwnedFile } from '../system/file';
@@ -10,6 +10,7 @@ import { Player } from '../world/player';
 import type { World } from '../world/world';
 import type { Client } from './client';
 import type { Server } from './server';
+import { updateUserSchema, UserVersionSchema, UserVersionSchemas, USER_FILE_CURRENT_VERSION } from './user_schema_versions';
 
 const TOKEN_LIFESPAN = 1000 * 60 * 60 * 24 * 3; // 3 days in milliseconds
 
@@ -28,20 +29,7 @@ async function testPass(pass: string, hash: string) {
 export type UserSchema = t.TypeOf<typeof User.schema>;
 
 export class User extends FileBackedData {
-    public static schema = t.type({
-        'id': t.string,
-        'name': t.string,
-        'auth': t.type({
-            'hash': t.string,
-            'token': t.string,
-            'token_creation_time': t.number,
-        }),
-        'unfinished_player': t.type({
-            'name': t.string,
-            'sheet': CharacterSheet.schema,
-        }),
-        'players': t.array(Player.schema),
-    });
+    public static schema = UserVersionSchema;
     /** Remember to unload() created users! */
     public static async createUserFromFile(server: Server, world: World, file: OwnedFile): Promise<User> {
         const user = new User(server, world, file);
@@ -170,6 +158,7 @@ export class User extends FileBackedData {
     }
     public toJSON(): UserSchema {
         return {
+            'version': USER_FILE_CURRENT_VERSION,
             'id': this.id,
             'name': this.name,
             'auth': {
@@ -185,7 +174,7 @@ export class User extends FileBackedData {
         };
     }
     protected async fromJSON(json: UserSchema): Promise<void> {
-        if (User.schema.is(json)) {
+        if (UserVersionSchemas[USER_FILE_CURRENT_VERSION].is(json)) {
             this.id = json.id;
             this._name = json.name;
             this.auth = json.auth;
@@ -197,7 +186,7 @@ export class User extends FileBackedData {
                 this.players.push(await Player.fromJSON(this, this.world, plr));
             }
         } else {
-            console.log('Invalid User JSON!');
+            return this.fromJSON(updateUserSchema(json));
         }
     }
     protected async prepForUnload(): Promise<void> {
