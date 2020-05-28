@@ -10,7 +10,7 @@ import { Player } from '../world/player';
 import type { World } from '../world/world';
 import type { Client } from './client';
 import type { Server } from './server';
-import { updateUserSchema, UserVersionSchema, UserVersionSchemas, USER_FILE_CURRENT_VERSION } from './user_schema_versions';
+import { CurrentUserSchema, updateUserSchema, UserVersionSchema, UserVersionSchemas, USER_FILE_CURRENT_VERSION } from './user_schema_versions';
 
 const TOKEN_LIFESPAN = 1000 * 60 * 60 * 24 * 3; // 3 days in milliseconds
 
@@ -46,6 +46,7 @@ export class User extends FileBackedData {
     private active_player_changing = false;
     private client?: Client;
     private _name: string = '';
+    public admin = false;
     private auth: { hash: string; token: string; token_creation_time: number; } = { 'hash': '', 'token': '', 'token_creation_time': 0 };
     private id: string = '';
 
@@ -156,11 +157,12 @@ export class User extends FileBackedData {
         }
         return this.activePlayer.getGameData();
     }
-    public toJSON(): UserSchema {
+    public toJSON(): CurrentUserSchema {
         return {
             'version': USER_FILE_CURRENT_VERSION,
             'id': this.id,
             'name': this.name,
+            'admin': this.admin,
             'auth': {
                 'hash': this.auth.hash,
                 'token': this.auth.token,
@@ -177,6 +179,7 @@ export class User extends FileBackedData {
         if (UserVersionSchemas[USER_FILE_CURRENT_VERSION].is(json)) {
             this.id = json.id;
             this._name = json.name;
+            this.admin = json.admin;
             this.auth = json.auth;
             this.unfinished_player = {
                 'name': json.unfinished_player.name,

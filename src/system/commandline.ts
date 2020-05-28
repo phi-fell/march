@@ -1,43 +1,103 @@
+import type { Server } from '../net/server';
 import { launch_id, version } from '../version';
 
-export function runCommand(command: string, out: NodeJS.WriteStream, graceful_exit: () => void) {
+const DESCRIPTION_INDENT = 30;
+
+export async function runCommand(command: string, server: Server, out: NodeJS.WriteStream, graceful_exit: () => void) {
     const tok = command.split(' ');
     const cmd = tok.shift();
     if (!cmd) {
         return;
     }
     if (commands[cmd]) {
-        commands[cmd].exec(out, tok, graceful_exit);
+        await commands[cmd].exec(out, tok, server, graceful_exit);
     } else {
-        out.write('command not recognized: /' + cmd + ' try /help or /?\n');
+        out.write('command not recognized: ' + cmd + ' try help or ?\n');
     }
 }
 
 function getHelp(out: NodeJS.WriteStream) {
-    out.write('GotG V' + version + ' Launch_ID[' + launch_id + ']\n\n');
+    out.write('\nGotG V' + version + ' Launch_ID[' + launch_id + ']\n\nAvailable Commands:\n');
     Object.keys(commands).forEach((cmd) => {
-        out.write('/' + cmd + ': ' + commands[cmd].description + '\n');
+        const signature = cmd + commands[cmd].arg_names.reduce((str, arg) => {
+            return ' [' + arg + ']'
+        }, '');
+        out.write(' > ' + signature);
+        out.write(' '.repeat(DESCRIPTION_INDENT - signature.length) + ': ' + commands[cmd].description + '\n');
     });
+    out.write('\n');
 }
 
 class Command {
-    constructor(public description: string, public exec: (out: NodeJS.WriteStream, tok: string[], graceful_exit: () => void) => void) { }
+    constructor(
+        public arg_names: string[],
+        public description: string,
+        public exec: (out: NodeJS.WriteStream, tok: string[], server: Server, graceful_exit: () => void) => void | Promise<void>,
+    ) { }
 }
 
 const commands: { [cmd: string]: Command } = {
-    '?': new Command('display help dialog',
+    '?': new Command(
+        [],
+        'display help dialog',
         (out, _tok) => {
             getHelp(out);
         },
     ),
-    'help': new Command('display help dialog',
+    'help': new Command(
+        [],
+        'display help dialog',
         (out, _tok) => {
             getHelp(out);
         },
     ),
-    'exit': new Command('display help dialog',
-        (out, _tok, graceful_exit) => {
+    'exit': new Command(
+        [],
+        'close the server gracefully',
+        (out, _tok, _server, graceful_exit) => {
             graceful_exit();
+        },
+    ),
+    'admin': new Command(
+        ['username'],
+        'makes a user an admin who can use admin chat commands and view /diagnostic pages',
+        async (out, tok, server) => {
+            if (tok.length !== 1) {
+                out.write('Expected 1 argument!\n');
+                return;
+            }
+            const user_id = await server.getUserIdFromName(tok[0])
+            if (user_id === undefined) {
+                out.write('No such user!\n');
+                return;
+            }
+            const user = await server.getUser(user_id);
+            if (user === undefined) {
+                out.write('ERROR! Username maps to user ID, but no user exists with mapped ID!\n');
+                return;
+            }
+            user.admin = true;
+        },
+    ),
+    'unadmin': new Command(
+        ['username'],
+        'makes a user no longer an admin',
+        async (out, tok, server) => {
+            if (tok.length !== 1) {
+                out.write('Expected 1 argument!\n');
+                return;
+            }
+            const user_id = await server.getUserIdFromName(tok[0])
+            if (user_id === undefined) {
+                out.write('No such user!\n');
+                return;
+            }
+            const user = await server.getUser(user_id);
+            if (user === undefined) {
+                out.write('ERROR! Username maps to user ID, but no user exists with mapped ID!\n');
+                return;
+            }
+            user.admin = false;
         },
     ),
 };

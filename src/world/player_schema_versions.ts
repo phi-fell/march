@@ -38,6 +38,8 @@ export const PLAYER_FILE_CURRENT_VERSION = 1;
 type VersionSchemaArray = typeof PlayerVersionSchemas;
 type VersionSchema<T extends number = number> = t.TypeOf<VersionSchemaArray[T]>;
 
+export type CurrentPlayerSchema = VersionSchema<typeof PLAYER_FILE_CURRENT_VERSION>;
+
 const PlayerVersionUpdate = [
     (json: VersionSchema<0>): VersionSchema<1> => {
         return {

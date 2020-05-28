@@ -12,7 +12,7 @@ import { DIRECTION } from './direction';
 import { Entity, PlayerEntity } from './entity';
 import type { Event } from './event';
 import type { Instance } from './instance';
-import { EntityRef, PlayerVersionSchema, PlayerVersionSchemas, PLAYER_FILE_CURRENT_VERSION, updatePlayerSchema } from './player_schema_versions';
+import { CurrentPlayerSchema, EntityRef, PlayerVersionSchema, PlayerVersionSchemas, PLAYER_FILE_CURRENT_VERSION, updatePlayerSchema } from './player_schema_versions';
 import { VisibilityManager } from './visibilitymanager';
 import type { World } from './world';
 
@@ -194,7 +194,7 @@ export class Player {
         this.entity = undefined;
         this._active = false;
     }
-    public toJSON(): PlayerSchema {
+    public toJSON(): CurrentPlayerSchema {
         return {
             'version': PLAYER_FILE_CURRENT_VERSION,
             'id': this.id,

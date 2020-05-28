@@ -40,18 +40,43 @@ export const UserVersionSchema = t.union([
         }),
         'players': t.array(Player.schema),
     }),
+    t.type({
+        'version': t.literal(2),
+        'id': t.string,
+        'name': t.string,
+        'admin': t.boolean,
+        'auth': t.type({
+            'hash': t.string,
+            'token': t.string,
+            'token_creation_time': t.number,
+        }),
+        'unfinished_player': t.type({
+            'name': t.string,
+            'sheet': CharacterSheet.schema,
+        }),
+        'players': t.array(Player.schema),
+    }),
 ]);
 export const UserVersionSchemas = UserVersionSchema.types;
-export const USER_FILE_CURRENT_VERSION = 1;
+export const USER_FILE_CURRENT_VERSION = 2;
 
 type VersionSchemaArray = typeof UserVersionSchemas;
 type VersionSchema<T extends number = number> = t.TypeOf<VersionSchemaArray[T]>;
+
+export type CurrentUserSchema = VersionSchema<typeof USER_FILE_CURRENT_VERSION>;
 
 const UserVersionUpdate = [
     (json: VersionSchema<0>): VersionSchema<1> => {
         return {
             ...json,
             'version': 1,
+        }
+    },
+    (json: VersionSchema<1>): VersionSchema<2> => {
+        return {
+            ...json,
+            'admin': false,
+            'version': 2,
         }
     },
 ] as const;
