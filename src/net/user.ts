@@ -167,8 +167,10 @@ export class User extends FileBackedData {
                 'token_creation_time': this.auth.token_creation_time,
             },
             'unfinished_player': {
+                'id': '',
                 'name': this.unfinished_player.name,
                 'sheet': this.unfinished_player.sheet.toJSON(),
+                'entity_ref': undefined,
             },
             'players': this.players.map((player: Player) => player.toJSON()),
         };

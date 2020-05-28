@@ -8,6 +8,7 @@ import { File } from '../system/file';
 import type { World } from '../world/world';
 import { Client, CLIENT_CONNECTION_STATE } from './client';
 import { User, UserSchema } from './user';
+import { USER_FILE_CURRENT_VERSION } from './user_schema_versions';
 
 async function getHash(pass: string) {
     return bcrypt.hash(pass, 10);
@@ -112,6 +113,7 @@ export class Server {
         const file = await File.acquireFile(path);
         const hash = getHash(passphrase);
         const user_json: UserSchema = {
+            'version': USER_FILE_CURRENT_VERSION,
             'id': id,
             'name': username,
             'auth': {
@@ -120,8 +122,10 @@ export class Server {
                 'token_creation_time': 0,
             },
             'unfinished_player': {
+                'id': '',
                 'name': '',
                 'sheet': CharacterSheet.newPlayerSheet().toJSON(),
+                'entity_ref': undefined,
             },
             'players': [],
         };
