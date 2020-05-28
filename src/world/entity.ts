@@ -8,6 +8,7 @@ import { CorpseData } from './corpse_data';
 import { AddEntityEvent } from './event/add_entity_event';
 import { Locatable, locatable_schema } from './locatable';
 import { Location } from './location';
+import type { Portal } from './portal';
 
 export interface EntityWith<T extends ComponentName> extends Entity {
     components: ComponentsWith<T>; // needed or for some reason EntityWith<T> are all assignable (e.g. EntityWith<'direction> = EntityWith<never> is valid)
@@ -67,6 +68,14 @@ export class Entity extends Locatable {
         ret.setComponent('item_data', item);
         ret.setComponent('name', item.name);
         ret.setComponent('sprite', item.sprite);
+        loc.cell.emit(new AddEntityEvent(ret), loc)
+        return ret;
+    }
+    public static spawnPortal(portal: Portal, loc: Location): PortalEntity {
+        const ret: Entity = new Entity(loc);
+        ret.setComponent('portal', portal);
+        ret.setComponent('name', 'stairs');
+        ret.setComponent('sprite', 'portal/stone_stairs');
         loc.cell.emit(new AddEntityEvent(ret), loc)
         return ret;
     }
