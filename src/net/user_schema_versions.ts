@@ -34,7 +34,10 @@ export const UserVersionSchema = t.union([
             'token': t.string,
             'token_creation_time': t.number,
         }),
-        'unfinished_player': Player.schema,
+        'unfinished_player': t.type({
+            'name': t.string,
+            'sheet': CharacterSheet.schema,
+        }),
         'players': t.array(Player.schema),
     }),
 ]);
@@ -49,11 +52,6 @@ const UserVersionUpdate = [
         return {
             ...json,
             'version': 1,
-            'unfinished_player': {
-                'id': '',
-                ...json.unfinished_player,
-                'entity_ref': undefined,
-            }
         }
     },
 ] as const;

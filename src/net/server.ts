@@ -122,10 +122,8 @@ export class Server {
                 'token_creation_time': 0,
             },
             'unfinished_player': {
-                'id': '',
                 'name': '',
                 'sheet': CharacterSheet.newPlayerSheet().toJSON(),
-                'entity_ref': undefined,
             },
             'players': [],
         };
