@@ -133,6 +133,7 @@ export class Animation {
                     }
                     context.translate(this.offset.x, this.offset.y);
                     context.scale(this.scale.x, this.scale.y);
+                    context.drawImage(this.frames[frame]);
                     if (anchored !== undefined) {
                         Object.keys(anchored).forEach((anchor_id) => {
                             const anchor = this.anchors[anchor_id];
@@ -148,7 +149,6 @@ export class Animation {
                             }
                         });
                     }
-                    context.drawImage(this.frames[frame]);
                 } else {
                     context.drawImage(this.image);
                 }

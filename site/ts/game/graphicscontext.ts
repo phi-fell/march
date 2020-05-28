@@ -10,9 +10,6 @@ export class GraphicsContext {
         this.context = context;
         this.context.imageSmoothingEnabled = false;
     }
-    public drawBehind() {
-        this.context.globalCompositeOperation = 'destination-over';
-    }
     public filter(f: string) {
         this.context.filter = f;
     }
