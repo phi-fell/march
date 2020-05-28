@@ -10,7 +10,11 @@ export async function runCommand(command: string, server: Server, out: NodeJS.Wr
         return;
     }
     if (commands[cmd]) {
-        await commands[cmd].exec(out, tok, server, graceful_exit);
+        try {
+            await commands[cmd].exec(out, tok, server, graceful_exit);
+        } catch (err) {
+            out.write('An exception occurred in the execution of the command:\n' + err + '\n');
+        }
     } else {
         out.write('command not recognized: ' + cmd + ' try help or ?\n');
     }
@@ -76,7 +80,12 @@ const commands: { [cmd: string]: Command } = {
                 out.write('ERROR! Username maps to user ID, but no user exists with mapped ID!\n');
                 return;
             }
-            user.admin = true;
+            if (user.admin) {
+                out.write(user.name + ' is aready an admin!\n');
+            } else {
+                user.admin = true;
+                out.write(user.name + ' is now an admin!\n');
+            }
         },
     ),
     'unadmin': new Command(
@@ -97,7 +106,12 @@ const commands: { [cmd: string]: Command } = {
                 out.write('ERROR! Username maps to user ID, but no user exists with mapped ID!\n');
                 return;
             }
-            user.admin = false;
+            if (!user.admin) {
+                out.write(user.name + ' is already not an admin!\n');
+            } else {
+                user.admin = false;
+                out.write(user.name + ' is no longer an admin!\n');
+            }
         },
     ),
 };
