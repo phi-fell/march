@@ -1,5 +1,4 @@
 import { readFileSync } from 'fs';
-
 import { Random } from './math/random';
 
 const probs: any = {};
@@ -78,7 +77,7 @@ function generateProbabilities() {
 
 generateProbabilities();
 
-export function generateName() {
+function generateName() {
     let name = '';
     while (name.length < 4 || name.length > 12) {
         name = '';
