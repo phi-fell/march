@@ -1,0 +1,22 @@
+doctype html
+html
+    head
+        title GotG
+        script(src=socket_io_path)
+        script(src=jquery_path)
+        script(src=vue_path)
+        script(type="module" src="./js/diagnostic.js")
+        link(href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=Inconsolata&family=Open+Sans&family=Source+Code+Pro&family=Ubuntu+Mono&display=swap" rel="stylesheet")
+        link(rel="stylesheet" type="text/css" href="./css/global.css")
+        link(rel="stylesheet" type="text/css" href="./css/diagnostic.css")
+
+body
+    #diagnostic.all  
+        .outer
+            .pad
+            .mid
+                .pad
+                .inner
+                    h1 Diagnostic Data
+                .pad
+            .pad

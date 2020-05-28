@@ -124,6 +124,10 @@ export interface Item {
     weapon_data?: WeaponData;
 }
 
+export interface CorpseData {
+    placeholder: string;
+}
+
 export interface Armor extends Item {
     armor_data: ArmorData;
 }
@@ -193,6 +197,7 @@ export interface Entity {
         inventory?: Inventory;
         portal?: unknown;
         item_data?: Item;
+        corpse_data?: CorpseData;
     }
     animation_playing?: string;
     animation_start_time?: number;

@@ -1,6 +1,8 @@
 import type { Entity, PortalEntity } from '../entity';
+import { EndLoadEvent } from '../event/end_load';
 import { MessageEvent } from '../event/message_event';
 import { SetBoardEvent } from '../event/set_board_event';
+import { StartLoadEvent } from '../event/start_load_event';
 import { UsePortalEvent } from '../event/use_portal_event';
 import { ActionBase } from './actionbase';
 import { ACTION_RESULT } from './actionresult';
@@ -44,14 +46,17 @@ export class UsePortalAction extends ActionBase {
             const portal = portal_ent.getComponent('portal');
             entity.location.cell.emit(new UsePortalEvent(entity), entity.location);
             try {
+                entity.getComponent('controller').sendEvent(new StartLoadEvent());
                 entity.setLocation(await portal.getDestination(entity.location.cell.instance.world))
                 entity.getComponent('controller').sendEvent(new SetBoardEvent());
                 entity.getComponent('visibility_manager')?.recalculateAllVisibleEntities();
             } catch (err) {
-                const msg = 'BUG: An error occured while generating the instance.  This is almost certainly an issue with the instance blueprint.';
+                const msg = 'BUG: An error occured while generating the area.  This is almost certainly an issue with the cell blueprint.';
                 console.log(msg);
                 console.log(err);
                 entity.getComponent('controller').sendEvent(new MessageEvent(msg));
+            } finally {
+                entity.getComponent('controller').sendEvent(new EndLoadEvent());
             }
             return { 'result': ACTION_RESULT.SUCCESS, 'cost': this.cost };
         }

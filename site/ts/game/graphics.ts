@@ -55,14 +55,13 @@ export class Graphics {
         this.entityContext = new GraphicsContext(entityCanvas, this.width, this.height);
         this.fogContext = new GraphicsContext(fogCanvas, this.width, this.height);
         this.uiContext = new GraphicsContext(uiCanvas, this.width, this.height);
-        this.entityContext.drawBehind();
         const g = this;
         $(window).on('resize', () => {
             g.resize();
         });
         // load animations:
         for (const sprite of ['player/A', 'slime']) {
-            for (const anim of ['idle', 'attack', 'damaged']) {
+            for (const anim of ['idle', 'attack', 'damaged', 'death', 'corpse']) {
                 this.getAnimation('mob/' + sprite + '/' + anim);
             }
         }
@@ -171,16 +170,27 @@ export class Graphics {
         this.entityContext.translate(this.width / 2, this.height / 2);
         this.entityContext.scale(this.draw_scale, this.draw_scale);
         this.entityContext.translate(-this.app.player_entity.location.x, -this.app.player_entity.location.y);
-        this.playing_animations = this.playing_animations.filter((a) => {
-            return Date.now() < a.start_time + a.anim.duration;
-        })
-        for (const animation of this.playing_animations) {
-            this.entityContext.push();
-            this.entityContext.translate(animation.loc.x, animation.loc.y);
-            this.entityContext.rotate(animation.dir * Math.PI / -2)
-            animation.anim.draw(this.entityContext, Date.now() - animation.start_time);
-            this.entityContext.pop();
+        const entval = (ent: Entity) => {
+            if (this.app.player_entity.id === ent.id) {
+                return 5;
+            }
+            if (ent.components.sheet !== undefined) {
+                return 4;
+            }
+            if (ent.components.item_data !== undefined) {
+                return 3;
+            }
+            if (ent.components.corpse_data !== undefined) {
+                return 2;
+            }
+            if (ent.components.portal !== undefined) {
+                return 1;
+            }
+            return 0;
         }
+        this.app.entities.sort((a, b) => {
+            return entval(a) - entval(b);
+        });
         for (const entity of this.app.entities) {
             this.entityContext.push();
             this.entityContext.translate(entity.location.x, entity.location.y);
@@ -189,6 +199,16 @@ export class Graphics {
             const anim_start = entity.animation_start_time;
             const gear: { [id: string]: Animation } = {};
             const sheet = entity.components.sheet;
+            const dir = entity.components.direction;
+            if (sprite?.startsWith('mob/player')) {
+                this.getAnimation('shadow').draw(this.entityContext, 0);
+            }
+            if (dir !== undefined) {
+                this.entityContext.push();
+                this.entityContext.rotate(DIRECTION[dir] * Math.PI / -2)
+                this.getAnimation('arrow').draw(this.entityContext, 0);
+                this.entityContext.pop();
+            }
             if (sheet !== undefined) {
                 const equipment = sheet.equipment;
                 const weapon = equipment.weapon;
@@ -207,6 +227,8 @@ export class Graphics {
             } else if (typeof sprite === 'string') {
                 if (entity.components.sheet) {
                     this.getAnimation(sprite + '/idle').draw(this.entityContext, Date.now(), gear);
+                } else if (entity.components.corpse_data !== undefined) {
+                    this.getAnimation(sprite + '/corpse').draw(this.entityContext, Date.now());
                 } else {
                     this.getAnimation(sprite).draw(this.entityContext, Date.now());
                 }
@@ -214,16 +236,16 @@ export class Graphics {
                 this.entityContext.color('#F0F');
                 this.entityContext.fillRect();
             }
-            const dir = entity.components.direction;
-            if (dir !== undefined) {
-                this.entityContext.push();
-                this.entityContext.rotate(DIRECTION[dir] * Math.PI / -2)
-                this.getAnimation('arrow').draw(this.entityContext, 0);
-                this.entityContext.pop();
-            }
-            if (sprite?.startsWith('mob/player')) {
-                this.getAnimation('shadow').draw(this.entityContext, 0);
-            }
+            this.entityContext.pop();
+        }
+        this.playing_animations = this.playing_animations.filter((a) => {
+            return Date.now() < a.start_time + a.anim.duration;
+        })
+        for (const animation of this.playing_animations) {
+            this.entityContext.push();
+            this.entityContext.translate(animation.loc.x, animation.loc.y);
+            this.entityContext.rotate(animation.dir * Math.PI / -2)
+            animation.anim.draw(this.entityContext, Date.now() - animation.start_time);
             this.entityContext.pop();
         }
         this.entityContext.pop();

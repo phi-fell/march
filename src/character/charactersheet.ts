@@ -48,7 +48,7 @@ export class CharacterSheet {
             return null;
         }
         ret._race = new CharacterRace(json.race);
-        ret._allocatedAttributes = CharacterAttributes.fromJSON(json.attributes);
+        ret.allocatedAttributes = CharacterAttributes.fromJSON(json.attributes);
         ret._skills = CharacterSkills.fromJSON(json.skills);
         ret._essence = STARTING_ESSENCE - ret.getEssenceWorth();
         if (ret._essence < 0) {
@@ -61,7 +61,7 @@ export class CharacterSheet {
     public static fromMobSchemaJSON(json: any) {
         const ret = new CharacterSheet();
         ret._race = new CharacterRace(json.race);
-        ret._allocatedAttributes = CharacterAttributes.fromJSON(json.attributes);
+        ret.allocatedAttributes = CharacterAttributes.fromJSON(json.attributes);
         ret._skills = CharacterSkills.fromJSON(json.skills);
         ret._equipment = CharacterEquipment.fromJSON(json.equipment);
         ret.recalculateDerivedStats();
@@ -74,7 +74,7 @@ export class CharacterSheet {
         // TODO: load faiths
         ret._equipment = CharacterEquipment.fromJSON(json.equipment);
         ret._race = CharacterRace.fromJSON(json.race);
-        ret._allocatedAttributes = CharacterAttributes.fromJSON(json.allocatedAttributes);
+        ret.allocatedAttributes = CharacterAttributes.fromJSON(json.allocatedAttributes);
         ret._skills = CharacterSkills.fromJSON(json.skills);
         ret._status = CharacterStatus.fromJSON(json.status);
         ret._essence = json.essence;
@@ -82,7 +82,7 @@ export class CharacterSheet {
         ret.recalculateDerivedStats();
         return ret;
     }
-    private _allocatedAttributes: CharacterAttributes = new CharacterAttributes();
+    public allocatedAttributes: CharacterAttributes = new CharacterAttributes();
     private _skills: CharacterSkills = new CharacterSkills();
     private _race: CharacterRace;
     private _additional_traits: CharacterTrait[] = [];
@@ -148,19 +148,19 @@ export class CharacterSheet {
         return this.status.action_points + this.getNetAttributeValue(ATTRIBUTE.PERCEPTION);
     }
     public levelUpAttribute(attr: ATTRIBUTE) {
-        const costs = this._allocatedAttributes.getLevelupCosts();
+        const costs = this.allocatedAttributes.getLevelupCosts();
         if (this._essence >= costs.get(attr)) {
             this._essence -= costs.get(attr);
-            this._allocatedAttributes.set(attr, this._allocatedAttributes.get(attr) + 1);
+            this.allocatedAttributes.set(attr, this.allocatedAttributes.get(attr) + 1);
             this.recalculateDerivedStats();
         } else {
             // Failure
         }
     }
     public levelDownAttribute(attr: ATTRIBUTE) {
-        if (this._allocatedAttributes.get(attr) > 0) {
-            this._allocatedAttributes.set(attr, this._allocatedAttributes.get(attr) - 1);
-            this._essence += this._allocatedAttributes.getLevelupCosts().get(attr);
+        if (this.allocatedAttributes.get(attr) > 0) {
+            this.allocatedAttributes.set(attr, this.allocatedAttributes.get(attr) - 1);
+            this._essence += this.allocatedAttributes.getLevelupCosts().get(attr);
             this.recalculateDerivedStats();
         } else {
             // Failure
@@ -254,13 +254,13 @@ export class CharacterSheet {
         return false; // TODO: more conditions? modify conditions?
     }
     public getEssenceWorth() {
-        return this._race.getEssenceCost() + this._allocatedAttributes.getEssenceCost() + this._skills.getEssenceCost() + this._essence;
+        return this._race.getEssenceCost() + this.allocatedAttributes.getEssenceCost() + this._skills.getEssenceCost() + this._essence;
     }
     public toJSON(): CharacterSheetSchema {
         return {
             'attributes': this._cachedAttributes.toJSON(),
-            'allocatedAttributes': this._allocatedAttributes.toJSON(),
-            'attributeLevelupCosts': this._allocatedAttributes.getLevelupCosts().toJSON(),
+            'allocatedAttributes': this.allocatedAttributes.toJSON(),
+            'attributeLevelupCosts': this.allocatedAttributes.getLevelupCosts().toJSON(),
             'skills': this._skills.toJSON(),
             'traits': this._additional_traits.map((trait) => trait.toJSON()),
             'faiths': [],
@@ -274,7 +274,7 @@ export class CharacterSheet {
     }
     public getClientJSON(viewer: Entity) {
         const attributeLevelupAvailable = Object.fromEntries(
-            Object.entries(this._allocatedAttributes.getLevelupCosts().toJSON()).map(
+            Object.entries(this.allocatedAttributes.getLevelupCosts().toJSON()).map(
                 ([k, v]) => [k, v >= this._essence]
             )
         ) as Record<keyof typeof ATTRIBUTE, boolean>;
@@ -334,7 +334,7 @@ export class CharacterSheet {
         if (this._race.traits.includes('boneless')) {
             this._hasPool[RESOURCE.BONE] = false;
         }
-        this._cachedAttributes = this._race.getNetAttributes().getSumWith(this._allocatedAttributes);
+        this._cachedAttributes = this._race.getNetAttributes().getSumWith(this.allocatedAttributes);
         // TODO: apply effects that modify attributes
         this._status.pools[RESOURCE.FLESH].capacity = this.getNetAttributeValue(ATTRIBUTE.VITALITY);
         this._status.pools[RESOURCE.BLOOD].capacity = this.getNetAttributeValue(ATTRIBUTE.VITALITY) + this.getNetAttributeValue(ATTRIBUTE.ENDURANCE);

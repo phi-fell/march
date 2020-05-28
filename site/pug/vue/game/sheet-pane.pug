@@ -1,15 +1,8 @@
 .game_sheet-pane.col
-    .flex_none.row
-        p.sheet_title.flex_none -----
-        p.sheet_title.flex_none Character Sheet:
-        select.flex_none(@input="$emit('input', $event.target.value)")
-            option(value="attributes") Attributes
-            option(value="race") Race
-            option(value="skills") Skills
-            option(value="equipment") Equipment
-            option(value="inventory") Inventory
-        p.sheet_title.flex_none -----
-    .flex.overflow_auto
+    .flex_none.row.wrap
+        .flex.row(v-for="view of ['attributes','race','skills','equipment','inventory']")
+            button.flex.view_button(:class="{ active: self.sheet_view === view }" @click="self.setSheetView(view)") {{view.charAt(0).toUpperCase() + view.substring(1).toLowerCase()}}
+    .flex.overflow_auto.pane
         game_player-attributes(v-if="self.sheet_view==='attributes'" v-bind:self="self.player_sheet?.attributes")
         game_player-race(v-else-if="self.sheet_view==='race'" v-bind:self="self.player_sheet?.race")
         game_player-skills(v-else-if="self.sheet_view==='skills'" v-bind:self="self.player_sheet?.skills")

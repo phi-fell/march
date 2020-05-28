@@ -21,7 +21,7 @@ export enum ATTRIBUTE {
 
 const ATTRIBUTE_COUNT: number = ATTRIBUTE.LUCK + 1;
 
-type CharacterAttributesSchema = t.TypeOf<typeof CharacterAttributes.schema>;
+export type CharacterAttributesSchema = t.TypeOf<typeof CharacterAttributes.schema>;
 
 export class CharacterAttributes {
     public static schema = t.type(Object.keys(ATTRIBUTE).reduce((all, attr) => {
@@ -32,6 +32,13 @@ export class CharacterAttributes {
     }, {} as Record<keyof typeof ATTRIBUTE, t.NumberC>));
 
     public static fromJSON(json: CharacterAttributesSchema) {
+        const ret = new CharacterAttributes();
+        for (let i = 0; i < ATTRIBUTE_COUNT; i++) {
+            ret.values[i] = json[ATTRIBUTE[i] as keyof typeof ATTRIBUTE] || 0;
+        }
+        return ret;
+    }
+    public static fromPartialJSON(json: Partial<CharacterAttributesSchema>) {
         const ret = new CharacterAttributes();
         for (let i = 0; i < ATTRIBUTE_COUNT; i++) {
             ret.values[i] = json[ATTRIBUTE[i] as keyof typeof ATTRIBUTE] || 0;

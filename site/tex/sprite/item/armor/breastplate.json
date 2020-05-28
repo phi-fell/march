@@ -1,0 +1,20 @@
+{
+    "origin_anchor": {
+        "x": 0,
+        "y": 0,
+        "angle": -1.57079632679
+    },
+    "offset": {
+        "x": 0,
+        "y": 0,
+        "rotates": false
+    },
+    "scale": {
+        "x": 0.25,
+        "y": 0.53125
+    },
+    "delay": 1,
+    "frame_width": 8,
+    "frame_height": 17,
+    "frames": 1
+}

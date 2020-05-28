@@ -1,6 +1,6 @@
 import * as t from 'io-ts';
 import type { Cell } from './cell';
-import type { Entity } from './entity';
+import { Entity } from './entity';
 import { Location, LocationSchema } from './location';
 import type { World } from './world';
 
@@ -17,6 +17,12 @@ export class Portal {
         const ret = new Portal(entity.location, json.blueprint);
         ret.reified = json.reified;
         ret.destination = json.destination;
+        return ret;
+    }
+    public static createReifiedPortal(loc: Location, dest: Location) {
+        const ret = new Portal(loc, '');
+        ret.destination = dest.toJSON();
+        ret.reified = true;
         return ret;
     }
     private reified: boolean = false;
@@ -47,7 +53,9 @@ export class Portal {
                 throw new Error(`Cannot reify portal! No such blueprint as: ${this.blueprint}`);
             }
             const cell: Cell = await this.location.cell.instance.createCell(bp, world.globals);
-            this.destination = cell.getRandomEmptyLocation();
+            const dest = cell.getRandomEmptyLocation();
+            this.destination = dest.toJSON();
+            Entity.spawnPortal(Portal.createReifiedPortal(dest, this.location), dest);
             this.reification_promise = undefined;
         })();
     }

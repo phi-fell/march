@@ -14,7 +14,7 @@ export class Animation {
     private scale: { x: number, y: number } = { 'x': 1, 'y': 1 };
     private angle: number = 0;
     private frames: HTMLCanvasElement[] = [];
-    private origin_anchor = { 'x': 0, 'y': 0 };
+    private origin_anchor = { 'x': 0, 'y': 0, 'angle': 0 };
     private anchors: { [id: string]: Anchor | undefined } = {};
     constructor(id: string) {
         this.image.onload = () => {
@@ -26,6 +26,9 @@ export class Animation {
                 this.offset = json.offset;
                 this.scale = json.scale;
                 if (json.origin_anchor) {
+                    if (json.origin_anchor.angle === undefined) {
+                        json.origin_anchor.angle = 0;
+                    }
                     this.origin_anchor = json.origin_anchor;
                 }
                 if (json.angle !== undefined) {
@@ -130,6 +133,7 @@ export class Animation {
                     }
                     context.translate(this.offset.x, this.offset.y);
                     context.scale(this.scale.x, this.scale.y);
+                    context.drawImage(this.frames[frame]);
                     if (anchored !== undefined) {
                         Object.keys(anchored).forEach((anchor_id) => {
                             const anchor = this.anchors[anchor_id];
@@ -139,12 +143,12 @@ export class Animation {
                                 context.translate(anchor[frame].x, anchor[frame].y)
                                 context.rotate(anchor[frame].rot);
                                 context.translate(-animation.origin_anchor.x, -animation.origin_anchor.y);
+                                context.rotate(animation.origin_anchor.angle);
                                 animation.draw(context, time);
                                 context.pop();
                             }
                         });
                     }
-                    context.drawImage(this.frames[frame]);
                 } else {
                     context.drawImage(this.image);
                 }

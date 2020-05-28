@@ -1,7 +1,33 @@
 @require 'util'
 
-#game
-    background-gradient()
+#game_ui
+    background-color $background_color_vivid
+
+#loading_screen
+    background-color $background_color_vivid
+
+.loading_screen_text
+    font-family Helvetica, sans-serif;
+    font-size 15vmin
+
+.outer 
+    flex-col()
+
+    position absolute
+    height 100%
+    width 100%
+
+    text-align right
+
+.mid 
+    flex-row()
+    flex-shrink()
+
+.inner 
+    flex-shrink()
+
+.pad 
+    flex-full()
 
 p
     margin-bottom 2px
@@ -30,6 +56,23 @@ canvas,#canvasText
 #canvasText
     z-index 4
 
+.view_button
+    color $content_color_faded
+    border-style outset
+    border-color $border_color_faded
+    border-bottom-style none
+
+.view_button.active
+    background-color rgba(0,0,0,0)
+    color $content_color_faded
+    border-bottom-color rgba(0,0,0,0)
+    outline none
+    box-shadow none
+
+.chat-pane
+    font-size 15
+    font-family 'Ubuntu Mono', monospace
+
 .chat-pane_message-list
     overflow-y scroll
     list-style-type none
@@ -50,6 +93,7 @@ canvas,#canvasText
     border 0
     margin 1px
     padding 5px
+    min-width 0
 ul
     margin 0
     padding 0

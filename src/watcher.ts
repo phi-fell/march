@@ -17,10 +17,12 @@ class Watcher {
         args.forEach((val, index, array) => {
             if (val === '-NO_HTTPS') {
                 this.child_args.push('-NO_HTTPS');
-            } else if (val === '-PUBLISH_DIAGNOSTIC_DATA') {
-                this.child_args.push('-PUBLISH_DIAGNOSTIC_DATA');
             } else if (val === '-UNLOCK_DIAGNOSTIC') {
                 this.child_args.push('-UNLOCK_DIAGNOSTIC');
+            } else if (val === '-JS_DEBUG_LIBS') {
+                this.child_args.push('-JS_DEBUG_LIBS');
+            } else if (val === '-STATIC_SITE') {
+                this.child_args.push('-STATIC_SITE');
             } else if (val === '-DEBUG') {
                 this.debug = true;
             }

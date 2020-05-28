@@ -89,8 +89,8 @@ async function main(process_arguments: string[]) {
     io_server.run();
 
     const stdin = process.openStdin();
-    stdin.addListener('data', (d) => { // TODO: swtich to nodejs readline module?
-        runCommand(d.toString().trim(), process.stdout, graceful_exit);
+    stdin.addListener('data', async (d) => { // TODO: swtich to nodejs readline module?
+        await runCommand(d.toString().trim(), io_server, process.stdout, graceful_exit);
     });
 }
 

@@ -15,10 +15,6 @@
                 "min": 25,
                 "max": 100
             }
-        },
-        {
-            "id": "apparel/helmet",
-            "count": 1
         }
     ]
 }

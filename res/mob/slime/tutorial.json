@@ -1,0 +1,22 @@
+{
+    "extends": "slime/base",
+    "name": "Strange Slime",
+    "controller": "INERT",
+    "attributes": {
+        "VITALITY": 10
+    },
+    "items": [
+        {
+            "id": "apparel/helmet",
+            "count": 1
+        },
+        {
+            "id": "apparel/chestpiece",
+            "count": 1
+        },
+        {
+            "id": "weapon/sword",
+            "count": 1
+        }
+    ]
+}

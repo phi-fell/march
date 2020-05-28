@@ -1,8 +1,9 @@
-import * as t from 'io-ts';
+import type * as t from 'io-ts';
 import { CharacterSheet } from '../character/charactersheet';
 import { Inventory } from '../item/inventory';
 import { Random } from '../math/random';
 import type { User } from '../net/user';
+import { ChatCommands } from '../system/chat_commands';
 import { getTilePalette } from '../tile';
 import { version } from '../version';
 import { Action, ActionClasses, ChatActions } from './action';
@@ -12,35 +13,26 @@ import { DIRECTION } from './direction';
 import { Entity, PlayerEntity } from './entity';
 import type { Event } from './event';
 import type { Instance } from './instance';
+import { CurrentPlayerSchema, EntityRef, PlayerVersionSchema, PlayerVersionSchemas, PLAYER_FILE_CURRENT_VERSION, updatePlayerSchema } from './player_schema_versions';
 import { VisibilityManager } from './visibilitymanager';
 import type { World } from './world';
 
 const starting_cell = 'tutorial/start';
 
-const entity_ref_schema = t.type({
-    'instance_id': t.string,
-    'cell_id': t.string,
-    'entity_id': t.string,
-});
-
-type EntityRef = t.TypeOf<typeof entity_ref_schema>;
-
 export type PlayerSchema = t.TypeOf<typeof Player.schema>;
 
 export class Player {
-    public static schema = t.type({
-        'id': t.string,
-        'name': t.string,
-        'sheet': CharacterSheet.schema,
-        'entity_ref': t.union([entity_ref_schema, t.undefined]),
-    });
+    public static schema = PlayerVersionSchema;
 
     public static async fromJSON(user: User, world: World, json: PlayerSchema): Promise<Player> {
-        const ret = new Player(user, world, json.id);
-        ret.name = json.name;
-        ret.sheet = CharacterSheet.fromJSON(json.sheet);
-        ret.entity_ref = json.entity_ref;
-        return ret;
+        if (PlayerVersionSchemas[PLAYER_FILE_CURRENT_VERSION].is(json)) {
+            const ret = new Player(user, world, json.id);
+            ret.name = json.name;
+            ret.sheet = CharacterSheet.fromJSON(json.sheet);
+            ret.entity_ref = json.entity_ref;
+            return ret;
+        }
+        return Player.fromJSON(user, world, updatePlayerSchema(json));
     }
     public static async createPlayer(user: User, world: World, name: string, sheet: CharacterSheet) {
         const blueprint = await world.globals.cell_blueprint_manager.get(starting_cell);
@@ -131,8 +123,8 @@ export class Player {
     public getQuery(query: string) {
         // TODO: handle query
     }
-    public doCommand(command: string) {
-        // TODO: handle command
+    public async doCommand(command: string) {
+        this.sendChatMessage(await ChatCommands.exec(command, this))
     }
     public getNextAction() {
         if (this.queued_action !== undefined) {
@@ -180,9 +172,6 @@ export class Player {
         }
         const cell = await this.world.getCell(this.entity_ref.instance_id, this.entity_ref.cell_id);
         const ent: Entity = cell.getEntity(this.entity_ref.entity_id);
-        if (ent.getComponent('sprite') === 'mob/player') {
-            ent.setComponent('sprite', 'mob/player/A');
-        }
         ent.setComponent('player', this);
         this.entity = ent;
         ent.getComponent('visibility_manager')?.recalculateAllVisibleEntities();
@@ -206,8 +195,9 @@ export class Player {
         this.entity = undefined;
         this._active = false;
     }
-    public toJSON(): PlayerSchema {
+    public toJSON(): CurrentPlayerSchema {
         return {
+            'version': PLAYER_FILE_CURRENT_VERSION,
             'id': this.id,
             'name': this.name,
             'sheet': this.sheet.toJSON(),

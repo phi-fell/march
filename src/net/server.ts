@@ -7,7 +7,8 @@ import { Random } from '../math/random';
 import { File } from '../system/file';
 import type { World } from '../world/world';
 import { Client, CLIENT_CONNECTION_STATE } from './client';
-import { User, UserSchema } from './user';
+import { User } from './user';
+import type { CurrentUserSchema } from './user_schema_versions';
 
 async function getHash(pass: string) {
     return bcrypt.hash(pass, 10);
@@ -111,7 +112,9 @@ export class Server {
         }
         const file = await File.acquireFile(path);
         const hash = getHash(passphrase);
-        const user_json: UserSchema = {
+        const user_json: CurrentUserSchema = {
+            'version': 2,
+            'admin': false,
             'id': id,
             'name': username,
             'auth': {

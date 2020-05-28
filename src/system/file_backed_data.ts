@@ -1,6 +1,6 @@
-import { isRight } from 'fp-ts/lib/Either';
 import * as t from 'io-ts';
 import type { OwnedFile } from './file';
+import { SchemaParser } from './schema_parser';
 
 
 export abstract class FileBackedData {
@@ -8,18 +8,13 @@ export abstract class FileBackedData {
 
     private constructionPromise?: Promise<unknown>;
     protected constructor(private file: OwnedFile) {
-        const fbdata = this;
         // the following lines use a promise so that the constructor of a subclass will not override values set in .fromJSON()
         this.constructionPromise = Promise.resolve().then(async () => {
-            const raw_json = file.getJSON();
-            const json = this.schema.decode(raw_json);
-            if (isRight(json)) {
-                await fbdata.fromJSON(json.right);
+            const data = (new SchemaParser(this.schema)).parse(file.getJSON());
+            if (data.isValid()) {
+                await this.fromJSON(data.getValue());
             } else {
-                console.log('Invalid FileBackedData JSON!');
-                for (const err of json.left) {
-                    console.log(err);
-                }
+                data.printErrors();
             }
         });
     }

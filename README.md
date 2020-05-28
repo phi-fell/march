@@ -20,3 +20,9 @@ For production (https):
 6. enter an SSL directory path (e.g. '/etc/letsencrypt/live/gotg.io/')
 7. enter a key filename (defaults to 'privkey.pem')
 8. enter a cert filename (defaults to 'cert.pem')
+-----
+To run on Windows:
+1. install node and npm (i.e. use the node windows installer)
+2. run windows_setup.bat
+3. run run_dev.bat for an http dev server (prod server instructions and .bat file may be added later)
+4. visit http://localhost

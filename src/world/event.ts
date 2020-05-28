@@ -5,6 +5,7 @@ import { AttackEvent } from './event/attack_event';
 import { BackstepEvent } from './event/backstep_event';
 import { DeathEvent } from './event/death_event';
 import { DropEvent } from './event/drop_event';
+import { EndLoadEvent } from './event/end_load';
 import { EquipArmorEvent } from './event/equip_armor_event';
 import { EquipWeaponEvent } from './event/equip_weapon_event';
 import type { EVENT_TYPE } from './event/event_type';
@@ -16,6 +17,7 @@ import { PickupEvent } from './event/pickup_event';
 import { RemoveEntityEvent } from './event/remove_entity_event';
 import { SayEvent } from './event/say_event';
 import { SetBoardEvent } from './event/set_board_event';
+import { StartLoadEvent } from './event/start_load_event';
 import { StatusChangeEvent } from './event/status_change_event';
 import { StrafeEvent } from './event/strafe_event';
 import { TurnEvent } from './event/turn_event';
@@ -44,6 +46,8 @@ type EventClassArray = {
 export const EventClasses: EventClassArray = [
     MessageEvent,
     SetBoardEvent,
+    StartLoadEvent,
+    EndLoadEvent,
     NewRoundEvent,
     AddEntityEvent,
     RemoveEntityEvent,

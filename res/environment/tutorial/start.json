@@ -1,18 +1,18 @@
 {
     "name": "Dungeon",
-    "generation": "SLIME_CAVE",
-    "width": 30,
-    "height": 30,
+    "generation": "ONE_ROOM",
+    "width": 9,
+    "height": 9,
     "mobs": [
         {
-            "id": "slime/lesser",
-            "count": 10
+            "id": "slime/tutorial",
+            "count": 1
         }
     ],
     "adjacencies": [
         {
-            "id": "slime_cave/upper",
-            "count": 3
+            "id": "forest",
+            "count": 1
         }
     ]
 }

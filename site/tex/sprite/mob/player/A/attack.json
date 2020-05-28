@@ -1,7 +1,8 @@
 {
     "anchors": [
         "weapon",
-        "helmet"
+        "helmet",
+        "chest_armor"
     ],
     "offset": {
         "x": 0,

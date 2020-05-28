@@ -5,8 +5,11 @@ import { Graphics } from './game/graphics.js';
 import { Input } from './game/input.js';
 import type { Board, Entity } from './game/servertypes.js';
 import { getSocketDestination } from './socket_destination.js';
+import { sleep } from './util.js';
 import { registerDirectives } from './vue-directives.js';
 import { registerComponent } from './vue_component.js';
+
+const MIN_LOAD_TIME = 500;
 
 declare var Vue: VueConstructor;
 
@@ -37,11 +40,13 @@ $(document).ready(async () => {
         socket.emit('login', creds);
         socket.on('success', () => {
             console.log('valid credentials, loading');
-            socket.on('game_data', (msg: any) => {
+            socket.on('game_data', async (msg: any) => {
                 if (msg) {
                     app = new Vue({
                         'el': '#game',
                         'data': {
+                            'loading': true,
+                            'load_start': Date.now(),
                             'sheet_view': 'attributes',
                             'board': msg.board as Board,
                             'entities': msg.entities as Entity[],
@@ -85,6 +90,19 @@ $(document).ready(async () => {
                             }
                         },
                         'methods': {
+                            'startLoad'() {
+                                this.load_start = Date.now();
+                                this.loading = true;
+                            },
+                            async 'endLoad'() {
+                                if (Date.now() - this.load_start < MIN_LOAD_TIME) {
+                                    await sleep(MIN_LOAD_TIME - (Date.now() - this.load_start));
+                                }
+                                this.loading = false;
+                            },
+                            'setSheetView'(view: string) {
+                                this.sheet_view = view;
+                            },
                             'sendChatMessage': (action: string) => {
                                 socket.emit('chat_message', action);
                             },
@@ -101,6 +119,7 @@ $(document).ready(async () => {
                     graphics.startDrawLoop();
                     event_handler = new EventHandler(graphics, app, app.chat);
                     input = new Input(socket, event_handler, app.chat);
+                    await app.endLoad();
                     event_handler.startEventProcessingLoop();
                     socket.on('chat', (chat_msg: string) => {
                         app.chat.messages.push(chat_msg);

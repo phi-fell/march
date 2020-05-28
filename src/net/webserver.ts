@@ -137,7 +137,7 @@ export class WebServer {
             res.sendFile(path.resolve('site/logo/favicon.ico'));
         });
 
-        const html_pages = ['test', 'game', 'login', 'home', 'character_creation', 'create'] as const;
+        const html_pages = ['test', 'game', 'login', 'home', 'character_creation', 'create', 'diagnostic'] as const;
         if (this.options.static_site) {
             this.express_app.get('/', (req: Request, res: Response) => {
                 res.sendFile(path.resolve('site/html/index.html'));
