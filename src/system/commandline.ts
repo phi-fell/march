@@ -24,7 +24,7 @@ function getHelp(out: NodeJS.WriteStream) {
     out.write('\nGotG V' + version + ' Launch_ID[' + launch_id + ']\n\nAvailable Commands:\n');
     Object.keys(commands).forEach((cmd) => {
         const signature = cmd + commands[cmd].arg_names.reduce((str, arg) => {
-            return ' [' + arg + ']'
+            return str + ' [' + arg + ']';
         }, '');
         out.write(' > ' + signature);
         out.write(' '.repeat(DESCRIPTION_INDENT - signature.length) + ': ' + commands[cmd].description + '\n');
