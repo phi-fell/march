@@ -251,7 +251,7 @@ export class Client {
                 }
             }
         });
-        socket.on('chat_message', (msg: unknown) => {
+        socket.on('chat_message', async (msg: unknown) => {
             if (typeof msg !== 'string') {
                 return console.log('non string sent as chat message: ' + msg);
             }
@@ -259,7 +259,7 @@ export class Client {
                 const plr = this.user.getActivePlayer();
                 if (plr) {
                     if (msg.startsWith('/')) {
-                        plr.doCommand(msg.substring(1));
+                        await plr.doCommand(msg.substring(1));
                     } else if (msg.startsWith('#')) {
                         plr.doAction(msg.substring(1));
                     } else if (msg.startsWith('?')) {

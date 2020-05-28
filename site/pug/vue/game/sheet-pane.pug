@@ -1,5 +1,5 @@
 .game_sheet-pane.col
-    .flex_none.row
+    .flex_none.row.wrap
         .flex.row(v-for="view of ['attributes','race','skills','equipment','inventory']")
             button.flex.view_button(:class="{ active: self.sheet_view === view }" @click="self.setSheetView(view)") {{view.charAt(0).toUpperCase() + view.substring(1).toLowerCase()}}
     .flex.overflow_auto.pane

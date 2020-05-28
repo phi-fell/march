@@ -3,6 +3,7 @@ import { CharacterSheet } from '../character/charactersheet';
 import { Inventory } from '../item/inventory';
 import { Random } from '../math/random';
 import type { User } from '../net/user';
+import { ChatCommands } from '../system/chat_commands';
 import { getTilePalette } from '../tile';
 import { version } from '../version';
 import { Action, ActionClasses, ChatActions } from './action';
@@ -122,8 +123,8 @@ export class Player {
     public getQuery(query: string) {
         // TODO: handle query
     }
-    public doCommand(command: string) {
-        // TODO: handle command
+    public async doCommand(command: string) {
+        this.sendChatMessage(await ChatCommands.exec(command, this))
     }
     public getNextAction() {
         if (this.queued_action !== undefined) {
