@@ -117,6 +117,10 @@ export class Cell extends FileBackedData {
         return this.board.getClientEntitiesJSON(viewer)
     }
     public getClientJSON(viewer: Entity) {
+        const visibility_manager = viewer.getComponent('visibility_manager');
+        if (!viewer.isActivePlayer() || visibility_manager === undefined) {
+            return;
+        }
         const retTiles: Tile[][] = [];
         const tileAdjacencies: number[][] = [];
         const MAX_RADIUS = 12;
@@ -124,8 +128,17 @@ export class Cell extends FileBackedData {
         const y0 = viewer.location.y - MAX_RADIUS;
         const x1 = viewer.location.x + MAX_RADIUS;
         const y1 = viewer.location.y + MAX_RADIUS;
-        const visibility_manager = viewer.getComponent('visibility_manager');
-        const visible = visibility_manager?.getVisibilityMap();
+        const visible = visibility_manager.getVisibilityMap();
+        const player = viewer.getComponent('player');
+        const seen_cache = player.getSeenCache(this.instance.id, this.id);
+        if (!seen_cache) {
+            console.log('BUG! No seen_cache for cell! cannot getClientJSON');
+            return;
+        }
+        if (seen_cache.width !== this.attributes.width || seen_cache.height !== this.attributes.height) {
+            console.log('BUG! seen_cache dimension do not match cell dimensions! cannoy getClientJSON');
+            return;
+        }
         for (let x = x0; x <= x1; x++) {
             retTiles[x - x0] = [];
             tileAdjacencies[x - x0] = [];
@@ -134,7 +147,7 @@ export class Cell extends FileBackedData {
                     retTiles[x - x0][y - y0] = NO_TILE;
                     tileAdjacencies[x - x0][y - y0] = 0;
                 } else {
-                    retTiles[x - x0][y - y0] = this.board.tiles[x][y];
+                    retTiles[x - x0][y - y0] = seen_cache.tiles[x][y];
                     let adjacencySum = 0;
                     let multiplier = 1;
                     for (let a = -1; a <= 1; a++) {
@@ -143,7 +156,7 @@ export class Cell extends FileBackedData {
                                 y + b < 0 ||
                                 x + a >= this.attributes.width ||
                                 y + b >= this.attributes.height ||
-                                (this.board.tiles[x][y] === this.board.tiles[x + a][y + b])
+                                (seen_cache.tiles[x][y] === seen_cache.tiles[x + a][y + b])
                             ) {
                                 adjacencySum += multiplier;
                             }
