@@ -26,6 +26,7 @@ export class Graphics {
     private height: number = 0;
     private tileContext: GraphicsContext;
     private entityContext: GraphicsContext;
+    private unseenContext: GraphicsContext;
     private fogContext: GraphicsContext;
     private uiContext: GraphicsContext;
     private animations: Record<string, Animation> = {};
@@ -35,6 +36,7 @@ export class Graphics {
     constructor(
         private tileCanvas: HTMLCanvasElement,
         private entityCanvas: HTMLCanvasElement,
+        private unseenCanvas: HTMLCanvasElement,
         private fogCanvas: HTMLCanvasElement,
         private uiCanvas: HTMLCanvasElement,
         private app: { board: Board, entities: Entity[], player_entity: Entity, canvas_labels: { 'text': string, 'x': number, 'y': number }[] },
@@ -53,6 +55,7 @@ export class Graphics {
         }
         this.tileContext = new GraphicsContext(tileCanvas, this.width, this.height);
         this.entityContext = new GraphicsContext(entityCanvas, this.width, this.height);
+        this.unseenContext = new GraphicsContext(unseenCanvas, this.width, this.height);
         this.fogContext = new GraphicsContext(fogCanvas, this.width, this.height);
         this.uiContext = new GraphicsContext(uiCanvas, this.width, this.height);
         const g = this;
@@ -129,6 +132,7 @@ export class Graphics {
         this.height = this.tileCanvas.clientHeight;
         this.tileContext.resize(this.width, this.height);
         this.entityContext.resize(this.width, this.height);
+        this.unseenContext.resize(this.width, this.height);
         this.fogContext.resize(this.width, this.height);
         this.uiContext.resize(this.width, this.height);
         const scaleX = this.width / (this.app.board.width - (CANVAS_OVERFLOW * 2));
@@ -139,7 +143,9 @@ export class Graphics {
         if (this.app.player_entity === undefined) {
             return;
         }
+        this.startUnseenDraw();
         this.drawTiles();
+        this.endUnseenDraw();
         this.drawEntities();
         this.drawFog();
     }
@@ -250,6 +256,21 @@ export class Graphics {
         }
         this.entityContext.pop();
     }
+    private startUnseenDraw() {
+        this.unseenContext.clear();
+        this.unseenContext.push();
+        this.unseenContext.filter(`blur(${this.draw_scale / 2}px)`);
+        this.unseenContext.translate(this.width / 2, this.height / 2);
+        this.unseenContext.scale(this.draw_scale, this.draw_scale)
+        this.unseenContext.translate(-.5, -.5);
+        this.unseenContext.translate(this.app.board.x - this.app.player_entity.location.x, this.app.board.y - this.app.player_entity.location.y);
+        this.unseenContext.color('#000');
+        this.unseenContext.startDraw();
+    }
+    private endUnseenDraw() {
+        this.unseenContext.finalizeDraw();
+        this.unseenContext.pop();
+    }
     private drawTiles() {
         this.tileContext.clear();
         this.tileContext.push();
@@ -265,6 +286,7 @@ export class Graphics {
                     this.tileContext.color('#000');
                     this.tileContext.fillRect(x, y, 1, 1);
                     this.tileContext.pop();
+                    this.unseenContext.addRect(x - 0.5, y - 0.5, 2, 2);
                 } else if (!this.palette[tile]) {
                     this.tileContext.push();
                     this.tileContext.color('#F0F');
