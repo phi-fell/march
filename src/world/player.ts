@@ -4,7 +4,7 @@ import { Inventory } from '../item/inventory';
 import { Random, UUID } from '../math/random';
 import type { User } from '../net/user';
 import { ChatCommands } from '../system/chat_commands';
-import { getTilePalette } from '../tile';
+import { getTileFromName, getTilePalette } from '../tile';
 import { version } from '../version';
 import { Action, ActionClasses, ChatActions } from './action';
 import type { Cell } from './cell';
@@ -31,7 +31,11 @@ export class Player {
             ret.name = json.name;
             ret.sheet = CharacterSheet.fromJSON(json.sheet);
             ret.entity_ref = json.entity_ref;
-            ret.seen_cache = json.seen_cache;
+            const mapping: number[] = json.seen_cache_palette.map(getTileFromName);
+            ret.seen_cache = json.seen_cache.map((cache) => {
+                cache.tiles = cache.tiles.map((row) => row.map((tile) => mapping[tile]));
+                return cache;
+            });
             return ret;
         }
         return Player.fromJSON(user, world, updatePlayerSchema(json));
@@ -227,6 +231,7 @@ export class Player {
             'sheet': this.sheet.toJSON(),
             'entity_ref': this.entity_ref,
             'seen_cache': this.seen_cache,
+            'seen_cache_palette': getTilePalette(),
         };
     }
 }

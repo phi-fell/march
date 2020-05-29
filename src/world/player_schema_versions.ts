@@ -1,5 +1,6 @@
 import * as t from 'io-ts';
 import { CharacterSheet } from '../character/charactersheet';
+import { getTilePalette } from '../tile';
 
 /*
     When changing Player Schema:
@@ -48,6 +49,7 @@ export const PlayerVersionSchema = t.union([
         'sheet': CharacterSheet.schema,
         'entity_ref': t.union([entity_ref_schema, t.undefined]),
         'seen_cache': seen_cache_schema,
+        'seen_cache_palette': t.array(t.string),
     }),
 ]);
 export const PlayerVersionSchemas = PlayerVersionSchema.types;
@@ -70,6 +72,7 @@ const PlayerVersionUpdate = [
             ...json,
             'version': 2,
             'seen_cache': [],
+            'seen_cache_palette': getTilePalette(),
         }
     },
 ] as const;
