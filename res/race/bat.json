@@ -1,0 +1,23 @@
+{
+    "name": "Bat",
+    "description": "A flying mammal with a large wingspan, thick fur, and sharp fangs.",
+    "playable": false,
+    "bodySize": "TINY",
+    "baseAttributes": {
+        "STRENGTH": 2,
+        "ENDURANCE": 2,
+        "VITALITY": 2,
+        "AGILITY": 20,
+        "DEXTERITY": 10,
+        "SPEED": 20,
+        "CHARISMA": 0,
+        "LOGIC": 0,
+        "INTUITION": 0,
+        "PERCEPTION": 0,
+        "WILL": 0,
+        "LUCK": 0
+    },
+    "traits": [
+        "blind"
+    ]
+}
