@@ -33,6 +33,7 @@ html
                 .icon_large.flex.row
                     a.flex.row(href=bug_link target="_blank")
                         img.flex(src="./svg/octicon/bug.svg" alt="Issues")
+                a.flex(href="https://phi-fell.itch.io/gotg/devlog" target="_blank") Devlog
             .bottom_right.row
                 a.ko-fi_button.row.flex_none(href='https://ko-fi.com/P5P31LH97' target="_blank")
                     img.ko-fi_cup.flex_shrink(src="https://cdn.ko-fi.com/cdn/cup-border.png")
@@ -43,6 +44,8 @@ html
                     .pad
                     .inner
                         img#title(src='./tex/ui/logo.png')
+                        #version_div
+                            p#version_text=version_string
                         #splash_outer
                             #splash_inner
                                 p#splash_text(v-cloak) {{splash_text}}

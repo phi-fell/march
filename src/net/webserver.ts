@@ -1,6 +1,7 @@
 import bent from 'bent';
 import cookieParser from 'cookie-parser';
-import express, { NextFunction, Request, Response } from 'express';
+import express, { Request, Response } from 'express';
+import * as path from 'path';
 import pug from 'pug';
 import * as stylus from 'stylus';
 import { File } from '../system/file';
@@ -8,15 +9,19 @@ import { buildAllOcticons } from '../util/octicons';
 import { launch_id, version } from '../version';
 import http = require('http');
 import https = require('https');
-import path = require('path');
 import octicons = require('@primer/octicons');
 import socketIO = require('socket.io');
 
-
-const LINKS: { [id: string]: string } = {
-    'github': 'https://github.com/phi-fell/march',
-    'bugs': 'https://github.com/phi-fell/march/issues',
+export const pug_locals = {
+    'jquery_path': './dependencies/jquery.js',
+    'vue_path': './dependencies/vue.js',
+    'socket_io_path': './socket.io/socket.io.js',
+    'github_link': 'https://github.com/phi-fell/march',
+    'bug_link': 'https://github.com/phi-fell/march/issues',
+    'version_string': 'V' + version,
 };
+
+export const html_pages = ['game', 'login', 'home', 'character_creation', 'create', 'diagnostic'] as const;
 
 export class WebServerOptions {
     public http_port: number = 80;
@@ -137,7 +142,6 @@ export class WebServer {
             res.sendFile(path.resolve('site/logo/favicon.ico'));
         });
 
-        const html_pages = ['test', 'game', 'login', 'home', 'character_creation', 'create', 'diagnostic'] as const;
         if (this.options.static_site) {
             this.express_app.get('/', (req: Request, res: Response) => {
                 res.sendFile(path.resolve('site/html/index.html'));
@@ -154,13 +158,6 @@ export class WebServer {
                 res.sendFile(path.resolve(`site/css${req.path}${req.path.endsWith('.css') ? '' : '.css'}`));
             });
         } else {
-            const pug_locals = {
-                'jquery_path': './dependencies/jquery.js',
-                'vue_path': './dependencies/vue.js',
-                'socket_io_path': './socket.io/socket.io.js',
-                'github_link': LINKS.github,
-                'bug_link': LINKS.bugs,
-            };
             this.express_app.get('/', (req: Request, res: Response) => {
                 res.send(pug.renderFile(path.resolve('site/pug/index.pug'), pug_locals));
             });
@@ -220,15 +217,6 @@ export class WebServer {
 
         this.express_app.use('/svg/octicon', (req: Request, res: Response) => {
             res.sendFile(path.resolve(`site/octicon${req.path}${req.path.endsWith('.svg') ? '' : '.svg'}`));
-        });
-
-        this.express_app.use('/link/:link', (req: Request, res: Response, next: NextFunction) => {
-            const link = req.params.link;
-            if (LINKS[link]) {
-                res.redirect(LINKS[link]);
-            } else {
-                res.sendStatus(404);
-            }
         });
 
         this.express_app.use('/tex', express.static(path.resolve('site/tex')));

@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "push": "npm run validate && git push",
-    "prebuild-dist-html": "pug -O '{\"jquery_path\":\"https://code.jquery.com/jquery-3.4.1.min.js\", \"vue_path\":\"https://cdn.jsdelivr.net/npm/vue\", \"socket_io_path\":\"https://gotg.io/socket.io/socket.io.js\", \"github_link\": \"https://github.com/phi-fell/march\", \"bug_link\": \"https://github.com/phi-fell/march/issues\"}' -o site/html site/pug",
+    "prebuild-dist-html": "node build/build_pug.js",
     "build-dist-html": "cpy . ../../dist --cwd=site/html --parents",
     "build-dist-js": "cpy . ../../dist/js --cwd=site/js --parents",
     "build-dist-css": "cpy . ../../dist/css --cwd=site/css --parents",
@@ -14,7 +14,7 @@
     "build-dist-octicons": "node build/build_octicons.js",
     "prebuild-dist": "npm run build && npm run build-dist-html && npm run build-dist-js && npm run build-dist-css && npm run build-dist-logo && npm run build-dist-tex && npm run build-dist-octicons",
     "build-dist": "zip -r -q dist.zip dist",
-    "build-html": "pug -O '{\"jquery_path\":\"https://code.jquery.com/jquery-3.4.1.min.js\", \"vue_path\":\"https://cdn.jsdelivr.net/npm/vue\", \"socket_io_path\":\"https://gotg.io/socket.io/socket.io.js\", \"github_link\": \"https://github.com/phi-fell/march\", \"bug_link\": \"https://github.com/phi-fell/march/issues\"}' -o site/html site/pug",
+    "build-html": "node build/build_pug.js",
     "build-styles": "stylus -c ./site/stylus --out ./site/css",
     "build-client-js": "tsc -p ./site",
     "build-client": "npm run build-client-js && npm run build-styles && npm run build-html",
