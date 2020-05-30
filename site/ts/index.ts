@@ -3,6 +3,13 @@ import { getSocketDestination } from './socket_destination.js';
 
 declare var Vue: any;
 
+const splash_text = [
+    'NaN% bug free!',
+    'May contain traces of JavaScript',
+    'Made on shared equipment that also processes C and C++',
+    'Ooh Ah Ah Ah Ah!',
+];
+
 $(async () => {
     const creds = loadCredentials();
     if (creds.user && creds.auth) {
@@ -29,6 +36,7 @@ function startApp(logged_in: boolean, username?: string | undefined) {
         'data': {
             logged_in,
             username,
+            'splash_text': (Math.random() < 0.95) ? 'Code by Phi' : (splash_text[Math.floor(Math.random() * splash_text.length)]),
         },
         'methods': {
             clearCredentials,

@@ -1,0 +1,6 @@
+{
+    "name": "Bat",
+    "race": "bat",
+    "sprite": "mob/bat",
+    "controller": "WANDER"
+}

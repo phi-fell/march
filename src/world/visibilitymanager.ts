@@ -1,5 +1,5 @@
 import * as t from 'io-ts';
-import { getTileProps } from '../tile';
+import { getTileProps, NO_TILE } from '../tile';
 import type { Entity } from './entity';
 import type { Event } from './event';
 import { AddEntityEvent } from './event/add_entity_event';
@@ -80,6 +80,36 @@ export class VisibilityManager {
         this.height = this.parent.location.cell.attributes.height;
         this.visible = this.getTileVisibility(this.parent.location, MAX_VISION_RADIUS);
         this.fresh = true;
+        if (this.parent.isActivePlayer()) {
+            const player = this.parent.getComponent('player');
+            let seen_cache = player.getSeenCache(this.loc_cache.instance_id, this.loc_cache.cell_id);
+            if (seen_cache === undefined) {
+                seen_cache = {
+                    'instance_id': this.loc_cache.instance_id,
+                    'cell_id': this.loc_cache.cell_id,
+                    'width': this.width,
+                    'height': this.height,
+                    'tiles': (() => {
+                        const ret: number[][] = [];
+                        for (let i = 0; i < this.width; i++) {
+                            ret[i] = [];
+                            for (let j = 0; j < this.height; j++) {
+                                ret[i][j] = NO_TILE;
+                            }
+                        }
+                        return ret;
+                    })(),
+                }
+                player.addSeenCache(this.loc_cache.instance_id, this.loc_cache.cell_id, seen_cache);
+            }
+            for (let x = 0; x < this.width; x++) {
+                for (let y = 0; y < this.height; y++) {
+                    if (this.visible[x][y]) {
+                        seen_cache.tiles[x][y] = this.loc_cache.cell.getTileAt(x, y);
+                    }
+                }
+            }
+        }
     }
     private getTileVisibility(loc: Location, RADIUS: number): boolean[][] {
         const visible: boolean[][] = [];
@@ -179,7 +209,7 @@ export class VisibilityManager {
             for (let a = pa - r; a <= pa + r; a++) {
                 const x = vertical ? a : b;
                 const y = vertical ? b : a;
-                if (x >= 0 && y >= 0 && x < this.width && y < this.height && getTileProps(this.parent.location.cell.getTileAt(x, y)).obstruction) {
+                if (x >= 0 && y >= 0 && x < this.width && y < this.height && getTileProps(this.loc_cache.cell.getTileAt(x, y)).obstruction) {
                     const start = (a - (pa - r)) / (r + r + 1);
                     const end = ((a + 1) - (pa - r)) / (r + r + 1);
                     this.addShadow(shadows, start, end);
@@ -192,7 +222,7 @@ export class VisibilityManager {
                     const x = vertical ? a_prev : b_prev;
                     const y = vertical ? b_prev : a_prev;
                     if (x >= 0 && y >= 0 && x < this.width && y < this.height
-                        && getTileProps(this.parent.location.cell.getTileAt(x, y)).obstruction) {
+                        && getTileProps(this.loc_cache.cell.getTileAt(x, y)).obstruction) {
                         const start = (a_prev - (pa - r)) / (r + r + 1);
                         const end = ((a_prev + 1) - (pa - r)) / (r + r + 1);
                         this.addShadow(shadows, start, end);

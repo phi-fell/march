@@ -1,5 +1,14 @@
 @require 'util'
 
+@keyframes splash_fade_in {
+    from {
+        color rgba(0,0,0,0)
+    }
+    to {
+        color rgba(0,0,0,1)
+    }
+}
+
 #index
     title-background-gradient()
 
@@ -10,7 +19,46 @@
 #title
     height 30vh
 
+#splash_outer
+    position absolute
+    right 0%
+    width 100%
+    height 1px
+    display: flex
+    flex-direction: row-reverse
+    justify-content: center
+
+#splash_inner
+    flex 0 0 auto
+
+#splash_text
+    margin-top 4vh
+    font-family: Helvetica, sans-serif
+    font-size: 2.5vh;
+    font-weight: bolder
+    color #000
+    animation-duration: 5s;
+    animation-name splash_fade_in;
+    animation-timing-function: ease-in
+    animation-delay: 1s
+    animation-fill-mode: both
+
+#version_div
+    position relative
+    right 0%
+    width 100%
+    height 1px
+
+#version_text
+    left 100%
+    top 100%
+    font-family: Helvetica, sans-serif
+    font-size: 1.5vh;
+    font-weight: bolder
+    color #000
+    
 .outer 
+    overflow hidden
     flex-col()
 
     position absolute
@@ -49,6 +97,7 @@
     left 10px
     bottom 10px
     z-index 1
+    align-items flex-end
 
 .bottom_left > *
     margin-right 20px

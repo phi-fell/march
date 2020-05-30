@@ -1,10 +1,10 @@
 import type * as t from 'io-ts';
 import { CharacterSheet } from '../character/charactersheet';
 import { Inventory } from '../item/inventory';
-import { Random } from '../math/random';
+import { Random, UUID } from '../math/random';
 import type { User } from '../net/user';
 import { ChatCommands } from '../system/chat_commands';
-import { getTilePalette } from '../tile';
+import { getTileFromName, getTilePalette, NO_TILE } from '../tile';
 import { version } from '../version';
 import { Action, ActionClasses, ChatActions } from './action';
 import type { Cell } from './cell';
@@ -13,10 +13,11 @@ import { DIRECTION } from './direction';
 import { Entity, PlayerEntity } from './entity';
 import type { Event } from './event';
 import type { Instance } from './instance';
-import { CurrentPlayerSchema, EntityRef, PlayerVersionSchema, PlayerVersionSchemas, PLAYER_FILE_CURRENT_VERSION, updatePlayerSchema } from './player_schema_versions';
+import { CurrentPlayerSchema, EntityRef, PlayerVersionSchema, PlayerVersionSchemas, PLAYER_FILE_CURRENT_VERSION, SeenCache, updatePlayerSchema } from './player_schema_versions';
 import { VisibilityManager } from './visibilitymanager';
 import type { World } from './world';
 
+const MAX_SEEN_CACHE_COUNT = 10;
 const starting_cell = 'tutorial/start';
 
 export type PlayerSchema = t.TypeOf<typeof Player.schema>;
@@ -30,6 +31,12 @@ export class Player {
             ret.name = json.name;
             ret.sheet = CharacterSheet.fromJSON(json.sheet);
             ret.entity_ref = json.entity_ref;
+            const mapping: number[] = json.seen_cache_palette.map(getTileFromName);
+            mapping[NO_TILE] = NO_TILE;
+            ret.seen_cache = json.seen_cache.map((cache) => {
+                cache.tiles = cache.tiles.map((row) => row.map((tile) => mapping[tile]));
+                return cache;
+            });
             return ret;
         }
         return Player.fromJSON(user, world, updatePlayerSchema(json));
@@ -72,7 +79,29 @@ export class Player {
     private entity?: Entity;
     private _active: boolean = false;
     private queued_action?: Action[] | undefined;
+    private seen_cache: SeenCache = [];
     private constructor(private user: User, private world: World, protected _id: string = Random.uuid()) { }
+    public getSeenCache(instance_id: UUID, cell_id: UUID) {
+        const index = this.seen_cache.findIndex((c) => { return c.instance_id === instance_id && c.cell_id === cell_id });
+        if (index < 0) {
+            return;
+        }
+        const ret = this.seen_cache.splice(index, 1)[0];
+        this.seen_cache.push(ret);
+        return ret;
+    }
+    public addSeenCache(instance_id: UUID, cell_id: UUID, cache: SeenCache[number]) {
+        const index = this.seen_cache.findIndex((c) => { return c.instance_id === instance_id && c.cell_id === cell_id });
+        if (index >= 0) {
+            const err = 'BUG! Attempted to add existing cache to seen_cache!';
+            console.log(err);
+            throw (err);
+        }
+        if (this.seen_cache.length >= MAX_SEEN_CACHE_COUNT) {
+            this.seen_cache.shift();
+        }
+        this.seen_cache.push(cache);
+    }
     public get id() {
         return this._id;
     }
@@ -202,6 +231,8 @@ export class Player {
             'name': this.name,
             'sheet': this.sheet.toJSON(),
             'entity_ref': this.entity_ref,
+            'seen_cache': this.seen_cache,
+            'seen_cache_palette': getTilePalette(),
         };
     }
 }

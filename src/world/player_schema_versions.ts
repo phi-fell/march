@@ -1,5 +1,6 @@
 import * as t from 'io-ts';
 import { CharacterSheet } from '../character/charactersheet';
+import { getTilePalette } from '../tile';
 
 /*
     When changing Player Schema:
@@ -15,7 +16,17 @@ const entity_ref_schema = t.type({
     'entity_id': t.string,
 });
 
+const seen_cache_schema = t.array(t.type({
+    'instance_id': t.string,
+    'cell_id': t.string,
+    'width': t.number,
+    'height': t.number,
+    'tiles': t.array(t.array(t.number)),
+}));
+
 export type EntityRef = t.TypeOf<typeof entity_ref_schema>;
+
+export type SeenCache = t.TypeOf<typeof seen_cache_schema>;
 
 export const PlayerVersionSchema = t.union([
     t.type({
@@ -31,9 +42,18 @@ export const PlayerVersionSchema = t.union([
         'sheet': CharacterSheet.schema,
         'entity_ref': t.union([entity_ref_schema, t.undefined]),
     }),
+    t.type({
+        'version': t.literal(2),
+        'id': t.string,
+        'name': t.string,
+        'sheet': CharacterSheet.schema,
+        'entity_ref': t.union([entity_ref_schema, t.undefined]),
+        'seen_cache': seen_cache_schema,
+        'seen_cache_palette': t.array(t.string),
+    }),
 ]);
 export const PlayerVersionSchemas = PlayerVersionSchema.types;
-export const PLAYER_FILE_CURRENT_VERSION = 1;
+export const PLAYER_FILE_CURRENT_VERSION = 2;
 
 type VersionSchemaArray = typeof PlayerVersionSchemas;
 type VersionSchema<T extends number = number> = t.TypeOf<VersionSchemaArray[T]>;
@@ -45,6 +65,14 @@ const PlayerVersionUpdate = [
         return {
             ...json,
             'version': 1,
+        }
+    },
+    (json: VersionSchema<1>): VersionSchema<2> => {
+        return {
+            ...json,
+            'version': 2,
+            'seen_cache': [],
+            'seen_cache_palette': getTilePalette(),
         }
     },
 ] as const;
@@ -76,5 +104,4 @@ export function updatePlayerSchema(json: VersionSchema): VersionSchema<typeof PL
         return updatePlayerSchema(PlayerVersionUpdate[json.version](json));
     }
     return updatePlayerSchema(PlayerVersionUpdate[0](json));
-
 }
