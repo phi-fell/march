@@ -1,7 +1,16 @@
 import { promises as fs } from 'fs';
 import pug from 'pug';
-import { pug_locals } from './net/webserver';
+import { version } from './version';
 import path = require('path');
+
+const pug_locals = {
+    'jquery_path': 'https://code.jquery.com/jquery-3.4.1.min.js',
+    'vue_path': 'https://cdn.jsdelivr.net/npm/vue',
+    'socket_io_path': 'https://gotg.io/socket.io/socket.io.js',
+    'github_link': 'https://github.com/phi-fell/march',
+    'bug_link': 'https://github.com/phi-fell/march/issues',
+    'version_string': 'V' + version,
+};
 
 async function buildPug(input_dir: string = 'site/pug', output_dir = 'site/html') {
     await fs.mkdir(output_dir, { 'recursive': true });
