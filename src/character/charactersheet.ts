@@ -42,32 +42,6 @@ export class CharacterSheet {
         ret._essence = STARTING_ESSENCE;
         return ret;
     }
-    public static validateAndCreateFromJSON(json: any) {
-        const ret = new CharacterSheet();
-        if (!CharacterRace.raceExists(json.race)) {
-            return null;
-        }
-        ret._race = new CharacterRace(json.race);
-        ret.allocatedAttributes = CharacterAttributes.fromJSON(json.attributes);
-        ret._skills = CharacterSkills.fromJSON(json.skills);
-        ret._essence = STARTING_ESSENCE - ret.getEssenceWorth();
-        if (ret._essence < 0) {
-            return null;
-        }
-        ret.recalculateDerivedStats();
-        ret._status.restoreFully();
-        return ret;
-    }
-    public static fromMobSchemaJSON(json: any) {
-        const ret = new CharacterSheet();
-        ret._race = new CharacterRace(json.race);
-        ret.allocatedAttributes = CharacterAttributes.fromJSON(json.attributes);
-        ret._skills = CharacterSkills.fromJSON(json.skills);
-        ret._equipment = CharacterEquipment.fromJSON(json.equipment);
-        ret.recalculateDerivedStats();
-        ret._status.restoreFully();
-        return ret;
-    }
     public static fromJSON(json: CharacterSheetSchema) {
         const ret = new CharacterSheet();
         ret._additional_traits = json.traits.map(CharacterTrait.fromJSON);
