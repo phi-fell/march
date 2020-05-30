@@ -21,7 +21,7 @@ export const pug_locals = {
     'version_string': 'V' + version,
 };
 
-export const html_pages = ['game', 'login', 'home', 'character_creation', 'create', 'diagnostic'] as const;
+const html_pages = ['game', 'login', 'home', 'character_creation', 'create', 'diagnostic'] as const;
 
 export class WebServerOptions {
     public http_port: number = 80;
