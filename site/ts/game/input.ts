@@ -51,35 +51,35 @@ export class Input {
     constructor(
         private socket: SocketIOClient.Socket,
         private event_handler: EventHandler,
-        private chat: { messages: string[], current_message: string, typing: boolean }
+        private app: { settings_visible: boolean, chat: { messages: string[], current_message: string, typing: boolean } },
     ) {
         document.addEventListener('keydown', this.keydown.bind(this));
     }
     keydown(e: KeyboardEvent) {
-        if (this.chat.typing) {
+        if (this.app.chat.typing) {
             if (CHAT_KEYBOARD_SHORTCUTS[e.keyCode] !== undefined) {
                 switch (CHAT_KEYBOARD_SHORTCUTS[e.keyCode]) {
                     case CHAT_SHORTCUT.SEND:
-                        const msg = this.chat.current_message;
+                        const msg = this.app.chat.current_message;
                         if (msg.length > 0) {
-                            this.chat.messages.push(msg);
+                            this.app.chat.messages.push(msg);
                             message_history.push(msg);
                             this.socket.emit('chat_message', msg);
                         }
-                        this.chat.current_message = '';
+                        this.app.chat.current_message = '';
                         message_cache = '';
                         historyPos = message_history.length;
                         $('#chat_input').blur();
                         return;
                     case CHAT_SHORTCUT.PREV:
                         if (historyPos === message_history.length) {
-                            message_cache = this.chat.current_message;
+                            message_cache = this.app.chat.current_message;
                         }
                         historyPos--;
                         if (historyPos < 0) {
                             historyPos = 0;
                         }
-                        this.chat.current_message = message_history[historyPos];
+                        this.app.chat.current_message = message_history[historyPos];
                         e.preventDefault();
                         return;
                     case CHAT_SHORTCUT.NEXT:
@@ -87,10 +87,10 @@ export class Input {
                         if (historyPos > message_history.length) {
                             historyPos = message_history.length;
                         } else if (historyPos === message_history.length) {
-                            this.chat.current_message = message_cache;
+                            this.app.chat.current_message = message_cache;
                             message_cache = '';
                         } else {
-                            this.chat.current_message = message_history[historyPos];
+                            this.app.chat.current_message = message_history[historyPos];
                         }
                         e.preventDefault();
                         return;
@@ -99,26 +99,28 @@ export class Input {
                         return;
                 }
             }
-        } else if (GAME_KEYBOARD_SHORTCUTS[e.keyCode] !== undefined) {
-            switch (GAME_KEYBOARD_SHORTCUTS[e.keyCode]) {
-                case GAME_SHORTCUT.CHAT:
-                    $('#chat_input').focus();
-                    e.preventDefault();
-                    return;
-                case GAME_SHORTCUT.COMMAND:
-                    $('#chat_input').focus();
-                    return;
-            }
-        } else if (MACRO_SHORTCUTS[e.keyCode] !== undefined) {
-            const msgs = MACRO_SHORTCUTS[e.keyCode];
-            if (this.event_handler.isProcessingEvents()) {
-                if (msgs.includes('#unwait')) {
-                    this.socket.emit('chat_message', '#unwait');
+        } else if (!this.app.settings_visible) {
+            if (GAME_KEYBOARD_SHORTCUTS[e.keyCode] !== undefined) {
+                switch (GAME_KEYBOARD_SHORTCUTS[e.keyCode]) {
+                    case GAME_SHORTCUT.CHAT:
+                        $('#chat_input').focus();
+                        e.preventDefault();
+                        return;
+                    case GAME_SHORTCUT.COMMAND:
+                        $('#chat_input').focus();
+                        return;
                 }
-            } else if (msgs.length > 1) {
-                this.socket.emit('chat_message', `#[${msgs.join(',')}]`);
-            } else {
-                this.socket.emit('chat_message', `#${msgs[0]}`);
+            } else if (MACRO_SHORTCUTS[e.keyCode] !== undefined) {
+                const msgs = MACRO_SHORTCUTS[e.keyCode];
+                if (this.event_handler.isProcessingEvents()) {
+                    if (msgs.includes('#unwait')) {
+                        this.socket.emit('chat_message', '#unwait');
+                    }
+                } else if (msgs.length > 1) {
+                    this.socket.emit('chat_message', `#[${msgs.join(',')}]`);
+                } else {
+                    this.socket.emit('chat_message', `#${msgs[0]}`);
+                }
             }
         }
     }

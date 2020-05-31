@@ -133,7 +133,7 @@ $(document).ready(async () => {
                     graphics.setPalette(msg.palette);
                     graphics.startDrawLoop();
                     event_handler = new EventHandler(graphics, app, app.chat);
-                    input = new Input(socket, event_handler, app.chat);
+                    input = new Input(socket, event_handler, app);
                     await app.endLoad();
                     event_handler.startEventProcessingLoop();
                     socket.on('chat', (chat_msg: string) => {
