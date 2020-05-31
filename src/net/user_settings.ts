@@ -1,5 +1,7 @@
 import * as t from 'io-ts';
 
+const MAX_CONTROL_SETS = 5;
+
 const control_set_schema = t.type({
     'name': t.string,
     'keys': t.record(t.string, t.array(t.string)),
@@ -42,6 +44,16 @@ export class UserSettings {
         return new UserSettings(json.controls, json.graphics);
     }
     constructor(public controls: Controls, public graphics: Graphics) { }
+    public createControlSet(name: string): string {
+        if (this.controls.sets.length >= MAX_CONTROL_SETS) {
+            return 'Maximum number of control sets reached.'
+        }
+        this.controls.sets.push({
+            name,
+            'keys': {},
+        });
+        return 'Control set created.'
+    }
     public toJSON(): UserSettingsSchema {
         return {
             'controls': this.controls,

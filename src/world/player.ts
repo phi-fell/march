@@ -155,7 +155,7 @@ export class Player {
         // TODO: handle query
     }
     public async doCommand(command: string) {
-        this.sendChatMessage(await ChatCommands.exec(command, this))
+        this.sendChatMessage(await ChatCommands.exec(command, this.user, this))
     }
     public getNextAction() {
         if (this.queued_action !== undefined) {
