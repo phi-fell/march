@@ -26,6 +26,9 @@ body
                 game_status-pane.flex.pane.maxh50.border_bottom(v-bind:self="{player_sheet, player_entity}")
                 game_sheet-pane.flex.maxh50(v-bind:self="{player_entity,player_sheet,sheet_view,setSheetView,sendChatMessage}")
             #canvas_div.flex
+                #settings_toggle.row(@click="toggleSettings()")
+                    img.flex(src="./svg/octicon/settings.svg" alt="Settings")
+                settings-menu#settings(v-cloak, v-if="settings_visible" v-bind:self="{settings,settings_view,toggleSettings,setSettingsView,sendChatMessage}")
                 canvas#tileCanvas
                 canvas#entityCanvas
                 canvas#unseenCanvas

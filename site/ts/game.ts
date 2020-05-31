@@ -21,18 +21,22 @@ let event_handler: EventHandler | undefined;
 
 $(document).ready(async () => {
     registerDirectives(Vue);
-    await registerComponent(Vue, 'centered-label');
-    await registerComponent(Vue, 'game_status-pane');
-    await registerComponent(Vue, 'game_sheet-pane');
-    await registerComponent(Vue, 'game_context-pane');
-    await registerComponent(Vue, 'game_social-pane');
-    await registerComponent(Vue, 'game_chat-pane');
-    await registerComponent(Vue, 'game_player-attributes');
-    await registerComponent(Vue, 'game_player-race');
-    await registerComponent(Vue, 'game_player-skills');
-    await registerComponent(Vue, 'game_player-inventory');
-    await registerComponent(Vue, 'game_player-equipment');
-    await registerComponent(Vue, 'game_player-resource');
+    await Promise.all([
+        registerComponent(Vue, 'centered-label'),
+        registerComponent(Vue, 'settings-menu'),
+        registerComponent(Vue, 'settings_controls'),
+        registerComponent(Vue, 'game_status-pane'),
+        registerComponent(Vue, 'game_sheet-pane'),
+        registerComponent(Vue, 'game_context-pane'),
+        registerComponent(Vue, 'game_social-pane'),
+        registerComponent(Vue, 'game_chat-pane'),
+        registerComponent(Vue, 'game_player-attributes'),
+        registerComponent(Vue, 'game_player-race'),
+        registerComponent(Vue, 'game_player-skills'),
+        registerComponent(Vue, 'game_player-inventory'),
+        registerComponent(Vue, 'game_player-equipment'),
+        registerComponent(Vue, 'game_player-resource'),
+    ]);
     const creds = loadCredentials();
     if (creds.user && creds.auth) {
         console.log('logging in...');
@@ -48,6 +52,9 @@ $(document).ready(async () => {
                             'loading': true,
                             'load_start': Date.now(),
                             'sheet_view': 'attributes',
+                            'settings_visible': false,
+                            'settings_view': 'controls',
+                            'settings': { 'controls': 5 },
                             'board': msg.board as Board,
                             'entities': msg.entities as Entity[],
                             'player_entity_id': msg.player_entity,
@@ -102,6 +109,13 @@ $(document).ready(async () => {
                             },
                             'setSheetView'(view: string) {
                                 this.sheet_view = view;
+                            },
+                            'toggleSettings'() {
+                                console.log('toggled!');
+                                this.settings_visible = !this.settings_visible;
+                            },
+                            'setSettingsView'(view: string) {
+                                this.settings_view = view;
                             },
                             'sendChatMessage': (action: string) => {
                                 socket.emit('chat_message', action);

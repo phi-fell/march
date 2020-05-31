@@ -1,0 +1,10 @@
+.settings-menu.col
+    .row.flex_none
+        .pad
+        p.flex_none Settings
+        .pad
+        button.flex_none(@click="self.toggleSettings()") Close Settings
+    .flex_none.row.wrap.mb10
+        .flex_none.row(v-for="view of ['controls', 'graphics']")
+            button.flex.view_button(:class="{ active: self.settings_view === view }" @click="self.setSettingsView(view)") {{view.charAt(0).toUpperCase() + view.substring(1).toLowerCase()}}
+    settings_controls(v-if="self.settings_view==='controls'" v-bind:self="self.settings.controls")
