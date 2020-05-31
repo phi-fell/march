@@ -1,6 +1,7 @@
 import * as t from 'io-ts';
 import { CharacterSheet } from '../character/charactersheet';
 import { Player } from '../world/player';
+import { UserSettings } from './user_settings';
 
 /*
     When changing User Schema:
@@ -56,9 +57,26 @@ export const UserVersionSchema = t.union([
         }),
         'players': t.array(Player.schema),
     }),
+    t.type({
+        'version': t.literal(3),
+        'id': t.string,
+        'name': t.string,
+        'admin': t.boolean,
+        'auth': t.type({
+            'hash': t.string,
+            'token': t.string,
+            'token_creation_time': t.number,
+        }),
+        'settings': UserSettings.schema,
+        'unfinished_player': t.type({
+            'name': t.string,
+            'sheet': CharacterSheet.schema,
+        }),
+        'players': t.array(Player.schema),
+    }),
 ]);
 export const UserVersionSchemas = UserVersionSchema.types;
-export const USER_FILE_CURRENT_VERSION = 2;
+export const USER_FILE_CURRENT_VERSION = 3;
 
 type VersionSchemaArray = typeof UserVersionSchemas;
 type VersionSchema<T extends number = number> = t.TypeOf<VersionSchemaArray[T]>;
@@ -77,6 +95,13 @@ const UserVersionUpdate = [
             ...json,
             'admin': false,
             'version': 2,
+        }
+    },
+    (json: VersionSchema<2>): VersionSchema<3> => {
+        return {
+            ...json,
+            'settings': UserSettings.createFreshWithDefaults(),
+            'version': 3,
         }
     },
 ] as const;
@@ -100,12 +125,14 @@ type R<T extends VersionSchema = VersionSchema<0>, U extends VersionSchema = nev
 type VersionReachableThroughUpdates = R['version'];
 const Assertion: VersionReachableThroughUpdates = USER_FILE_CURRENT_VERSION;
 
+type AgnosticUpdateFunction = (json: VersionSchema) => VersionSchema;
+
 export function updateUserSchema(json: VersionSchema): VersionSchema<typeof USER_FILE_CURRENT_VERSION> {
     if ('version' in json) {
         if (json.version === USER_FILE_CURRENT_VERSION) {
             return json;
         }
-        return updateUserSchema(UserVersionUpdate[json.version](json));
+        return updateUserSchema((UserVersionUpdate[json.version] as AgnosticUpdateFunction)(json));
     }
     return updateUserSchema(UserVersionUpdate[0](json));
 
