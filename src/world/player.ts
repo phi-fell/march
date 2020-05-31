@@ -180,6 +180,7 @@ export class Player {
             'board': ent.location.cell.getClientJSON(ent),
             'palette': getTilePalette(),
             'entities': ent.location.cell.getClientEntitiesJSON(ent),
+            'settings': this.user.settings.toJSON(),
             'messages': [
                 `Gods of the Graemarch Prototype V${version}`,
             ],

@@ -54,7 +54,7 @@ $(document).ready(async () => {
                             'sheet_view': 'attributes',
                             'settings_visible': false,
                             'settings_view': 'controls',
-                            'settings': { 'controls': 5 },
+                            'settings': msg.settings,
                             'board': msg.board as Board,
                             'entities': msg.entities as Entity[],
                             'player_entity_id': msg.player_entity,

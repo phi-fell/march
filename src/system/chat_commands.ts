@@ -1,7 +1,7 @@
 import type { User } from '../net/user';
 import type { Player } from '../world/player';
 
-const DESCRIPTION_INDENT = 10;
+const DESCRIPTION_INDENT = 5;
 
 export const ChatCommands = {
     async 'exec'(command_string: string, user: User, player: Player): Promise<string> {
@@ -32,11 +32,9 @@ export const ChatCommands = {
 function getHelp(): string {
     let ret: string = 'Available Commands:\n';
     Object.keys(commands).forEach((cmd) => {
-        const signature = cmd + commands[cmd].arg_names.reduce((str, arg) => {
-            return str + ' [' + arg + ']'
-        }, '');
-        ret += ' /' + signature;
-        ret += ' '.repeat(DESCRIPTION_INDENT - signature.length) + ': ' + commands[cmd].description + '\n';
+        const args = commands[cmd].arg_names;
+        ret += ' /' + cmd + ((args.length > 0) ? (' [' + args.join('] [') + ']\n') : '\n');
+        ret += ' '.repeat(DESCRIPTION_INDENT) + commands[cmd].description + '\n';
     });
     return ret;
 }
@@ -69,8 +67,8 @@ const commands: { [cmd: string]: Command } = {
         },
     ),
     'add_control_set': new Command(
-        [],
-        'display help dialog',
+        ['name'],
+        'Create a new control set',
         1, 1,
         (tok, user, player) => {
             return user.settings.createControlSet(tok[0]);
