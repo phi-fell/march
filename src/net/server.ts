@@ -9,6 +9,7 @@ import type { World } from '../world/world';
 import { Client, CLIENT_CONNECTION_STATE } from './client';
 import { User } from './user';
 import type { CurrentUserSchema } from './user_schema_versions';
+import { UserSettings } from './user_settings';
 
 async function getHash(pass: string) {
     return bcrypt.hash(pass, 10);
@@ -113,7 +114,7 @@ export class Server {
         const file = await File.acquireFile(path);
         const hash = getHash(passphrase);
         const user_json: CurrentUserSchema = {
-            'version': 2,
+            'version': 3,
             'admin': false,
             'id': id,
             'name': username,
@@ -122,6 +123,7 @@ export class Server {
                 'token': '',
                 'token_creation_time': 0,
             },
+            'settings': UserSettings.createFreshWithDefaults(),
             'unfinished_player': {
                 'name': '',
                 'sheet': CharacterSheet.newPlayerSheet().toJSON(),
