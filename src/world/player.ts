@@ -48,6 +48,7 @@ export class Player {
         }
         const ret = new Player(user, world);
         ret.name = name;
+        sheet.status.restoreFully();
         ret.sheet = sheet;
         const inst: Instance = await world.createInstance();
         const cell: Cell = await inst.createCell(blueprint, user.server.globals);
@@ -65,6 +66,7 @@ export class Player {
             e.setComponent('controller', new PlayerController(e));
             return e;
         })();
+        ent.refreshPlaceInTurnOrder();
         ret.entity_ref = {
             'instance_id': inst.id,
             'cell_id': cell.id,

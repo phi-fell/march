@@ -1,14 +1,29 @@
 import * as t from 'io-ts';
 import type { UUID } from '../math/random';
 import { getTileFromName, getTilePalette, NO_TILE, Tile } from '../tile';
-import { assertUnreachable } from '../util/assert';
 import { ACTION_RESULT } from './action/actionresult';
 import type { Cell } from './cell';
 import { Entity } from './entity';
 import type { Event } from './event';
+import { MessageEvent } from './event/message_event';
 import { NewRoundEvent } from './event/new_round_event';
 import { StatusChangeEvent } from './event/status_change_event';
 import type { Location } from './location';
+
+const initiative_compare_function = (a: Entity, b: Entity) => {
+    const a_sheet = a.getComponent('sheet');
+    const b_sheet = b.getComponent('sheet');
+    if (a_sheet && b_sheet) {
+        return b_sheet.getInitiative() - a_sheet.getInitiative();
+    }
+    if (a_sheet) {
+        return -1;
+    }
+    if (b_sheet) {
+        return 1;
+    }
+    return 0;
+};
 
 export type BoardSchema = t.TypeOf<typeof Board.schema>
 
@@ -133,50 +148,80 @@ export class Board {
         if (this.waitingOnAsyncEntityID !== undefined) {
             return;
         }
-        this.entities.sort((a: Entity, b: Entity) => {
-            const a_sheet = a.getComponent('sheet');
-            const b_sheet = b.getComponent('sheet');
+        // DEBUG to catch any sorting issues
+        /*const sorted = this.entities.reduce((acc, cur, index, arr) => {
+            if (!acc || index === arr.length - 1) {
+                return acc
+            }
+            const a_sheet = cur.getComponent('sheet');
+            const b_sheet = arr[index + 1].getComponent('sheet');
             if (a_sheet && b_sheet) {
-                return b_sheet.getInitiative() - a_sheet.getInitiative();
+                return b_sheet.getInitiative() <= a_sheet.getInitiative();
             }
             if (a_sheet) {
-                return -1;
+                return true;
             }
             if (b_sheet) {
-                return 1;
+                return false;
             }
-            return 0;
-        });
+            return true;
+        }, true);
+        if (!sorted) {
+            console.log('NOT SORTED!!!');
+            console.log('[' + this.entities.map((e) => {
+                const sheet = e.getComponent('sheet');
+                if (sheet === undefined) {
+                    return 'n/a';
+                }
+                return sheet.getInitiative();
+            }).join(', ') + ']');
+        }*/
         for (const ent of this.entities) {
-            const [sheet, controller] = ent.getComponents('sheet', 'controller');
-            if (sheet !== undefined && controller !== undefined) {
-                const action = controller.getNextAction();
-                const result = await action.perform(ent);
-                sheet.useAP(result.cost);
-                if (result.cost && ent.isMob()) {
-                    controller.sendEvent(new StatusChangeEvent(ent));
-                }
-                switch (result.result) {
-                    case ACTION_RESULT.ASYNC:
-                        this.waitingOnAsyncEntityID = ent.id;
-                        return; // waiting on player
-                    case ACTION_RESULT.FAILURE:
-                        controller.popAction();
-                        break; // TODO: should be return; if there is another way to guarantee stalemates will be avoided
-                    case ACTION_RESULT.INSUFFICIENT_AP:
-                        break;
-                    case ACTION_RESULT.REDUNDANT:
-                        controller.popAction();
-                        return;
-                    case ACTION_RESULT.SUCCESS:
-                        controller.popAction();
-                        return;
-                    default:
-                        assertUnreachable(result.result);
-                }
+            if (await this.tryNextAction(ent)) {
+                return;
             }
         }
         this.startNextRound();
+    }
+    private async tryNextAction(entity: Entity, max_attempts: number = 10): Promise<boolean> {
+        const [sheet, controller] = entity.getComponents('sheet', 'controller');
+        if (sheet === undefined || controller === undefined) {
+            return false;
+        }
+        const action = controller.getNextAction();
+        const result = await action.perform(entity);
+        switch (result.result) {
+            case ACTION_RESULT.ASYNC:
+                this.waitingOnAsyncEntityID = entity.id;
+                return true; // waiting on player
+            case ACTION_RESULT.INSUFFICIENT_AP:
+                return false;
+            case ACTION_RESULT.FAILURE:
+            case ACTION_RESULT.REDUNDANT:
+                controller.popAction();
+                if (max_attempts > 1) {
+                    return this.tryNextAction(entity, max_attempts - 1);
+                }
+                if (!entity.isActivePlayer()) {
+                    console.log('Non-Player action attempts exceeded. AP deducted and turn skipped.  Fix enemy AI');
+                } else {
+                    console.log('Player Action attempts exceeded. AP deducted and turn skipped. Player notified.');
+                    controller.sendEvent(new MessageEvent('Too many redundant or failed actions in a row! AP deducted.'));
+                }
+                sheet.useAP(10);
+                entity.refreshPlaceInTurnOrder();
+                return true;
+            case ACTION_RESULT.SUCCESS:
+                sheet.useAP(result.cost);
+                if (result.cost > 0) {
+                    entity.refreshPlaceInTurnOrder();
+                    if (entity.isMob()) {
+                        controller.sendEvent(new StatusChangeEvent(entity));
+                    }
+                }
+                controller.popAction();
+                return true;
+        }
     }
     public startNextRound() {
         for (const ent of this.entities) {
@@ -191,6 +236,14 @@ export class Board {
             }
         }
         this.emitGlobal(new NewRoundEvent());
+        this.entities.sort(initiative_compare_function);
+    }
+    public refreshEntityPlaceInTurnOrder(entity: Entity) {
+        if (this.removeEntity(entity)) {
+            this.addEntity(entity);
+        } else {
+            console.log('BUG! refreshEntityPlaceInTurnOrder somehow called on a board that does not contain the entity!!!');
+        }
     }
     public getEntity(id: UUID): Entity {
         const ret = this.entities.find((ent) => ent.id === id);
@@ -199,15 +252,32 @@ export class Board {
         }
         throw new Error(`No such entity in board as {id:${id}}!`)
     }
-    public addEntity(ent: Entity) {
-        this.entities.push(ent);
+    public addEntity(ent: Entity, constructed: boolean = true) {
+        if (!constructed || !ent.has('sheet')) {
+            this.entities.push(ent);
+            return;
+        }
+        const initiative = ent.getComponent('sheet').getInitiative();
+        const index = this.entities.findIndex((e) => {
+            return !e.has('sheet') || e.getComponent('sheet').getInitiative() < initiative;
+        });
+        if (index === -1) {
+            this.entities.push(ent);
+        } else {
+            this.entities.splice(index, 0, ent);
+        }
     }
-    public removeEntity(ent: Entity) {
+    public removeEntity(ent: Entity): boolean {
         const i = this.entities.findIndex((e) => e.equals(ent));
         if (i === -1) {
             console.log('Cannot remove nonexistent entity from Board!');
+            return false;
+        }
+        if (this.waitingOnAsyncEntityID === ent.id) {
+            this.waitingOnAsyncEntityID = undefined;
         }
         this.entities.splice(i, 1);
+        return true;
     }
     public getClientEntitiesJSON(viewer: Entity) {
         const visibility_manager = viewer.getComponent('visibility_manager');

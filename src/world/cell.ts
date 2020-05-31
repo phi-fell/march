@@ -177,6 +177,9 @@ export class Cell extends FileBackedData {
             'fog_of_war': { 'width': this.attributes.width, 'height': this.attributes.height, visible },
         }
     }
+    public refreshEntityPlaceInTurnOrder(entity: Entity) {
+        this.board.refreshEntityPlaceInTurnOrder(entity);
+    }
     /**
      * Only call this from inside Locatable!
      */
@@ -196,7 +199,7 @@ export class Cell extends FileBackedData {
      */
     public addLocatable(locatable: Locatable, constructed: boolean = true) {
         if (locatable.isEntity()) {
-            this.board.addEntity(locatable);
+            this.board.addEntity(locatable, constructed);
             if (constructed) {
                 // constructed is set to false when called in the Locatable constructor to account for partially constructed objects
                 //      (which do not have components yet and are not valid Entities)

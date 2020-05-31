@@ -142,7 +142,6 @@ export class User extends FileBackedData {
             return;
         }
         const plr = await Player.createPlayer(this, this.world, this.unfinished_player.name, this.unfinished_player.sheet);
-        plr.sheet.status.restoreFully();
         this.unfinished_player = {
             'name': '',
             'sheet': CharacterSheet.newPlayerSheet()
