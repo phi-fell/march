@@ -33,8 +33,8 @@ function getHelp(): string {
     let ret: string = 'Available Commands:\n';
     Object.keys(commands).forEach((cmd) => {
         const args = commands[cmd].arg_names;
-        ret += ' /' + cmd + ((args.length > 0) ? (' [' + args.join('] [') + ']\n') : '\n');
-        ret += ' '.repeat(DESCRIPTION_INDENT) + commands[cmd].description + '\n';
+        ret += ' /' + cmd + ((args.length > 0) ? (' [' + args.join('] [') + ']\n\n') : '\n\n');
+        ret += ' '.repeat(DESCRIPTION_INDENT) + commands[cmd].description + '\n\n';
     });
     return ret;
 }
