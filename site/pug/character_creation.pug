@@ -12,10 +12,10 @@ html
 
 body
     #character_sheet.all.col
-        .nav.row
+        .nav.row(v-cloak)
             a.flex_none(href="./home.html") Back to Home
             button.flex_none(v-on:click="finish()") create
-        .char_sheet.col
+        .char_sheet.col(v-cloak)
             .row
                 .section.row.flex_none
                     p.flex_none='Name: '
