@@ -111,7 +111,6 @@ $(document).ready(async () => {
                                 this.sheet_view = view;
                             },
                             'toggleSettings'() {
-                                console.log('toggled!');
                                 this.settings_visible = !this.settings_visible;
                             },
                             'setSettingsView'(view: string) {

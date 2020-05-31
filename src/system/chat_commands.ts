@@ -30,7 +30,7 @@ export const ChatCommands = {
 }
 
 function getHelp(): string {
-    let ret: string = 'Available Commands:\n';
+    let ret: string = 'Available Commands:\n\n';
     Object.keys(commands).forEach((cmd) => {
         const args = commands[cmd].arg_names;
         ret += ' /' + cmd + ((args.length > 0) ? (' [' + args.join('] [') + ']\n\n') : '\n\n');
