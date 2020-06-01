@@ -144,9 +144,8 @@ function getComponents<T extends ComponentName[]>(components: Components, ...nam
 }
 
 function hasComponents<T extends ComponentName[]>(components: Components, ...names: T): components is ComponentsWith<ValueOfArray<T>> {
-    const c = getComponents(components, ...names);
-    for (const comp of c) {
-        if (comp === undefined) {
+    for (const name of names) {
+        if (components[name] === undefined) {
             return false;
         }
     }

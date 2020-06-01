@@ -116,7 +116,7 @@ export class Board {
     public emitWB(event: Event, whitelist: Location[], blacklist: Location[]) {
         for (const ent of this.entities) {
             const visibility_manager = ent.getComponent('visibility_manager');
-            if (ent.isMob() && visibility_manager !== undefined) {
+            if (visibility_manager !== undefined && ent.isMob()) {
                 const visible = visibility_manager.getVisibilityMap();
                 let w = false;
                 let b = false;
