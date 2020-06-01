@@ -10,6 +10,22 @@ import { NewRoundEvent } from './event/new_round_event';
 import { StatusChangeEvent } from './event/status_change_event';
 import type { Location } from './location';
 
+function findInsertionPos(array: Entity[], min: number, max: number, initiative: number): number {
+    if (min === max) {
+        return min;
+    }
+    const mid = Math.floor((min + max) / 2);
+    const ent = array[mid];
+    const sheet = ent.getComponent('sheet');
+    if (sheet === undefined) {
+        return findInsertionPos(array, min, mid, initiative);
+    }
+    if (sheet.getInitiative() < initiative) {
+        return findInsertionPos(array, min, mid, initiative);
+    }
+    return findInsertionPos(array, mid + 1, max, initiative)
+}
+
 const initiative_compare_function = (a: Entity, b: Entity) => {
     const a_sheet = a.getComponent('sheet');
     const b_sheet = b.getComponent('sheet');
@@ -258,10 +274,8 @@ export class Board {
             return;
         }
         const initiative = ent.getComponent('sheet').getInitiative();
-        const index = this.entities.findIndex((e) => {
-            return !e.has('sheet') || e.getComponent('sheet').getInitiative() < initiative;
-        });
-        if (index === -1) {
+        const index = findInsertionPos(this.entities, 0, this.entities.length, initiative);
+        if (index === this.entities.length) {
             this.entities.push(ent);
         } else {
             this.entities.splice(index, 0, ent);
