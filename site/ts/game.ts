@@ -3,7 +3,7 @@ import { loadCredentials } from './auth.js';
 import { EventHandler } from './game/eventhandler.js';
 import { Graphics } from './game/graphics.js';
 import { Input } from './game/input.js';
-import type { Board, Entity } from './game/servertypes.js';
+import type { Board, Entity, Settings } from './game/servertypes.js';
 import { getSocketDestination } from './socket_destination.js';
 import { sleep } from './util.js';
 import { registerDirectives } from './vue-directives.js';
@@ -25,6 +25,7 @@ $(document).ready(async () => {
         registerComponent(Vue, 'centered-label'),
         registerComponent(Vue, 'settings-menu'),
         registerComponent(Vue, 'settings_controls'),
+        registerComponent(Vue, 'settings_graphics'),
         registerComponent(Vue, 'game_status-pane'),
         registerComponent(Vue, 'game_sheet-pane'),
         registerComponent(Vue, 'game_context-pane'),
@@ -54,7 +55,7 @@ $(document).ready(async () => {
                             'sheet_view': 'attributes',
                             'settings_visible': false,
                             'settings_view': 'controls',
-                            'settings': msg.settings,
+                            'settings': msg.settings as Settings,
                             'board': msg.board as Board,
                             'entities': msg.entities as Entity[],
                             'player_entity_id': msg.player_entity,

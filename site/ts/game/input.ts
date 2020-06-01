@@ -1,4 +1,5 @@
 import type { EventHandler } from './eventhandler';
+import { Settings } from './servertypes';
 
 const MACRO_SHORTCUTS: Record<string, string[]> = {
     '37': ['turn left'],
@@ -51,7 +52,15 @@ export class Input {
     constructor(
         private socket: SocketIOClient.Socket,
         private event_handler: EventHandler,
-        private app: { settings_visible: boolean, chat: { messages: string[], current_message: string, typing: boolean } },
+        private app: {
+            settings_visible: boolean,
+            settings: Settings,
+            chat: {
+                messages: string[],
+                current_message: string,
+                typing: boolean,
+            },
+        },
     ) {
         document.addEventListener('keydown', this.keydown.bind(this));
     }
