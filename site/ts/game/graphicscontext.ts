@@ -13,6 +13,11 @@ export class GraphicsContext {
     public filter(f: string) {
         this.context.filter = f;
     }
+    public setTextProps() {
+        this.context.textAlign = 'center';
+        this.context.textBaseline = 'middle';
+        this.context.font = '1px Arial';
+    }
     public resize(w: number, h: number) {
         this.width = w;
         this.height = h;
@@ -39,6 +44,9 @@ export class GraphicsContext {
     }
     public drawImage(image: HTMLCanvasElement | HTMLImageElement, dx: number = -0.5, dy: number = -0.5, dw: number = 1, dh: number = 1) {
         this.context.drawImage(image, dx, dy, dw, dh);
+    }
+    public drawChar(char: string, dx: number = 0, dy: number = 0) {
+        this.context.fillText(char, dx, dy);
     }
     public color(stroke: string, fill: string = stroke) {
         this.context.strokeStyle = stroke;

@@ -67,6 +67,9 @@ export class User extends FileBackedData {
     public sendEvent(event: EventClientJSON) {
         this.client?.sendEvent(event);
     }
+    public sendSettings() {
+        this.client?.sendSettings(this.settings.toJSON());
+    }
     public getActivePlayer(): Player | undefined {
         if (this.active_player_changing) {
             return;

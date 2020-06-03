@@ -6,6 +6,7 @@ import { CharacterTrait } from '../character/charactertrait';
 import type { EventClientJSON } from '../world/event';
 import type { Server } from './server';
 import type { User } from './user';
+import type { UserSettingsSchema } from './user_settings';
 
 export enum CLIENT_CONNECTION_STATE {
     CONNECTED,
@@ -186,6 +187,9 @@ export class Client {
     }
     public sendEvent(event_json: EventClientJSON) {
         this.socket.emit('event', event_json);
+    }
+    public sendSettings(settings_json: UserSettingsSchema) {
+        this.socket.emit('settings', settings_json);
     }
     public attachUser(user: User) {
         this.user = user;

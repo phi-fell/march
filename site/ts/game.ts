@@ -136,6 +136,9 @@ $(document).ready(async () => {
                     input = new Input(socket, event_handler, app);
                     await app.endLoad();
                     event_handler.startEventProcessingLoop();
+                    socket.on('settings', (settings_msg: Settings) => {
+                        app.settings = settings_msg;
+                    });
                     socket.on('chat', (chat_msg: string) => {
                         app.chat.messages.push(chat_msg);
                     });

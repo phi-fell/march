@@ -4,7 +4,7 @@ import type { Player } from '../world/player';
 const DESCRIPTION_INDENT = 5;
 
 export const ChatCommands = {
-    async 'exec'(command_string: string, user: User, player: Player): Promise<string> {
+    async 'exec'(command_string: string, user: User, player: Player): Promise<string | undefined> {
         try {
             const tok = command_string.split(' ');
             const cmd = tok.shift();
@@ -45,14 +45,14 @@ class Command {
         public description: string,
         public min_args: number,
         public max_args: number,
-        public exec: (tok: string[], user: User, player: Player) => string | Promise<string>,
+        public exec: (tok: string[], user: User, player: Player) => string | undefined | Promise<string | undefined>,
     ) { }
 }
 
 const commands: { [cmd: string]: Command } = {
     '?': new Command(
         [],
-        'display help dialog',
+        'Display help dialog',
         0, 0,
         (_tok) => {
             return getHelp();
@@ -60,7 +60,7 @@ const commands: { [cmd: string]: Command } = {
     ),
     'help': new Command(
         [],
-        'display help dialog',
+        'Display help dialog',
         0, 0,
         (_tok) => {
             return getHelp();
@@ -71,7 +71,19 @@ const commands: { [cmd: string]: Command } = {
         'Create a new control set',
         1, 1,
         (tok, user, player) => {
-            return user.settings.createControlSet(tok[0]);
+            const msg = user.settings.createControlSet(tok[0]);
+            user.sendSettings();
+            return msg;
         },
+    ),
+    'setting': new Command(
+        ['section', 'setting', 'value'],
+        'Change a setting\'s value',
+        3, 3,
+        (tok, user, _player) => {
+            const msg = user.settings.setSetting(tok[0], tok[1], tok[2]);
+            user.sendSettings();
+            return msg;
+        }
     ),
 };
