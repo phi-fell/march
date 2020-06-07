@@ -8,8 +8,8 @@
         "color": "#FFF"
     },
     "bush": {
-        "char": ".",
-        "color": "#FFF"
+        "char": "+",
+        "color": "#0F0"
     },
     "dirt": {
         "char": ".",
@@ -45,6 +45,6 @@
     },
     "tree": {
         "char": "#",
-        "color": "#0F0"
+        "color": "#640"
     }
 }
