@@ -149,6 +149,9 @@ export class Graphics {
         return this.animations[id];
     }
     public playAnimation(id: string, loc: Location, dir: DIRECTION = DIRECTION.NORTH) {
+        if (this.app.settings.graphics.ascii) {
+            return;
+        }
         this.playing_animations.push({
             'anim': this.getAnimation(id),
             loc,

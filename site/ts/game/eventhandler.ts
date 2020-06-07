@@ -1,6 +1,6 @@
 import { sleep } from '../util.js';
 import { Graphics } from './graphics.js';
-import type { Board, CharacterEquipment, CharacterStatus, Entity, Inventory, Item, Location, RELATIVE_DIRECTION } from './servertypes';
+import type { Board, CharacterEquipment, CharacterStatus, Entity, Inventory, Item, Location, RELATIVE_DIRECTION, Settings } from './servertypes';
 import { DIRECTION } from './servertypes.js';
 
 type Events = {
@@ -143,7 +143,14 @@ export class EventHandler {
     private queuedEvents: Event[] = [];
     constructor(
         private graphics: Graphics,
-        private app: { player_entity_id: string, board: Board, entities: Entity[], startLoad: () => void, endLoad: () => Promise<void> },
+        private app: {
+            settings: Settings,
+            player_entity_id: string,
+            board: Board,
+            entities: Entity[],
+            startLoad: () => void,
+            endLoad: () => Promise<void>
+        },
         private chat: { messages: string[] }
     ) { }
     public pushEvent(event: Event) {
@@ -179,6 +186,9 @@ export class EventHandler {
         from.y = to.y
     }
     private async playAnimation(ent: Entity, animation: string) {
+        if (this.app.settings.graphics.ascii) {
+            return;
+        }
         let sprite = ent.components.sprite;
         if (typeof sprite === 'string') {
             sprite = sprite + '/' + animation;
