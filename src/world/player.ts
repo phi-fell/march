@@ -48,6 +48,7 @@ export class Player {
         }
         const ret = new Player(user, world);
         ret.name = name;
+        sheet.status.restoreFully();
         ret.sheet = sheet;
         const inst: Instance = await world.createInstance();
         const cell: Cell = await inst.createCell(blueprint, user.server.globals);
@@ -65,6 +66,7 @@ export class Player {
             e.setComponent('controller', new PlayerController(e));
             return e;
         })();
+        ent.refreshPlaceInTurnOrder();
         ret.entity_ref = {
             'instance_id': inst.id,
             'cell_id': cell.id,
@@ -153,7 +155,10 @@ export class Player {
         // TODO: handle query
     }
     public async doCommand(command: string) {
-        this.sendChatMessage(await ChatCommands.exec(command, this))
+        const msg = await ChatCommands.exec(command, this.user, this);
+        if (msg !== undefined) {
+            this.sendChatMessage(msg);
+        }
     }
     public getNextAction() {
         if (this.queued_action !== undefined) {
@@ -178,6 +183,7 @@ export class Player {
             'board': ent.location.cell.getClientJSON(ent),
             'palette': getTilePalette(),
             'entities': ent.location.cell.getClientEntitiesJSON(ent),
+            'settings': this.user.settings.toJSON(),
             'messages': [
                 `Gods of the Graemarch Prototype V${version}`,
             ],

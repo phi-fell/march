@@ -11,6 +11,7 @@ import type { World } from '../world/world';
 import type { Client } from './client';
 import type { Server } from './server';
 import { CurrentUserSchema, updateUserSchema, UserVersionSchema, UserVersionSchemas, USER_FILE_CURRENT_VERSION } from './user_schema_versions';
+import { UserSettings } from './user_settings';
 
 const TOKEN_LIFESPAN = 1000 * 60 * 60 * 24 * 3; // 3 days in milliseconds
 
@@ -41,6 +42,7 @@ export class User extends FileBackedData {
         'name': '',
         'sheet': new CharacterSheet()
     };
+    public settings: UserSettings = UserSettings.createFreshWithDefaults();
     public players: Player[] = [];
     private activePlayer?: Player;
     private active_player_changing = false;
@@ -64,6 +66,9 @@ export class User extends FileBackedData {
     }
     public sendEvent(event: EventClientJSON) {
         this.client?.sendEvent(event);
+    }
+    public sendSettings() {
+        this.client?.sendSettings(this.settings.toJSON());
     }
     public getActivePlayer(): Player | undefined {
         if (this.active_player_changing) {
@@ -142,7 +147,6 @@ export class User extends FileBackedData {
             return;
         }
         const plr = await Player.createPlayer(this, this.world, this.unfinished_player.name, this.unfinished_player.sheet);
-        plr.sheet.status.restoreFully();
         this.unfinished_player = {
             'name': '',
             'sheet': CharacterSheet.newPlayerSheet()
@@ -168,6 +172,7 @@ export class User extends FileBackedData {
                 'token': this.auth.token,
                 'token_creation_time': this.auth.token_creation_time,
             },
+            'settings': this.settings.toJSON(),
             'unfinished_player': {
                 'name': this.unfinished_player.name,
                 'sheet': this.unfinished_player.sheet.toJSON(),
@@ -181,6 +186,7 @@ export class User extends FileBackedData {
             this._name = json.name;
             this.admin = json.admin;
             this.auth = json.auth;
+            this.settings = UserSettings.fromJSON(json.settings);
             this.unfinished_player = {
                 'name': json.unfinished_player.name,
                 'sheet': CharacterSheet.fromJSON(json.unfinished_player.sheet),

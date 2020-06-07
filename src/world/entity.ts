@@ -137,6 +137,10 @@ export class Entity extends Locatable {
         return this.has('collidable') && this.components.collidable;
     }
 
+    public refreshPlaceInTurnOrder() {
+        this.location.cell.refreshEntityPlaceInTurnOrder(this);
+    }
+
     public equals(other: Entity): boolean {
         return this.id === other.id;
     }

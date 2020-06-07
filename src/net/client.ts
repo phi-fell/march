@@ -6,6 +6,7 @@ import { CharacterTrait } from '../character/charactertrait';
 import type { EventClientJSON } from '../world/event';
 import type { Server } from './server';
 import type { User } from './user';
+import type { UserSettingsSchema } from './user_settings';
 
 export enum CLIENT_CONNECTION_STATE {
     CONNECTED,
@@ -107,10 +108,16 @@ export class Client {
                 if (user_id) {
                     const user = await client.server.getUser(user_id);
                     if (user && user.validateToken(msg.auth)) {
+                        console.log(socket.handshake.address, 'validated as user:', msg.user);
                         socket.emit('success');
                         return socket.disconnect();
                     }
+                    console.log('validate failed, invalid token from user:', msg.user);
+                } else {
+                    console.log('validate from nonexistent username:', msg.user);
                 }
+            } else {
+                console.log('improperly formatted validate:', msg);
             }
             socket.emit('fail');
             socket.disconnect();
@@ -123,6 +130,7 @@ export class Client {
                     if (user) {
                         const token = await user.validateCredentials(msg.user, msg.pass);
                         if (token) {
+                            console.log(socket.handshake.address, 'authorized as user:', msg.user);
                             socket.emit('success', {
                                 'user': msg.user,
                                 'auth': token,
@@ -130,7 +138,12 @@ export class Client {
                             return socket.disconnect();
                         }
                     }
+                    console.log('authorize failed for user:', msg.user);
+                } else {
+                    console.log('authorize from nonexistent username:', msg.user);
                 }
+            } else {
+                console.log('improperly formatted authorize:', msg);
             }
             socket.emit('fail');
             socket.disconnect();
@@ -142,11 +155,13 @@ export class Client {
                     const user = await client.server.getUser(user_id);
                     if (user) {
                         if (user.isLoggedIn()) {
+                            console.log(socket.handshake.address, 'tried to log in as already logged in user:', msg.user);
                             socket.emit('force_disconnect', 'You are already logged in on a different window or device.');
                             socket.disconnect();
                             return;
                         }
                         if (user.login(client, msg.auth)) {
+                            console.log(socket.handshake.address, 'logged in as user:', msg.user);
                             socket.emit('success');
                             socket.removeAllListeners('validate');
                             socket.removeAllListeners('authorize');
@@ -156,7 +171,12 @@ export class Client {
                             return;
                         }
                     }
+                    console.log('login failed for user:', msg.user);
+                } else {
+                    console.log('login from nonexistent username:', msg.user);
                 }
+            } else {
+                console.log('improperly formatted login:', msg);
             }
             socket.emit('fail');
             socket.disconnect();
@@ -167,6 +187,9 @@ export class Client {
     }
     public sendEvent(event_json: EventClientJSON) {
         this.socket.emit('event', event_json);
+    }
+    public sendSettings(settings_json: UserSettingsSchema) {
+        this.socket.emit('settings', settings_json);
     }
     public attachUser(user: User) {
         this.user = user;

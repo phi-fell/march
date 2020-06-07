@@ -96,12 +96,14 @@ type R<T extends VersionSchema = VersionSchema<0>, U extends VersionSchema = nev
 type VersionReachableThroughUpdates = R['version'];
 const Assertion: VersionReachableThroughUpdates = PLAYER_FILE_CURRENT_VERSION;
 
+type AgnosticUpdateFunction = (json: VersionSchema) => VersionSchema;
+
 export function updatePlayerSchema(json: VersionSchema): VersionSchema<typeof PLAYER_FILE_CURRENT_VERSION> {
     if ('version' in json) {
         if (json.version === PLAYER_FILE_CURRENT_VERSION) {
             return json;
         }
-        return updatePlayerSchema(PlayerVersionUpdate[json.version](json));
+        return updatePlayerSchema((PlayerVersionUpdate[json.version] as AgnosticUpdateFunction)(json));
     }
     return updatePlayerSchema(PlayerVersionUpdate[0](json));
 }

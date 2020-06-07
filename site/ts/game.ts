@@ -3,7 +3,7 @@ import { loadCredentials } from './auth.js';
 import { EventHandler } from './game/eventhandler.js';
 import { Graphics } from './game/graphics.js';
 import { Input } from './game/input.js';
-import type { Board, Entity } from './game/servertypes.js';
+import type { Board, Entity, Settings } from './game/servertypes.js';
 import { getSocketDestination } from './socket_destination.js';
 import { sleep } from './util.js';
 import { registerDirectives } from './vue-directives.js';
@@ -21,18 +21,23 @@ let event_handler: EventHandler | undefined;
 
 $(document).ready(async () => {
     registerDirectives(Vue);
-    await registerComponent(Vue, 'centered-label');
-    await registerComponent(Vue, 'game_status-pane');
-    await registerComponent(Vue, 'game_sheet-pane');
-    await registerComponent(Vue, 'game_context-pane');
-    await registerComponent(Vue, 'game_social-pane');
-    await registerComponent(Vue, 'game_chat-pane');
-    await registerComponent(Vue, 'game_player-attributes');
-    await registerComponent(Vue, 'game_player-race');
-    await registerComponent(Vue, 'game_player-skills');
-    await registerComponent(Vue, 'game_player-inventory');
-    await registerComponent(Vue, 'game_player-equipment');
-    await registerComponent(Vue, 'game_player-resource');
+    await Promise.all([
+        registerComponent(Vue, 'centered-label'),
+        registerComponent(Vue, 'settings-menu'),
+        registerComponent(Vue, 'settings_controls'),
+        registerComponent(Vue, 'settings_graphics'),
+        registerComponent(Vue, 'game_status-pane'),
+        registerComponent(Vue, 'game_sheet-pane'),
+        registerComponent(Vue, 'game_context-pane'),
+        registerComponent(Vue, 'game_social-pane'),
+        registerComponent(Vue, 'game_chat-pane'),
+        registerComponent(Vue, 'game_player-attributes'),
+        registerComponent(Vue, 'game_player-race'),
+        registerComponent(Vue, 'game_player-skills'),
+        registerComponent(Vue, 'game_player-inventory'),
+        registerComponent(Vue, 'game_player-equipment'),
+        registerComponent(Vue, 'game_player-resource'),
+    ]);
     const creds = loadCredentials();
     if (creds.user && creds.auth) {
         console.log('logging in...');
@@ -48,6 +53,9 @@ $(document).ready(async () => {
                             'loading': true,
                             'load_start': Date.now(),
                             'sheet_view': 'attributes',
+                            'settings_visible': false,
+                            'settings_view': 'controls',
+                            'settings': msg.settings as Settings,
                             'board': msg.board as Board,
                             'entities': msg.entities as Entity[],
                             'player_entity_id': msg.player_entity,
@@ -103,6 +111,12 @@ $(document).ready(async () => {
                             'setSheetView'(view: string) {
                                 this.sheet_view = view;
                             },
+                            'toggleSettings'() {
+                                this.settings_visible = !this.settings_visible;
+                            },
+                            'setSettingsView'(view: string) {
+                                this.settings_view = view;
+                            },
                             'sendChatMessage': (action: string) => {
                                 socket.emit('chat_message', action);
                             },
@@ -119,9 +133,12 @@ $(document).ready(async () => {
                     graphics.setPalette(msg.palette);
                     graphics.startDrawLoop();
                     event_handler = new EventHandler(graphics, app, app.chat);
-                    input = new Input(socket, event_handler, app.chat);
+                    input = new Input(socket, event_handler, app);
                     await app.endLoad();
                     event_handler.startEventProcessingLoop();
+                    socket.on('settings', (settings_msg: Settings) => {
+                        app.settings = settings_msg;
+                    });
                     socket.on('chat', (chat_msg: string) => {
                         app.chat.messages.push(chat_msg);
                     });

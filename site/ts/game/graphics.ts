@@ -1,6 +1,6 @@
 import { Animation } from './animation.js';
 import { GraphicsContext } from './graphicscontext.js';
-import { DIRECTION } from './servertypes.js';
+import { DIRECTION, Settings } from './servertypes.js';
 import type { Board, Entity, Location } from './servertypes.js';
 
 interface TileSprite {
@@ -14,8 +14,10 @@ interface SubtilesSprite {
 }
 
 type SubPalette = TileSprite | SubtilesSprite;
-
 type Palette = SubPalette[];
+
+type AsciiSubPalette = { char: string, color: string };
+type AsciiPalette = AsciiSubPalette[]
 
 const TILE_SIZE = 32;
 
@@ -30,6 +32,7 @@ export class Graphics {
     private fogContext: GraphicsContext;
     private uiContext: GraphicsContext;
     private animations: Record<string, Animation> = {};
+    private ascii_palette: AsciiPalette = [];
     private palette: Palette = [];
     private draw_scale = 1;
     private playing_animations: { anim: Animation, loc: Location, dir: DIRECTION, start_time: number }[] = [];
@@ -39,7 +42,13 @@ export class Graphics {
         private unseenCanvas: HTMLCanvasElement,
         private fogCanvas: HTMLCanvasElement,
         private uiCanvas: HTMLCanvasElement,
-        private app: { board: Board, entities: Entity[], player_entity: Entity, canvas_labels: { 'text': string, 'x': number, 'y': number }[] },
+        private app: {
+            board: Board,
+            entities: Entity[],
+            player_entity: Entity,
+            settings: Settings,
+            canvas_labels: { 'text': string, 'x': number, 'y': number }[],
+        },
     ) {
         this.width = this.tileCanvas.clientWidth;
         this.height = this.tileCanvas.clientHeight;
@@ -78,6 +87,26 @@ export class Graphics {
     }
     public setPalette(palette: string[]) {
         this.palette = [];
+        $.getJSON('tex/tiles/ascii.json', (json: unknown) => {
+            if (typeof json === 'object' && json !== null) {
+                this.ascii_palette = palette.map((tile) => {
+                    if (tile in json) {
+                        const tile_ascii = (json as Record<string, unknown>)[tile];
+                        if (typeof tile_ascii === 'object' && tile_ascii !== null && 'char' in tile_ascii && 'color' in tile_ascii) {
+                            return tile_ascii as AsciiSubPalette;
+                        }
+                    }
+                    console.log('Ascii data for tile: ' + tile + ' could not be loaded!')
+                    return {
+                        'char': '?',
+                        'color': '#F0F',
+                    }
+                })
+            } else {
+                console.log('Ascii Palette could not be loaded!')
+            }
+            console.log(this.ascii_palette);
+        });
         palette.forEach((name: string, index: number) => {
             const image = new Image();
             image.onload = () => {
@@ -120,6 +149,9 @@ export class Graphics {
         return this.animations[id];
     }
     public playAnimation(id: string, loc: Location, dir: DIRECTION = DIRECTION.NORTH) {
+        if (this.app.settings.graphics.ascii) {
+            return;
+        }
         this.playing_animations.push({
             'anim': this.getAnimation(id),
             loc,
@@ -143,16 +175,29 @@ export class Graphics {
         if (this.app.player_entity === undefined) {
             return;
         }
-        this.startUnseenDraw();
-        this.drawTiles();
-        this.endUnseenDraw();
-        this.drawEntities();
-        this.drawFog();
+        if (this.app.settings.graphics.ascii) {
+            this.unseenContext.clear();
+            this.tileContext.setTextProps();
+            this.entityContext.setTextProps();
+            this.drawAsciiTiles();
+            this.drawAsciiEntities();
+            this.drawFog();
+        } else {
+            this.startUnseenDraw();
+            this.drawTiles();
+            this.endUnseenDraw();
+            this.drawEntities();
+            this.drawFog();
+        }
     }
     private drawFog() {
         this.fogContext.clear();
         this.fogContext.push();
-        this.fogContext.filter(`opacity(75%) blur(${this.draw_scale / 2}px)`); // TODO: change to 75% opacity once cells remember which tiles have yet to be seen
+        if (this.app.settings.graphics.ascii) {
+            this.fogContext.filter(`opacity(75%)`);
+        } else {
+            this.fogContext.filter(`opacity(75%) blur(${this.draw_scale / 2}px)`);
+        }
         this.fogContext.translate(this.width / 2, this.height / 2);
         this.fogContext.scale(this.draw_scale, this.draw_scale)
         this.fogContext.translate(-.5, -.5);
@@ -169,6 +214,72 @@ export class Graphics {
         }
         this.fogContext.finalizeDraw();
         this.fogContext.pop();
+    }
+    private drawAsciiEntities() {
+        this.entityContext.clear();
+        this.entityContext.push();
+        this.entityContext.translate(this.width / 2, this.height / 2);
+        this.entityContext.scale(this.draw_scale, this.draw_scale);
+        this.entityContext.translate(-this.app.player_entity.location.x, -this.app.player_entity.location.y);
+        const entval = (ent: Entity) => {
+            if (this.app.player_entity.id === ent.id) {
+                return 5;
+            }
+            if (ent.components.sheet !== undefined) {
+                return 4;
+            }
+            if (ent.components.item_data !== undefined) {
+                return 3;
+            }
+            if (ent.components.corpse_data !== undefined) {
+                return 2;
+            }
+            if (ent.components.portal !== undefined) {
+                return 1;
+            }
+            return 0;
+        }
+        this.app.entities.sort((a, b) => {
+            return entval(a) - entval(b);
+        });
+        for (const entity of this.app.entities) {
+            this.entityContext.push();
+            this.entityContext.translate(entity.location.x, entity.location.y);
+            const sprite = entity.components.sprite;
+            const dir = entity.components.direction;
+            if (dir !== undefined) {
+                this.entityContext.push();
+                this.entityContext.rotate(DIRECTION[dir] * Math.PI / -2)
+                this.getAnimation('arrow').draw(this.entityContext, 0);
+                this.entityContext.pop();
+            }
+            if (typeof sprite === 'string') {
+                this.entityContext.push();
+                this.entityContext.color('#000');
+                this.entityContext.fillRect();
+                this.entityContext.color('#FFF');
+                if (this.app.player_entity.id === entity.id) {
+                    this.entityContext.drawChar('@');
+                } else if (entity.components.sheet !== undefined) {
+                    this.entityContext.drawChar(sprite.charAt(4));
+                } else if (entity.components.item_data !== undefined) {
+                    this.entityContext.drawChar('&');
+                } else if (entity.components.corpse_data !== undefined) {
+                    this.entityContext.drawChar('_');
+                } else if (entity.components.portal !== undefined) {
+                    this.entityContext.drawChar('>');
+                } else {
+                    this.entityContext.color('#F0F');
+                    this.entityContext.drawChar('?');
+                }
+                this.entityContext.pop();
+            } else {
+                this.entityContext.color('#F0F');
+                this.entityContext.fillRect();
+            }
+            this.entityContext.pop();
+        }
+        this.entityContext.pop();
     }
     private drawEntities() {
         this.entityContext.clear();
@@ -270,6 +381,34 @@ export class Graphics {
     private endUnseenDraw() {
         this.unseenContext.finalizeDraw();
         this.unseenContext.pop();
+    }
+    private drawAsciiTiles() {
+        this.tileContext.clear();
+        this.tileContext.push();
+        this.tileContext.translate(this.width / 2, this.height / 2);
+        this.tileContext.scale(this.draw_scale, this.draw_scale)
+        this.tileContext.translate(this.app.board.x - this.app.player_entity.location.x, this.app.board.y - this.app.player_entity.location.y);
+        for (let x = 0; x < this.app.board.width; x++) {
+            for (let y = 0; y < this.app.board.height; y++) {
+                const tile = this.app.board.tiles[x][y];
+                this.tileContext.push();
+                this.tileContext.translate(x, y);
+                this.tileContext.color('#000');
+                this.tileContext.fillRect();
+                if (tile !== -1) {
+                    if (this.ascii_palette[tile] === undefined) {
+                        this.tileContext.color('#F0F');
+                        this.tileContext.drawChar('?');
+                    } else {
+                        const ascii = this.ascii_palette[tile];
+                        this.tileContext.color(ascii.color);
+                        this.tileContext.drawChar(ascii.char);
+                    }
+                }
+                this.tileContext.pop();
+            }
+        }
+        this.tileContext.pop();
     }
     private drawTiles() {
         this.tileContext.clear();

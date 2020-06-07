@@ -1,0 +1,12 @@
+.settings-menu.col
+    .row.flex_none
+        .pad
+        p.flex_none Settings
+        .pad
+    hr
+    .flex_none.row.wrap.mb10
+        .flex_none.row(v-for="view of ['controls', 'graphics']")
+            button.flex.view_button(:class="{ active: self.settings_view === view }" @click="self.setSettingsView(view)") {{view.charAt(0).toUpperCase() + view.substring(1).toLowerCase()}}
+    hr
+    settings_controls(v-if="self.settings_view==='controls'" v-bind:self="{controls:self.settings.controls,sendChatMessage:self.sendChatMessage}")
+    settings_graphics(v-if="self.settings_view==='graphics'" v-bind:self="{graphics:self.settings.graphics,sendChatMessage:self.sendChatMessage}")

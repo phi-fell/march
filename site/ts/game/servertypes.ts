@@ -216,3 +216,16 @@ export interface Board {
         visible: boolean[][];
     };
 }
+
+export interface Settings {
+    controls: {
+        current: string;
+        sets: {
+            name: string;
+            keys: Record<string, string[]>;
+        }[];
+    };
+    graphics: {
+        ascii: boolean;
+    };
+}

@@ -1,0 +1,50 @@
+{
+    "ash": {
+        "char": ".",
+        "color": "#FFF"
+    },
+    "basalt": {
+        "char": ".",
+        "color": "#FFF"
+    },
+    "bush": {
+        "char": "+",
+        "color": "#0F0"
+    },
+    "dirt": {
+        "char": ".",
+        "color": "#640"
+    },
+    "grass": {
+        "char": ".",
+        "color": "#0F0"
+    },
+    "lava": {
+        "char": "~",
+        "color": "#F00"
+    },
+    "none": {
+        "char": "",
+        "color": "#000"
+    },
+    "obsidian_spire": {
+        "char": ".",
+        "color": "#FFF"
+    },
+    "stone_floor": {
+        "char": ".",
+        "color": "#FFF"
+    },
+    "stone_stairs": {
+        "char": ">",
+        "color": "#FFF"
+    },
+    "stone_wall": {
+        "char": "#",
+        "color": "#FFF"
+    },
+    "tree": {
+        "char": "#",
+        "color": "#640"
+    }
+}

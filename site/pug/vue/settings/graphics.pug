@@ -1,0 +1,4 @@
+.settings_graphics.col
+    .row
+        p Ascii Mode: 
+        input(type="checkbox" :checked="self.graphics.ascii" @input="self.sendChatMessage('/setting graphics ascii ' + $event.target.checked)")

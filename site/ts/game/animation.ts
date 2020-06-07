@@ -1,6 +1,13 @@
+import { int_hash } from '../util.js';
 import { GraphicsContext } from './graphicscontext.js';
 
 type Anchor = { x: number, y: number, rot: number }[];
+
+enum ORDER {
+    NORMAL,
+    REVERSE,
+    RANDOM,
+}
 
 export class Animation {
     private loaded: boolean = false;
@@ -9,6 +16,7 @@ export class Animation {
     private frame_count: number = 0;
     private frame_width: number = 1;
     private frame_height: number = 1;
+    private order: ORDER = ORDER.NORMAL;
     private delay: number = 1000;
     private offset: { x: number, y: number } = { 'x': 0, 'y': 0 };
     private scale: { x: number, y: number } = { 'x': 1, 'y': 1 };
@@ -25,6 +33,13 @@ export class Animation {
                 this.delay = json.delay;
                 this.offset = json.offset;
                 this.scale = json.scale;
+                if (json.order !== undefined) {
+                    if (json.order === 'reverse') {
+                        this.order = ORDER.REVERSE;
+                    } else if (json.order === 'random') {
+                        this.order = ORDER.RANDOM;
+                    }
+                }
                 if (json.origin_anchor) {
                     if (json.origin_anchor.angle === undefined) {
                         json.origin_anchor.angle = 0;
@@ -127,7 +142,14 @@ export class Animation {
         try {
             if (this.loaded) {
                 if (this.animation) {
-                    const frame = Math.floor((time / this.delay) % this.frame_count); // TODO: add Math.max and Math.min to ensure within array bounds?
+                    let frame = 0;
+                    if (this.order === ORDER.NORMAL) {
+                        frame = Math.floor((time / this.delay) % this.frame_count);
+                    } else if (this.order === ORDER.REVERSE) {
+                        frame = (this.frame_count - 1) - (Math.floor((time / this.delay) % this.frame_count));
+                    } else if (this.order === ORDER.RANDOM) {
+                        frame = int_hash(Math.floor(time / this.delay)) % this.frame_count;
+                    }
                     if (this.angle !== 0) {
                         context.rotate(this.angle);
                     }
