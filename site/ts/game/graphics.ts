@@ -177,7 +177,7 @@ export class Graphics {
             this.tileContext.setTextProps();
             this.entityContext.setTextProps();
             this.drawAsciiTiles();
-            this.drawEntities();
+            this.drawAsciiEntities();
             this.drawFog();
         } else {
             this.startUnseenDraw();
@@ -213,7 +213,70 @@ export class Graphics {
         this.fogContext.pop();
     }
     private drawAsciiEntities() {
-        // TODO
+        this.entityContext.clear();
+        this.entityContext.push();
+        this.entityContext.translate(this.width / 2, this.height / 2);
+        this.entityContext.scale(this.draw_scale, this.draw_scale);
+        this.entityContext.translate(-this.app.player_entity.location.x, -this.app.player_entity.location.y);
+        const entval = (ent: Entity) => {
+            if (this.app.player_entity.id === ent.id) {
+                return 5;
+            }
+            if (ent.components.sheet !== undefined) {
+                return 4;
+            }
+            if (ent.components.item_data !== undefined) {
+                return 3;
+            }
+            if (ent.components.corpse_data !== undefined) {
+                return 2;
+            }
+            if (ent.components.portal !== undefined) {
+                return 1;
+            }
+            return 0;
+        }
+        this.app.entities.sort((a, b) => {
+            return entval(a) - entval(b);
+        });
+        for (const entity of this.app.entities) {
+            this.entityContext.push();
+            this.entityContext.translate(entity.location.x, entity.location.y);
+            const sprite = entity.components.sprite;
+            const dir = entity.components.direction;
+            if (dir !== undefined) {
+                this.entityContext.push();
+                this.entityContext.rotate(DIRECTION[dir] * Math.PI / -2)
+                this.getAnimation('arrow').draw(this.entityContext, 0);
+                this.entityContext.pop();
+            }
+            if (typeof sprite === 'string') {
+                this.entityContext.push();
+                this.entityContext.color('#000');
+                this.entityContext.fillRect();
+                this.entityContext.color('#FFF');
+                if (this.app.player_entity.id === entity.id) {
+                    this.entityContext.drawChar('@');
+                } else if (entity.components.sheet !== undefined) {
+                    this.entityContext.drawChar(sprite.charAt(4));
+                } else if (entity.components.item_data !== undefined) {
+                    this.entityContext.drawChar('&');
+                } else if (entity.components.corpse_data !== undefined) {
+                    this.entityContext.drawChar('_');
+                } else if (entity.components.portal !== undefined) {
+                    this.entityContext.drawChar('>');
+                } else {
+                    this.entityContext.color('#F0F');
+                    this.entityContext.drawChar('?');
+                }
+                this.entityContext.pop();
+            } else {
+                this.entityContext.color('#F0F');
+                this.entityContext.fillRect();
+            }
+            this.entityContext.pop();
+        }
+        this.entityContext.pop();
     }
     private drawEntities() {
         this.entityContext.clear();
