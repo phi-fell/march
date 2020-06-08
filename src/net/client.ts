@@ -85,6 +85,7 @@ export class Client {
                 try {
                     const { success, error, token } = await client.server.createUser(msg.user, msg.pass);
                     if (success) {
+                        console.log(socket.handshake.address, 'created a new user account:', msg.user);
                         socket.emit('success', {
                             'user': msg.user,
                             'auth': token,
