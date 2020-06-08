@@ -99,6 +99,7 @@ export class User extends FileBackedData {
         await plr.setActive();
         this.activePlayer = plr;
         this.active_player_changing = false;
+        console.log(this.name, 'is now playing as player:', this.activePlayer.name);
         return true;
     }
     protected unsetActivePlayer() {
@@ -132,11 +133,13 @@ export class User extends FileBackedData {
         if (this.validateToken(token)) {
             this.client = client;
             client.attachUser(this);
+            console.log(this.name, 'logged in');
             return true;
         }
         return false;
     }
     public logout() {
+        console.log(this.name, 'logged out');
         this.client = undefined;
     }
     public async finishPlayer() {
@@ -153,6 +156,7 @@ export class User extends FileBackedData {
         };
         this.players.push(plr);
         this.save();
+        console.log(this.name, 'created a new player named ', plr.name);
     }
     public getGameData() {
         if (!this.activePlayer) {
