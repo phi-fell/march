@@ -35,10 +35,6 @@
         "char": ".",
         "color": "#FFF"
     },
-    "stone_stairs": {
-        "char": ">",
-        "color": "#FFF"
-    },
     "stone_wall": {
         "char": "#",
         "color": "#FFF"
