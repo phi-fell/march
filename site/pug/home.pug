@@ -11,8 +11,17 @@ html
         link(rel="stylesheet" type="text/css" href="./css/home.css")
 
 body
-    #home.all
-        .row(v-cloak)
+    #loading_screen.all.col 
+        .flex
+        .row.flex_none
+            .flex
+            h1.loading_screen_text LOADING...
+            .flex
+        .flex
+    #home.all.col(v-cloak)
+        .flex
+        .row.flex_none
+            .flex
             .section.flex_none
                 .col
                     p Players ({{players.length}}/{{MAX_PLAYERS}})
@@ -21,3 +30,5 @@ body
                         .flex
                         button#new_player_button New Player
             .flex
+        .flex
+        .flex
