@@ -1,4 +1,4 @@
-import { loadCredentials } from './auth.js';
+import { clearCredentials, loadCredentials } from './auth.js';
 import { getSocketDestination } from './socket_destination.js';
 import { registerComponent } from './vue_component.js';
 
@@ -26,6 +26,9 @@ $(document).ready(async () => {
                             return plr;
                         }),
                         'MAX_PLAYERS': 5,
+                    },
+                    'methods': {
+                        clearCredentials,
                     },
                     'mounted': () => {
                         $('#new_player_button').on('click', () => {

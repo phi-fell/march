@@ -19,6 +19,9 @@ body
             .flex
         .flex
     #home.all.col(v-cloak)
+        a.nav_left.round_border.row-r(href="" @click="clearCredentials")
+            p.flex_none Sign Out
+            img.icon.flex(src="./svg/octicon/sign-out.svg")
         .flex
         .row.flex_none
             .flex
