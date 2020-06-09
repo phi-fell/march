@@ -14,6 +14,7 @@ import { CurrentUserSchema, updateUserSchema, UserVersionSchema, UserVersionSche
 import { UserSettings } from './user_settings';
 
 const TOKEN_LIFESPAN = 1000 * 60 * 60 * 24 * 3; // 3 days in milliseconds
+const MAX_PLAYERS = 5;
 
 function generateAuthToken() {
     return Random.uuid();
@@ -153,6 +154,12 @@ export class User extends FileBackedData {
             return {
                 'success': false,
                 'message': 'Unplayable race selected! (This might be a bug)',
+            };
+        }
+        if (this.players.length >= MAX_PLAYERS) {
+            return {
+                'success': false,
+                'message': 'Maximum number of players reached!',
             };
         }
         const plr = await Player.createPlayer(this, this.world, this.unfinished_player.name, this.unfinished_player.sheet);
