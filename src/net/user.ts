@@ -142,12 +142,18 @@ export class User extends FileBackedData {
         console.log(this.name, 'logged out');
         this.client = undefined;
     }
-    public async finishPlayer() {
+    public async finishPlayer(): Promise<{ success: boolean, message: string }> {
         if (this.unfinished_player.name.length < 3) {
-            return;
+            return {
+                'success': false,
+                'message': 'Name is too short!',
+            };
         }
         if (!this.unfinished_player.sheet.race.playable) {
-            return;
+            return {
+                'success': false,
+                'message': 'Unplayable race selected! (This might be a bug)',
+            };
         }
         const plr = await Player.createPlayer(this, this.world, this.unfinished_player.name, this.unfinished_player.sheet);
         this.unfinished_player = {
@@ -157,6 +163,10 @@ export class User extends FileBackedData {
         this.players.push(plr);
         this.save();
         console.log(this.name, 'created a new player named ', plr.name);
+        return {
+            'success': true,
+            'message': '',
+        };
     }
     public getGameData() {
         if (!this.activePlayer) {

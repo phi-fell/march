@@ -101,9 +101,8 @@ $(document).ready(async () => {
                                 if ($('#name').text().length < 3) {
                                     alert('Name is too short!');
                                 } else {
-                                    socket.emit('character_creation', { 'action': 'finish' });
                                     app.button_disable_override = true;
-                                    window.location.href = './home.html';
+                                    socket.emit('character_creation', { 'action': 'finish' });
                                 }
                             },
                         },
@@ -146,6 +145,13 @@ $(document).ready(async () => {
             });
             socket.on('available_traits', (msg: any) => {
                 app.traits = msg;
+            });
+            socket.on('character_creation_success', () => {
+                window.location.href = './home.html';
+            });
+            socket.on('character_creation_fail', (fail_msg: string) => {
+                alert(fail_msg);
+                app.button_disable_override = false;
             });
             socket.emit('get', 'unfinished_player');
             socket.emit('get', 'available_races');

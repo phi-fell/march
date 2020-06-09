@@ -232,7 +232,12 @@ export class Client {
         socket.on('character_creation', async (msg: any) => {
             if (this.user) {
                 if (msg.action === 'finish') {
-                    this.user.finishPlayer();
+                    const { success, message } = await this.user.finishPlayer();
+                    if (success) {
+                        socket.emit('character_creation_success');
+                    } else {
+                        socket.emit('character_creation_fail', message);
+                    }
                 } else if (msg.action === 'name') {
                     this.user.unfinished_player.name = msg.name;
                 } else if (msg.action === 'increment_attribute') {
