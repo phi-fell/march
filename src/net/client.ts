@@ -280,6 +280,17 @@ export class Client {
                 }
             }
         });
+        socket.on('delete_player', async (msg: any) => {
+            if (this.user) {
+                if (typeof msg === 'number') {
+                    this.user.delete_player(msg);
+                    socket.emit('delete_player_success');
+                } else {
+                    console.log('Could not delete Players[' + msg + ']!');
+                    socket.emit('delete_player_fail', 'Index must be a number!');
+                }
+            }
+        });
         socket.on('chat_message', async (msg: unknown) => {
             if (typeof msg !== 'string') {
                 return console.log('non string sent as chat message: ' + msg);

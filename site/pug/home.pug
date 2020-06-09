@@ -27,8 +27,12 @@ body
             .flex
             .section.flex_none
                 .col
-                    p Players ({{players.length}}/{{MAX_PLAYERS}})
-                    player.row(v-for="player in players" v-bind:key="player.id" v-bind:self="player")
+                    .row
+                        p Players ({{players.length}}/{{MAX_PLAYERS}})
+                        .flex
+                        button#show_delete_player_button(v-if="!show_delete" @click="show_delete = true") -
+                        button#cancel_delete_player_button(v-if="show_delete" @click="show_delete = false") Cancel
+                    player.row(v-for="(player, index) in players" v-bind:key="player.id" v-bind:self="{player,index,show_delete,delete_player}")
                     .row
                         .flex
                         button#new_player_button(v-if="players.length < MAX_PLAYERS") New Player

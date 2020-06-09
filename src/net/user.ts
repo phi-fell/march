@@ -79,6 +79,9 @@ export class User extends FileBackedData {
             return this.activePlayer;
         }
     }
+    public delete_player(index: number) {
+        this.players.splice(index, 1);
+    }
     public async setActivePlayer(index: number | undefined): Promise<boolean> {
         if (this.active_player_changing) {
             return false;

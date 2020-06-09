@@ -26,9 +26,20 @@ $(document).ready(async () => {
                             return plr;
                         }),
                         'MAX_PLAYERS': 5,
+                        'show_delete': false,
                     },
                     'methods': {
                         clearCredentials,
+                        'delete_player'(index: number, name: string) {
+                            const input = prompt("Are you sure you wish to delete this player? This is permanent and cannot be undone! If you're certain, please confirm by typing out the name of the player to delete:", '');
+                            if (input !== null && input !== undefined) {
+                                if (input === name) {
+                                    socket.emit('delete_player', index);
+                                } else {
+                                    alert('Incorrect name entered.');
+                                }
+                            }
+                        }
                     },
                     'mounted': () => {
                         $('#new_player_button').on('click', () => {
@@ -36,6 +47,14 @@ $(document).ready(async () => {
                             window.location.href = './character_creation.html';
                         });
                     },
+                });
+                socket.on('delete_player_success', () => {
+                    alert('player succesfully deleted');
+                    window.location.reload(false);
+                });
+                socket.on('delete_player_fail', (fail_msg: string) => {
+                    console.log('player deletion failed!', fail_msg);
+                    alert('Could not delete player! An error occured: ' + msg);
                 });
             });
             socket.on('active_player_response', (resp: any) => {
