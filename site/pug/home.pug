@@ -28,7 +28,7 @@ body
                     player.row(v-for="player in players" v-bind:key="player.id" v-bind:self="player")
                     .row
                         .flex
-                        button#new_player_button New Player
+                        button#new_player_button(v-if="players.length < MAX_PLAYERS") New Player
             .flex
         .flex
         .flex
