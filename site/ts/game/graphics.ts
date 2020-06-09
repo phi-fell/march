@@ -247,17 +247,12 @@ export class Graphics {
             this.entityContext.translate(entity.location.x, entity.location.y);
             const sprite = entity.components.sprite;
             const dir = entity.components.direction;
-            if (dir !== undefined) {
-                this.entityContext.push();
-                this.entityContext.rotate(DIRECTION[dir] * Math.PI / -2)
-                this.getAnimation('arrow').draw(this.entityContext, 0);
-                this.entityContext.pop();
-            }
             if (typeof sprite === 'string') {
                 this.entityContext.push();
                 this.entityContext.color('#000');
                 this.entityContext.fillRect();
                 this.entityContext.color('#FFF');
+                this.entityContext.scale(0.75, 0.75);
                 if (this.app.player_entity.id === entity.id) {
                     this.entityContext.drawChar('@');
                 } else if (entity.components.sheet !== undefined) {
@@ -273,6 +268,12 @@ export class Graphics {
                     this.entityContext.drawChar('?');
                 }
                 this.entityContext.pop();
+                if (dir !== undefined) {
+                    this.entityContext.push();
+                    this.entityContext.rotate(DIRECTION[dir] * Math.PI / -2)
+                    this.getAnimation('arrow').draw(this.entityContext, 0);
+                    this.entityContext.pop();
+                }
             } else {
                 this.entityContext.color('#F0F');
                 this.entityContext.fillRect();
