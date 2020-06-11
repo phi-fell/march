@@ -1,8 +1,8 @@
 {
     "name": "Dungeon",
-    "generation": "ONE_ROOM",
-    "width": 9,
-    "height": 9,
+    "generation": "TUTORIAL",
+    "width": 5,
+    "height": 5,
     "mobs": [
         {
             "id": "slime/tutorial",

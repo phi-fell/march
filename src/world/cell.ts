@@ -100,7 +100,7 @@ export class Cell extends FileBackedData {
         let max_iter = 10000;
         do {
             if (max_iter-- < 0) {
-                console.log('looped too many times!');
+                console.log('ERROR!!! getRandomEmptyLocation() looped too many times!');
                 return new Location(-1, -1, this);
             }
             if (rand !== undefined) {

@@ -19,11 +19,12 @@ export class TutorialGenerator implements CellGenerator {
     private generate(board: Board) {
         for (let i = 0; i < board.width; i++) {
             for (let j = 0; j < board.height; j++) {
-                if (i === 0 || j === 0 || i === board.width - 1 || j === board.height - 1) {
-                    board.tiles[i][j] = getTileFromName('stone_wall');
-                } else {
-                    board.tiles[i][j] = getTileFromName('stone_floor');
-                }
+                board.tiles[i][j] = getTileFromName('stone_wall')
+            }
+        }
+        for (let i = 1; i < 4; i++) {
+            for (let j = 1; j < 4; j++) {
+                board.tiles[i][j] = getTileFromName('stone_floor')
             }
         }
     }
