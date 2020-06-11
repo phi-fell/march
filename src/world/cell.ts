@@ -156,7 +156,7 @@ export class Cell extends FileBackedData {
                                 y + b < 0 ||
                                 x + a >= this.attributes.width ||
                                 y + b >= this.attributes.height ||
-                                (seen_cache.tiles[x][y] === seen_cache.tiles[x + a][y + b])
+                                (seen_cache.tiles[x][y] === this.board.tiles[x + a][y + b])
                             ) {
                                 adjacencySum += multiplier;
                             }
