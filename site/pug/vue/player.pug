@@ -1,5 +1,9 @@
-.player
-    p {{self.name}}
-    p -
-    p {{self.sheet.race.name}}, Unclassed
-    button.play_button(v-if="self.play" v-on:click="self.play()") Play
+.player.col
+    .row
+        p {{self.player.name}}
+        p -
+        p {{self.player.sheet.race.name}}, Unclassed
+    .row 
+        .flex
+        button.flex_none.play_button(v-if="self.player.play && !self.show_delete" v-on:click="self.player.play()") Play
+        button.flex_none.delete_button(v-if="self.show_delete" v-on:click="self.delete_player(self.index, self.player.name)") Delete

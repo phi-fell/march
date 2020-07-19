@@ -14,6 +14,7 @@ import { CurrentUserSchema, updateUserSchema, UserVersionSchema, UserVersionSche
 import { UserSettings } from './user_settings';
 
 const TOKEN_LIFESPAN = 1000 * 60 * 60 * 24 * 3; // 3 days in milliseconds
+const MAX_PLAYERS = 5;
 
 function generateAuthToken() {
     return Random.uuid();
@@ -78,6 +79,9 @@ export class User extends FileBackedData {
             return this.activePlayer;
         }
     }
+    public delete_player(index: number) {
+        this.players.splice(index, 1);
+    }
     public async setActivePlayer(index: number | undefined): Promise<boolean> {
         if (this.active_player_changing) {
             return false;
@@ -99,6 +103,7 @@ export class User extends FileBackedData {
         await plr.setActive();
         this.activePlayer = plr;
         this.active_player_changing = false;
+        console.log(this.name, 'is now playing as player:', this.activePlayer.name);
         return true;
     }
     protected unsetActivePlayer() {
@@ -132,19 +137,33 @@ export class User extends FileBackedData {
         if (this.validateToken(token)) {
             this.client = client;
             client.attachUser(this);
+            console.log(this.name, 'logged in');
             return true;
         }
         return false;
     }
     public logout() {
+        console.log(this.name, 'logged out');
         this.client = undefined;
     }
-    public async finishPlayer() {
+    public async finishPlayer(): Promise<{ success: boolean, message: string }> {
         if (this.unfinished_player.name.length < 3) {
-            return;
+            return {
+                'success': false,
+                'message': 'Name is too short!',
+            };
         }
         if (!this.unfinished_player.sheet.race.playable) {
-            return;
+            return {
+                'success': false,
+                'message': 'Unplayable race selected! (This might be a bug)',
+            };
+        }
+        if (this.players.length >= MAX_PLAYERS) {
+            return {
+                'success': false,
+                'message': 'Maximum number of players reached!',
+            };
         }
         const plr = await Player.createPlayer(this, this.world, this.unfinished_player.name, this.unfinished_player.sheet);
         this.unfinished_player = {
@@ -153,6 +172,11 @@ export class User extends FileBackedData {
         };
         this.players.push(plr);
         this.save();
+        console.log(this.name, 'created a new player named ', plr.name);
+        return {
+            'success': true,
+            'message': '',
+        };
     }
     public getGameData() {
         if (!this.activePlayer) {

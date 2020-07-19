@@ -85,6 +85,7 @@ export class Client {
                 try {
                     const { success, error, token } = await client.server.createUser(msg.user, msg.pass);
                     if (success) {
+                        console.log(socket.handshake.address, 'created a new user account:', msg.user);
                         socket.emit('success', {
                             'user': msg.user,
                             'auth': token,
@@ -231,7 +232,12 @@ export class Client {
         socket.on('character_creation', async (msg: any) => {
             if (this.user) {
                 if (msg.action === 'finish') {
-                    this.user.finishPlayer();
+                    const { success, message } = await this.user.finishPlayer();
+                    if (success) {
+                        socket.emit('character_creation_success');
+                    } else {
+                        socket.emit('character_creation_fail', message);
+                    }
                 } else if (msg.action === 'name') {
                     this.user.unfinished_player.name = msg.name;
                 } else if (msg.action === 'increment_attribute') {
@@ -271,6 +277,17 @@ export class Client {
                         'success': false,
                         'msg': 'Index must be a number!',
                     });
+                }
+            }
+        });
+        socket.on('delete_player', async (msg: any) => {
+            if (this.user) {
+                if (typeof msg === 'number') {
+                    this.user.delete_player(msg);
+                    socket.emit('delete_player_success');
+                } else {
+                    console.log('Could not delete Players[' + msg + ']!');
+                    socket.emit('delete_player_fail', 'Index must be a number!');
                 }
             }
         });

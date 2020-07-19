@@ -100,7 +100,7 @@ export class Cell extends FileBackedData {
         let max_iter = 10000;
         do {
             if (max_iter-- < 0) {
-                console.log('looped too many times!');
+                console.log('ERROR!!! getRandomEmptyLocation() looped too many times!');
                 return new Location(-1, -1, this);
             }
             if (rand !== undefined) {
@@ -156,7 +156,7 @@ export class Cell extends FileBackedData {
                                 y + b < 0 ||
                                 x + a >= this.attributes.width ||
                                 y + b >= this.attributes.height ||
-                                (seen_cache.tiles[x][y] === seen_cache.tiles[x + a][y + b])
+                                (seen_cache.tiles[x][y] === this.board.tiles[x + a][y + b])
                             ) {
                                 adjacencySum += multiplier;
                             }
