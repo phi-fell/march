@@ -60,7 +60,7 @@
     "@types/stylus": "^0.48.32",
     "@types/uuid": "^7.0.2",
     "async": "^3.2.0",
-    "bcrypt": "^4.0.1",
+    "bcrypt": "^5.0.0",
     "bent": "^7.1.2",
     "cookie-parser": "^1.4.5",
     "cpy-cli": "^3.1.0",
